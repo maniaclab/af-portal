@@ -1,0 +1,256 @@
+{%extends "base.html"%}
+
+{%block title%}
+  {{group['display_name']}}
+{%endblock%}
+
+{%block body%}
+<section id="cli-access" class="bg-light">
+  <div class="container col-lg-12 mx-auto">
+
+    <div class="row">
+      <div class="col-lg-12 mx-auto">
+        {%include 'messages.html' %}
+        <ol class="breadcrumb">
+          <!-- <li class="breadcrumb-item"><a href="{{url_for('view_group', group_name='root.osg')}}">Open Science Grid</a></li> -->
+          {% if group_name == 'root.osg' %}
+          <li class="breadcrumb-item"><a href="{{url_for('view_group', group_name='root.osg')}}">Open Science Grid</a></li>
+          <li class="breadcrumb-item active">Members</li>
+          {% else %}
+          <li class="breadcrumb-item"><a href="{{url_for('groups')}}">OSG Projects</a></li>
+          <li class="breadcrumb-item"><a href="{{url_for('view_group', group_name=group_name)}}">{{group['display_name']}}</a></li>
+          <li class="breadcrumb-item active">Members</li>
+          {% endif %}
+        </ol>
+        <h2>{{group['display_name']}}</h2>
+        <br>
+        <div class="btn-toolbar" role="toolbar">
+          {% if (user_status == 'nonmember' and (osg_status == 'active' or osg_status == 'admin')) %}
+          <div class="btn-group mr-2" role="group", aria-label="first group">
+            <form role="form" action="{{url_for('view_group', group_name=group_name)}}" method="POST" onsubmit="return confirm('Are you sure you want to request to join this group?');">
+              <button type="submit" name="request_group" class="btn btn-primary btn-sm" data-submit="Requesting Membership...">Request Membership</button>
+            </form>
+          </div>
+          {% elif user_status == 'pending'%}
+          <div class="btn-group mr-2" role="group", aria-label="first group">
+            <button type="submit" name="pending_membership" class="btn btn-warning btn-sm disabled" data-submit="Pending Membership...">Requested Membership</button>
+          </div>
+          {% elif user_status == 'active' %}
+            {% if group_name == 'root.osg' %}
+          <div class="btn-group mr-2" role="group" aria-label="first group">
+            <a href="{{url_for('create_subgroup', group_name=group_name)}}" class="btn btn-primary btn-sm">Request New Project</a>
+          </div>
+            {% endif %}
+          {% elif user_status == 'admin' %}
+            {% if group_name == 'root.osg' %}
+          <div class="btn-group mr-2" role="group" aria-label="first group">
+            <a href="{{url_for('create_subgroup', group_name=group_name)}}" class="btn btn-primary btn-sm">Create Project</a>
+          </div>
+            {% endif %}
+          <div class="btn-group mr-2" role="group" aria-label="second group">
+            <a href="{{url_for('edit_subgroup', group_name=group_name)}}" class="btn btn-secondary btn-sm">Edit Project</a>
+          </div>
+            {% if group_name != 'root.osg' %}
+          <div class="btn-group mr-2" role="group", aria-label="second group">
+            <form role="form" action="{{url_for('delete_group', group_name=group_name)}}" method="POST" onsubmit="return confirm('Are you sure you want to delete this group?');">
+              <button type="submit" name="delete_group" class="btn btn-danger btn-sm" data-submit="Deleting Project...">Delete Project</button>
+            </form>
+          </div>
+            {% endif %}
+          {% endif %}
+        </div>
+
+        <br/>
+
+        <ul class="nav nav-tabs">
+          <li class="nav-item">
+            <a class="nav-link" href="{{url_for('view_group', group_name=group_name)}}"><i class="fas fa-cubes"></i> Overview</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="#"><i class="fas fa-user-friends"></i> Members</a>
+          </li>
+          <li class="nav-item" id='members-request-tab'>
+            <a class="nav-link" href="{{url_for('view_group_members_requests', group_name=group_name)}}">
+              <span class="badge badge-warning" v-if="loading"><i class="fas fa-sync fa-spin"></i></span>
+              <span class="badge badge-warning" v-else>{[{members_requests_count}]}</span>
+               Members Pending
+            </a>
+          </li>
+          {% if group_name == 'root.osg' %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{url_for('view_group_subgroups', group_name=group_name)}}"><i class="fas fa-project-diagram"></i> Projects</a>
+          </li>
+          <li class="nav-item" id='subprojects-request-tab'>
+            <a class="nav-link" href="{{url_for('view_group_subgroups_requests', group_name=group_name)}}"><span class="badge badge-warning">{[{subgroup_requests_count}]}</span> Project Requests</a>
+          </li>
+          {% endif %}
+          {% if (osg_status == 'admin') %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{url_for('view_group_add_members', group_name=group_name)}}"><i class="fas fa-user-plus"></i> Add Members</a>
+          </li>
+          {% endif %}
+        </ul>
+        <br>
+
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="table-responsive">
+              <!-- <h4>Members in Group</h4> -->
+              <table class="table" id="groups-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+                <thead>
+                  <tr>
+                    <th data-field="name" data-sortable="true">Name</th>
+                    <th data-field="email" data-sortable="true" class="email-th">Email</th>
+                    <th data-field="phone" data-sortable="true">Phone</th>
+                    <th data-field="institution" data-sortable="true">Institution</th>
+                    <th data-field="status" data-sortable="true">Status</th>
+                    {% if user_status == 'admin' %}
+                    <th data-field="action" data-sortable="true">Action</th>
+                    {% endif %}
+                  </tr>
+                </thead>
+                <tbody data-link="row" class="rowlink" style="font-size:14px;" id="members-table">
+
+                  <tr v-if="loading">
+              			<td>Loading Data <i class="fas fa-sync fa-spin"></i></td>
+              			<td><i class="fas fa-sync fa-spin"></i></td>
+              			<td><i class="fas fa-sync fa-spin"></i></td>
+              			<td><i class="fas fa-sync fa-spin"></i></td>
+                    <td><i class="fas fa-sync fa-spin"></i></td>
+              		</tr>
+              		<tr v-if="failed">
+              			<td>Failed to load the data, please refresh the page <i class="far fa-times-circle"></i></td>
+              			<td><i class="far fa-times-circle"></i></td>
+              			<td><i class="far fa-times-circle"></i></td>
+              			<td><i class="far fa-times-circle"></i></td>
+                    <td><i class="far fa-times-circle"></i></td>
+              		</tr>
+                  <tr v-for="(member, index) in members" v-cloak >
+              		  <td>{[{member.metadata.name}]}</td>
+              		  <td v-if="admin == 'admin'" class="email-th">{[{member.metadata.email}]}</td>
+                    <td v-else class="email-th">Admin View Only</td>
+              		  <td v-if="admin == 'admin'">{[{member.metadata.phone}]}</td>
+                    <td v-else>Admin View Only</td>
+                    <td>{[{member.metadata.institution}]}</td>
+                    <td>
+                      <div v-for="group in member.metadata.group_memberships">
+                        <div v-if="group.name == groupname && group.state !== 'pending'">
+                          <span v-if="group.state == 'admin'" style="color: blue;"><strong>{[{group.state}]}</strong></span>
+                          <span v-else="group.state == 'active'" style="color: green;"><strong>{[{group.state}]}</strong></span>
+                        </div>
+                      </div>
+                    </td>
+                    <td v-if="admin == 'admin'">
+                      <div v-if="users_statuses[member.metadata.unix_name] == 'pending'">
+                        <div class="btn-group">
+                          <form role="form" :action="'/groups/' + groupname + '/add_group_member/' + member.metadata.unix_name" method="POST" onsubmit="return confirm('Are you sure you want to confirm this member?');">
+                            <button type="submit" name="add_group_member" class="btn btn-xs btn-success" data-submit="Adding Member..."><i class="fas fa-check-circle"></i> Accept</button>
+                          </form>
+                          <form role="form" :action="'/groups/' + groupname + '/delete_group_member/' + member.metadata.unix_name" method="POST" onsubmit="return confirm('Are you sure you want to remove this member?');">
+                            <button type="submit" name="remove_group_member" class="btn btn-xs btn-danger" data-submit="Removing Member..."><i class="fas fa-times-circle"></i> Remove</button>
+                          </form>
+                          <form role="form" :action="'/groups/' + groupname + '/admin_group_member/' + member.metadata.unix_name" method="POST" onsubmit="return confirm('Are you sure you want to make this member an admin?');">
+                            <button type="submit" name="admin_group_member" class="btn btn-xs btn-warning" data-submit="Making Member Admin..."><i class="fas fa-user-shield"></i> Admin</button>
+                          </form>
+                        </div>
+                      </div>
+                      <div v-else-if="users_statuses[member.metadata.unix_name] == 'active'">
+                        <div class="btn-group">
+                          <form role="form" :action="'/groups/' + groupname + '/delete_group_member/' + member.metadata.unix_name" method="POST" onsubmit="return confirm('Are you sure you want to remove this member?');">
+                            <button type="submit" name="remove_group_member" class="btn btn-xs btn-danger" data-submit="Removing Member..."><i class="fas fa-times-circle"></i> Remove</button>
+                          </form>
+                          <form role="form" :action="'/groups/' + groupname + '/admin_group_member/' + member.metadata.unix_name" method="POST" onsubmit="return confirm('Are you sure you want to make this member an admin?');">
+                            <button type="submit" name="admin_group_member" class="btn btn-xs btn-warning" data-submit="Making Member Admin..."><i class="fas fa-user-shield"></i> Admin</button>
+                          </form>
+                        </div>
+                      </div>
+                      <div v-else-if="users_statuses[member.metadata.unix_name] == 'admin'">
+                        <div class="btn-group">
+                          <form role="form" :action="'/groups/' + groupname + '/delete_group_member/' + member.metadata.unix_name" method="POST" onsubmit="return confirm('Are you sure you want to remove this member?');">
+                            <button type="submit" name="remove_group_member" class="btn btn-xs btn-danger" data-submit="Removing Member..."><i class="fas fa-times-circle"></i> Remove</button>
+                          </form>
+                        </div>
+                      </div>
+                    </td>
+              		</tr>
+                </tbody>
+
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+$(document).ready(function() {
+  new Vue({
+    el: '#members-table',
+    data () {
+      return {
+        members: {},
+        users_statuses: {},
+        groupname: {{ group_name|tojson|safe }},
+        admin: {{ user_status|tojson|safe }},
+        loading: true,
+        failed: false
+      }
+    },
+    updated: function() {
+  	    //call DataTable after view is updated
+        $('#groups-table').DataTable({
+          order: [[4, 'desc'],[0, 'asc']],
+        });
+  	},
+    mounted(){
+      axios.get('/groups-xhr/{{group_name}}/members')
+    .then(function (response) {
+      this.members = response.data[0];
+      this.users_statuses = response.data[1];
+      this.loading = false;
+    }.bind(this)) //must use bind(this) unless using arrow function
+    .catch(error => { this.failed = true; this.loading = false; })
+    }
+  });
+  new Vue({
+    el: '#members-request-tab',
+    data () {
+      return {
+        members_requests_count: {},
+        loading: true,
+        failed: false
+      }
+    },
+    mounted(){
+      axios.get('/groups-pending-members-count-xhr/{{group_name}}/members')
+    .then(function (response) {
+      this.members_requests_count = response.data;
+      this.loading = false;
+    }.bind(this)) //must use bind(this) unless using arrow function
+    .catch(error => { this.failed = true; this.loading = false; })
+    }
+  });
+  new Vue({
+    el: '#subprojects-request-tab',
+    data () {
+      return {
+        subgroup_requests_count: {},
+        loading: true,
+        failed: false
+      }
+    },
+    mounted(){
+      axios.get('/groups-xhr/{{group_name}}/subgroups-requests')
+    .then(function (response) {
+      this.subgroup_requests_count = response.data[1];
+      this.loading = false;
+    }.bind(this)) //must use bind(this) unless using arrow function
+    .catch(error => { this.failed = true; this.loading = false; })
+    }
+  });
+});
+</script>
+{%endblock%}

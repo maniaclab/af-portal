@@ -1,0 +1,113 @@
+{%extends "base.html"%}
+
+{%block title%}
+  Profile
+{%endblock%}
+
+{%block body%}
+<section id="profile" class="">
+  <div class="container col-lg-12">
+    <!-- <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="#">Home</a></li>
+      <li class="breadcrumb-item active">Profile</li>
+    </ol> -->
+    {%include 'messages.html'%}
+    <div class="row">
+      <div class="col-lg-12 mx-auto">
+        <h1>Profile</h1>
+        <hr/>
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="card h-100">
+              <div class="card-header">
+                User Information <i class="fas fa-user-edit float-right"></i>
+              </div>
+              <div class="card-body">
+                <!-- <h5 class="card-title" style="text-align: center">User Information</h5> -->
+                <div class="row">
+                  <div class="col-sm-6">
+                    <ul class="list-unstyled">
+                      <li><strong>Name:</strong> {{profile['name']}}</li>
+                      <li><strong>Email:</strong> {{profile['email']}}</li>
+                      <li><strong>Phone:</strong> {{profile['phone']}}</li>
+                      <li><strong>Institution:</strong> {{profile['institution']}}</li>
+                      <li><strong>UNIX User Name:</strong> {{profile['unix_name']}}</li>
+                      <br>
+                      <li><strong>Joined:</strong> {{profile['join_date'][:11]}}</li>
+                      <li><strong>Last Active:</strong> {{profile['last_use_time'][:11]}}</li>
+                    </ul>
+                    <a href="{{url_for('edit_profile', unix_name=profile['unix_name'])}}" class="btn btn-primary btn-sm">Edit Profile</a>
+                    <br>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <br>
+          <div class="col-sm-12 col-md-6">
+            <div class="card h-100">
+              <div class="card-header">
+                OSG Group Membership Status: <strong id='osg-user-status'>{{user_status}}</strong> <i class="fas fa-users float-right"></i>
+              </div>
+              <div class="card-body">
+                <a href="{{url_for('users_groups')}}" class="btn btn-primary btn-sm">My Groups</a>
+                <br></br>
+                <div class="table-responsive">
+                  <table class="table" id="groups-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+                    <thead>
+                      <tr>
+                        <th data-field="name" data-sortable="true">Name</th>
+                        <th data-field="status" data-sortable="true">Member Status</th>
+                      </tr>
+                    </thead>
+                    <tbody data-link="row" class="rowlink" style="font-size:14px;">
+                      {% for group in profile['group_memberships'] %}
+                        {% if (group['name'] not in ['root', 'root.osg.login-nodes', 'root.osg', 'root.osg.login-nodes.login-test', 'root.osg.login-nodes.login02', 'root.osg.login-nodes.login03']) and (group['state'] != 'nonmember') and ('root.osg' in group['name']) %}
+                      <tr>
+                        <td><a href="{{url_for('view_group', group_name=group['name'])}}">{{'.'.join(group['name'].split('.')[1:])}}</a></td>
+                          {% if group['state'] == 'pending' %}
+                        <td style='color: orange;'><strong>{{group['state']}}</strong></td>
+                          {% elif group['state'] == 'active' %}
+                        <td style='color: green;'><strong>{{group['state']}}</strong></td>
+                          {% elif group['state'] == 'admin' %}
+                        <td style='color: blue;'><strong>{{group['state']}}</strong></td>
+                          {% endif %}
+                      </tr>
+                        {% endif %}
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div> <!-- row -->
+  </div>
+</section>
+
+<script>
+var user_status = document.getElementById('osg-user-status').textContent;
+if (user_status === 'pending') {
+  document.getElementById('osg-user-status').style.color = "orange";
+} else if (user_status === 'active'){
+  document.getElementById('osg-user-status').style.color = "green";
+} else if (user_status == 'admin') {
+  document.getElementById('osg-user-status').style.color = "blue";
+}
+$(document).ready(function() {
+  $('#groups-table').DataTable({
+    order: [[1, 'desc'],[0, 'asc']],
+    "aLengthMenu": [[5, 10, 15, -1], [5, 10, 15, "All"]],
+    "pageLength": 5
+  })
+  // $('#groups-table tfoot th').each( function () {
+  //   var title = $(this).text();
+  //   $(this).html('<input type="text" placeholder="Search '+title+'" />');
+  // });
+});
+</script>
+{%endblock%}

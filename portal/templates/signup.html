@@ -1,0 +1,54 @@
+{%extends "base.html"%}
+
+{%block title%}Signup{%endblock%}
+
+{%block body%}
+
+<!-- Page Header -->
+
+<header style="height: 100%;" id="hero">
+  <div class="container" style="width: 60%;">
+    <h1 id="signup_title"></h1>
+    <p class="leadl" id="signup_instructions"></p>
+    <a href="{{url_for('authcallback', signup=1)}}" class='btn btn-sm btn-primary'>Continue</a>
+  </div>
+</header>
+
+<div id="myModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Acceptable Use Policy</h4>
+      </div>
+      <div class="modal-body">
+        <p id="signup_modal"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Agree</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script type="text/javascript">
+  var md = new Remarkable('full');
+  var signup_modal_md = {{signup_modal_md|tojson}};
+  var signup_instructions_md = {{signup_instructions_md|tojson}};
+  var signup_md = {{signup_md|tojson}};
+
+  $(window).on('load',function(){
+    var signup = md.render(signup_md);
+    $('#signup_title').html(signup);
+
+    var signup_instructions = md.render(signup_instructions_md);
+    $('#signup_instructions').html(signup_instructions);
+
+    var signup_modal = md.render(signup_modal_md);
+    $('#signup_modal').html(signup_modal);
+    $('#myModal').modal('show');
+  });
+</script>
+
+{%endblock%}

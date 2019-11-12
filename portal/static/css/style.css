@@ -1,0 +1,180 @@
+/*!
+ * Start Bootstrap - Scrolling Nav (https://startbootstrap.com/template-overviews/scrolling-nav)
+ * Copyright 2013-2017 Start Bootstrap
+ * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap-scrolling-nav/blob/master/LICENSE)
+ */
+html, body {
+  height: 100%;
+  font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 400;
+  color: #333;
+}
+
+p {
+  line-height: 1.5;
+  margin: 30px 0;
+  /* color: #999; */
+}
+
+#base-p {
+  color: #999;
+}
+
+.nav-link {
+  color: #155F83;
+}
+
+.nav-link:hover,
+.nav-link:focus {
+  color: #155F83;
+}
+
+/* Fixes dropdown menus placed on the right side */
+.ml-auto {
+  left: auto !important;
+  right: 0px;
+}
+
+header {
+  padding: 154px 0 100px;
+}
+
+@media (min-width: 992px) {
+  header {
+    padding: 156px 0 100px;
+  }
+}
+
+section {
+  padding-top: 55px;
+  height: 100%;
+  /* padding-bottom: 55px; */
+}
+
+section .container {
+  padding: 50px;
+}
+
+pre {
+  background-color: #f8f8f8;
+  font-weight: bold;
+  tab-size: 4;
+  display: block;
+  margin: 20px 0;
+  padding: 15px;
+  position: relative;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.lead {
+  font-size: 1.2rem;
+  padding: 10px;
+}
+
+footer {
+  /* position:fixed; */
+  left:0px;
+  bottom:0px;
+  width:100%;
+  background-color: white;
+  text-align: center;
+}
+#nsf-logo {
+  height: 100%;
+  width: 10%;
+}
+
+.card-header {
+  background-color: transparent;
+  border-bottom: none;
+}
+
+.btn-group-xs > .btn, .btn-xs {
+  padding: .25rem .4rem;
+  font-size: .875rem;
+  line-height: .5;
+  border-radius: .2rem;
+}
+
+.carousel > .carousel-inner > .carousel-item > img {
+  width:100%;
+  height:350px;
+  padding: 0 25% 0 25%;
+  margin: 0 auto!important;
+}
+.carousel-control-prev-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23000000' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E");
+}
+
+.carousel-control-next-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23000000' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E");
+}
+
+/* Subgroup Tree View */
+
+/* Remove default bullets */
+ul, #myUL {
+  list-style-type: none;
+}
+
+/* Remove margins and padding from the parent ul */
+#myUL {
+  margin: 0;
+  padding: 0;
+}
+
+/* Style the caret/arrow */
+.caret {
+  cursor: pointer;
+  user-select: none; /* Prevent text selection */
+}
+
+/* Create the caret/arrow with a unicode, and style it */
+.caret::before {
+  content: "\25B6";
+  color: black;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+/* Rotate the caret/arrow icon when clicked on (using JavaScript) */
+.caret-down::before {
+  transform: rotate(90deg);
+}
+
+/* Hide the nested list */
+.nested {
+  display: none;
+}
+
+/* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */
+.active {
+  display: block;
+}
+
+.asterik {
+  color: red;
+}
+
+.form-control::-moz-placeholder {
+  opacity: 0.5;
+}
+.form-control:-ms-input-placeholder {
+  opacity: 0.5;
+}
+.form-control::-webkit-input-placeholder {
+  opacity: 0.5;
+}
+
+.dataTables_info, .dataTables_paginate {
+  font-size: 0.8em;
+}

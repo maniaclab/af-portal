@@ -1,0 +1,86 @@
+{%extends "base.html"%}
+
+{%block title%}Projects{%endblock%}
+
+{%block body%}
+
+<section id="projets">
+  <div class="container col-lg-12 mx-auto">
+
+    <div class='row'>
+      <div class="col-lg-12 mx-auto">
+        {%include 'messages.html' %}
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{{url_for('profile')}}">Profile</a></li>
+          <li class="breadcrumb-item"><a href="{{url_for('users_groups')}}">My Projects</a></li>
+          <li class="breadcrumb-item">Pending</li>
+        </ol>
+        {% if user_status == 'active' %}
+        <div class="btn-group mr-2" role="group" aria-label="first group">
+          <a href="{{url_for('create_subgroup', group_name='root.osg')}}" class="btn btn-primary btn-sm">Request New Project</a>
+        </div>
+        {% elif user_status == 'admin' %}
+        <div class="btn-group mr-2" role="group" aria-label="first group">
+          <a href="{{url_for('create_subgroup', group_name='root.osg')}}" class="btn btn-primary btn-sm">Create New Project</a>
+        </div>
+        {% endif %}
+        <br></br>
+
+        <ul class="nav nav-tabs">
+          <li class="nav-item">
+            <a class="nav-link" id="active-projects-tab" href="{{url_for('users_groups')}}">My Projects</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" id="pending-projects-tab" href="#">Pending Projects</a>
+          </li>
+        </ul>
+
+        <div class="row">
+          <div class="col-sm-12">
+            <br>
+            <div class="table-responsive">
+              <table class="table" id="groups-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+                <thead>
+                  <tr>
+                    <th data-field="name" data-sortable="true">Name</th>
+                    <th data-field="email" data-sortable="true">Contact Email</th>
+                    <th data-field="field-of-science" data-sortable="true">Field of Science</th>
+                    <th data-field="pi-name" data-sortable="true">PI Name</th>
+                    <th data-field="pi-email" data-sortable="true">PI Email</th>
+                    <th data-field="pi-org" data-sortable="true">PI Organization</th>
+                  </tr>
+                </thead>
+                <tbody data-link="row" class="rowlink" style="font-size:14px;">
+                  {% for project_request in project_requests %}
+                  <tr>
+                    <td><a href="{{url_for('edit_subgroup_requests', group_name=project_request['name'])}}">{{project_request['display_name']}}</a></td>
+                    <td>{{project_request['email']}}</td>
+                    <td>{{project_request['purpose']}}</td>
+                    <td>{{project_request['additional_attributes']['OSG:PI_Name']}}</td>
+                    <td>{{project_request['additional_attributes']['OSG:PI_Email']}}</td>
+                    <td>{{project_request['additional_attributes']['OSG:PI_Organization']}}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div> <!-- container -->
+</section>
+
+<script>
+$(document).ready(function() {
+    $('#groups-table').DataTable();
+});
+// Javascript to enable link to tab
+var url = document.location.toString();
+if (url.match('#')) {
+    $('.nav-tabs a[href="#' + url.split('#')[1] + '"]').tab('show');
+}
+</script>
+{%endblock%}

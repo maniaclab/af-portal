@@ -1,0 +1,95 @@
+{%extends "base.html"%}
+
+{%block title%}Projects{%endblock%}
+
+{%block body%}
+
+<section id="projets">
+  <div class="container col-lg-12 mx-auto">
+
+    <div class='row'>
+      <div class="col-lg-12 mx-auto">
+        {%include 'messages.html' %}
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{{url_for('profile')}}">Profile</a></li>
+          <li class="breadcrumb-item">My Groups</li>
+        </ol>
+        {% if user_status == 'active' %}
+        <div class="btn-group mr-2" role="group" aria-label="first group">
+          <a href="{{url_for('create_subgroup', group_name='root.osg')}}" class="btn btn-primary btn-sm">Request New Group</a>
+        </div>
+        {% elif user_status == 'admin' %}
+        <div class="btn-group mr-2" role="group" aria-label="first group">
+          <a href="{{url_for('create_subgroup', group_name='root.osg')}}" class="btn btn-primary btn-sm">Create New Group</a>
+        </div>
+        {% endif %}
+        <br></br>
+
+        <ul class="nav nav-tabs">
+          <li class="nav-item">
+            <a class="nav-link active" id="active-projects-tab" href="#">My Groups</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="pending-projects-tab" href="{{url_for('users_groups_pending')}}">Pending Group Request</a>
+          </li>
+        </ul>
+
+        <div class="row">
+          <div class="col-sm-12">
+            <br>
+            <div class="table-responsive">
+              <table class="table" id="groups-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+                <thead>
+                  <tr>
+                    <th data-field="name" data-sortable="true">Name</th>
+                    <th data-field="unix-name" data-sortable="true">Unix Name</th>
+                    {% if (user_status == 'admin' or osg_status == 'admin') %}
+                    <th data-field="email" data-sortable="true">Contact Email</th>
+                    {% endif %}
+                    <th data-field="field-of-science" data-sortable="true">Field of Science</th>
+                    <th data-field="status" data-sortable="true">Member Status</th>
+                  </tr>
+                </thead>
+                <tbody data-link="row" class="rowlink" style="font-size:14px;">
+                  {% for group, status in groups %}
+                    {% if (group['metadata']['name'] not in ['root', 'root.osg.login-nodes', 'root.osg', 'root.osg.login-nodes.login-test', 'root.osg.login-nodes.login02', 'root.osg.login-nodes.login03']) and ('root.atlas' in group['metadata']['name']) %}
+                  <tr>
+                    <td><a href="{{url_for('view_group', group_name=group['metadata']['name'])}}">{{group['metadata']['display_name']}}</a></td>
+                    <td>{{ '.'.join(group['metadata']['name'].split('.')[1:]) }}</td>
+                    {% if (user_status == 'admin' or osg_status == 'admin') %}
+                    <td>{{group['metadata']['email']}}</td>
+                    {% endif %}
+                    <td>{{group['metadata']['purpose']}}</td>
+                    {% if status == 'active' %}
+                    <td style="color: green;"><strong>{{status}}</strong></td>
+                    {% elif status == 'pending' %}
+                    <td style="color: orange;"><strong>{{status}}</strong></td>
+                    {% elif status == 'admin' %}
+                    <td style="color: blue;"><strong>{{status}}</strong></td>
+                    {% endif %}
+                  </tr>
+                    {% endif %}
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div> <!-- container -->
+</section>
+
+<script>
+$(document).ready(function() {
+    $('#groups-table').DataTable();
+});
+// Javascript to enable link to tab
+var url = document.location.toString();
+if (url.match('#')) {
+    $('.nav-tabs a[href="#' + url.split('#')[1] + '"]').tab('show');
+}
+</script>
+{%endblock%}

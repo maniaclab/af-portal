@@ -1,0 +1,159 @@
+{%extends "base.html"%}
+
+{%block title%}
+  Edit Project Information
+{%endblock%}
+
+{%block body%}
+<section id="create-group" class="bg-light">
+  <div class="container col-lg-12">
+    <!-- <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="#">Home</a></li>
+      <li class="breadcrumb-item active">Profile</li>
+    </ol> -->
+    {%include 'messages.html'%}
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+        <h2>Edit Project Information</h2>
+        <hr/>
+        <form role="form" action="{{url_for('edit_subgroup', group_name=group_name)}}" method="POST">
+
+          <div class="form-group">
+            <label for="display-name">Display Name *</label>
+            <input
+              type="text"
+              class="form-control"
+              id="display-name"
+              name="display-name"
+              placeholder="Display Name of Research Project"
+              required="required"
+              tabindex="1"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email *</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="form-control"
+              placeholder="{{session['email']}}"
+              required="required"
+              tabindex="2"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Phone *</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              class="form-control"
+              placeholder="555 555 5555"
+              required="required"
+              tabindex="3"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="field_of_science">Field of Science *</label>
+            <select class="form-control" id="field_of_science" name="field_of_science" required="required" tabindex="4" onmousedown="if(this.options.length>6){this.size=6;}"  onchange='this.size=0;' onblur="this.size=0;">
+              <option value="" selected disabled>Select Field of Science</option>
+              {% for science in sciences %}
+              <option value="{{science}}">{{science}}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="pi-name">PI Name *</label>
+            <input
+              type="text"
+              class="form-control"
+              id="pi-name"
+              name="pi-name"
+              required
+              placeholder="Name of Principle Investigator"
+              tabindex="5"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="pi-email">PI Email *</label>
+            <input
+              type="email"
+              id="pi-email"
+              name="pi-email"
+              required
+              class="form-control"
+              placeholder="johnsmith@email.com"
+              tabindex="6"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="pi-org">PI Organization *</label>
+            <input
+              type="text"
+              class="form-control"
+              id="pi-org"
+              name="pi-org"
+              required
+              placeholder="Name of PI Organization"
+              tabindex="7"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="description">Description <span id="asterik">*</span></label>
+            <textarea
+              placeholder="Brief description of your group"
+              name="description"
+              id="description"
+              required
+              tabindex="8"
+              style="background-color:white; color:black; border-radius:4px; border-color:lightgrey;"
+              ></textarea>
+          </div>
+
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div> <!-- Profile Form Container -->
+    </div> <!-- row -->
+
+  </div>
+</section>
+
+<script>
+var display_name = {{group['display_name']|tojson}};
+var email = {{group['email']|tojson}};
+var phone = {{group['phone']|tojson}};
+var field_of_science = {{group['purpose']|tojson}};
+var description = {{group['description']|tojson}};
+
+
+window.onload = setFormFields(display_name, email, phone, field_of_science, description);
+
+function setFormFields(display_name, email, phone, field_of_science, description){
+  document.getElementById('display-name').value = display_name;
+  document.getElementById('email').value = email;
+  document.getElementById('phone').value = phone;
+  document.getElementById('field_of_science').value = field_of_science;
+  document.getElementById("description").value = description;
+}
+
+function checkSpcialChar(event){
+  console.log(event.keyCode);
+  if(!((event.keyCode >= 65) && (event.keyCode <= 90) || (event.keyCode >= 97) && (event.keyCode <= 122) || (event.keyCode >= 48) && (event.keyCode <= 57) || (event.keyCode == 45) || (event.keyCode == 95))){
+    event.returnValue = false;
+    return;
+  }
+  event.returnValue = true;
+}
+
+</script>
+{%endblock%}

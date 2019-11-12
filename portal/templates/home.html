@@ -1,0 +1,56 @@
+{%extends "base.html"%}
+
+{%block title%}Home{%endblock%}
+
+{%block body%}
+
+<!-- Page Header -->
+
+<header class="text-white" style="height: 100%;" id="hero">
+  <div class="container text-center">
+    <img src="{{url_for('static', filename='img/OSGConnect_Logo.png')}}" id="home-brand" style="width:30%;">
+    <h2>Front door to the <a href="https://opensciencegrid.org/" target="_blank">Open Science Grid</a></h2>
+    <h4 class="lead">
+      <span class="rotating text-muted">
+        {%include '/markdowns/home_text_rotating.md' %}
+      </span>
+    </h4>
+    {% if session.get('is_authenticated') %}
+    {% else %}
+    <a role="button" href="{{url_for('login')}}" class="btn btn-primary">Login</a>
+    <a role="button" href="{{url_for('signup')}}" class="btn btn-primary">Sign Up</a>
+    {% endif %}
+    <!-- <p class="lead" id='base-p'>Main OSG website may be found <a href="https://osgconnect.net/" target="_blank">here</a></p> -->
+    <br>
+    <!-- <a class="twitter-timeline" data-width="500" data-height="500" href="https://twitter.com/OSGConnect?ref_src=twsrc%5Etfw">Tweets by OSGConnect</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script> -->
+  </div>
+</header>
+<br>
+<!-- Page footer -->
+{%include 'footer.html'%}
+
+<script type="text/javascript">
+
+$('.carousel').carousel()
+
+$(document).ready(function() {
+// get current URL path and assign connect branding
+var hostname = window.location.hostname
+
+if(String(hostname).includes('local')){
+  document.getElementById("home-brand").src="{{url_for('static', filename='img/Atlas_Connect_Logo.png')}}";
+} else if(String(hostname).includes('atlas')){
+  document.getElementById("home-brand").src="{{url_for('static', filename='img/Atlas_Connect_Logo.png')}}";
+} else if(String(hostname).includes('ci-connect')){
+  document.getElementById("home-brand").src="{{url_for('static', filename='img/CI_Connect_Logo.png')}}";
+} else if(String(hostname).includes('cms-connect')){
+  document.getElementById("home-brand").src="{{url_for('static', filename='img/CMS_Connect_Logo.png')}}";
+} else if(String(hostname).includes('duke')){
+  document.getElementById("home-brand").src="{{url_for('static', filename='img/Duke_Connect_Logo.png')}}";
+} else if(String(hostname).includes('uchicago')){
+  document.getElementById("home-brand").src="{{url_for('static', filename='img/UChicago_Connect_Logo.png')}}";
+}
+})
+
+</script>
+{%endblock%}
