@@ -10,7 +10,12 @@ import logging
 __author__ = 'Jeremy Van <jeremyvan@uchicago.edu>'
 
 app = Flask(__name__)
-app.config.from_pyfile('portal.conf')
+try:
+    # Try to read config location from .ini file
+    config_file = sys.argv[1]
+    app.config.from_pyfile(config_file)
+except:
+    app.config.from_pyfile('portal.conf')
 app.url_map.strict_slashes = False
 
 # set up Markdown Rendering
