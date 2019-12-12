@@ -47,7 +47,7 @@
           <div class="col-sm-12 col-md-6">
             <div class="card h-100">
               <div class="card-header">
-                OSG Group Membership Status: <strong id='osg-user-status'>{{user_status}}</strong> <i class="fas fa-users float-right"></i>
+                {{session['url_host']['display_name']}} Group Membership Status: <strong id='osg-user-status'>{{user_status}}</strong> <i class="fas fa-users float-right"></i>
               </div>
               <div class="card-body">
                 <a href="{{url_for('users_groups')}}" class="btn btn-primary btn-sm">My Groups</a>
@@ -61,8 +61,7 @@
                       </tr>
                     </thead>
                     <tbody data-link="row" class="rowlink" style="font-size:14px;">
-                      {% for group in profile['group_memberships'] %}
-                        {% if (group['name'] not in ['root', 'root.osg.login-nodes', 'root.osg', 'root.osg.login-nodes.login-test', 'root.osg.login-nodes.login02', 'root.osg.login-nodes.login03']) and (group['state'] != 'nonmember') and ('root.osg' in group['name']) %}
+                      {% for group in group_memberships %}
                       <tr>
                         <td><a href="{{url_for('view_group', group_name=group['name'])}}">{{'.'.join(group['name'].split('.')[1:])}}</a></td>
                           {% if group['state'] == 'pending' %}
@@ -73,7 +72,6 @@
                         <td style='color: blue;'><strong>{{group['state']}}</strong></td>
                           {% endif %}
                       </tr>
-                        {% endif %}
                       {% endfor %}
                     </tbody>
                   </table>
@@ -104,10 +102,6 @@ $(document).ready(function() {
     "aLengthMenu": [[5, 10, 15, -1], [5, 10, 15, "All"]],
     "pageLength": 5
   })
-  // $('#groups-table tfoot th').each( function () {
-  //   var title = $(this).text();
-  //   $(this).html('<input type="text" placeholder="Search '+title+'" />');
-  // });
 });
 </script>
 {%endblock%}

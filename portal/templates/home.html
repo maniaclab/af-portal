@@ -9,7 +9,8 @@
 <header class="text-white" style="height: 100%;" id="hero">
   <div class="container text-center">
     <img src="{{url_for('static', filename='img/OSGConnect_Logo.png')}}" id="home-brand" style="width:30%;">
-    <h2>Front door to the <a href="https://opensciencegrid.org/" target="_blank">Open Science Grid</a></h2>
+    <br></br>
+    <h2>Front door to <a href="https://connect.uscms.org/" target="_blank">CMS Connect</a></h2>
     <h4 class="lead">
       <span class="rotating text-muted">
         {%include '/markdowns/home_text_rotating.md' %}
@@ -38,7 +39,7 @@ $(document).ready(function() {
 var hostname = window.location.hostname
 
 if(String(hostname).includes('local')){
-  document.getElementById("home-brand").src="{{url_for('static', filename='img/Atlas_Connect_Logo.png')}}";
+  document.getElementById("home-brand").src="{{url_for('static', filename='img/CMS_Connect_Logo.png')}}";
 } else if(String(hostname).includes('atlas')){
   document.getElementById("home-brand").src="{{url_for('static', filename='img/Atlas_Connect_Logo.png')}}";
 } else if(String(hostname).includes('ci-connect')){

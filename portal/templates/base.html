@@ -10,7 +10,7 @@
     <meta name="description" content="CI Connect Portal, Effiently connect your science to cycles and data">
     <meta name="author" content="Jeremy Van">
 
-    {# Favicons for CI Connect #}
+    {# Favicons for Connect #}
     <link rel="apple-touch-icon" sizes="180x180" href="{{url_for('static', filename='img/favicons/apple-touch-icon.png')}}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{url_for('static', filename='img/favicons/favicon-32x32.png')}}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{url_for('static', filename='img/favicons/favicon-16x16.png')}}">
@@ -19,7 +19,7 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <title>OSG Connect - {%block title%}{%endblock%}</title>
+    <title>{% if session['url_host'] %}{{session['url_host']['display_name']}} {% else %} Connect Portal {% endif %} {%block title%}{%endblock%}</title>
 
     {# CSS files #}
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
@@ -74,7 +74,7 @@
   		$('nav > ul > li > a[href="'+pathname+'"]').parent().addClass('active');
   	}
     if(String(hostname).includes('local')){
-      document.getElementById("connect-brand").src="{{url_for('static', filename='img/Atlas_Connect_Logo.png')}}";
+      document.getElementById("connect-brand").src="{{url_for('static', filename='img/CMS_Connect_Logo.png')}}";
     } else if(String(hostname).includes('atlas')){
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/Atlas_Connect_Logo.png')}}";
     } else if(String(hostname).includes('ci-connect')){
@@ -105,7 +105,7 @@
       <div id="content">
         <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
           <a class="navbar-brand" href="{{url_for('home')}}">
-            <img src="{{url_for('static', filename='img/OSGConnect_Logo.png')}}" id="connect-brand" width="160" height="40" class="d-inline-block align-top" alt="">
+            <img src="{{url_for('static', filename='img/OSGConnect_Logo.png')}}" id="connect-brand" height="35" class="d-inline-block align-top" alt="">
           </a>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -114,12 +114,12 @@
             <ul class="navbar-nav ml-auto">
               {% if session.get('is_authenticated') and session['admin'] == 'admin' %}
               <li class="nav-item">
-                <a class="nav-link" href="{{url_for('view_group', group_name='root.osg')}}">Admin</a>
+                <a class="nav-link" href="{{url_for('view_group', group_name=session['url_host']['unix_name'])}}">{{session['url_host']['display_name']}}</a>
               </li>
               {% endif %}
               {% if session.get('is_authenticated') %}
               <li class="nav-item">
-                <a class="nav-link" href="{{url_for('groups')}}">{{session['url_root']}} Groups</a>
+                <a class="nav-link" href="{{url_for('groups')}}">{{session['url_host']['display_name']}} Groups</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{{url_for('users_groups')}}">My Groups</a>

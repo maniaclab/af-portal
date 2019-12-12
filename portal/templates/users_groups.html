@@ -52,7 +52,6 @@
                 </thead>
                 <tbody data-link="row" class="rowlink" style="font-size:14px;">
                   {% for group, status in groups %}
-                    {% if (group['metadata']['name'] not in ['root', 'root.osg.login-nodes', 'root.osg', 'root.osg.login-nodes.login-test', 'root.osg.login-nodes.login02', 'root.osg.login-nodes.login03']) and ('root.atlas' in group['metadata']['name']) %}
                   <tr>
                     <td><a href="{{url_for('view_group', group_name=group['metadata']['name'])}}">{{group['metadata']['display_name']}}</a></td>
                     <td>{{ '.'.join(group['metadata']['name'].split('.')[1:]) }}</td>
@@ -68,7 +67,6 @@
                     <td style="color: blue;"><strong>{{status}}</strong></td>
                     {% endif %}
                   </tr>
-                    {% endif %}
                   {% endfor %}
                 </tbody>
               </table>

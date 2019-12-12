@@ -129,12 +129,15 @@ def users_groups():
         multiplex = requests.post(
             ciconnect_api_endpoint + '/v1alpha1/multiplex', params=query, json=multiplexJson)
         multiplex = multiplex.json()
-        # print(multiplex)
+        print(multiplex)
+        print(session['url_host'])
 
         users_groups = []
         for group in multiplex:
-            users_groups.append((json.loads(multiplex[group]['body']), group_membership_status[group]))
+            if session['url_host']['unix_name'] in (json.loads(multiplex[group]['body'])['metadata']['name']):
+                users_groups.append((json.loads(multiplex[group]['body']), group_membership_status[group]))
         # users_groups = [group for group in users_groups if len(group['name'].split('.')) == 3]
+        # print(users_groups)
 
         # Query user's pending project requests
         project_requests = requests.get(ciconnect_api_endpoint + '/v1alpha1/users/' + unix_name + '/group_requests', params=query)
@@ -142,6 +145,7 @@ def users_groups():
         # Check if user is active member of OSG specifically
         user_status = requests.get(ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/root.osg', params=query)
         user_status = user_status.json()['membership']['state']
+        print(groups, project_requests, user_status)
 
         return render_template('users_groups.html', groups=users_groups, project_requests=project_requests, user_status=user_status)
 
@@ -170,17 +174,18 @@ def groups():
     """Connect groups"""
     if request.method == 'GET':
         query = {'token': session['access_token']}
+        root_project = session['url_host']['unix_name']
         # Query to list subgroups or projects within OSG specifcally
-        osg_groups = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/root.osg/subgroups', params=query)
+        groups = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/'+root_project+'/subgroups', params=query)
         # print(osg_groups)
-        osg_groups = osg_groups.json()['groups']
-        osg_groups = [group for group in osg_groups if len(group['name'].split('.')) == 3]
+        groups = groups.json()['groups']
+        groups = [group for group in groups if len(group['name'].split('.')) == 3]
 
         # Check if user is active member of OSG specifically
-        user_status = requests.get(ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/root.osg', params=query)
+        user_status = requests.get(ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/' + root_project, params=query)
         user_status = user_status.json()['membership']['state']
 
-        return render_template('groups.html', groups=osg_groups, user_status=user_status)
+        return render_template('groups.html', groups=groups, user_status=user_status)
 
 
 @app.route('/groups/new', methods=['GET', 'POST'])
@@ -237,43 +242,14 @@ def view_group(group_name):
                         group_name + '/members/' + unix_name, params=query)
         user_status = user_status.json()['membership']['state']
 
-        # Query to return user's membership status in a group, specifically if user is OSG admin
+        # Query to return user's membership status in a group, specifically if user is connect group admin
         r = requests.get(
-            ciconnect_api_endpoint + '/v1alpha1/users/' + unix_name + '/groups/root.osg', params=query)
-        osg_status = r.json()['membership']['state']
-
-        pi_info = {}
-
-        try:
-            additional_attributes = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/'
-                                            + group_name + '/attributes/OSG:PI_Name', params=query)
-            PI_Name = additional_attributes.json()['data']
-            pi_info['PI_Name'] = PI_Name
-        except:
-            PI_Name = None
-            pi_info['PI_Name'] = PI_Name
-
-        try:
-            additional_attributes = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/'
-                                            + group_name + '/attributes/OSG:PI_Email', params=query)
-            PI_Email = additional_attributes.json()['data']
-            pi_info['PI_Email'] = PI_Email
-        except:
-            PI_Email = None
-            pi_info['PI_Email'] = PI_Email
-
-        try:
-            additional_attributes = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/'
-                                            + group_name + '/attributes/OSG:PI_Organization', params=query)
-            PI_Organization = additional_attributes.json()['data']
-            pi_info['PI_Organization'] = PI_Organization
-        except:
-            PI_Organization = None
-            pi_info['PI_Organization'] = PI_Organization
+            ciconnect_api_endpoint + '/v1alpha1/users/' + unix_name + '/groups/' + session['url_host']['unix_name'], params=query)
+        connect_status = r.json()['membership']['state']
 
         return render_template('group_profile.html', group=group,
                                 group_name=group_name, user_status=user_status,
-                                pi_info=pi_info, osg_status=osg_status,
+                                connect_status=connect_status,
                                 group_creation_date=group_creation_date)
     elif request.method == 'POST':
         '''Request membership to join group'''
@@ -348,13 +324,8 @@ def view_group_members(group_name):
                         group_name + '/members/' + session['unix_name'], params=query)
         user_status = user_status.json()['membership']['state']
 
-        # Query to return user's membership status in a group, specifically if user is OSG admin
-        r = requests.get(
-            ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/root.osg', params=query)
-        osg_status = r.json()['membership']['state']
-
         return render_template('group_profile_members.html', group_name=group_name,
-                                user_status=user_status, group=group, osg_status=osg_status)
+                                user_status=user_status, group=group)
 
 
 @app.route('/groups-xhr/<group_name>/members', methods=['GET'])
@@ -490,15 +461,15 @@ def view_group_members_requests(group_name):
 
         # Query to return user's membership status in a group, specifically if user is OSG admin
         r = requests.get(
-            ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/root.osg', params=query)
-        osg_status = r.json()['membership']['state']
+            ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/root.atlas', params=query)
+        connect_status = r.json()['membership']['state']
 
         return render_template('group_profile_members_requests.html',
                                 group_members=user_dict, group_name=group_name,
                                 display_name=display_name, user_status=user_status,
                                 user_super=user_super,
-                                users_statuses=users_statuses, group=group,
-                                osg_status=osg_status)
+                                users_statuses=users_statuses,
+                                connect_status=connect_status, group=group)
 
 
 @app.route('/groups/<group_name>/add_members', methods=['GET', 'POST'])
@@ -1281,34 +1252,20 @@ def edit_profile(unix_name):
         phone = request.form['phone-number']
         institution = request.form['institution']
         public_key = request.form['sshpubstring']
-        try:
-            email_preference = request.form['email_preference']
-            email_preference = 'on'
-        except:
-            email_preference = 'off'
 
         globus_id = session['primary_identity']
-        additional_metadata = {'OSG:Email_Preference': email_preference}
         # Schema and query for adding users to CI Connect DB
         if public_key != ' ':
             post_user = {"apiVersion": 'v1alpha1',
                         'metadata': {'name': name, 'email': email,
                                      'phone': phone, 'institution': institution,
-                                     'public_key': public_key,
-                                     'additional_attributes': additional_metadata}}
+                                     'public_key': public_key}}
         else:
             post_user = {"apiVersion": 'v1alpha1',
                         'metadata': {'name': name, 'email': email,
-                                     'phone': phone, 'institution': institution,
-                                     'additional_attributes': additional_metadata}}
+                                     'phone': phone, 'institution': institution}}
         # PUT request to update user information
         r = requests.put(ciconnect_api_endpoint + '/v1alpha1/users/' + unix_name, params=query, json=post_user)
-        # Additional PUT request to update user's additional attributes
-        email_query = {"apiVersion": 'v1alpha1',
-                        "data": email_preference}
-        set_additional_attr = requests.put(ciconnect_api_endpoint + '/v1alpha1/users/' + unix_name + '/attributes/OSG:Email_Preference', params=query, json=email_query)
-        # print("SET ADD ATTR: {}".format(set_additional_attr))
-        # print("Updated User: ", r)
 
         session['name'] = name
         session['email'] = email
@@ -1353,33 +1310,41 @@ def profile():
             phone = profile['phone']
             institution = profile['institution']
             ssh_pubkey = profile['public_key']
-            # Check User's Status in OSG Group specifcally
-            user_status = requests.get(ciconnect_api_endpoint + '/v1alpha1/users/' + profile['unix_name'] + '/groups/root.osg', params=query)
+            # Check User's Status in Specific Connect Group
+            user_status = requests.get(ciconnect_api_endpoint + '/v1alpha1/users/' + profile['unix_name'] + '/groups/' + session['url_host']['unix_name'], params=query)
             user_status = user_status.json()['membership']['state']
         else:
             flash(
                 'Please complete any missing profile fields and press Save.', 'warning')
             return redirect(url_for('create_profile'))
 
-        # Set up multiplex to query all non member's information
-        multiplexJson = {}
-        user_login_nodes = {}
-        for group in profile['group_memberships']:
-            if 'root.osg.login-nodes.' in group['name']:
-                # user_login_nodes.append(group)
-                login_node_query = "/v1alpha1/groups/" + group['name'] + "?token=" + query['token']
-                multiplexJson[login_node_query] = {"method":"GET"}
-        # POST request for multiplex return
-        multiplex = requests.post(
-            ciconnect_api_endpoint + '/v1alpha1/multiplex', params=query, json=multiplexJson)
-        multiplex = multiplex.json()
-        for login_node in multiplex:
-            login_node_name = login_node.split('/')[3].split('?')[0]
-            user_login_nodes[login_node_name] = json.loads(multiplex[login_node]['body'])
+        # # Set up multiplex to query all non member's information
+        # multiplexJson = {}
+        # user_login_nodes = {}
+        # for group in profile['group_memberships']:
+        #     if 'root.osg.login-nodes.' in group['name']:
+        #         # user_login_nodes.append(group)
+        #         login_node_query = "/v1alpha1/groups/" + group['name'] + "?token=" + query['token']
+        #         multiplexJson[login_node_query] = {"method":"GET"}
+        # # POST request for multiplex return
+        # multiplex = requests.post(
+        #     ciconnect_api_endpoint + '/v1alpha1/multiplex', params=query, json=multiplexJson)
+        # multiplex = multiplex.json()
+        # for login_node in multiplex:
+        #     login_node_name = login_node.split('/')[3].split('?')[0]
+        #     user_login_nodes[login_node_name] = json.loads(multiplex[login_node]['body'])
 
         if request.args.get('next'):
             session['next'] = get_safe_redirect()
-        return render_template('profile.html', profile=profile, user_status=user_status, user_login_nodes=user_login_nodes)
+
+        group_memberships = []
+        for group in profile['group_memberships']:
+            if session['url_host']['unix_name'] in group['name']:
+                group_memberships.append(group)
+
+        return render_template('profile.html', profile=profile,
+                                user_status=user_status,
+                                group_memberships=group_memberships)
 
     elif request.method == 'POST':
         name = session['name'] = request.form['name']
@@ -1467,6 +1432,16 @@ def authcallback():
             except:
                 print("NOTHING HERE: {}".format(identity))
 
+        connect_keynames = {'atlas': {'name': 'atlas-connect', 'display_name': 'Atlas Connect', 'unix_name': 'root.atlas'},
+                            'cms': {'name': 'cms-connect', 'display_name': 'CMS Connect', 'unix_name': 'root.cms'},
+                            'duke': {'name': 'duke-connect', 'display_name': 'Duke Connect', 'unix_name': 'root.duke'},
+                            'ci': {'name': 'ci-connect', 'display_name': 'CI Connect', 'unix_name': 'root.ci'},
+                            'localhost': {'name': 'cms-connect', 'display_name': 'LocalHost Connect', 'unix_name': 'root.cms'}}
+        url_host = request.host
+        for key, value in connect_keynames.iteritems():
+            if key in url_host:
+                session['url_host'] = value
+
         if profile:
             profile = profile['metadata']
             session['name'] = profile['name']
@@ -1476,9 +1451,11 @@ def authcallback():
             session['access_token'] = profile['access_token']
             session['unix_name'] = profile['unix_name']
             session['url_root'] = request.url_root
+            # session['url_host'] = (request.host).split(':')[0]
             session['admin'] = admin_check(profile['unix_name'])
         else:
             session['url_root'] = request.url_root
+            # session['url_host'] = (request.host).split(':')[0]
             session['email_pref'] = 'off'
             return redirect(url_for('create_profile',
                             next=url_for('profile')))
