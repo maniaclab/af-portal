@@ -16,25 +16,23 @@ from werkzeug.exceptions import HTTPException
 import sys
 import datetime
 
-sys.path.insert(0, '/etc/ci-connect/secrets')
+sys.path.insert(0, app.config['SECRETS_DIR'])
 
 try:
-    f = open("/etc/ci-connect/secrets/ciconnect_api_token.txt", "r")
-    g = open("/etc/ci-connect/secrets/ciconnect_api_endpoint.txt", "r")
+    ciconnect_api_token = app.config['CONNECT_API_TOKEN']
+    ciconnect_api_endpoint = app.config['CONNECT_API_ENDPOINT']
 except:
     # Use these two lines below on local
     f = open("secrets/ciconnect_api_token.txt", "r")
     g = open("secrets/ciconnect_api_endpoint.txt", "r")
-
-ciconnect_api_token = f.read().split()[0]
-ciconnect_api_endpoint = g.read().split()[0]
+    ciconnect_api_token = f.read().split()[0]
+    ciconnect_api_endpoint = g.read().split()[0]
 
 try:
-    j = open("/etc/ci-connect/secrets/mailgun_api_token.txt", "r")
+    mailgun_api_token = app.config['MAILGUN_API_TOKEN']
 except:
     j = open("secrets/mailgun_api_token.txt", "r")
-
-mailgun_api_token = j.read().split()[0]
+    mailgun_api_token = j.read().split()[0]
 
 # Create a custom error handler for Exceptions
 @app.errorhandler(Exception)
