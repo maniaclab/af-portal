@@ -16,7 +16,6 @@ from werkzeug.exceptions import HTTPException
 import sys
 import datetime
 
-sys.path.insert(0, app.config['SECRETS_DIR'])
 
 try:
     ciconnect_api_token = app.config['CONNECT_API_TOKEN']
