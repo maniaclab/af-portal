@@ -74,13 +74,13 @@
   		$('nav > ul > li > a[href="'+pathname+'"]').parent().addClass('active');
   	}
     if(String(hostname).includes('local')){
-      document.getElementById("connect-brand").src="{{url_for('static', filename='img/CMS_Connect_Logo.png')}}";
+      document.getElementById("connect-brand").src="{{url_for('static', filename='img/cms-connectlogo.png')}}";
     } else if(String(hostname).includes('atlas')){
-      document.getElementById("connect-brand").src="{{url_for('static', filename='img/Atlas_Connect_Logo.png')}}";
+      document.getElementById("connect-brand").src="{{url_for('static', filename='img/atlas-connect-logo.png')}}";
     } else if(String(hostname).includes('ci-connect')){
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/CI_Connect_Logo.png')}}";
     } else if(String(hostname).includes('cms')){
-      document.getElementById("connect-brand").src="{{url_for('static', filename='img/CMS_Connect_Logo.png')}}";
+      document.getElementById("connect-brand").src="{{url_for('static', filename='img/cms-connectlogo.png')}}";
     } else if(String(hostname).includes('duke')){
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/Duke_Connect_Logo.png')}}";
     } else if(String(hostname).includes('uchicago')){
@@ -105,7 +105,7 @@
       <div id="content">
         <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
           <a class="navbar-brand" href="{{url_for('home')}}">
-            <img src="{{url_for('static', filename='img/OSGConnect_Logo.png')}}" id="connect-brand" height="35" class="d-inline-block align-top" alt="">
+            <img src="" id="connect-brand" height="35" class="d-inline-block align-top" alt="">
           </a>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
