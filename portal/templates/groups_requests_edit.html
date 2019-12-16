@@ -83,45 +83,6 @@
           </div>
 
           <div class="form-group">
-            <label for="pi-name">PI Name <span class="asterik">*</span></label>
-            <input
-              type="text"
-              class="form-control"
-              id="pi-name"
-              name="pi-name"
-              required
-              placeholder="Name of Principle Investigator"
-              tabindex="6"
-            >
-          </div>
-
-          <div class="form-group">
-            <label for="pi-email">PI Email <span class="asterik">*</span></label>
-            <input
-              type="email"
-              id="pi-email"
-              name="pi-email"
-              required
-              class="form-control"
-              placeholder="johnsmith@email.com"
-              tabindex="7"
-            >
-          </div>
-
-          <div class="form-group">
-            <label for="pi-org">PI Organization <span class="asterik">*</span></label>
-            <input
-              type="text"
-              class="form-control"
-              id="pi-org"
-              name="pi-org"
-              required
-              placeholder="Name of PI Organization"
-              tabindex="8"
-            >
-          </div>
-
-          <div class="form-group">
             <label for="description">Description <span id="asterik"><span class="asterik">*</span></span></label>
             <textarea
               placeholder="Brief description of your group"
@@ -150,21 +111,17 @@ var email = {{group['email']|tojson}};
 var phone = {{group['phone']|tojson}};
 var field_of_science = {{group['purpose']|tojson}};
 var description = {{group['description']|tojson}};
-var pi_info = {{pi_info|tojson}};
 
 
-window.onload = setFormFields(name, display_name, email, phone, field_of_science, description, pi_info);
+window.onload = setFormFields(name, display_name, email, phone, field_of_science, description);
 
-function setFormFields(name, display_name, email, phone, field_of_science, description, pi_info){
+function setFormFields(name, display_name, email, phone, field_of_science, description){
   document.getElementById('name').value = name;
   document.getElementById('display-name').value = display_name;
   document.getElementById('email').value = email;
   document.getElementById('phone').value = phone;
   document.getElementById('field_of_science').value = field_of_science;
   document.getElementById("description").value = description;
-  document.getElementById("pi-name").value = pi_info['PI_Name'];
-  document.getElementById("pi-email").value = pi_info['PI_Email'];
-  document.getElementById("pi-org").value = pi_info['PI_Organization'];
 }
 
 function checkSpcialChar(event){
