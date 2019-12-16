@@ -12,15 +12,8 @@
       <div class="col-lg-12 mx-auto">
         {%include 'messages.html' %}
         <ol class="breadcrumb">
-          <!-- <li class="breadcrumb-item"><a href="{{url_for('view_group', group_name='root.osg')}}">Open Science Grid</a></li> -->
-          {% if group_name == 'root.osg' %}
-          <li class="breadcrumb-item"><a href="{{url_for('view_group', group_name='root.osg')}}">Open Science Grid</a></li>
-          <li class="breadcrumb-item active">Project Requests</li>
-          {% else %}
-          <li class="breadcrumb-item"><a href="{{url_for('groups')}}">OSG Projects</a></li>
           <li class="breadcrumb-item"><a href="{{url_for('view_group', group_name=group_name)}}">{{group['display_name']}}</a></li>
-          <li class="breadcrumb-item active">Subproject Requests</li>
-          {% endif %}
+          <li class="breadcrumb-item active">Subgroup Requests</li>
         </ol>
         <h2>{{group['display_name']}}</h2>
         <br>
@@ -36,24 +29,20 @@
             <button type="submit" name="pending_membership" class="btn btn-warning btn-sm disabled" data-submit="Pending Membership...">Requested Membership</button>
           </div>
           {% elif user_status == 'active' %}
-            {% if group_name == 'root.osg' %}
           <div class="btn-group mr-2" role="group" aria-label="first group">
-            <a href="{{url_for('create_subgroup', group_name=group_name)}}" class="btn btn-primary btn-sm">Request New Project</a>
+            <a href="{{url_for('create_subgroup', group_name=group_name)}}" class="btn btn-primary btn-sm">Request New Subgroup</a>
           </div>
-            {% endif %}
           {% elif user_status == 'admin' %}
-            {% if group_name == 'root.osg' %}
           <div class="btn-group mr-2" role="group" aria-label="first group">
-            <a href="{{url_for('create_subgroup', group_name=group_name)}}" class="btn btn-primary btn-sm">Create Project</a>
+            <a href="{{url_for('create_subgroup', group_name=group_name)}}" class="btn btn-primary btn-sm">Create Subgroup</a>
           </div>
-            {% endif %}
           <div class="btn-group mr-2" role="group" aria-label="second group">
-            <a href="{{url_for('edit_subgroup', group_name=group_name)}}" class="btn btn-secondary btn-sm">Edit Project</a>
+            <a href="{{url_for('edit_subgroup', group_name=group_name)}}" class="btn btn-secondary btn-sm">Edit Subgroup</a>
           </div>
             {% if group_name != 'root.osg' %}
           <div class="btn-group mr-2" role="group", aria-label="second group">
             <form role="form" action="{{url_for('delete_group', group_name=group_name)}}" method="POST" onsubmit="return confirm('Are you sure you want to delete this group?');">
-              <button type="submit" name="delete_group" class="btn btn-danger btn-sm" data-submit="Deleting Project...">Delete Project</button>
+              <button type="submit" name="delete_group" class="btn btn-danger btn-sm" data-submit="Deleting Project...">Delete Group</button>
             </form>
           </div>
             {% endif %}
@@ -76,21 +65,12 @@
                Members Pending
             </a>
           </li>
-          {% if group_name == 'root.osg' %}
           <li class="nav-item">
-            <a class="nav-link" href="{{url_for('view_group_subgroups', group_name=group_name)}}"><i class="fas fa-project-diagram"></i> Projects</a>
+            <a class="nav-link" href="{{url_for('view_group_subgroups', group_name=group_name)}}"><i class="fas fa-project-diagram"></i> Subgroups</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" href="#"><span class="badge badge-warning">{{subgroup_requests|length}}</span> Project Requests</a>
+            <a class="nav-link active" href="#"><span class="badge badge-warning">{{subgroup_requests|length}}</span> Subgroup Requests</a>
           </li>
-          {% else %}
-          <li class="nav-item">
-            <a class="nav-link" href="{{url_for('view_group_subgroups', group_name=group_name)}}"><i class="fas fa-project-diagram"></i> Subprojects</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link active" href="#"><span class="badge badge-warning">{{subgroup_requests|length}}</span> Subproject Requests</a>
-          </li>
-          {% endif %}
           {% if user_status == 'admin' %}
           <li class="nav-item">
             <a class="nav-link" href="{{url_for('view_group_add_members', group_name=group_name)}}"><i class="fas fa-user-plus"></i> Add Members</a>
@@ -102,11 +82,6 @@
         <div class="row">
           <div class="col-sm-12">
             <div class="table-responsive">
-              {% if group_name == 'root.osg' %}
-              <h4>Requested Projects</h4>
-              {% else %}
-              <h4>Requested Subprojects</h4>
-              {% endif %}
               <table class="table" id="groups-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
                 <thead>
                   <tr>
@@ -142,7 +117,7 @@
                           <div class="modal-dialog modal-dialog-centered" role="document">
                             <div class="modal-content">
                               <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLongTitle">Confirm denying project request</h5>
+                                <h5 class="modal-title" id="exampleModalLongTitle">Confirm denying group request</h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                   <span aria-hidden="true">&times;</span>
                                 </button>
@@ -152,7 +127,7 @@
                                   <div class="form-group">
                                     <label for="description">Reason for denial <span id="asterik">*</span></label>
                                     <textarea
-                                      placeholder="Brief reason for denying project request"
+                                      placeholder="Brief reason for denying group request"
                                       name="denial-message"
                                       required
                                       tabindex="1"
@@ -207,25 +182,6 @@ new Vue({
     axios.get('/groups-pending-members-count-xhr/{{group_name}}/members')
   .then(function (response) {
     this.members_requests_count = response.data;
-    this.loading = false;
-    // console.log(this.members_requests_count)
-  }.bind(this)) //must use bind(this) unless using arrow function
-  .catch(error => { this.failed = true; this.loading = false; })
-  }
-});
-new Vue({
-  el: '#subgroup-info',
-  data () {
-    return {
-      pi_info: {},
-      loading: true,
-      failed: false
-    }
-  },
-  mounted(){
-    axios.get('/pi-info-xhr/{{group_name}}')
-  .then(function (response) {
-    this.pi_info = response.data;
     this.loading = false;
     // console.log(this.members_requests_count)
   }.bind(this)) //must use bind(this) unless using arrow function
