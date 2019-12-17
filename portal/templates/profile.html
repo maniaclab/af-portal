@@ -62,8 +62,9 @@
                     </thead>
                     <tbody data-link="row" class="rowlink" style="font-size:14px;">
                       {% for group in group_memberships %}
+                        {% if group['name'] != 'root' %}
                       <tr>
-                        <td><a href="{{url_for('view_group', group_name=group['name'])}}">{{group}} - {{'.'.join(group['name'].split('.')[1:])}}</a></td>
+                        <td><a href="{{url_for('view_group', group_name=group['name'])}}">{{'.'.join(group['name'].split('.')[1:])}}</a></td>
                           {% if group['state'] == 'pending' %}
                         <td style='color: orange;'><strong>{{group['state']}}</strong></td>
                           {% elif group['state'] == 'active' %}
@@ -72,6 +73,7 @@
                         <td style='color: blue;'><strong>{{group['state']}}</strong></td>
                           {% endif %}
                       </tr>
+                        {% endif %}
                       {% endfor %}
                     </tbody>
                   </table>
