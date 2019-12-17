@@ -331,8 +331,13 @@ def view_group_members(group_name):
                         group_name + '/members/' + session['unix_name'], params=query)
         user_status = user_status.json()['membership']['state']
 
+        # Query to return user's membership status in a group, specifically if user is in connect group
+        r = requests.get(
+            ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/' + session['url_host']['unix_name'], params=query)
+        connect_status = r.json()['membership']['state']
+
         return render_template('group_profile_members.html', group_name=group_name,
-                                user_status=user_status, group=group)
+                                user_status=user_status, group=group, connect_status=connect_status)
 
 
 @app.route('/groups-xhr/<group_name>/members', methods=['GET'])
@@ -485,42 +490,12 @@ def view_group_add_members(group_name):
     """Detailed view of group's non-members"""
     query = {'token': ciconnect_api_token}
     if request.method == 'GET':
-        # # Get root base group users
-        # enclosing_group_name = '.'.join(group_name.split('.')[:-1])
-        # # print(enclosing_group_name)
-        # enclosing_group = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/'
-        #                     + enclosing_group_name + '/members', params=query)
-        # enclosing_group = enclosing_group.json()['memberships']
-        # enclosing_group_members_names = [member['user_name'] for member in enclosing_group]
-        # # print(base_group)
-        #
         # Get group information
         group = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/'
                             + group_name, params=query)
         group = group.json()['metadata']
 
         display_name = '-'.join(group_name.split('.')[1:])
-        # group_members = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name + '/members', params=query)
-        # memberships = group_members.json()['memberships']
-        # memberships_names = [member['user_name'] for member in memberships]
-        #
-        # non_members = list(set(enclosing_group_members_names) - set(memberships_names))
-        #
-        # multiplexJson = {}
-        #
-        # for user in non_members:
-        #     unix_name = user
-        #     user_query = "/v1alpha1/users/" + unix_name + "?token=" + query['token']
-        #     multiplexJson[user_query] = {"method":"GET"}
-        #
-        # # POST request for multiplex return
-        # multiplex = requests.post(
-        #     ciconnect_api_endpoint + '/v1alpha1/multiplex', params=query, json=multiplexJson)
-        # multiplex = multiplex.json()
-        # user_dict = {}
-        # for user in multiplex:
-        #     user_name = user.split('/')[3].split('?')[0]
-        #     user_dict[user_name] = json.loads(multiplex[user]['body'])
 
         # Get User's Group Status
         user_status = requests.get(
@@ -535,14 +510,14 @@ def view_group_add_members(group_name):
         except:
             user_super = False
 
-        # Query to return user's membership status in a group, specifically if user is OSG admin
+        # Query to return user's membership status in a group, specifically if user is connect admin
         r = requests.get(
             ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/' + session['url_host']['unix_name'], params=query)
-        osg_status = r.json()['membership']['state']
+        connect_status = r.json()['membership']['state']
 
         return render_template('group_profile_add_members.html', group_name=group_name,
                                 display_name=display_name, user_status=user_status,
-                                user_super=user_super, group=group, osg_status=osg_status)
+                                user_super=user_super, group=group, connect_status=connect_status)
 
 
 @app.route('/groups-xhr/<group_name>/add_members', methods=['GET', 'POST'])
@@ -702,12 +677,12 @@ def view_group_subgroups(group_name):
 
         user_status = user_status.json()['membership']['state']
 
-        # Check if user is active member of OSG specifically
-        osg_status = requests.get(ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/' + session['url_host']['unix_name'], params=query)
-        osg_status = osg_status.json()['membership']['state']
+        # Check if user is active member of connect specifically
+        connect_status = requests.get(ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/' + session['url_host']['unix_name'], params=query)
+        connect_status = connect_status.json()['membership']['state']
 
         return render_template('group_profile_subgroups.html', group_name=group_name,
-                                user_status=user_status, group=group, osg_status=osg_status)
+                                user_status=user_status, group=group, connect_status=connect_status)
 
 @app.route('/groups-xhr/<group_name>/subgroups', methods=['GET', 'POST'])
 @authenticated
@@ -751,10 +726,14 @@ def view_group_subgroups_requests(group_name):
         subgroup_requests = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name + '/subgroup_requests', params=query)
         subgroup_requests = subgroup_requests.json()['groups']
 
+        # Check if user is active member of OSG specifically
+        connect_status = requests.get(ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/' + session['url_host']['unix_name'], params=query)
+        connect_status = connect_status.json()['membership']['state']
+
         return render_template('group_profile_subgroups_requests.html',
                                 display_name=display_name, subgroup_requests=subgroup_requests,
                                 group_name=group_name, user_status=user_status,
-                                group=group)
+                                group=group, connect_status=connect_status)
 
 
 @app.route('/groups-xhr/<group_name>/subgroups-requests', methods=['GET', 'POST'])

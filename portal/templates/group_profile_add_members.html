@@ -25,7 +25,7 @@
         <h2>{{group['display_name']}}</h2>
         <br>
         <div class="btn-toolbar" role="toolbar">
-          {% if (user_status == 'nonmember' and (osg_status == 'active' or osg_status == 'admin')) %}
+          {% if (user_status == 'nonmember' and (connect_status == 'active' or connect_status == 'admin')) %}
           <div class="btn-group mr-2" role="group", aria-label="first group">
             <form role="form" action="{{url_for('view_group', group_name=group_name)}}" method="POST" onsubmit="return confirm('Are you sure you want to request to join this group?');">
               <button type="submit" name="request_group" class="btn btn-primary btn-sm" data-submit="Requesting Membership...">Request Membership</button>
@@ -84,7 +84,7 @@
             <a class="nav-link" href="{{url_for('view_group_subgroups_requests', group_name=group_name)}}"><span class="badge badge-warning">{[{subgroup_requests_count}]}</span> Project Requests</a>
           </li>
           {% endif %}
-          {% if (osg_status == 'admin') %}
+          {% if (connect_status == 'admin') %}
           <li class="nav-item">
             <a class="nav-link active" href="{{url_for('view_group_add_members', group_name=group_name)}}"><i class="fas fa-user-plus"></i> Add Members</a>
           </li>
@@ -102,7 +102,7 @@
                     <th data-field="name" data-sortable="true">Name</th>
                     <th data-field="unix-name" data-sortable="true">Unix Name</th>
                     <th data-field="institution" data-sortable="true">Institution</th>
-                    {% if (osg_status == 'admin' or user_status == 'admin') %}
+                    {% if (connect_status == 'admin' or user_status == 'admin') %}
                     <th data-field="action" data-sortable="true">Action</th>
                     {% endif %}
                   </tr>
@@ -151,7 +151,7 @@ $(document).ready(function() {
         non_members: {},
         groupname: {{ group_name|tojson|safe }},
         admin: {{ user_status|tojson|safe }},
-        osg_admin: {{ osg_status|tojson|safe }},
+        osg_admin: {{ connect_status|tojson|safe }},
         loading: true,
         failed: false
       }
