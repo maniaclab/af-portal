@@ -74,13 +74,20 @@
   		$('nav > ul > li > a[href="'+pathname+'"]').parent().addClass('active');
   	}
     if(String(hostname).includes('local')){
+      // Set localhost to test as CMS for now
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/cms-connectlogo.png')}}";
+      document.getElementById("nav-overview").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/overview";
+      document.getElementById("nav-handbook").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/pages/22609980/Introduction+to+CMS+Connect";
     } else if(String(hostname).includes('atlas')){
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/atlas-connect-logo.png')}}";
+      document.getElementById("nav-overview").href="https://ci-connect.atlassian.net/wiki/spaces/AC/overview";
+      document.getElementById("nav-handbook").href="https://ci-connect.atlassian.net/wiki/spaces/AC/pages/1114129/ATLAS+Connect+Quickstart";
     } else if(String(hostname).includes('ci-connect')){
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/CI_Connect_Logo.png')}}";
     } else if(String(hostname).includes('cms')){
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/cms-connectlogo.png')}}";
+      document.getElementById("nav-overview").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/overview";
+      document.getElementById("nav-handbook").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/pages/22609980/Introduction+to+CMS+Connect";
     } else if(String(hostname).includes('duke')){
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/Duke_Connect_Logo.png')}}";
     } else if(String(hostname).includes('uchicago')){
@@ -132,9 +139,13 @@
                   Support
                 </a>
                 <div class="dropdown-menu" aria-labelledby="support-dropdown-menu">
-                  <a class="dropdown-item" href="https://support.opensciencegrid.org/support/home" target="_blank">Helpdesk</a>
+                  <h6 class="dropdown-header">Documentation</h6>
+                  <a class="dropdown-item" id="nav-overview" href="" target="_blank">Overview</a>
+                  <a class="dropdown-item" id="nav-handbook" href="" target="_blank">Handbook</a>
+                  {% if session.get('is_authenticated') %}
                   <!-- Mail email mailgun form -->
                   <a class="dropdown-item" href="{{url_for('support')}}">Contact Us</a>
+                  {% endif %}
                 </div>
               </li>
               <li class="nav-item">
@@ -146,9 +157,13 @@
                   Support
                 </a>
                 <div class="dropdown-menu" aria-labelledby="support-dropdown-menu">
-                  <a class="dropdown-item" href="https://support.opensciencegrid.org/support/home" target="_blank">Helpdesk</a>
+                  <h6 class="dropdown-header">Documentation</h6>
+                  <a class="dropdown-item" id="nav-overview" href="" target="_blank">Overview</a>
+                  <a class="dropdown-item" id="nav-handbook" href="" target="_blank">Handbook</a>
+                  {% if session.get('is_authenticated') %}
                   <!-- Mail email mailgun form -->
                   <a class="dropdown-item" href="{{url_for('support')}}">Contact Us</a>
+                  {% endif %}
                 </div>
               </li>
               <li class="nav-item">
