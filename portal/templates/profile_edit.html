@@ -172,11 +172,10 @@ var email = {{profile['email']|tojson}};
 var phone = {{profile['phone']|tojson}};
 var institution = {{profile['institution']|tojson}};
 var ssh_pubkey = {{profile['public_key']|tojson}};
-var email_pref = {{email_preference|tojson}};
 
-window.onload = setEditFields(name, email, phone, institution, ssh_pubkey, email_pref);
+window.onload = setEditFields(name, email, phone, institution, ssh_pubkey);
 
-function setEditFields(name, email, phone, institution, ssh_pubkey, email_pref){
+function setEditFields(name, email, phone, institution, ssh_pubkey){
   document.getElementById('name').value = name;
   document.getElementById('email').value = email;
   document.getElementById('phone-number').value = phone;

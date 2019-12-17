@@ -1125,11 +1125,9 @@ def create_profile():
                                      'phone': phone, 'institution': institution,
                                      'unix_name': unix_name, 'superuser': superuser,
                                      'service_account': service_account}}
-        print("POST_USER: {}".format(post_user))
-        print("QUERY: {}".format(query))
-        print("REQUEST URL, QUERY, and POST_USER: {}".format(ciconnect_api_endpoint + '/v1alpha1/users'))
         r = requests.post(ciconnect_api_endpoint + '/v1alpha1/users', params=query, json=post_user)
         print("REQUEST RESPONSE: {}".format(r))
+        print("REQUEST URL: {}".format(r.url))
         if r.status_code == requests.codes.ok:
             r = r.json()['metadata']
             session['name'] = r['name']
