@@ -88,23 +88,13 @@
             >
           </div>
 
-          <div class="form-group custom-control custom-switch">
-            <input
-              type="checkbox"
-              class="custom-control-input"
-              name="email_preference"
-              id="email_preference"
-              tabindex="6">
-            <label class="custom-control-label" for="email_preference">Subscribe me to OSG's mailing list</label>
-          </div>
-
           <div class="form-group">
             <label for="sshpubstring">SSH Public Key</label>
             <textarea
               placeholder="Please enter your SSH public key here..."
               name="sshpubstring"
               id="sshpubstring"
-              tabindex="7"
+              tabindex="6"
               style="background-color:white; color:black; border-radius:4px; border-color:lightgrey;"
               >{{public_key}}</textarea>
           </div>
@@ -197,19 +187,13 @@
 var name = {{session['name']|tojson}};
 var email = {{session['email']|tojson}};
 var institution = {{session['institution']|tojson}};
-var email_pref = {{session['email_pref']|tojson}};
 
-window.onload = setEditFields(name, email, institution, email_pref);
+window.onload = setEditFields(name, email, institution);
 
-function setEditFields(name, email, institution, email_pref){
+function setEditFields(name, email, institution){
   document.getElementById('name').value = name;
   document.getElementById('email').value = email;
   document.getElementById('institution').value = institution;
-  if(email_pref === 'on'){
-    document.getElementById('email_preference').checked = true;
-  } else {
-    document.getElementById('email_preference').checked = false;
-  }
 }
 
 </script>

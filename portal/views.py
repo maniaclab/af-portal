@@ -13,7 +13,7 @@ from portal.utils import (load_portal_client, get_portal_tokens,
                           get_safe_redirect)
 from werkzeug.exceptions import HTTPException
 # Use these four lines on container
-import sys
+import sys, os
 import datetime
 
 
@@ -32,6 +32,8 @@ try:
 except:
     j = open("secrets/mailgun_api_token.txt", "r")
     mailgun_api_token = j.read().split()[0]
+
+brand_dir = app.config['PORTAL_BRAND']
 
 # Create a custom error handler for Exceptions
 @app.errorhandler(Exception)
@@ -67,8 +69,20 @@ def handle_exception(e):
 @app.route('/', methods=['GET'])
 def home():
     """Home page - play with it if you must!"""
+    for filename in os.listdir(brand_dir):
+        # dir_name = filename.split('/')[-1]
+        if filename in request.url_root:
+            portal_data_dir = os.path.join(brand_dir, filename)
 
-    return render_template('home.html')
+    with open(portal_data_dir + '/home_content/home_text_headline.md', "r") as file:
+        home_text_headline = file.read()
+
+    with open(portal_data_dir + '/home_content/home_text_rotating.md', "r") as file:
+        home_text_rotating = file.read()
+
+    image_source= portal_data_dir + '/img/cms-connectlogo.png'
+    print(image_source)
+    return render_template('home.html', home_text_rotating=home_text_rotating, home_text_headline=home_text_headline, image_source=image_source)
 
 
 @app.route('/support', methods=['GET', 'POST'])
@@ -1095,16 +1109,10 @@ def create_profile():
         phone = request.form['phone-number']
         institution = request.form['institution']
         public_key = request.form['sshpubstring']
-        try:
-            email_preference = request.form['email_preference']
-            email_preference = 'on'
-        except:
-            email_preference = 'off'
         globus_id = session['primary_identity']
         superuser = False
         service_account = False
 
-        additional_metadata = {'OSG:Email_Preference': email_preference}
         # Schema and query for adding users to CI Connect DB
         if public_key:
             post_user = {"apiVersion": 'v1alpha1',
@@ -1120,8 +1128,9 @@ def create_profile():
                                      'unix_name': unix_name, 'superuser': superuser,
                                      'service_account': service_account}}
 
-        # print("POSTED: {}".format(post_user))
+        print("REQUEST URL, QUERY, and POST_USER: {}".format(ciconnect_api_endpoint + '/v1alpha1/users', query, post_user))
         r = requests.post(ciconnect_api_endpoint + '/v1alpha1/users', params=query, json=post_user)
+        print("REQUEST RESPONSE: {}".format(r))
         if r.status_code == requests.codes.ok:
             r = r.json()['metadata']
             session['name'] = r['name']
@@ -1130,12 +1139,6 @@ def create_profile():
             session['institution'] = r['institution']
             session['access_token'] = r['access_token']
             session['unix_name'] = r['unix_name']
-
-            # Additional PUT request to set additional attributes metadata
-            email_query = {"apiVersion": 'v1alpha1',
-                            "data": email_preference}
-            set_additional_attr = requests.put(ciconnect_api_endpoint + '/v1alpha1/users/' + r['unix_name'] + '/attributes/OSG:Email_Preference', params=query, json=email_query)
-            # print("SET ADD ATTR: {}".format(set_additional_attr))
 
             # Auto generate group membership into connect group
             put_query = {"apiVersion": 'v1alpha1',
@@ -1157,13 +1160,11 @@ def create_profile():
             return redirect(url_for('profile'))
         else:
             error_msg = r.json()['message']
-            session['email_pref'] = email_preference
-            print(name, unix_name, email, phone, institution, public_key, email_preference)
             flash(
                 'Failed to create your account: {}'.format(error_msg), 'warning')
             return render_template('profile_create.html', name=name, unix_name=unix_name,
                                     email=email, phone=phone, institution=institution,
-                                    public_key=public_key, email_preference=email_preference)
+                                    public_key=public_key)
 
 
 @app.route('/profile/edit/<unix_name>', methods=['GET', 'POST'])
@@ -1182,15 +1183,7 @@ def edit_profile(unix_name):
                     ciconnect_api_endpoint + '/v1alpha1/users/' + unix_name, params=query)
         profile = profile.json()['metadata']
 
-        try:
-            additional_attributes = requests.get(ciconnect_api_endpoint + '/v1alpha1/users/'
-                                            + unix_name + '/attributes/OSG:Email_Preference', params=query)
-            email_preference = additional_attributes.json()['data']
-            print(email_preference)
-        except:
-            email_preference = 'off'
-
-        return render_template('profile_edit.html', profile=profile, unix_name=unix_name, email_preference=email_preference)
+        return render_template('profile_edit.html', profile=profile, unix_name=unix_name)
 
     elif request.method == 'POST':
         name = request.form['name']
@@ -1386,7 +1379,6 @@ def authcallback():
         else:
             session['url_root'] = request.url_root
             # session['url_host'] = (request.host).split(':')[0]
-            session['email_pref'] = 'off'
             return redirect(url_for('create_profile',
                             next=url_for('profile')))
         return redirect(url_for('profile'))
