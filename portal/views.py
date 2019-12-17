@@ -1079,7 +1079,7 @@ def logout():
     ga_logout_url.append(app.config['GLOBUS_AUTH_LOGOUT_URI'])
     ga_logout_url.append('?client={}'.format(app.config['PORTAL_CLIENT_ID']))
     ga_logout_url.append('&redirect_uri={}'.format(redirect_uri))
-    ga_logout_url.append('&redirect_name=OSG Connect')
+    ga_logout_url.append('&redirect_name='+session['url_host']['display_name'])
 
     # Redirect the user to the Globus Auth logout page
     return redirect(''.join(ga_logout_url))
@@ -1354,7 +1354,7 @@ def authcallback():
         connect_keynames = {'atlas': {'name': 'atlas-connect', 'display_name': 'Atlas Connect', 'unix_name': 'root.atlas'},
                             'cms': {'name': 'cms-connect', 'display_name': 'CMS Connect', 'unix_name': 'root.cms'},
                             'duke': {'name': 'duke-connect', 'display_name': 'Duke Connect', 'unix_name': 'root.duke'},
-                            'ci': {'name': 'ci-connect', 'display_name': 'CI Connect', 'unix_name': 'root.ci'},
+                            'ci-connect': {'name': 'ci-connect', 'display_name': 'CI Connect', 'unix_name': 'root'},
                             'localhost': {'name': 'cms-connect', 'display_name': 'LocalHost Connect', 'unix_name': 'root.cms'}}
         url_host = request.host
         for key, value in connect_keynames.iteritems():
