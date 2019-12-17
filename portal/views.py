@@ -33,7 +33,7 @@ except:
     j = open("secrets/mailgun_api_token.txt", "r")
     mailgun_api_token = j.read().split()[0]
 
-brand_dir = app.config['PORTAL_BRAND']
+# brand_dir = app.config['PORTAL_BRAND']
 
 # Create a custom error handler for Exceptions
 @app.errorhandler(Exception)
