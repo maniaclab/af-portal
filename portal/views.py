@@ -1091,8 +1091,7 @@ def create_profile():
     identity_id = session.get('primary_identity')
     institution = session.get('institution')
     globus_id = identity_id
-    query = {'token': ciconnect_api_token,
-             'globus_id': globus_id}
+    query = {'token': ciconnect_api_token}
 
     if request.method == 'GET':
         unix_name = ''
