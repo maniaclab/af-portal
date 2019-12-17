@@ -1058,7 +1058,7 @@ def logout():
     ga_logout_url.append(app.config['GLOBUS_AUTH_LOGOUT_URI'])
     ga_logout_url.append('?client={}'.format(app.config['PORTAL_CLIENT_ID']))
     ga_logout_url.append('&redirect_uri={}'.format(redirect_uri))
-    ga_logout_url.append('&redirect_name='+session['url_host']['display_name'])
+    ga_logout_url.append('&redirect_name=Connect Portal')
 
     # Redirect the user to the Globus Auth logout page
     return redirect(''.join(ga_logout_url))
