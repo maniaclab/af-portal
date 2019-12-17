@@ -69,18 +69,18 @@ def handle_exception(e):
 @app.route('/', methods=['GET'])
 def home():
     """Home page - play with it if you must!"""
-    portal_data_dir = ''
-    for filename in os.listdir(brand_dir):
-        # dir_name = filename.split('/')[-1]
-        if filename in request.url_root:
-            portal_data_dir = os.path.join(brand_dir, filename)
-
-    with open(portal_data_dir + '/home_content/home_text_headline.md', "r") as file:
-        home_text_headline = file.read()
-
-    with open(portal_data_dir + '/home_content/home_text_rotating.md', "r") as file:
-        home_text_rotating = file.read()
-    return render_template('home.html', home_text_rotating=home_text_rotating, home_text_headline=home_text_headline, image_source=image_source)
+    # portal_data_dir = ''
+    # for filename in os.listdir(brand_dir):
+    #     # dir_name = filename.split('/')[-1]
+    #     if filename in request.url_root:
+    #         portal_data_dir = os.path.join(brand_dir, filename)
+    #
+    # with open(portal_data_dir + '/home_content/home_text_headline.md', "r") as file:
+    #     home_text_headline = file.read()
+    #
+    # with open(portal_data_dir + '/home_content/home_text_rotating.md', "r") as file:
+    #     home_text_rotating = file.read()
+    return render_template('home.html')
 
 
 @app.route('/support', methods=['GET', 'POST'])
