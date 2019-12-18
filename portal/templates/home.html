@@ -48,7 +48,7 @@ if(String(hostname).includes('local')){
   document.getElementById("headline").innerHTML="Front door to <a href='http://ci-connect.net/' target='_blank'></a> CI-Connect";
 } else if(String(hostname).includes('cms')){
   document.getElementById("home-brand").src="{{url_for('static', filename='img/cms-connectlogo.png')}}";
-  document.getElementById("headline").innerHTML="Front door to CMS Global Pool";
+  document.getElementById("headline").innerHTML="Front door to the CMS Global Pool";
 } else if(String(hostname).includes('duke')){
   document.getElementById("home-brand").src="{{url_for('static', filename='img/Duke_Connect_Logo.png')}}";
   document.getElementById("headline").innerHTML="Front door to <a href='https://duke.ci-connect.net/' target='_blank'></a> Duke Connect";
