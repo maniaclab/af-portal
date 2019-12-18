@@ -253,13 +253,15 @@ def view_group(group_name):
         r = requests.get(
             ciconnect_api_endpoint + '/v1alpha1/users/' + unix_name + '/groups/' + session['url_host']['unix_name'], params=query)
         connect_status = r.json()['membership']['state']
+
+        # Zip list of nested group's display names and associated unix names
         display_names = group_name.split('.')[1:]
-        unix_name = 'root'
-        unix_names = []
+        project_unix_name = 'root'
+        project_unix_names = []
         for display_name in display_names:
-            unix_name = '.'.join([unix_name, display_name])
-            unix_names.append(unix_name)
-        breadcrumb_zip = zip(display_names, unix_names)
+            project_unix_name = '.'.join([project_unix_name, display_name])
+            project_unix_names.append(project_unix_name)
+        breadcrumb_zip = zip(display_names, project_unix_names)
         # print(breadcrumb_zip)
         return render_template('group_profile.html', group=group,
                                 group_name=group_name, user_status=user_status,
@@ -344,8 +346,18 @@ def view_group_members(group_name):
             ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/' + session['url_host']['unix_name'], params=query)
         connect_status = r.json()['membership']['state']
 
+        # Zip list of nested group's display names and associated unix names
+        display_names = group_name.split('.')[1:]
+        project_unix_name = 'root'
+        project_unix_names = []
+        for display_name in display_names:
+            project_unix_name = '.'.join([project_unix_name, display_name])
+            project_unix_names.append(project_unix_name)
+        breadcrumb_zip = zip(display_names, project_unix_names)
+
         return render_template('group_profile_members.html', group_name=group_name,
-                                user_status=user_status, group=group, connect_status=connect_status)
+                                user_status=user_status, group=group,
+                                connect_status=connect_status, breadcrumb_zip=breadcrumb_zip)
 
 
 @app.route('/groups-xhr/<group_name>/members', methods=['GET'])
@@ -484,12 +496,22 @@ def view_group_members_requests(group_name):
             ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/root.atlas', params=query)
         connect_status = r.json()['membership']['state']
 
+        # Zip list of nested group's display names and associated unix names
+        display_names = group_name.split('.')[1:]
+        project_unix_name = 'root'
+        project_unix_names = []
+        for display_name in display_names:
+            project_unix_name = '.'.join([project_unix_name, display_name])
+            project_unix_names.append(project_unix_name)
+        breadcrumb_zip = zip(display_names, project_unix_names)
+
         return render_template('group_profile_members_requests.html',
                                 group_members=user_dict, group_name=group_name,
                                 display_name=display_name, user_status=user_status,
                                 user_super=user_super,
                                 users_statuses=users_statuses,
-                                connect_status=connect_status, group=group)
+                                connect_status=connect_status, group=group,
+                                breadcrumb_zip=breadcrumb_zip)
 
 
 @app.route('/groups/<group_name>/add_members', methods=['GET', 'POST'])
@@ -689,8 +711,18 @@ def view_group_subgroups(group_name):
         connect_status = requests.get(ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/' + session['url_host']['unix_name'], params=query)
         connect_status = connect_status.json()['membership']['state']
 
+        # Zip list of nested group's display names and associated unix names
+        display_names = group_name.split('.')[1:]
+        project_unix_name = 'root'
+        project_unix_names = []
+        for display_name in display_names:
+            project_unix_name = '.'.join([project_unix_name, display_name])
+            project_unix_names.append(project_unix_name)
+        breadcrumb_zip = zip(display_names, project_unix_names)
+
         return render_template('group_profile_subgroups.html', group_name=group_name,
-                                user_status=user_status, group=group, connect_status=connect_status)
+                                user_status=user_status, group=group,
+                                connect_status=connect_status, breadcrumb_zip=breadcrumb_zip)
 
 @app.route('/groups-xhr/<group_name>/subgroups', methods=['GET', 'POST'])
 @authenticated
@@ -739,10 +771,20 @@ def view_group_subgroups_requests(group_name):
         connect_status = requests.get(ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/' + session['url_host']['unix_name'], params=query)
         connect_status = connect_status.json()['membership']['state']
 
+        # Zip list of nested group's display names and associated unix names
+        display_names = group_name.split('.')[1:]
+        project_unix_name = 'root'
+        project_unix_names = []
+        for display_name in display_names:
+            project_unix_name = '.'.join([project_unix_name, display_name])
+            project_unix_names.append(project_unix_name)
+        breadcrumb_zip = zip(display_names, project_unix_names)
+
         return render_template('group_profile_subgroups_requests.html',
                                 display_name=display_name, subgroup_requests=subgroup_requests,
                                 group_name=group_name, user_status=user_status,
-                                group=group, connect_status=connect_status)
+                                group=group, connect_status=connect_status,
+                                breadcrumb_zip=breadcrumb_zip)
 
 
 @app.route('/groups-xhr/<group_name>/subgroups-requests', methods=['GET', 'POST'])
