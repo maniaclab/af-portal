@@ -4,4 +4,4 @@
 Services/ Connected environments from hosted services/ Cycles and Data
 Virtually in One Place -->
 
-Tier-3 like computing/ Use CRAB for large scale data runs/
+Tier-3 like computing/ Submit user-defined scripts via HTCondor/ Late stage analysis workflows
