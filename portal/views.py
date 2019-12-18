@@ -253,11 +253,19 @@ def view_group(group_name):
         r = requests.get(
             ciconnect_api_endpoint + '/v1alpha1/users/' + unix_name + '/groups/' + session['url_host']['unix_name'], params=query)
         connect_status = r.json()['membership']['state']
-
+        display_names = group_name.split('.')[1:]
+        unix_name = 'root'
+        unix_names = []
+        for display_name in display_names:
+            unix_name = '.'.join([unix_name, display_name])
+            unix_names.append(unix_name)
+        breadcrumb_zip = zip(display_names, unix_names)
+        # print(breadcrumb_zip)
         return render_template('group_profile.html', group=group,
                                 group_name=group_name, user_status=user_status,
                                 connect_status=connect_status,
-                                group_creation_date=group_creation_date)
+                                group_creation_date=group_creation_date,
+                                breadcrumb_zip=breadcrumb_zip)
     elif request.method == 'POST':
         '''Request membership to join group'''
         put_query = {"apiVersion": 'v1alpha1',
