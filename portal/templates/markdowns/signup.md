@@ -1,1 +1,1 @@
-Sign Up for OSG Connect
+Sign Up for CMS Connect
