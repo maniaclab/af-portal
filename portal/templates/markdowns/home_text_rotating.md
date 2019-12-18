@@ -4,4 +4,4 @@
 Services/ Connected environments from hosted services/ Cycles and Data
 Virtually in One Place -->
 
-Access free opportunistic cycles/ Researcher facilitation/ High throughput computing
+Tier-3 like computing/ Use CRAB for large scale data runs/
