@@ -39,7 +39,7 @@ var hostname = window.location.hostname
 
 if(String(hostname).includes('local')){
   document.getElementById("home-brand").src="{{url_for('static', filename='img/cms-connectlogo.png')}}";
-  document.getElementById("headline").innerHTML="Front door to <a href='https://connect.uscms.org/' target='_blank'></a> CMS";
+  document.getElementById("headline").innerHTML="Front door to CMS Global Pool";
 } else if(String(hostname).includes('atlas')){
   document.getElementById("home-brand").src="{{url_for('static', filename='img/atlas-connect-logo.png')}}";
   document.getElementById("headline").innerHTML="Front door to <a href='https://connect.usatlas.org/' target='_blank'></a> Atlas";
