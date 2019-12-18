@@ -697,7 +697,10 @@ def view_group_subgroups_request(group_name):
         # Get group's subgroups information
         subgroups = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name + '/subgroups', params=query)
         subgroups = subgroups.json()['groups']
-        subgroups = [subgroup for subgroup in subgroups if (len(subgroup['name'].split('.')) == 3 and not subgroup['pending'])]
+        # subgroups = [subgroup for subgroup in subgroups if (len(subgroup['name'].split('.')) == 3 and not subgroup['pending'])]
+        subgroups = [subgroup for subgroup in subgroups if (not subgroup['pending'])]
+
+        # print(subgroups)
 
         return subgroups
 
