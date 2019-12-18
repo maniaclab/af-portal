@@ -700,8 +700,6 @@ def view_group_subgroups_request(group_name):
         # subgroups = [subgroup for subgroup in subgroups if (len(subgroup['name'].split('.')) == 3 and not subgroup['pending'])]
         subgroups = [subgroup for subgroup in subgroups if (not subgroup['pending'])]
 
-        # print(subgroups)
-
         return subgroups
 
 

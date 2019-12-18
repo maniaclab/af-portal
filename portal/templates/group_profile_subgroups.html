@@ -86,6 +86,7 @@
                 <thead>
                   <tr>
                     <th data-field="name" data-sortable="true">Name</th>
+                    <th data-field="unix-name" data-sortable="true">Unix Name</th>
                     <th data-field="field_of_science" data-sortable="true">Field of Science</th>
                     {% if connect_status == 'admin' %}
                     <th data-field="email" data-sortable="true">Contact Email</th>
@@ -96,15 +97,18 @@
                   <tr v-if="loading">
               			<td>Loading Data <i class="fas fa-sync fa-spin"></i></td>
               			<td><i class="fas fa-sync fa-spin"></i></td>
+                    <td><i class="fas fa-sync fa-spin"></i></td>
               			<td v-if="connect_status === 'admin'" ><i class="fas fa-sync fa-spin"></i></td>
               		</tr>
               		<tr v-if="failed">
               			<td>Failed to load the data, please refresh the page <i class="far fa-times-circle"></i></td>
               			<td><i class="far fa-times-circle"></i></td>
+                    <td><i class="far fa-times-circle"></i></td>
               			<td v-if="connect_status === 'admin'" ><i class="far fa-times-circle"></i></td>
               		</tr>
                   <tr v-for="subgroup in subgroups" v-cloak >
                     <td><a :href="'/groups/' + subgroup.name">{[{subgroup.display_name}]}</a></td>
+                    <td>{[{subgroup.display_name.split('-').join('.')}]}</td>
                     <td>{[{subgroup.purpose}]}</td>
                     <td v-if="connect_status === 'admin'" ><a href="mailto:{[{subgroup.email}]}?subject=Project Inquiry">{[{subgroup.email}]}</a></td>
                   </tr>
