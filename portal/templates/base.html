@@ -82,8 +82,6 @@
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/atlas-connect-logo.png')}}";
       document.getElementById("nav-overview").href="https://ci-connect.atlassian.net/wiki/spaces/AC/overview";
       document.getElementById("nav-handbook").href="https://ci-connect.atlassian.net/wiki/spaces/AC/pages/1114129/ATLAS+Connect+Quickstart";
-    } else if(String(hostname).includes('ci-connect')){
-      document.getElementById("connect-brand").src="{{url_for('static', filename='img/CI_Connect_Logo.png')}}";
     } else if(String(hostname).includes('cms')){
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/cms-connectlogo.png')}}";
       document.getElementById("nav-overview").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/overview";
