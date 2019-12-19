@@ -33,7 +33,12 @@ except:
     j = open("secrets/mailgun_api_token.txt", "r")
     mailgun_api_token = j.read().split()[0]
 
-# brand_dir = app.config['PORTAL_BRAND']
+# Read Brand Dir from config and insert path to read
+brand_dir = app.config['PORTAL_BRAND']
+sys.path.insert(0, brand_dir)
+# with open(brand_dir+'/cms.ci-connect.net/signup_content/signup_instructions.md', "r") as file:
+#     f = file.read()
+#     print("Reading external markdowns directory: {}".format(f))
 
 # Create a custom error handler for Exceptions
 @app.errorhandler(Exception)
@@ -69,18 +74,12 @@ def handle_exception(e):
 @app.route('/', methods=['GET'])
 def home():
     """Home page - play with it if you must!"""
-    # portal_data_dir = ''
-    # for filename in os.listdir(brand_dir):
-    #     # dir_name = filename.split('/')[-1]
-    #     if filename in request.url_root:
-    #         portal_data_dir = os.path.join(brand_dir, filename)
-    #
-    # with open(portal_data_dir + '/home_content/home_text_headline.md', "r") as file:
-    #     home_text_headline = file.read()
-    #
-    # with open(portal_data_dir + '/home_content/home_text_rotating.md', "r") as file:
-    #     home_text_rotating = file.read()
-    return render_template('home.html')
+    with open(brand_dir+'/cms.ci-connect.net/home_content/home_text_headline.md', "r") as file:
+        home_text_headline = file.read()
+    with open(brand_dir+'/cms.ci-connect.net/home_content/home_text_rotating.md', "r") as file:
+        home_text_rotating = file.read()
+    return render_template('home.html', home_text_headline=home_text_headline,
+                                        home_text_rotating=home_text_rotating)
 
 
 @app.route('/support', methods=['GET', 'POST'])
@@ -934,37 +933,6 @@ def edit_subgroup(group_name):
         group = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name, params=token_query)
         group = group.json()['metadata']
 
-        pi_info = {}
-
-        try:
-            additional_attributes = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/'
-                                            + group_name + '/attributes/OSG:PI_Name', params=query)
-            PI_Name = additional_attributes.json()['data']
-            pi_info['PI_Name'] = PI_Name
-        except:
-            PI_Name = None
-            pi_info['PI_Name'] = PI_Name
-
-        try:
-            additional_attributes = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/'
-                                            + group_name + '/attributes/OSG:PI_Email', params=query)
-            PI_Email = additional_attributes.json()['data']
-            pi_info['PI_Email'] = PI_Email
-        except:
-            PI_Email = None
-            pi_info['PI_Email'] = PI_Email
-
-        try:
-            additional_attributes = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/'
-                                            + group_name + '/attributes/OSG:PI_Organization', params=query)
-            PI_Organization = additional_attributes.json()['data']
-            pi_info['PI_Organization'] = PI_Organization
-        except:
-            PI_Organization = None
-            pi_info['PI_Organization'] = PI_Organization
-
-        print(pi_info)
-
         return render_template('groups_edit.html', sciences=sciences, group_name=group_name, group=group)
 
     elif request.method == 'POST':
@@ -974,32 +942,11 @@ def edit_subgroup(group_name):
         field_of_science = request.form['field_of_science']
         description = request.form['description']
 
-        additional_metadata = {}
-        pi_name = request.form['pi-name']
-        pi_email = request.form['pi-email']
-        pi_organization = request.form['pi-org']
-
-        if pi_name:
-            additional_metadata['OSG:PI_Name'] = pi_name
-        if pi_email:
-            additional_metadata['OSG:PI_Email'] = pi_email
-        if pi_organization:
-            additional_metadata['OSG:PI_Organization'] = pi_organization
-
-        if len(additional_metadata) > 0:
-            put_query = {"apiVersion": 'v1alpha1',
-                            'metadata': {'display_name': display_name,
-                                        'purpose': field_of_science,
-                                        'email': email, 'phone': phone,
-                                        'description': description,
-                                        'additional_attributes': additional_metadata}}
-        else:
-            put_query = {"apiVersion": 'v1alpha1',
-                            'metadata': {'display_name': display_name,
-                                        'purpose': field_of_science,
-                                        'email': email, 'phone': phone,
-                                        'description': description}}
-        print(put_query)
+        put_query = {"apiVersion": 'v1alpha1',
+                    'metadata': {'display_name': display_name,
+                                'purpose': field_of_science,
+                                'email': email, 'phone': phone,
+                                'description': description}}
 
         r = requests.put(
             ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name, params=token_query, json=put_query)
@@ -1020,8 +967,6 @@ def edit_subgroup(group_name):
 def approve_subgroup(group_name, subgroup_name):
     token_query = {'token': session['access_token']}
     if request.method == 'GET':
-        print("GROUP NAME: {}".format(group_name))
-        print("SUBGROUP NAME: {}".format(subgroup_name))
 
         r = requests.put(
             ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name +
@@ -1062,12 +1007,12 @@ def deny_subgroup(group_name, subgroup_name):
 @app.route('/signup', methods=['GET'])
 def signup():
     """Send the user to Globus Auth with signup=1."""
-    f = open("portal/templates/markdowns/signup_modal.md", "r")
-    g = open("portal/templates/markdowns/signup_instructions.md", "r")
-    j = open("portal/templates/markdowns/signup.md", "r")
-    signup_modal_md = f.read()
-    signup_instructions_md = g.read()
-    signup_md = j.read()
+    with open(brand_dir+'/cms.ci-connect.net/signup_content/signup_modal.md', "r") as file:
+        signup_modal_md = file.read()
+    with open(brand_dir+'/cms.ci-connect.net/signup_content/signup_instructions.md', "r") as file:
+        signup_instructions_md = file.read()
+    with open(brand_dir+'/cms.ci-connect.net/signup_content/signup.md', "r") as file:
+        signup_md = file.read()
     # return redirect(url_for('authcallback', signup=1))
     return render_template('signup.html', signup_modal_md=signup_modal_md, signup_instructions_md=signup_instructions_md, signup_md=signup_md)
 
@@ -1381,11 +1326,21 @@ def authcallback():
             except:
                 print("NOTHING HERE: {}".format(identity))
 
-        connect_keynames = {'atlas': {'name': 'atlas-connect', 'display_name': 'Atlas Connect', 'unix_name': 'root.atlas'},
-                            'cms': {'name': 'cms-connect', 'display_name': 'CMS Connect', 'unix_name': 'root.cms'},
-                            'duke': {'name': 'duke-connect', 'display_name': 'Duke Connect', 'unix_name': 'root.duke'},
-                            'ci-connect': {'name': 'ci-connect', 'display_name': 'CI Connect', 'unix_name': 'root'},
-                            'localhost': {'name': 'cms-connect', 'display_name': 'LocalHost Connect', 'unix_name': 'root.cms'}}
+        connect_keynames = {'atlas': {'name': 'atlas-connect',
+                                    'display_name': 'Atlas Connect',
+                                    'unix_name': 'root.atlas'},
+                            'cms': {'name': 'cms-connect',
+                                    'display_name': 'CMS Connect',
+                                    'unix_name': 'root.cms'},
+                            'duke': {'name': 'duke-connect',
+                                    'display_name': 'Duke Connect',
+                                    'unix_name': 'root.duke'},
+                            'ci-connect': {'name': 'ci-connect',
+                                    'display_name': 'CI Connect',
+                                    'unix_name': 'root'},
+                            'localhost': {'name': 'cms-connect',
+                                    'display_name': 'LocalHost Connect',
+                                    'unix_name': 'root.cms'}}
         url_host = request.host
         for key, value in connect_keynames.iteritems():
             if key in url_host:
@@ -1415,7 +1370,7 @@ def admin_check(unix_name):
     :return: user's status in Connect group
     """
     query = {'token': ciconnect_api_token}
-    # Query to return user's membership status in a group, specifically OSG
+    # Query to return user's membership status in a group specifically the root connect group
     r = requests.get(
         ciconnect_api_endpoint + '/v1alpha1/users/' + unix_name + '/groups/' + session['url_host']['unix_name'], params=query)
     user_status = r.json()['membership']['state']

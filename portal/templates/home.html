@@ -11,10 +11,10 @@
 
     <img src="{{url_for('static', filename='img/OSGConnect_Logo.png')}}" id="home-brand" style="width:30%;">
     <br></br>
-    <h2 id="headline"></h2>
+    <h2 id="headline">{{home_text_headline}}</h2>
     <h4 class="lead">
       <span class="rotating text-muted">
-        {%include '/markdowns/home_text_rotating.md' %}
+        {{home_text_rotating}}
       </span>
     </h4>
     {% if session.get('is_authenticated') %}
@@ -39,19 +39,14 @@ var hostname = window.location.hostname
 
 if(String(hostname).includes('local')){
   document.getElementById("home-brand").src="{{url_for('static', filename='img/cms-connectlogo.png')}}";
-  document.getElementById("headline").innerHTML="Front door to the CMS Global Pool";
 } else if(String(hostname).includes('atlas')){
   document.getElementById("home-brand").src="{{url_for('static', filename='img/atlas-connect-logo.png')}}";
-  document.getElementById("headline").innerHTML="Front door to <a href='https://connect.usatlas.org/' target='_blank'></a> Atlas";
 } else if(String(hostname).includes('ci-connect')){
   document.getElementById("home-brand").src="{{url_for('static', filename='img/CI_Connect_Logo.png')}}";
-  document.getElementById("headline").innerHTML="Front door to <a href='http://ci-connect.net/' target='_blank'></a> CI-Connect";
 } else if(String(hostname).includes('cms')){
   document.getElementById("home-brand").src="{{url_for('static', filename='img/cms-connectlogo.png')}}";
-  document.getElementById("headline").innerHTML="Front door to the CMS Global Pool";
 } else if(String(hostname).includes('duke')){
   document.getElementById("home-brand").src="{{url_for('static', filename='img/Duke_Connect_Logo.png')}}";
-  document.getElementById("headline").innerHTML="Front door to <a href='https://duke.ci-connect.net/' target='_blank'></a> Duke Connect";
 }
 })
 
