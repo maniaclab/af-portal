@@ -16,29 +16,13 @@ from werkzeug.exceptions import HTTPException
 import sys, os
 import datetime
 
-
-try:
-    ciconnect_api_token = app.config['CONNECT_API_TOKEN']
-    ciconnect_api_endpoint = app.config['CONNECT_API_ENDPOINT']
-except:
-    # Use these two lines below on local
-    f = open("secrets/ciconnect_api_token.txt", "r")
-    g = open("secrets/ciconnect_api_endpoint.txt", "r")
-    ciconnect_api_token = f.read().split()[0]
-    ciconnect_api_endpoint = g.read().split()[0]
-
-try:
-    mailgun_api_token = app.config['MAILGUN_API_TOKEN']
-except:
-    j = open("secrets/mailgun_api_token.txt", "r")
-    mailgun_api_token = j.read().split()[0]
-
+# Read configurable tokens and endpoints from config file, values must be set
+ciconnect_api_token = app.config['CONNECT_API_TOKEN']
+ciconnect_api_endpoint = app.config['CONNECT_API_ENDPOINT']
+mailgun_api_token = app.config['MAILGUN_API_TOKEN']
 # Read Brand Dir from config and insert path to read
 brand_dir = app.config['PORTAL_BRAND']
 sys.path.insert(0, brand_dir)
-# with open(brand_dir+'/cms.ci-connect.net/signup_content/signup_instructions.md', "r") as file:
-#     f = file.read()
-#     print("Reading external markdowns directory: {}".format(f))
 
 # Create a custom error handler for Exceptions
 @app.errorhandler(Exception)
@@ -797,15 +781,6 @@ def view_group_subgroups_ajax_requests(group_name):
     """List view of group's subgroups requests"""
     query = {'token': ciconnect_api_token}
     if request.method == 'GET':
-        # display_name = '-'.join(group_name.split('.')[1:])
-        # # subgroups = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name + '/subgroups', params=query)
-        # # subgroups = subgroups.json()['groups']
-        # # Get User's Group Status
-        # user_status = requests.get(
-        #                 ciconnect_api_endpoint + '/v1alpha1/groups/' +
-        #                 group_name + '/members/' + session['unix_name'], params=query)
-        #
-        # user_status = user_status.json()['membership']['state']
 
         subgroup_requests = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name + '/subgroup_requests', params=query)
         subgroup_requests = subgroup_requests.json()['groups']
