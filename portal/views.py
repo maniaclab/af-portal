@@ -13,8 +13,11 @@ from portal.utils import (load_portal_client, get_portal_tokens,
                           get_safe_redirect)
 from werkzeug.exceptions import HTTPException
 # Use these four lines on container
-import sys, os
+import sys
 import datetime
+import subprocess
+import os, signal
+import ConfigParser
 
 # Read configurable tokens and endpoints from config file, values must be set
 ciconnect_api_token = app.config['CONNECT_API_TOKEN']
@@ -53,6 +56,27 @@ def handle_exception(e):
         return e
     # now you're handling non-HTTP exceptions only
     return render_template("500.html", e=e), 500
+
+
+@app.route('/webhooks/github', methods=['GET', 'POST'])
+def webhooks():
+    """Endpoint that acepts post requests from Github Webhooks"""
+
+    cmd = """
+    cd {}
+    git pull origin master
+    """.format(brand_dir)
+    # print(cmd)
+    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+    out, err = p.communicate()
+    print("Return code: {}".format(p.returncode))
+    print("Error message: {}".format(err))
+
+    parent_pid = os.getppid()
+    print("Parent PID: {}".format(parent_pid))
+    os.kill(parent_pid, signal.SIGHUP)
+
+    return out
 
 
 @app.route('/', methods=['GET'])
