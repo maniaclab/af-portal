@@ -34,7 +34,6 @@
                 <th data-field="email" data-sortable="true">Contact Email</th>
                 <th data-field="phone" data-sortable="true">Phone</th>
                 {% endif %}
-                <th data-field="field-of-science" data-sortable="true">Field of Science</th>
               </tr>
             </thead>
             <tbody data-link="row" class="rowlink" style="font-size:14px;">
@@ -47,7 +46,6 @@
                 <td>{{group['email']}}</td>
                 <td>{{group['phone']}}</td>
                 {% endif %}
-                <td>{{group['purpose']}}</td>
               </tr>
                 {% endif %}
               {% endfor %}
@@ -60,7 +58,6 @@
                   <th>Email</th>
                   <th data-field="phone" data-sortable="true">Phone</th>
                   {% endif %}
-                  <th>Field of Science</th>
               </tr>
             </tfoot>
 

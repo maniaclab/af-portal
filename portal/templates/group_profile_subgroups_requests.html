@@ -91,7 +91,6 @@
                     <th data-field="requester" data-sortable="true">Requester</th>
                     <th data-field="email" data-sortable="true">Email</th>
                     <th data-field="phone" data-sortable="true">Phone</th>
-                    <th data-field="field_of_science" data-sortable="true">Field of Science</th>
                     <th data-field="description" data-sortable="true">Description</th>
                     {% if user_status == 'admin' %}
                     <th data-field="action" data-sortable="true">Action</th>
@@ -105,7 +104,6 @@
                     <td>{{subgroup_request['requester']}}</td>
                     <td><a href="mailto:{{subgroup_request['email']}}?subject=Project Inquiry">{{subgroup_request['email']}}</a></td>
                     <td>{{subgroup_request['phone']}}</td>
-                    <td>{{subgroup_request['purpose']}}</td>
                     <td>{{subgroup_request['description']}}</td>
                     {% if user_status == 'admin' %}
                     <td>

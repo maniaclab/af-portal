@@ -44,7 +44,6 @@
                   <tr>
                     <th data-field="name" data-sortable="true">Name</th>
                     <th data-field="email" data-sortable="true">Contact Email</th>
-                    <th data-field="field-of-science" data-sortable="true">Field of Science</th>
                   </tr>
                 </thead>
                 <tbody data-link="row" class="rowlink" style="font-size:14px;">
@@ -52,7 +51,6 @@
                   <tr>
                     <td><a href="{{url_for('edit_subgroup_requests', group_name=group_request['name'])}}">{{group_request['display_name']}}</a></td>
                     <td>{{group_request['email']}}</td>
-                    <td>{{group_request['purpose']}}</td>
                   </tr>
                   {% endfor %}
                 </tbody>

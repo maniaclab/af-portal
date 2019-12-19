@@ -1404,7 +1404,6 @@ def authcallback():
             session['admin'] = admin_check(profile['unix_name'])
         else:
             session['url_root'] = request.url_root
-            # session['url_host'] = (request.host).split(':')[0]
             return redirect(url_for('create_profile',
                             next=url_for('profile')))
         return redirect(url_for('profile'))

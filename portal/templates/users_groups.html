@@ -46,7 +46,6 @@
                     {% if (user_status == 'admin' or osg_status == 'admin') %}
                     <th data-field="email" data-sortable="true">Contact Email</th>
                     {% endif %}
-                    <th data-field="field-of-science" data-sortable="true">Field of Science</th>
                     <th data-field="status" data-sortable="true">Member Status</th>
                   </tr>
                 </thead>
@@ -58,7 +57,6 @@
                     {% if (user_status == 'admin' or osg_status == 'admin') %}
                     <td>{{group['metadata']['email']}}</td>
                     {% endif %}
-                    <td>{{group['metadata']['purpose']}}</td>
                     {% if status == 'active' %}
                     <td style="color: green;"><strong>{{status}}</strong></td>
                     {% elif status == 'pending' %}
