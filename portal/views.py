@@ -258,15 +258,19 @@ def view_group(group_name):
         user_status = requests.get(
                         ciconnect_api_endpoint + '/v1alpha1/groups/' +
                         group_name + '/members/' + unix_name, params=query)
+        # print(user_status.json()['membership'])
         user_status = user_status.json()['membership']['state']
 
         # Query to return user's membership status in a group
         # specifically if user is a member of the enclosing group
         enclosing_group_name = '.'.join(group_name.split('.')[:-1])
-        # print(enclosing_group_name)
-        r = requests.get(
-            ciconnect_api_endpoint + '/v1alpha1/users/' + unix_name + '/groups/' + enclosing_group_name, params=query)
-        connect_status = r.json()['membership']['state']
+        print(len(enclosing_group_name))
+        if enclosing_group_name:
+            r = requests.get(
+                ciconnect_api_endpoint + '/v1alpha1/users/' + unix_name + '/groups/' + enclosing_group_name, params=query)
+            connect_status = r.json()['membership']['state']
+        else:
+            connect_status = None
 
         # Zip list of nested group's display names and associated unix names
         display_names = group_name.split('.')[1:]
@@ -276,7 +280,7 @@ def view_group(group_name):
             project_unix_name = '.'.join([project_unix_name, display_name])
             project_unix_names.append(project_unix_name)
         breadcrumb_zip = zip(display_names, project_unix_names)
-        # print(breadcrumb_zip)
+        print(breadcrumb_zip)
         return render_template('group_profile.html', group=group,
                                 group_name=group_name, user_status=user_status,
                                 connect_status=connect_status,
