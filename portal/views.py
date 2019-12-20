@@ -24,7 +24,7 @@ ciconnect_api_token = app.config['CONNECT_API_TOKEN']
 ciconnect_api_endpoint = app.config['CONNECT_API_ENDPOINT']
 mailgun_api_token = app.config['MAILGUN_API_TOKEN']
 # Read Brand Dir from config and insert path to read
-brand_dir = app.config['PORTAL_BRAND']
+brand_dir = app.config['MARKDOWN_DIR']
 sys.path.insert(0, brand_dir)
 
 # Create a custom error handler for Exceptions
