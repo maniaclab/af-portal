@@ -66,7 +66,7 @@ def webhooks():
     cd {}
     git pull origin master
     """.format(brand_dir)
-    # print(cmd)
+    print("Trying to CD into: {}".format(cmd))
     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
     out, err = p.communicate()
     print("Return code: {}".format(p.returncode))
@@ -191,7 +191,6 @@ def groups():
         root_project = session['url_host']['unix_name']
         # Query to list subgroups or projects within OSG specifcally
         groups = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/'+root_project+'/subgroups', params=query)
-        # print(osg_groups)
         groups = groups.json()['groups']
         groups = [group for group in groups if len(group['name'].split('.')) == 3]
 
@@ -751,10 +750,12 @@ def view_group_subgroups_request(group_name):
     query = {'token': ciconnect_api_token}
     if request.method == 'GET':
         # Get group's subgroups information
+        group_index = len(group_name.split('.'))
         subgroups = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name + '/subgroups', params=query)
         subgroups = subgroups.json()['groups']
-        # subgroups = [subgroup for subgroup in subgroups if (len(subgroup['name'].split('.')) == 3 and not subgroup['pending'])]
-        subgroups = [subgroup for subgroup in subgroups if (not subgroup['pending'])]
+        # Split subgroup name by . to see how nested the group is
+        # return subgroups that are group_index + 1 to ensure direct subgroup
+        subgroups = [subgroup for subgroup in subgroups if (len(subgroup['name'].split('.')) == (group_index+1) and not subgroup['pending'])]
 
         return subgroups
 
