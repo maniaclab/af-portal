@@ -76,7 +76,7 @@ def webhooks():
     print("Parent PID: {}".format(parent_pid))
     os.kill(parent_pid, signal.SIGHUP)
 
-    return out
+    return out, parent_pid
 
 
 @app.route('/', methods=['GET'])
