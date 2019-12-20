@@ -58,62 +58,13 @@
           </div>
 
           <div class="form-group">
-            <label for="field_of_science">Field of Science *</label>
-            <select class="form-control" id="field_of_science" name="field_of_science" required="required" tabindex="4" onmousedown="if(this.options.length>6){this.size=6;}"  onchange='this.size=0;' onblur="this.size=0;">
-              <option value="" selected disabled>Select Field of Science</option>
-              {% for science in sciences %}
-              <option value="{{science}}">{{science}}</option>
-              {% endfor %}
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="pi-name">PI Name *</label>
-            <input
-              type="text"
-              class="form-control"
-              id="pi-name"
-              name="pi-name"
-              required
-              placeholder="Name of Principle Investigator"
-              tabindex="5"
-            >
-          </div>
-
-          <div class="form-group">
-            <label for="pi-email">PI Email *</label>
-            <input
-              type="email"
-              id="pi-email"
-              name="pi-email"
-              required
-              class="form-control"
-              placeholder="johnsmith@email.com"
-              tabindex="6"
-            >
-          </div>
-
-          <div class="form-group">
-            <label for="pi-org">PI Organization *</label>
-            <input
-              type="text"
-              class="form-control"
-              id="pi-org"
-              name="pi-org"
-              required
-              placeholder="Name of PI Organization"
-              tabindex="7"
-            >
-          </div>
-
-          <div class="form-group">
             <label for="description">Description <span id="asterik">*</span></label>
             <textarea
               placeholder="Brief description of your group"
               name="description"
               id="description"
               required
-              tabindex="8"
+              tabindex="4"
               style="background-color:white; color:black; border-radius:4px; border-color:lightgrey;"
               ></textarea>
           </div>

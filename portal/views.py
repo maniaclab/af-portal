@@ -960,7 +960,6 @@ def edit_subgroup(group_name):
         sciences = sciences.json()['fields_of_science']
         group = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name, params=token_query)
         group = group.json()['metadata']
-
         return render_template('groups_edit.html', sciences=sciences, group_name=group_name, group=group)
 
     elif request.method == 'POST':
