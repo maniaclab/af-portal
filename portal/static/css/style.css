@@ -100,16 +100,18 @@ span.powered-by {
   color: #999999;
 }
 .powered-by {
-  float: right;
+  /* float: right; */
+  width: 70%;
+  margin: auto;
   list-style: none;
 }
 ul.powered-by li{
-  float: left;
+  /* float: left; */
 }
 .powered-by-large {
   max-height: 5ex;
   margin-top: 3px;
-  margin-left: 1em;
+  /* margin-left: 1em; */
   vertical-align: middle;
 }
 
