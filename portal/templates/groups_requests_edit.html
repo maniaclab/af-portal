@@ -73,23 +73,13 @@
           </div>
 
           <div class="form-group">
-            <label for="field_of_science">Field of Science <span class="asterik">*</span></label>
-            <select class="form-control" id="field_of_science" name="field_of_science" required="required" tabindex="5" onmousedown="if(this.options.length>6){this.size=6;}"  onchange='this.size=0;' onblur="this.size=0;">
-              <option value="" selected disabled>Select Field of Science</option>
-              {% for science in sciences %}
-              <option value="{{science}}">{{science}}</option>
-              {% endfor %}
-            </select>
-          </div>
-
-          <div class="form-group">
             <label for="description">Description <span id="asterik"><span class="asterik">*</span></span></label>
             <textarea
               placeholder="Brief description of your group"
               name="description"
               id="description"
               required
-              tabindex="9"
+              tabindex="5"
               style="background-color:white; color:black; border-radius:4px; border-color:lightgrey;"
               ></textarea>
           </div>
@@ -109,18 +99,16 @@ var name = {{group['name'].split('.')[-1]|tojson}};
 var display_name = {{group['display_name']|tojson}};
 var email = {{group['email']|tojson}};
 var phone = {{group['phone']|tojson}};
-var field_of_science = {{group['purpose']|tojson}};
 var description = {{group['description']|tojson}};
 
 
-window.onload = setFormFields(name, display_name, email, phone, field_of_science, description);
+window.onload = setFormFields(name, display_name, email, phone, description);
 
-function setFormFields(name, display_name, email, phone, field_of_science, description){
+function setFormFields(name, display_name, email, phone, description){
   document.getElementById('name').value = name;
   document.getElementById('display-name').value = display_name;
   document.getElementById('email').value = email;
   document.getElementById('phone').value = phone;
-  document.getElementById('field_of_science').value = field_of_science;
   document.getElementById("description").value = description;
 }
 

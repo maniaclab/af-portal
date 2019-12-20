@@ -124,7 +124,7 @@
               {% endif %}
               {% if session.get('is_authenticated') %}
               <li class="nav-item">
-                <a class="nav-link" href="{{url_for('groups')}}">{{session['url_host']['display_name']}} Groups</a>
+                <a class="nav-link" href="{{url_for('groups')}}">Groups</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{{url_for('users_groups')}}">My Groups</a>

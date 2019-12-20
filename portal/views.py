@@ -214,8 +214,12 @@ def create_group():
         name = request.form['name']
         email = request.form['email']
         phone = request.form['phone']
-        field_of_science = request.form['field_of_science']
         description = request.form['description']
+        try:
+            # Purpose/Field of Science for CMS will always be High Energy Physics
+            field_of_science = request.form['field_of_science']
+        except:
+            field_of_science = "High Energy Physics".decode('utf-8')
 
         put_group = {"apiVersion": 'v1alpha1', "kind": "Group",
                         'metadata': {'name': name,
@@ -853,8 +857,12 @@ def create_subgroup(group_name):
         display_name = request.form['display-name']
         email = request.form['email']
         phone = request.form['phone']
-        field_of_science = request.form['field_of_science']
         description = request.form['description']
+        try:
+            # Purpose/Field of Science for CMS will always be High Energy Physics
+            field_of_science = request.form['field_of_science']
+        except:
+            field_of_science = "High Energy Physics".decode('utf-8')
 
         put_query = {"apiVersion": 'v1alpha1',
                     'metadata': {'name': name, 'display_name': display_name,
@@ -903,7 +911,6 @@ def edit_subgroup_requests(group_name):
         display_name = request.form['display-name']
         email = request.form['email']
         phone = request.form['phone']
-        field_of_science = request.form['field_of_science']
         description = request.form['description']
 
         new_unix_name = enclosing_group_name + '.' + name
@@ -911,17 +918,15 @@ def edit_subgroup_requests(group_name):
         if new_unix_name == group_name:
             put_query = {"apiVersion": 'v1alpha1',
                             'metadata': {'display_name': display_name,
-                                        'purpose': field_of_science,
                                         'email': email, 'phone': phone,
                                         'description': description}}
         else:
             put_query = {"apiVersion": 'v1alpha1',
                             'metadata': {'name': name,
                                         'display_name': display_name,
-                                        'purpose': field_of_science,
                                         'email': email, 'phone': phone,
                                         'description': description}}
-        # print(put_query)
+        print(put_query)
 
         r = requests.put(
             ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name, params=token_query, json=put_query)
@@ -933,7 +938,10 @@ def edit_subgroup_requests(group_name):
         else:
             err_message = r.json()['message']
             flash('Failed to edit project request: {}'.format(err_message), 'warning')
-            return redirect(url_for('edit_subgroup', group_name=group_name))
+            return redirect(url_for('edit_subgroup_requests', group_name=group_name,
+                                            name=name, display_name=display_name,
+                                            email=email, phone=phone,
+                                            description=description))
 
 
 @app.route('/groups/<group_name>/edit', methods=['GET', 'POST'])
@@ -952,12 +960,10 @@ def edit_subgroup(group_name):
         display_name = request.form['display-name']
         email = request.form['email']
         phone = request.form['phone']
-        field_of_science = request.form['field_of_science']
         description = request.form['description']
 
         put_query = {"apiVersion": 'v1alpha1',
                     'metadata': {'display_name': display_name,
-                                'purpose': field_of_science,
                                 'email': email, 'phone': phone,
                                 'description': description}}
 
@@ -987,7 +993,6 @@ def approve_subgroup(group_name, subgroup_name):
 
         if r.status_code == requests.codes.ok:
             flash("Successfully approved project creation", 'success')
-            print(r.content)
             return redirect(url_for('view_group_subgroups_requests', group_name=group_name))
         else:
             err_message = r.json()['message']

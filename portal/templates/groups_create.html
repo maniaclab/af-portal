@@ -23,7 +23,7 @@
         <hr/>
         <form role="form" action="{{url_for('create_subgroup', group_name=group_name)}}" method="POST">
           <div class="form-group">
-            <label for="name">Group Name <span class='text-muted'>(only alpha-numeric, dash and underscore allowed)</span><span class="asterik">*</span></label>
+            <label for="name">Unix Name <span class='text-muted'>(only alpha-numeric, dash and underscore allowed)</span><span class="asterik">*</span></label>
             <input
               type="text"
               class="form-control"
@@ -77,22 +77,12 @@
           </div>
 
           <div class="form-group">
-            <label for="field_of_science">Field of Science <span class="asterik">*</span></label>
-            <select class="form-control" id="field_of_science" name="field_of_science" required="required" tabindex="5" onmousedown="if(this.options.length>6){this.size=6;}"  onchange='this.size=0;' onblur="this.size=0;">
-              <option value="" selected disabled>Select Field of Science</option>
-              {% for science in sciences %}
-              <option value="{{science}}">{{science}}</option>
-              {% endfor %}
-            </select>
-          </div>
-
-          <div class="form-group">
             <label for="description">Description <span class="asterik">*</span></label>
             <textarea
               placeholder="Brief description of your group"
               name="description"
               required
-              tabindex="9"
+              tabindex="5"
               style="background-color:white; color:black; border-radius:4px; border-color:lightgrey;"
               value=""
               ></textarea>

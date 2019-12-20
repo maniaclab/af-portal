@@ -11,7 +11,7 @@
       <div class="col-lg-12 mx-auto">
         {%include 'messages.html' %}
         <ol class="breadcrumb">
-          <li class="breadcrumb-item">Connect Groups</li>
+          <li class="breadcrumb-item">Groups</li>
         </ol>
         {% if user_status == 'active' %}
         <div class="btn-group mr-2" role="group" aria-label="first group">
@@ -28,7 +28,7 @@
           <table class="table" id="groups-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
             <thead>
               <tr>
-                <th data-field="name" data-sortable="true">Group Name</th>
+                <th data-field="name" data-sortable="true">Name</th>
                 <th data-field="unix-name" data-sortable="true">Unix Name</th>
                 {% if session['admin'] == 'admin' %}
                 <th data-field="email" data-sortable="true">Contact Email</th>
