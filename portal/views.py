@@ -109,7 +109,7 @@ def support():
                         "from": "<"+email+">",
                         "to": ["fijalawa@inappmail.com"],
                         "cc": "<{}>".format(email),
-                        "subject": "OSG Support Inquiry",
+                        "subject": "Support Inquiry",
                         "text": description
                     })
         if r.status_code == requests.codes.ok:
@@ -264,7 +264,6 @@ def view_group(group_name):
         # Query to return user's membership status in a group
         # specifically if user is a member of the enclosing group
         enclosing_group_name = '.'.join(group_name.split('.')[:-1])
-        print(len(enclosing_group_name))
         if enclosing_group_name:
             r = requests.get(
                 ciconnect_api_endpoint + '/v1alpha1/users/' + unix_name + '/groups/' + enclosing_group_name, params=query)
@@ -280,7 +279,6 @@ def view_group(group_name):
             project_unix_name = '.'.join([project_unix_name, display_name])
             project_unix_names.append(project_unix_name)
         breadcrumb_zip = zip(display_names, project_unix_names)
-        print(breadcrumb_zip)
         return render_template('group_profile.html', group=group,
                                 group_name=group_name, user_status=user_status,
                                 connect_status=connect_status,
@@ -363,9 +361,12 @@ def view_group_members(group_name):
         # Query to return user's membership status in a group
         # specifically if user is a member of the enclosing group
         enclosing_group_name = '.'.join(group_name.split('.')[:-1])
-        r = requests.get(
-            ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/' + enclosing_group_name, params=query)
-        connect_status = r.json()['membership']['state']
+        if enclosing_group_name:
+            r = requests.get(
+                ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/' + enclosing_group_name, params=query)
+            connect_status = r.json()['membership']['state']
+        else:
+            connect_status = None
 
         # Zip list of nested group's display names and associated unix names
         display_names = group_name.split('.')[1:]
@@ -585,10 +586,13 @@ def view_group_add_members_request(group_name):
         # Get root base group users
         enclosing_group_name = '.'.join(group_name.split('.')[:-1])
 
-        enclosing_group = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/'
-                            + enclosing_group_name + '/members', params=query)
-        enclosing_group = enclosing_group.json()['memberships']
-        enclosing_group_members_names = [member['user_name'] for member in enclosing_group]
+        if enclosing_group_name:
+            enclosing_group = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/'
+                                + enclosing_group_name + '/members', params=query)
+            enclosing_group = enclosing_group.json()['memberships']
+            enclosing_group_members_names = [member['user_name'] for member in enclosing_group]
+        else:
+            enclosing_group_members_name = []
         # print(base_group)
 
         # Get group information
@@ -735,9 +739,12 @@ def view_group_subgroups(group_name):
         # specifically if user is a member of the enclosing group
         enclosing_group_name = '.'.join(group_name.split('.')[:-1])
         # print(enclosing_group_name)
-        r = requests.get(
-            ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/' + enclosing_group_name, params=query)
-        connect_status = r.json()['membership']['state']
+        if enclosing_group_name:
+            r = requests.get(
+                ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/' + enclosing_group_name, params=query)
+            connect_status = r.json()['membership']['state']
+        else:
+            connect_status = None
 
         # Zip list of nested group's display names and associated unix names
         display_names = group_name.split('.')[1:]
@@ -801,9 +808,12 @@ def view_group_subgroups_requests(group_name):
         # specifically if user is a member of the enclosing group
         enclosing_group_name = '.'.join(group_name.split('.')[:-1])
         # print(enclosing_group_name)
-        r = requests.get(
-            ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/' + enclosing_group_name, params=query)
-        connect_status = r.json()['membership']['state']
+        if enclosing_group_name:
+            r = requests.get(
+                ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/' + enclosing_group_name, params=query)
+            connect_status = r.json()['membership']['state']
+        else:
+            connect_status = None
 
         # Zip list of nested group's display names and associated unix names
         display_names = group_name.split('.')[1:]
