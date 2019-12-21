@@ -15,7 +15,7 @@
     <div class="row">
       <div class="col-lg-6 mx-auto">
         <h2>Edit Profile</h2>
-        <h6>Unix Name: {{session['unix_name']}}</h6>
+        <h6>Unix Username: {{session['unix_name']}}</h6>
         <p class="asterik">* = required field</p>
         <hr/>
         <form role="form" action="{{url_for('edit_profile', unix_name=unix_name)}}" method="POST">
@@ -137,7 +137,7 @@
                   </li>
                   <li>Hit enter for the default location, and optionally enter a
                     password. This will generate two files: A private key file
-                    (typically <kbd>id_rsa</kbd>) and a key file (typically <kbd>id_rsa.pub</kbd>). The private key should <b>never</b> be shared, and VC3 will never ask you for your private key.
+                    (typically <kbd>id_rsa</kbd>) and a key file (typically <kbd>id_rsa.pub</kbd>). The private key should <b>never</b> be shared, and {{session['url_host']['display_name']}} will never ask you for your private key.
                   </li>
                   <li>In order to see your SSH public key type:
                     <div>
@@ -154,7 +154,6 @@
                   <li>Paste the contents of the clipboard in the
                     corresponding box on your CI Connect Profile.
                   </li>
-                  <li>{{session['url_host']['display_name']}} will never ask for your private key.</li>
                 </ol>
               </div>
             </div>

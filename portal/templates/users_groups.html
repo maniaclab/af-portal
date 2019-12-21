@@ -42,11 +42,12 @@
                 <thead>
                   <tr>
                     <th data-field="name" data-sortable="true">Name</th>
-                    <th data-field="unix-name" data-sortable="true">Unix Name</th>
+                    <th data-field="unix-name" data-sortable="true">Group Unix Name</th>
                     {% if (user_status == 'admin' or osg_status == 'admin') %}
                     <th data-field="email" data-sortable="true">Contact Email</th>
                     {% endif %}
                     <th data-field="status" data-sortable="true">Member Status</th>
+                    <th data-field="description" data-sortable="true">Description</th>
                   </tr>
                 </thead>
                 <tbody data-link="row" class="rowlink" style="font-size:14px;">
@@ -64,6 +65,7 @@
                     {% elif status == 'admin' %}
                     <td style="color: blue;"><strong>{{status}}</strong></td>
                     {% endif %}
+                    <td>{{group['metadata']['description']}}</td>
                   </tr>
                   {% endfor %}
                 </tbody>
