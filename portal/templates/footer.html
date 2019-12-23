@@ -17,14 +17,17 @@
 </footer> -->
 
 <footer>
-  <ul class="powered-by">
+  <div class="img-container"> <!-- Block parent element -->
+      <a href="http://ci-connect.net/" target="_blank"><img src="{{url_for('static', filename='img/footer/powered-by-ciconnect-flat .png')}}" class="powered-by-large" alt="CI Connect"></a>
+  </div>
+  <!-- <ul class="powered-by">
     <li>
       <span class="powered-by">Powered by: </span>
     </li>
     <li>
       <a href="http://ci-connect.net/" target="_blank"><img src="{{url_for('static', filename='img/footer/ciconnect.png')}}" class="powered-by-large" alt="CI Connect"></a>
     </li>
-  </ul>
+  </ul> -->
   <br></br>
 </footer>
 {%include 'scripts.html'%}

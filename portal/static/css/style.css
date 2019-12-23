@@ -109,12 +109,14 @@ ul.powered-by li{
   /* float: left; */
 }
 .powered-by-large {
-  max-height: 5ex;
+  max-height: 8ex;
   margin-top: 3px;
   /* margin-left: 1em; */
   vertical-align: middle;
 }
-
+img-container {
+  text-align: center;
+}
 
 .card-header {
   background-color: transparent;

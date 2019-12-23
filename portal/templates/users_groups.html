@@ -42,7 +42,7 @@
                 <thead>
                   <tr>
                     <th data-field="name" data-sortable="true">Name</th>
-                    <th data-field="unix-name" data-sortable="true">Group Unix Name</th>
+                    <th data-field="unix-name" data-sortable="true">Group Unix Name <i class="fas fa-question-circle" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="{{group_unix_name_description}}"></i></th>
                     {% if (user_status == 'admin' or osg_status == 'admin') %}
                     <th data-field="email" data-sortable="true">Contact Email</th>
                     {% endif %}

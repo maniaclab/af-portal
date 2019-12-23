@@ -92,6 +92,9 @@
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/UChicago_Connect_Logo.png')}}";
     }
   	})
+    $(function () {
+      $('[data-toggle="popover"]').popover()
+    })
   	</script>
     <style>
       [v-cloak] {display: none}
