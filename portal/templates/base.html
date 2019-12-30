@@ -90,7 +90,7 @@
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/Duke_Connect_Logo.png')}}";
     } else if(String(hostname).includes('uchicago')){
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/UChicago_Connect_Logo.png')}}";
-    } else if(String(hostname).includes('https://www.ci-connect.net')){
+    } else {
       document.getElementById("home-brand").src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
     }
   	})
