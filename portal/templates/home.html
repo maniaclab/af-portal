@@ -45,6 +45,8 @@ if(String(hostname).includes('local')){
   document.getElementById("home-brand").src="{{url_for('static', filename='img/cms-connectlogo.png')}}";
 } else if(String(hostname).includes('duke')){
   document.getElementById("home-brand").src="{{url_for('static', filename='img/Duke_Connect_Logo.png')}}";
+} else if(String(hostname).includes('https://www.ci-connect.net')){
+  document.getElementById("home-brand").src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
 }
 })
 
