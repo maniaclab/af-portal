@@ -92,6 +92,15 @@
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/UChicago_Connect_Logo.png')}}";
     } else {
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
+      // Removes an element from the document
+      var nav_element = document.getElementById("nav-overview");
+      nav_element.parentNode.removeChild(nav_element);
+      // Removes an element from the document
+      var handbook_element = document.getElementById("nav-handbook");
+      handbook_element.parentNode.removeChild(handbook_element);
+      // Removes an element from the document
+      var documentation_element = document.getElementById("nav-documentation");
+      documentation_element.parentNode.removeChild(documentation_element);
     }
   	})
     $(function () {
@@ -142,7 +151,7 @@
                   Support
                 </a>
                 <div class="dropdown-menu" aria-labelledby="support-dropdown-menu">
-                  <h6 class="dropdown-header">Documentation</h6>
+                  <h6 class="dropdown-header" id="nav-documentation">Documentation</h6>
                   <a class="dropdown-item" id="nav-overview" href="" target="_blank">Overview</a>
                   <a class="dropdown-item" id="nav-handbook" href="" target="_blank">Handbook</a>
                   <h6 class="dropdown-header">Direct Support</h6>
@@ -162,7 +171,7 @@
                   Support
                 </a>
                 <div class="dropdown-menu" aria-labelledby="support-dropdown-menu">
-                  <h6 class="dropdown-header">Documentation</h6>
+                  <h6 class="dropdown-header" id="nav-documentation">Documentation</h6>
                   <a class="dropdown-item" id="nav-overview" href="" target="_blank">Overview</a>
                   <a class="dropdown-item" id="nav-handbook" href="" target="_blank">Handbook</a>
                   <h6 class="dropdown-header">Direct Support</h6>
