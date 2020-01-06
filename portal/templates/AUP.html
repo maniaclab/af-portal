@@ -1,0 +1,28 @@
+{%extends "base.html"%}
+
+{%block title%}Acceptable Use Policy{%endblock%}
+
+{%block body%}
+
+<!-- Page Header -->
+
+<header style="height: 100%;" id="hero">
+  <div class="container" style="width: 60%;">
+    <h1 id="signup_title">Acceptable Use Policy</h1>
+    <p class="leadl" id="aup"></p>
+    <!-- <a href="{{url_for('authcallback', signup=1)}}" class='btn btn-sm btn-primary'>Continue</a> -->
+  </div>
+</header>
+
+
+<script type="text/javascript">
+  var md = new Remarkable('full');
+  var aup_md = {{aup_md|tojson}};
+
+  $(window).on('load',function(){
+    var aup = md.render(aup_md);
+    $('#aup').html(aup);
+  });
+</script>
+
+{%endblock%}
