@@ -11,7 +11,7 @@
 
     <img src="{{url_for('static', filename='img/OSGConnect_Logo.png')}}" id="home-brand" style="width:30%;">
     <br></br>
-    <h2 id="headline">{{home_text_headline}}</h2>
+    <h2 id="headline"></h2>
     <h4 class="lead">
       <span class="rotating text-muted">
         {{home_text_rotating}}
@@ -30,6 +30,11 @@
 {%include 'footer.html'%}
 
 <script type="text/javascript">
+
+var md = new Remarkable('full');
+var home_text_headline = {{home_text_headline|tojson}};
+var home_text_headline = md.render(home_text_headline);
+$('#headline').html(home_text_headline);
 
 $('.carousel').carousel()
 

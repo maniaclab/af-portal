@@ -74,10 +74,8 @@
   		$('nav > ul > li > a[href="'+pathname+'"]').parent().addClass('active');
   	}
     if(String(hostname).includes('local')){
-      // Set localhost to test as CMS for now
-      document.getElementById("connect-brand").src="{{url_for('static', filename='img/cms-connectlogo.png')}}";
-      document.getElementById("nav-overview").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/overview";
-      document.getElementById("nav-handbook").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/pages/22609980/Introduction+to+CMS+Connect";
+      // Set localhost to test as CI Connect for now
+      document.getElementById("connect-brand").src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
     } else if(String(hostname).includes('atlas')){
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/atlas-connect-logo.png')}}";
       document.getElementById("nav-overview").href="https://ci-connect.atlassian.net/wiki/spaces/AC/overview";
@@ -101,6 +99,15 @@
       // Removes an element from the document
       var documentation_element = document.getElementById("nav-documentation");
       documentation_element.parentNode.removeChild(documentation_element);
+
+      var email_element = document.getElementById("nav-email");
+      email_element.parentNode.removeChild(email_element);
+
+      var contact_element = document.getElementById("nav-contact");
+      contact_element.parentNode.removeChild(contact_element);
+
+      var support_element = document.getElementById("nav-support");
+      support_element.parentNode.removeChild(support_element);
     }
   	})
     $(function () {
@@ -155,11 +162,11 @@
                   <a class="dropdown-item" id="nav-overview" href="" target="_blank">Overview</a>
                   <a class="dropdown-item" id="nav-handbook" href="" target="_blank">Handbook</a>
                   <a class="dropdown-item" id="nav-aup" href="{{url_for('aup')}}">Acceptable Use Policy</a>
-                  <h6 class="dropdown-header">Direct Support</h6>
-                  <a class="dropdown-item" id="nav-overview" href="cms-connect-support@cern.ch" target="_blank">Email Us</a>
+                  <h6 class="dropdown-header" id="nav-support">Direct Support</h6>
+                  <a class="dropdown-item" id="nav-email" href="cms-connect-support@cern.ch" target="_blank">Email Us</a>
                   {% if session.get('is_authenticated') %}
                   <!-- Mail email mailgun form -->
-                  <a class="dropdown-item" href="{{url_for('support')}}">Contact Us</a>
+                  <a class="dropdown-item" id="nav-contact" href="{{url_for('support')}}">Contact Us</a>
                   {% endif %}
                 </div>
               </li>
@@ -176,11 +183,11 @@
                   <a class="dropdown-item" id="nav-overview" href="" target="_blank">Overview</a>
                   <a class="dropdown-item" id="nav-handbook" href="" target="_blank">Handbook</a>
                   <a class="dropdown-item" id="nav-aup" href="{{url_for('aup')}}">Acceptable Use Policy</a>
-                  <h6 class="dropdown-header">Direct Support</h6>
-                  <a class="dropdown-item" id="nav-overview" href="mailto:cms-connect-support@cern.ch" target="_blank">Email Us</a>
+                  <h6 class="dropdown-header" id="nav-support">Direct Support</h6>
+                  <a class="dropdown-item" id="nav-email" href="mailto:cms-connect-support@cern.ch" target="_blank">Email Us</a>
                   {% if session.get('is_authenticated') %}
                   <!-- Mail email mailgun form -->
-                  <a class="dropdown-item" href="{{url_for('support')}}">Contact Us</a>
+                  <a class="dropdown-item" id="nav-contact" href="{{url_for('support')}}">Contact Us</a>
                   {% endif %}
                 </div>
               </li>
