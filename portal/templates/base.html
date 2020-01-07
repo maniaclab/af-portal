@@ -76,6 +76,8 @@
     if(String(hostname).includes('local')){
       // Set localhost to test as CI Connect for now
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
+      var support_nav_element = document.getElementById("support-nav-dropdown");
+      support_nav_element.parentNode.removeChild(support_nav_element);
     } else if(String(hostname).includes('atlas')){
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/atlas-connect-logo.png')}}";
       document.getElementById("nav-overview").href="https://ci-connect.atlassian.net/wiki/spaces/AC/overview";
@@ -90,6 +92,8 @@
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/UChicago_Connect_Logo.png')}}";
     } else {
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
+      var support_nav_element = document.getElementById("support-nav-dropdown");
+      support_nav_element.parentNode.removeChild(support_nav_element);
       // Removes an element from the document
       var nav_element = document.getElementById("nav-overview");
       nav_element.parentNode.removeChild(nav_element);
@@ -153,7 +157,7 @@
               <li class="nav-item">
                 <a class="nav-link" href="{{url_for('profile')}}">Profile</a>
               </li>
-              <li class="nav-item dropdown">
+              <li class="nav-item dropdown" id="support-nav-dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="support-dropdown-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Support
                 </a>
@@ -174,7 +178,7 @@
                 <a class="nav-link" href="{{url_for('logout')}}">Log out</a>
               </li>
               {% else %}
-              <li class="nav-item dropdown">
+              <li class="nav-item dropdown" id="support-nav-dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="support-dropdown-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Support
                 </a>
