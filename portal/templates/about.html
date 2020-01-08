@@ -1,0 +1,27 @@
+{%extends "base.html"%}
+
+{%block title%}About{%endblock%}
+
+{%block body%}
+
+<!-- Page Header -->
+
+<header style="height: 100%;" id="hero">
+  <div class="container" style="width: 60%;">
+    <h1 id="about_title">About</h1>
+    <p class="leadl" id="about_content"></p>
+  </div>
+</header>
+
+
+<script type="text/javascript">
+  var md = new Remarkable('full');
+  var about_md = {{about|tojson}};
+
+  $(window).on('load',function(){
+    var about_rendered = md.render(about_md);
+    $('#about_content').html(about_rendered);
+  });
+</script>
+
+{%endblock%}

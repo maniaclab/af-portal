@@ -1111,6 +1111,16 @@ def aup():
     return render_template('AUP.html', aup_md=aup_md)
 
 
+@app.route('/about', methods=['GET'])
+def about():
+    """Send the user to the About page"""
+    # Read About from markdown dir
+    domain_name = request.headers['Host']
+    with open(brand_dir+'/'+domain_name+'/about/about.md', "r") as file:
+        about = file.read()
+    return render_template('about.html', about=about)
+
+
 @app.route('/login', methods=['GET'])
 def login():
     """Send the user to Globus Auth."""

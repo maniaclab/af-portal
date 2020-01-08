@@ -93,12 +93,18 @@
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/atlas-connect-logo.png')}}";
       document.getElementById("nav-overview").href="https://ci-connect.atlassian.net/wiki/spaces/AC/overview";
       document.getElementById("nav-handbook").href="https://ci-connect.atlassian.net/wiki/spaces/AC/pages/1114129/ATLAS+Connect+Quickstart";
+      var about_element = document.getElementById("nav-about");
+      about_element.parentNode.removeChild(about_element);
     } else if(String(hostname).includes('cms')){
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/cms-connectlogo.png')}}";
       document.getElementById("nav-overview").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/overview";
       document.getElementById("nav-handbook").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/pages/22609980/Introduction+to+CMS+Connect";
+      var about_element = document.getElementById("nav-about");
+      about_element.parentNode.removeChild(about_element);
     } else if(String(hostname).includes('duke')){
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/Duke_Connect_Logo.png')}}";
+      var about_element = document.getElementById("nav-about");
+      about_element.parentNode.removeChild(about_element);
     } else if(String(hostname).includes('uchicago')){
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/UChicago_Connect_Logo.png')}}";
     } else {
@@ -170,6 +176,9 @@
                   {% endif %}
                 </div>
               </li>
+              <li class="nav-item" id="nav-about">
+                <a class="nav-link" href="{{url_for('about')}}">About</a>
+              </li>
               <li class="nav-item">
                 <a class="nav-link" href="{{url_for('logout')}}">Log out</a>
               </li>
@@ -190,6 +199,9 @@
                   <a class="dropdown-item" id="nav-contact" href="{{url_for('support')}}">Contact Us</a>
                   {% endif %}
                 </div>
+              </li>
+              <li class="nav-item" id="nav-about">
+                <a class="nav-link" href="{{url_for('about')}}">About</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{{url_for('login')}}">Login</a>
