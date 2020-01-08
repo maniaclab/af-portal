@@ -54,7 +54,11 @@
                   {% for group, status in groups %}
                   <tr>
                     <td><a href="{{url_for('view_group', group_name=group['metadata']['name'])}}">{{group['metadata']['display_name']}}</a></td>
+                    {% if group['metadata']['name'] == 'root' %}
+                    <td>root</td>
+                    {% else %}
                     <td>{{ '.'.join(group['metadata']['name'].split('.')[1:]) }}</td>
+                    {% endif %}
                     {% if (user_status == 'admin' or osg_status == 'admin') %}
                     <td>{{group['metadata']['email']}}</td>
                     {% endif %}

@@ -1,33 +1,8 @@
 <!-- Footer -->
-<!-- <footer>
-  <div class="container text-center">
-    <hr />
-    <div class="row">
-      <div class="col-sm-12">
-        <a href="https://www.nsf.gov/" target="_blank"><img src="{{url_for('static', filename='img/NSF_4-Color_bitmap_Logo.png')}}" id="nsf-logo"></a>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-sm-12">
-        <p class="text-muted">Funded by the National Science Foundation under Grant No. 1148698.</p>
-      </div>
-      <br>
-    </div>
-  </div>
-</footer> -->
-
 <footer>
-  <div class="img-container"> <!-- Block parent element -->
-      <a href="http://ci-connect.net/" target="_blank"><img src="{{url_for('static', filename='img/footer/powered-by-ciconnect.png')}}" class="powered-by-large" alt="CI Connect"></a>
+  <div class="img-container" id="footer-container"> <!-- Block parent element -->
+      <a href="http://ci-connect.net/" target="_blank"><img src="{{url_for('static', filename='img/footer/powered-by-ciconnect.png')}}" class="powered-by-large" alt="CI Connect" id="footer-img"></a>
   </div>
-  <!-- <ul class="powered-by">
-    <li>
-      <span class="powered-by">Powered by: </span>
-    </li>
-    <li>
-      <a href="http://ci-connect.net/" target="_blank"><img src="{{url_for('static', filename='img/footer/ciconnect.png')}}" class="powered-by-large" alt="CI Connect"></a>
-    </li>
-  </ul> -->
   <br></br>
 </footer>
 {%include 'scripts.html'%}
