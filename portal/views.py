@@ -1108,7 +1108,7 @@ def aup():
     domain_name = request.headers['Host']
     with open(brand_dir+'/'+domain_name+'/signup_content/signup_modal.md', "r") as file:
         aup_md = file.read()
-    return render_template('aup.html', aup_md=aup_md)
+    return render_template('AUP.html', aup_md=aup_md)
 
 
 @app.route('/login', methods=['GET'])
