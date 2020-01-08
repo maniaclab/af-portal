@@ -65,6 +65,14 @@
   	var pathname = window.location.pathname;
   	var pathsplit = pathname.split('/')
     var hostname = window.location.hostname
+    // var support_nav_element = document.getElementById("support-nav-dropdown");
+    // var nav_element = document.getElementById("nav-overview");
+    // var handbook_element = document.getElementById("nav-handbook");
+    // var documentation_element = document.getElementById("nav-documentation");
+    // var email_element = document.getElementById("nav-email");
+    // var contact_element = document.getElementById("nav-contact");
+    // var support_element = document.getElementById("nav-support");
+    // var footer_element = document.getElementById("footer-container");
   	// console.log(pathsplit[1])
   	if(pathsplit.length > 1){
   		var parentpath = pathsplit[1];
@@ -78,6 +86,9 @@
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
       var support_nav_element = document.getElementById("support-nav-dropdown");
       support_nav_element.parentNode.removeChild(support_nav_element);
+      // Remove footer for CI Connect
+      var footer_element = document.getElementById("footer-container");
+      footer_element.parentNode.removeChild(footer_element);
     } else if(String(hostname).includes('atlas')){
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/atlas-connect-logo.png')}}";
       document.getElementById("nav-overview").href="https://ci-connect.atlassian.net/wiki/spaces/AC/overview";
@@ -94,24 +105,6 @@
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
       var support_nav_element = document.getElementById("support-nav-dropdown");
       support_nav_element.parentNode.removeChild(support_nav_element);
-      // Removes an element from the document
-      var nav_element = document.getElementById("nav-overview");
-      nav_element.parentNode.removeChild(nav_element);
-      // Removes an element from the document
-      var handbook_element = document.getElementById("nav-handbook");
-      handbook_element.parentNode.removeChild(handbook_element);
-      // Removes an element from the document
-      var documentation_element = document.getElementById("nav-documentation");
-      documentation_element.parentNode.removeChild(documentation_element);
-
-      var email_element = document.getElementById("nav-email");
-      email_element.parentNode.removeChild(email_element);
-
-      var contact_element = document.getElementById("nav-contact");
-      contact_element.parentNode.removeChild(contact_element);
-
-      var support_element = document.getElementById("nav-support");
-      support_element.parentNode.removeChild(support_element);
       // Remove footer for CI Connect
       var footer_element = document.getElementById("footer-container");
       footer_element.parentNode.removeChild(footer_element);
