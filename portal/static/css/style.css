@@ -148,7 +148,7 @@ img-container {
 
 /* Remove default bullets */
 ul, #myUL {
-  list-style-type: none;
+  /* list-style-type: none; */
 }
 
 /* Remove margins and padding from the parent ul */
