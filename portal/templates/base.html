@@ -74,13 +74,7 @@
   		$('nav > ul > li > a[href="'+pathname+'"]').parent().addClass('active');
   	}
     if(String(hostname).includes('local')){
-      // Set localhost to test as CI Connect for now
-      document.getElementById("connect-brand").src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
-      var support_nav_element = document.getElementById("support-nav-dropdown");
-      support_nav_element.parentNode.removeChild(support_nav_element);
-      // Remove footer for CI Connect
-      var footer_element = document.getElementById("footer-container");
-      footer_element.parentNode.removeChild(footer_element);
+      // for local testing
     } else if(String(hostname).includes('atlas')){
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/atlas-connect-logo.png')}}";
       document.getElementById("nav-overview").href="https://ci-connect.atlassian.net/wiki/spaces/AC/overview";
@@ -91,18 +85,11 @@
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/cms-connectlogo.png')}}";
       document.getElementById("nav-overview").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/overview";
       document.getElementById("nav-handbook").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/pages/22609980/Introduction+to+CMS+Connect";
+      document.getElementById("login-node-nav").style.display = "inline";
       var about_element = document.getElementById("nav-about");
       about_element.parentNode.removeChild(about_element);
-    } else if(String(hostname).includes('duke')){
-      document.getElementById("connect-brand").src="{{url_for('static', filename='img/Duke_Connect_Logo.png')}}";
-      var about_element = document.getElementById("nav-about");
-      about_element.parentNode.removeChild(about_element);
-    } else if(String(hostname).includes('uchicago')){
-      document.getElementById("connect-brand").src="{{url_for('static', filename='img/UChicago_Connect_Logo.png')}}";
     } else {
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
-      var support_nav_element = document.getElementById("support-nav-dropdown");
-      support_nav_element.parentNode.removeChild(support_nav_element);
       // Remove footer for CI Connect
       var footer_element = document.getElementById("footer-container");
       footer_element.parentNode.removeChild(footer_element);
@@ -148,6 +135,9 @@
               <li class="nav-item">
                 <a class="nav-link" href="{{url_for('users_groups')}}">My Groups</a>
               </li>
+              <li class="nav-item" id="login-node-nav" style="display: none;">
+                <a class="nav-link" href="https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=login-el7_uscms_org" target="_blank">Login Nodes</a>
+              </li>
               <li class="nav-item">
                 <a class="nav-link" href="{{url_for('profile')}}">Profile</a>
               </li>
@@ -164,7 +154,7 @@
                   <a class="dropdown-item" id="nav-email" href="mailto:cms-connect-support@cern.ch" target="_blank">Email Us</a>
                   {% if session.get('is_authenticated') %}
                   <!-- Mail email mailgun form -->
-                  <a class="dropdown-item" id="nav-contact" href="{{url_for('support')}}">Contact Us</a>
+                  <a class="dropdown-item" id="nav-contact" href="{{url_for('support', user_email=session['email'])}}">Contact Us</a>
                   {% endif %}
                 </div>
               </li>

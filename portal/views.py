@@ -97,30 +97,29 @@ def home():
                            home_text_rotating=home_text_rotating)
 
 
-@app.route('/support', methods=['GET', 'POST'])
-def support():
+@app.route('/support/<user_email>', methods=['GET', 'POST'])
+def support(user_email):
     """
     Support page, utilize mailgun to send message
-    mailto:user-support@opensciencegrid.org
     """
     if request.method == 'GET':
         return render_template('support_email_form.html')
     elif request.method == 'POST':
-        email = request.form['email']
+        email = user_email
         description = request.form['description']
         # mailgun setup here
-        # user-support@opensciencegrid.org
+        support_email = "cms-connect-support@cern.ch"
         r = requests.post("https://api.mailgun.net/v3/api.ci-connect.net/messages",
                           auth=('api', mailgun_api_token),
                           data={
                               "from": "<" + email + ">",
-                              "to": ["fijalawa@inappmail.com"],
+                              "to": [support_email],
                               "cc": "<{}>".format(email),
                               "subject": "Support Inquiry",
                               "text": description
                           })
         if r.status_code == requests.codes.ok:
-            flash("Successfully sent message to the CMS support team.", 'success')
+            flash("Your message has been sent to the support team.", 'success')
             return redirect(url_for('support'))
         else:
             flash("Unable to send message", 'warning')

@@ -12,20 +12,7 @@
       <div class="col-lg-8 mx-auto">
         <h2>Need Support?</h2>
         <hr/>
-        <form role="form" action="{{url_for('support')}}" method="POST">
-
-          <div class="form-group">
-            <label for="email">Contact Email *</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              class="form-control"
-              placeholder="your-email@domain.com"
-              required="required"
-              tabindex="1"
-            >
-          </div>
+        <form role="form" action="{{url_for('support', user_email=session['email'])}}" method="POST">
 
           <div class="form-group">
             <label for="description">Questions/Comments <span id="asterik">*</span></label>
@@ -33,7 +20,7 @@
               placeholder="Brief description of your issue"
               name="description"
               required
-              tabindex="2"
+              tabindex="1"
               style="background-color:white; color:black; border-radius:4px; border-color:lightgrey;"
               value=""
               ></textarea>
