@@ -176,10 +176,6 @@
                   <a class="dropdown-item" id="nav-aup" href="{{url_for('aup')}}">Acceptable Use Policy</a>
                   <h6 class="dropdown-header" id="nav-support">Direct Support</h6>
                   <a class="dropdown-item" id="nav-email" href="mailto:cms-connect-support@cern.ch" target="_blank">Email Us</a>
-                  {% if session.get('is_authenticated') %}
-                  <!-- Mail email mailgun form -->
-                  <a class="dropdown-item" id="nav-contact" href="{{url_for('support')}}">Contact Us</a>
-                  {% endif %}
                 </div>
               </li>
               <li class="nav-item" id="nav-about">

@@ -98,32 +98,31 @@ def home():
 
 
 @app.route('/support/<user_email>', methods=['GET', 'POST'])
-def support(user_email):
+def support(user_email=None):
     """
     Support page, utilize mailgun to send message
     """
     if request.method == 'GET':
         return render_template('support_email_form.html')
     elif request.method == 'POST':
-        email = user_email
         description = request.form['description']
         # mailgun setup here
         support_email = "cms-connect-support@cern.ch"
         r = requests.post("https://api.mailgun.net/v3/api.ci-connect.net/messages",
                           auth=('api', mailgun_api_token),
                           data={
-                              "from": "<" + email + ">",
+                              "from": "<" + user_email + ">",
                               "to": [support_email],
-                              "cc": "<{}>".format(email),
+                              "cc": "<{}>".format(user_email),
                               "subject": "Support Inquiry",
                               "text": description
                           })
         if r.status_code == requests.codes.ok:
             flash("Your message has been sent to the support team.", 'success')
-            return redirect(url_for('support'))
+            return redirect(url_for('support', user_email=session['email']))
         else:
             flash("Unable to send message", 'warning')
-            return redirect(url_for('support'))
+            return redirect(url_for('support', user_email=session['email']))
 
 
 @app.route('/users-groups', methods=['GET'])
