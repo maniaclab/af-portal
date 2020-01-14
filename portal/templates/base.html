@@ -90,6 +90,9 @@
       // about_element.parentNode.removeChild(about_element);
     } else {
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
+      // Remove Support nav for CI connect
+      var support_nav_element = document.getElementById("support-nav-dropdown");
+      support_nav_element.parentNode.removeChild(support_nav_element);
       // Remove footer for CI Connect
       var footer_element = document.getElementById("footer-container");
       footer_element.parentNode.removeChild(footer_element);
