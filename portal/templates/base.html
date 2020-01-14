@@ -65,15 +65,7 @@
   	var pathname = window.location.pathname;
   	var pathsplit = pathname.split('/')
     var hostname = window.location.hostname
-    // var support_nav_element = document.getElementById("support-nav-dropdown");
-    // var nav_element = document.getElementById("nav-overview");
-    // var handbook_element = document.getElementById("nav-handbook");
-    // var documentation_element = document.getElementById("nav-documentation");
-    // var email_element = document.getElementById("nav-email");
-    // var contact_element = document.getElementById("nav-contact");
-    // var support_element = document.getElementById("nav-support");
-    // var footer_element = document.getElementById("footer-container");
-  	// console.log(pathsplit[1])
+
   	if(pathsplit.length > 1){
   		var parentpath = pathsplit[1];
   		$('nav > ul > li > a[href="/'+parentpath+'"]').parent().addClass('active');
@@ -169,7 +161,7 @@
                   <a class="dropdown-item" id="nav-handbook" href="" target="_blank">Handbook</a>
                   <a class="dropdown-item" id="nav-aup" href="{{url_for('aup')}}">Acceptable Use Policy</a>
                   <h6 class="dropdown-header" id="nav-support">Direct Support</h6>
-                  <a class="dropdown-item" id="nav-email" href="cms-connect-support@cern.ch" target="_blank">Email Us</a>
+                  <a class="dropdown-item" id="nav-email" href="mailto:cms-connect-support@cern.ch" target="_blank">Email Us</a>
                   {% if session.get('is_authenticated') %}
                   <!-- Mail email mailgun form -->
                   <a class="dropdown-item" id="nav-contact" href="{{url_for('support')}}">Contact Us</a>

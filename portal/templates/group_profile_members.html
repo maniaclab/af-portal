@@ -93,7 +93,7 @@
                     <th data-field="phone" data-sortable="true">Phone</th>
                     <th data-field="institution" data-sortable="true">Institution</th>
                     <th data-field="status" data-sortable="true">Status</th>
-                    {% if user_status == 'admin' %}
+                    {% if (user_status == 'admin' or connect_status == 'admin') %}
                     <th data-field="action" data-sortable="true">Action</th>
                     {% endif %}
                   </tr>
@@ -116,9 +116,9 @@
               		</tr>
                   <tr v-for="(member, index) in members" v-cloak >
               		  <td>{[{member.metadata.name}]}</td>
-              		  <td v-if="admin == 'admin'" class="email-th">{[{member.metadata.email}]}</td>
+              		  <td v-if="(admin == 'admin' || connect_status == 'admin')" class="email-th">{[{member.metadata.email}]}</td>
                     <td v-else class="email-th">Admin View Only</td>
-              		  <td v-if="admin == 'admin'">{[{member.metadata.phone}]}</td>
+              		  <td v-if="(admin == 'admin' || connect_status == 'admin')">{[{member.metadata.phone}]}</td>
                     <td v-else>Admin View Only</td>
                     <td>{[{member.metadata.institution}]}</td>
                     <td>
@@ -129,7 +129,7 @@
                         </div>
                       </div>
                     </td>
-                    <td v-if="admin == 'admin'">
+                    <td v-if="(admin == 'admin' || connect_status == 'admin')">
                       <div v-if="users_statuses[member.metadata.unix_name] == 'pending'">
                         <div class="btn-group">
                           <form role="form" :action="'/groups/' + groupname + '/add_group_member/' + member.metadata.unix_name" method="POST" onsubmit="return confirm('Are you sure you want to confirm this member?');">
@@ -184,6 +184,7 @@ $(document).ready(function() {
         users_statuses: {},
         groupname: {{ group_name|tojson|safe }},
         admin: {{ user_status|tojson|safe }},
+        connect_status: {{ connect_status|tojson|safe }},
         loading: true,
         failed: false
       }

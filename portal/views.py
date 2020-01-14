@@ -305,10 +305,18 @@ def view_group(group_name):
         if enclosing_group_name:
             r = requests.get(
                 ciconnect_api_endpoint + '/v1alpha1/users/' + unix_name + '/groups/' + enclosing_group_name, params=query)
-            connect_status = r.json()['membership']['state']
+            enclosing_status = r.json()['membership']['state']
         else:
-            connect_status = None
+            enclosing_status = None
+        # Query to check if user's status in root brand group, i.e. CMS, SPT, OSG
+        connect_status = requests.get(
+                            ciconnect_api_endpoint
+                            + '/v1alpha1/users/'
+                            + unix_name + '/groups/'
+                            + session['url_host']['unix_name'], params=query)
+        connect_status = connect_status.json()['membership']['state']
 
+        print(connect_status)
         # Zip list of nested group's display names and associated unix names
         display_names = group_name.split('.')[1:]
         project_unix_name = 'root'
@@ -317,9 +325,11 @@ def view_group(group_name):
             project_unix_name = '.'.join([project_unix_name, display_name])
             project_unix_names.append(project_unix_name)
         breadcrumb_zip = zip(display_names, project_unix_names)
-        print(user_status, connect_status)
+
+        print(user_status, enclosing_status, connect_status)
         return render_template('group_profile.html', group=group,
                                group_name=group_name, user_status=user_status,
+                               enclosing_status=enclosing_status,
                                connect_status=connect_status,
                                group_creation_date=group_creation_date,
                                breadcrumb_zip=breadcrumb_zip)
@@ -405,9 +415,17 @@ def view_group_members(group_name):
         if enclosing_group_name:
             r = requests.get(
                 ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/' + enclosing_group_name, params=query)
-            connect_status = r.json()['membership']['state']
+            enclosing_status = r.json()['membership']['state']
         else:
-            connect_status = None
+            enclosing_status = None
+
+        # Query to check if user's status in root brand group, i.e. CMS, SPT, OSG
+        connect_status = requests.get(
+                            ciconnect_api_endpoint
+                            + '/v1alpha1/users/'
+                            + session['unix_name'] + '/groups/'
+                            + session['url_host']['unix_name'], params=query)
+        connect_status = connect_status.json()['membership']['state']
 
         # Zip list of nested group's display names and associated unix names
         display_names = group_name.split('.')[1:]
@@ -420,7 +438,9 @@ def view_group_members(group_name):
 
         return render_template('group_profile_members.html', group_name=group_name,
                                user_status=user_status, group=group,
-                               connect_status=connect_status, breadcrumb_zip=breadcrumb_zip)
+                               connect_status=connect_status,
+                               breadcrumb_zip=breadcrumb_zip,
+                               enclosing_status=enclosing_status)
 
 
 @app.route('/groups-xhr/<group_name>/members', methods=['GET'])
@@ -567,7 +587,15 @@ def view_group_members_requests(group_name):
         r = requests.get(
             ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name']
             + '/groups/' + enclosing_group_name, params=query)
-        connect_status = r.json()['membership']['state']
+        enclosing_status = r.json()['membership']['state']
+
+        # Query to check if user's status in root brand group, i.e. CMS, SPT, OSG
+        connect_status = requests.get(
+                            ciconnect_api_endpoint
+                            + '/v1alpha1/users/'
+                            + session['unix_name'] + '/groups/'
+                            + session['url_host']['unix_name'], params=query)
+        connect_status = connect_status.json()['membership']['state']
 
         # Zip list of nested group's display names and associated unix names
         display_names = group_name.split('.')[1:]
@@ -583,7 +611,9 @@ def view_group_members_requests(group_name):
                                display_name=display_name, user_status=user_status,
                                user_super=user_super,
                                users_statuses=users_statuses,
-                               connect_status=connect_status, group=group,
+                               connect_status=connect_status,
+                               enclosing_status=enclosing_status,
+                               group=group,
                                breadcrumb_zip=breadcrumb_zip)
 
 
@@ -626,8 +656,6 @@ def view_group_add_members(group_name):
             project_unix_name = '.'.join([project_unix_name, display_name])
             project_unix_names.append(project_unix_name)
         breadcrumb_zip = zip(display_names, project_unix_names)
-
-        print(breadcrumb_zip)
 
         return render_template('group_profile_add_members.html', group_name=group_name,
                                display_name=display_name, user_status=user_status,
@@ -818,9 +846,17 @@ def view_group_subgroups(group_name):
         if enclosing_group_name:
             r = requests.get(
                 ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/' + enclosing_group_name, params=query)
-            connect_status = r.json()['membership']['state']
+            enclosing_status = r.json()['membership']['state']
         else:
-            connect_status = None
+            enclosing_status = None
+
+        # Query to check if user's status in root brand group, i.e. CMS, SPT, OSG
+        connect_status = requests.get(
+                            ciconnect_api_endpoint
+                            + '/v1alpha1/users/'
+                            + session['unix_name'] + '/groups/'
+                            + session['url_host']['unix_name'], params=query)
+        connect_status = connect_status.json()['membership']['state']
 
         # Zip list of nested group's display names and associated unix names
         display_names = group_name.split('.')[1:]
@@ -837,6 +873,7 @@ def view_group_subgroups(group_name):
         return render_template('group_profile_subgroups.html', group_name=group_name,
                                user_status=user_status, group=group,
                                connect_status=connect_status,
+                               enclosing_status=enclosing_status,
                                breadcrumb_zip=breadcrumb_zip,
                                group_unix_name_description=group_unix_name_description)
 
@@ -901,9 +938,17 @@ def view_group_subgroups_requests(group_name):
         if enclosing_group_name:
             r = requests.get(
                 ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/' + enclosing_group_name, params=query)
-            connect_status = r.json()['membership']['state']
+            enclosing_status = r.json()['membership']['state']
         else:
-            connect_status = None
+            enclosing_status = None
+
+        # Query to check if user's status in root brand group, i.e. CMS, SPT, OSG
+        connect_status = requests.get(
+                            ciconnect_api_endpoint
+                            + '/v1alpha1/users/'
+                            + session['unix_name'] + '/groups/'
+                            + session['url_host']['unix_name'], params=query)
+        connect_status = connect_status.json()['membership']['state']
 
         # Zip list of nested group's display names and associated unix names
         display_names = group_name.split('.')[1:]
@@ -915,9 +960,13 @@ def view_group_subgroups_requests(group_name):
         breadcrumb_zip = zip(display_names, project_unix_names)
 
         return render_template('group_profile_subgroups_requests.html',
-                               display_name=display_name, subgroup_requests=subgroup_requests,
-                               group_name=group_name, user_status=user_status,
-                               group=group, connect_status=connect_status,
+                               display_name=display_name,
+                               subgroup_requests=subgroup_requests,
+                               group_name=group_name,
+                               user_status=user_status,
+                               group=group,
+                               connect_status=connect_status,
+                               enclosing_status=enclosing_status,
                                breadcrumb_zip=breadcrumb_zip)
 
 

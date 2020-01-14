@@ -73,7 +73,7 @@
           <li class="nav-item">
             <a class="nav-link active" href="#"><span class="badge badge-warning">{{subgroup_requests|length}}</span> Subgroup Requests</a>
           </li>
-          {% if (user_status == 'admin' or connect_status == 'admin') %}
+          {% if (user_status == 'admin' or connect_status == 'admin' or enclosing_status == 'admin') %}
           <li class="nav-item">
             <a class="nav-link" href="{{url_for('view_group_add_members', group_name=group_name)}}"><i class="fas fa-user-plus"></i> Add Members</a>
           </li>
@@ -92,7 +92,7 @@
                     <th data-field="email" data-sortable="true">Email</th>
                     <th data-field="phone" data-sortable="true">Phone</th>
                     <th data-field="description" data-sortable="true">Description</th>
-                    {% if user_status == 'admin' %}
+                    {% if (user_status == 'admin' or connect_status == 'admin') %}
                     <th data-field="action" data-sortable="true">Action</th>
                     {% endif %}
                   </tr>
@@ -105,7 +105,7 @@
                     <td><a href="mailto:{{subgroup_request['email']}}?subject=Project Inquiry">{{subgroup_request['email']}}</a></td>
                     <td>{{subgroup_request['phone']}}</td>
                     <td>{{subgroup_request['description']}}</td>
-                    {% if user_status == 'admin' %}
+                    {% if (user_status == 'admin' or connect_status == 'admin') %}
                     <td>
                       <div class="btn-group">
                         <form role="form" action="{{url_for('approve_subgroup', group_name=group_name, subgroup_name=subgroup_request['name'])}}" method="GET" onsubmit="return confirm('Are you sure you want to approve this subproject?');">
