@@ -140,7 +140,7 @@
                               </div>
                               <div class="modal-body">
 
-                                <form role="form" action="{{url_for('remove_group_member', group_name=group_name, unix_name=info['metadata']['unix_name'])}}" id="{{info['metadata']['unix_name']}}" method="POST">
+                                <form role="form" action="{{url_for('remove_group_member', group_name=group_name, unix_name=info['metadata']['unix_name'])}}" method="POST">
 
                                   <div class="form-group">
                                     <label for="description">Reason for denial <span id="asterik">*</span></label>
@@ -156,7 +156,7 @@
                                   <div class="modal-footer">
                                     <div class="form-group">
                                       <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
-                                      <button type="submit" form="{{info['metadata']['unix_name']}}" name="remove_group_member" class="btn btn-sm btn-primary" data-submit="Removing Member..."> Confirm</button>
+                                      <button type="submit" name="remove_group_member" class="btn btn-sm btn-primary" data-submit="Removing Member..."> Confirm</button>
                                     </div>
                                   </div>
                                 </form>
