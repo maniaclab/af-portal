@@ -128,8 +128,8 @@
                           <button type="submit" name="add_group_member" class="btn btn-xs btn-success" data-submit="Adding Member..."><i class="fas fa-check-circle"></i> Accept</button>
                         </form>
                         {% endif %}
-                        <button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#exampleModalCenter"><i class="fas fa-times-circle"></i> Deny</button>
-                        <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                        <button type="button" class="btn btn-xs btn-danger" data-toggle="modal" data-target="#{{info['metadata']['unix_name']}}"><i class="fas fa-times-circle"></i> Deny</button>
+                        <div class="modal fade" id="{{info['metadata']['unix_name']}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
                           <div class="modal-dialog modal-dialog-centered" role="document">
                             <div class="modal-content">
                               <div class="modal-header">
@@ -140,7 +140,7 @@
                               </div>
                               <div class="modal-body">
 
-                                <form role="form" action="{{url_for('remove_group_member', group_name=group_name, unix_name=info['metadata']['unix_name'])}}" method="POST">
+                                <form role="form" action="{{url_for('remove_group_member', group_name=group_name, unix_name=info['metadata']['unix_name'])}}" id="{{info['metadata']['unix_name']}}" method="POST">
 
                                   <div class="form-group">
                                     <label for="description">Reason for denial <span id="asterik">*</span></label>
@@ -156,7 +156,7 @@
                                   <div class="modal-footer">
                                     <div class="form-group">
                                       <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
-                                      <button type="submit" name="remove_group_member" class="btn btn-sm btn-primary" data-submit="Removing Member..."> Confirm</button>
+                                      <button type="submit" form="{{info['metadata']['unix_name']}}" name="remove_group_member" class="btn btn-sm btn-primary" data-submit="Removing Member..."> Confirm</button>
                                     </div>
                                   </div>
                                 </form>
