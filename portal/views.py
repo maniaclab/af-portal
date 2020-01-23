@@ -314,7 +314,7 @@ def view_group(group_name):
                             + session['url_host']['unix_name'], params=query)
         connect_status = connect_status.json()['membership']['state']
 
-        print(connect_status)
+        # print(connect_status)
         # Zip list of nested group's display names and associated unix names
         display_names = group_name.split('.')[1:]
         project_unix_name = 'root'
@@ -324,7 +324,7 @@ def view_group(group_name):
             project_unix_names.append(project_unix_name)
         breadcrumb_zip = zip(display_names, project_unix_names)
 
-        print(user_status, enclosing_status, connect_status)
+        # print(user_status, enclosing_status, connect_status)
         return render_template('group_profile.html', group=group,
                                group_name=group_name, user_status=user_status,
                                enclosing_status=enclosing_status,

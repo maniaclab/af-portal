@@ -89,6 +89,7 @@
                 <thead>
                   <tr>
                     <th data-field="name" data-sortable="true">Name</th>
+                    <th data-field="unix-name" data-sortable="true">Unix Name</th>
                     <th data-field="email" data-sortable="true" class="email-th">Email</th>
                     <th data-field="phone" data-sortable="true">Phone</th>
                     <th data-field="institution" data-sortable="true">Institution</th>
@@ -103,6 +104,7 @@
                   <tr v-if="loading">
               			<td>Loading Data <i class="fas fa-sync fa-spin"></i></td>
               			<td><i class="fas fa-sync fa-spin"></i></td>
+                    <td><i class="fas fa-sync fa-spin"></i></td>
               			<td><i class="fas fa-sync fa-spin"></i></td>
               			<td><i class="fas fa-sync fa-spin"></i></td>
                     <td><i class="fas fa-sync fa-spin"></i></td>
@@ -111,11 +113,13 @@
               			<td>Failed to load the data, please refresh the page <i class="far fa-times-circle"></i></td>
               			<td><i class="far fa-times-circle"></i></td>
               			<td><i class="far fa-times-circle"></i></td>
+                    <td><i class="far fa-times-circle"></i></td>
               			<td><i class="far fa-times-circle"></i></td>
                     <td><i class="far fa-times-circle"></i></td>
               		</tr>
                   <tr v-for="(member, index) in members" v-cloak >
               		  <td>{[{member.metadata.name}]}</td>
+                    <td>{[{member.metadata.unix_name}]}</td>
               		  <td v-if="(admin == 'admin' || connect_status == 'admin')" class="email-th">{[{member.metadata.email}]}</td>
                     <td v-else class="email-th">Admin View Only</td>
               		  <td v-if="(admin == 'admin' || connect_status == 'admin')">{[{member.metadata.phone}]}</td>
