@@ -127,8 +127,9 @@
                     <td>{[{member.metadata.institution}]}</td>
                     <td>
                       <div v-for="group in member.metadata.group_memberships">
-                        <div v-if="group.name == groupname && group.state !== 'pending'">
+                        <div v-if="group.name == groupname">
                           <span v-if="group.state == 'admin'" style="color: blue;"><strong>{[{group.state}]}</strong></span>
+                          <span v-else-if="group.state == 'pending'" style="color: orange;"><strong>{[{group.state}]}</strong></span>
                           <span v-else="group.state == 'active'" style="color: green;"><strong>{[{group.state}]}</strong></span>
                         </div>
                       </div>

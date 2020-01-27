@@ -75,6 +75,8 @@
   	}
     if(String(hostname).includes('local')){
       // for local testing
+      document.getElementById("connect-brand").src="{{url_for('static', filename='img/duke-connect-logo.png')}}";
+      document.getElementById("nav-overview").href="https://rc.duke.edu/national-computing-labs/duke-ci-connect-quick-start/";
     } else if(String(hostname).includes('atlas')){
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/atlas-connect-logo.png')}}";
       document.getElementById("nav-overview").href="https://ci-connect.atlassian.net/wiki/spaces/AC/overview";
@@ -86,8 +88,9 @@
       document.getElementById("nav-overview").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/overview";
       document.getElementById("nav-handbook").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/pages/22609980/Introduction+to+CMS+Connect";
       document.getElementById("login-node-nav").style.display = "inline";
-      // var about_element = document.getElementById("nav-about");
-      // about_element.parentNode.removeChild(about_element);
+    } else if(String(hostname).includes('duke')) {
+      document.getElementById("connect-brand").src="{{url_for('static', filename='img/duke-connect-logo.png')}}";
+      document.getElementById("nav-overview").href="https://rc.duke.edu/national-computing-labs/duke-ci-connect-quick-start/";
     } else {
       document.getElementById("connect-brand").src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
       // Remove Support nav for CI connect

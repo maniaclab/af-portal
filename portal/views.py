@@ -646,6 +646,14 @@ def view_group_add_members(group_name):
             ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/' + session['url_host']['unix_name'], params=query)
         connect_status = r.json()['membership']['state']
 
+        enclosing_group_name = '.'.join(group_name.split('.')[:-1])
+        if enclosing_group_name:
+            r = requests.get(
+                ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/' + enclosing_group_name, params=query)
+            enclosing_status = r.json()['membership']['state']
+        else:
+            enclosing_status = None
+
         # Zip list of nested group's display names and associated unix names
         display_names = group_name.split('.')[1:]
         project_unix_name = 'root'
@@ -655,8 +663,11 @@ def view_group_add_members(group_name):
             project_unix_names.append(project_unix_name)
         breadcrumb_zip = zip(display_names, project_unix_names)
 
-        return render_template('group_profile_add_members.html', group_name=group_name,
-                               display_name=display_name, user_status=user_status,
+        return render_template('group_profile_add_members.html',
+                                group_name=group_name,
+                               display_name=display_name,
+                               user_status=user_status,
+                               enclosing_status=enclosing_status,
                                user_super=user_super, group=group,
                                connect_status=connect_status,
                                breadcrumb_zip=breadcrumb_zip)
@@ -1567,9 +1578,9 @@ def authcallback():
                             'ci-connect': {'name': 'ci-connect',
                                            'display_name': 'CI Connect',
                                            'unix_name': 'root'},
-                            'localhost': {'name': 'cms-connect',
-                                          'display_name': 'LocalHost Connect',
-                                          'unix_name': 'root.cms'}}
+                            'localhost': {'name': 'ci-connect',
+                                          'display_name': 'CI Connect',
+                                          'unix_name': 'root'}}
         url_host = request.host
         for key, value in connect_keynames.iteritems():
             if key in url_host:
