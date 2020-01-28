@@ -585,7 +585,10 @@ def view_group_members_requests(group_name):
         r = requests.get(
             ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name']
             + '/groups/' + enclosing_group_name, params=query)
-        enclosing_status = r.json()['membership']['state']
+        try:
+            enclosing_status = r.json()['membership']['state']
+        except:
+            enclosing_status = None
 
         # Query to check if user's status in root brand group, i.e. CMS, SPT, OSG
         connect_status = requests.get(
