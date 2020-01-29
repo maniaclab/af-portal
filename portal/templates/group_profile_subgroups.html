@@ -1,128 +1,43 @@
-{%extends "base.html"%}
+{%extends "group_profile_template.html"%}
 
 {%block title%}
-  {{group['display_name']}}
+  {{group['display_name']}} - Subgroups
 {%endblock%}
 
-{%block body%}
-<section id="cli-access" class="bg-light">
-  <div class="container col-lg-12 mx-auto">
+{%block content%}
+<div class="table-responsive">
+  <table class="table" id="groups-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+    <thead>
+      <tr>
+        <th data-field="name" data-sortable="true">Name</th>
+        <th data-field="unix-name" data-sortable="true">Group Unix Name</th>
+        {% if (connect_status == 'admin') %}
+        <th data-field="email" data-sortable="true">Contact Email</th>
+        {% endif %}
+        <th data-field="description" data-sortable="true">Description</th>
+      </tr>
+    </thead>
+    <tbody data-link="row" class="rowlink" style="font-size:14px;" id="subgroups-table">
+      <tr v-if="loading">
+  			<td>Loading Data <i class="fas fa-sync fa-spin"></i></td>
+  			<td><i class="fas fa-sync fa-spin"></i></td>
+  			<td v-if="connect_status === 'admin'" ><i class="fas fa-sync fa-spin"></i></td>
+  		</tr>
+  		<tr v-if="failed">
+  			<td>Failed to load the data, please refresh the page <i class="far fa-times-circle"></i></td>
+  			<td><i class="far fa-times-circle"></i></td>
+  			<td v-if="connect_status === 'admin'" ><i class="far fa-times-circle"></i></td>
+  		</tr>
+      <tr v-for="subgroup in subgroups" v-cloak >
+        <td><a :href="'/groups/' + subgroup.name">{[{subgroup.display_name}]}</a></td>
+        <td>{[{subgroup.clean_unix_name}]}</td>
+        <td v-if="connect_status === 'admin'" ><a href="mailto:{[{subgroup.email}]}?subject=Project Inquiry">{[{subgroup.email}]}</a></td>
+        <td>{[{subgroup.description}]}</td>
+      </tr>
+    </tbody>
 
-    <div class="row">
-      <div class="col-lg-12 mx-auto">
-        {%include 'messages.html' %}
-        <ol class="breadcrumb">
-          {% for breadcrumb in breadcrumb_zip %}
-          <li class="breadcrumb-item"><a href="{{url_for('view_group', group_name=breadcrumb[1])}}">{{breadcrumb[0]}}</a></li>
-          {% endfor %}
-          <li class="breadcrumb-item active">Subgroups</li>
-        </ol>
-        <h2>{{group['display_name']}}</h2>
-        <br>
-        <div class="btn-toolbar" role="toolbar">
-          {% if (user_status == 'nonmember' and connect_status in ['active', 'admin']) %}
-          <div class="btn-group mr-2" role="group", aria-label="first group">
-            <form role="form" action="{{url_for('view_group', group_name=group_name)}}" method="POST" onsubmit="return confirm('Are you sure you want to request to join this group?');">
-              <button type="submit" name="request_group" class="btn btn-primary btn-sm" data-submit="Requesting Membership...">Request Membership</button>
-            </form>
-          </div>
-          {% elif user_status == 'pending'%}
-          <div class="btn-group mr-2" role="group", aria-label="first group">
-            <button type="submit" name="pending_membership" class="btn btn-warning btn-sm disabled" data-submit="Pending Membership...">Requested Membership</button>
-          </div>
-          {% elif user_status == 'active' %}
-          <div class="btn-group mr-2" role="group" aria-label="first group">
-            <a href="{{url_for('create_subgroup', group_name=group_name)}}" class="btn btn-primary btn-sm">Request New Subgroup</a>
-          </div>
-          {% elif user_status == 'admin' %}
-          <div class="btn-group mr-2" role="group" aria-label="first group">
-            <a href="{{url_for('create_subgroup', group_name=group_name)}}" class="btn btn-primary btn-sm">Create Subgroup</a>
-          </div>
-          <div class="btn-group mr-2" role="group" aria-label="second group">
-            <a href="{{url_for('edit_subgroup', group_name=group_name)}}" class="btn btn-secondary btn-sm">Edit Subgroup</a>
-          </div>
-            {% if group_name != session['url_host']['unix_name'] %}
-          <div class="btn-group mr-2" role="group", aria-label="second group">
-            <form role="form" action="{{url_for('delete_group', group_name=group_name)}}" method="POST" onsubmit="return confirm('Are you sure you want to delete this group?');">
-              <button type="submit" name="delete_group" class="btn btn-danger btn-sm" data-submit="Deleting Group...">Delete Group</button>
-            </form>
-          </div>
-            {% endif %}
-          {% endif %}
-        </div>
-
-        <br/>
-
-        <ul class="nav nav-tabs">
-          <li class="nav-item">
-            <a class="nav-link" href="{{url_for('view_group', group_name=group_name)}}"><i class="fas fa-cubes"></i> Overview</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{url_for('view_group_members', group_name=group_name)}}"><i class="fas fa-user-friends"></i> Members</a>
-          </li>
-          <li class="nav-item" id='members-request-tab'>
-            <a class="nav-link" href="{{url_for('view_group_members_requests', group_name=group_name)}}">
-              <span class="badge badge-warning" v-if="loading"><i class="fas fa-sync fa-spin"></i></span>
-              <span class="badge badge-warning" v-else>{[{members_requests_count}]}</span>
-               Members Pending
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link active" href="{{url_for('view_group_subgroups', group_name=group_name)}}"><i class="fas fa-project-diagram"></i> Subgroups</a>
-          </li>
-          <li class="nav-item" id='subprojects-request-tab'>
-            <a class="nav-link" href="{{url_for('view_group_subgroups_requests', group_name=group_name)}}"><span class="badge badge-warning">{[{subgroup_requests_count}]}</span> Subgroup Requests</a>
-          </li>
-          {% if (user_status == 'admin' or connect_status == 'admin' or enclosing_status == 'admin') %}
-          <li class="nav-item">
-            <a class="nav-link" href="{{url_for('view_group_add_members', group_name=group_name)}}"><i class="fas fa-user-plus"></i> Add Members</a>
-          </li>
-          {% endif %}
-        </ul>
-        <br>
-
-        <div class="row">
-          <div class="col-sm-12">
-            <div class="table-responsive">
-              <table class="table" id="groups-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
-                <thead>
-                  <tr>
-                    <th data-field="name" data-sortable="true">Name</th>
-                    <th data-field="unix-name" data-sortable="true">Group Unix Name</th>
-                    {% if (connect_status == 'admin') %}
-                    <th data-field="email" data-sortable="true">Contact Email</th>
-                    {% endif %}
-                    <th data-field="description" data-sortable="true">Description</th>
-                  </tr>
-                </thead>
-                <tbody data-link="row" class="rowlink" style="font-size:14px;" id="subgroups-table">
-                  <tr v-if="loading">
-              			<td>Loading Data <i class="fas fa-sync fa-spin"></i></td>
-              			<td><i class="fas fa-sync fa-spin"></i></td>
-              			<td v-if="connect_status === 'admin'" ><i class="fas fa-sync fa-spin"></i></td>
-              		</tr>
-              		<tr v-if="failed">
-              			<td>Failed to load the data, please refresh the page <i class="far fa-times-circle"></i></td>
-              			<td><i class="far fa-times-circle"></i></td>
-              			<td v-if="connect_status === 'admin'" ><i class="far fa-times-circle"></i></td>
-              		</tr>
-                  <tr v-for="subgroup in subgroups" v-cloak >
-                    <td><a :href="'/groups/' + subgroup.name">{[{subgroup.display_name}]}</a></td>
-                    <td>{[{subgroup.clean_unix_name}]}</td>
-                    <td v-if="connect_status === 'admin'" ><a href="mailto:{[{subgroup.email}]}?subject=Project Inquiry">{[{subgroup.email}]}</a></td>
-                    <td>{[{subgroup.description}]}</td>
-                  </tr>
-                </tbody>
-
-              </table>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-</section>
+  </table>
+</div>
 
 <script>
 
@@ -146,44 +61,6 @@ $(document).ready(function() {
     .then(function (response) {
       this.subgroups = response.data;
       this.loading = false;
-    }.bind(this)) //must use bind(this) unless using arrow function
-    .catch(error => { this.failed = true; this.loading = false; })
-    }
-  });
-  new Vue({
-    el: '#subprojects-request-tab',
-    data () {
-      return {
-        subgroup_requests_count: {},
-        loading: true,
-        failed: false
-      }
-    },
-    mounted(){
-      axios.get('/groups-xhr/{{group_name}}/subgroups-requests')
-    .then(function (response) {
-      this.subgroup_requests_count = response.data[1];
-      this.loading = false;
-      console.log(this.subgroup_requests_count)
-    }.bind(this)) //must use bind(this) unless using arrow function
-    .catch(error => { this.failed = true; this.loading = false; })
-    }
-  });
-  new Vue({
-    el: '#members-request-tab',
-    data () {
-      return {
-        members_requests_count: {},
-        loading: true,
-        failed: false
-      }
-    },
-    mounted(){
-      axios.get('/groups-pending-members-count-xhr/{{group_name}}/members')
-    .then(function (response) {
-      this.members_requests_count = response.data;
-      this.loading = false;
-      // console.log(this.members_requests_count)
     }.bind(this)) //must use bind(this) unless using arrow function
     .catch(error => { this.failed = true; this.loading = false; })
     }

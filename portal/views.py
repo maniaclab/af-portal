@@ -315,7 +315,7 @@ def view_group(group_name):
         breadcrumb_zip = zip(display_names, project_unix_names)
 
         # print(user_status, enclosing_status, connect_status)
-        return render_template('group_profile.html', group=group,
+        return render_template('group_profile_overview.html', group=group,
                                group_name=group_name, user_status=user_status,
                                enclosing_status=enclosing_status,
                                connect_status=connect_status,
@@ -928,6 +928,7 @@ def view_group_subgroups_requests(group_name):
             group_name + '/members/' + session['unix_name'], params=query)
 
         user_status = user_status.json()['membership']['state']
+        print(group_name)
 
         subgroup_requests = requests.get(
             ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name + '/subgroup_requests', params=query)

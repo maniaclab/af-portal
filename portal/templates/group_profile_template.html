@@ -1,9 +1,5 @@
 {%extends "base.html"%}
 
-{%block title%}
-  {{group['display_name']}}
-{%endblock%}
-
 {%block body%}
 <section id="cli-access" class="bg-light">
   <div class="container col-lg-12 mx-auto">
@@ -12,17 +8,7 @@
       <div class="col-lg-12 mx-auto">
         {%include 'messages.html' %}
         <ol class="breadcrumb">
-        {% if breadcrumb_zip %}
-          {% for breadcrumb in breadcrumb_zip %}
-            {% if breadcrumb[1] != group['name'] %}
-          <li class="breadcrumb-item"><a href="{{url_for('view_group', group_name=breadcrumb[1])}}">{{breadcrumb[0]}}</a></li>
-            {% else %}
-          <li class="breadcrumb-item active">{{breadcrumb[0]}}</li>
-            {% endif %}
-          {% endfor %}
-        {% else %}
-          <li class="breadcrumb-item active">Root</li>
-        {% endif %}
+          <li class="breadcrumb-item"><a href="{{url_for('view_group', group_name=group_name)}}">{{group['display_name']}}</a></li>
         </ol>
         <h2>{{group['display_name']}}</h2>
         <br>
@@ -60,57 +46,42 @@
 
         <br/>
 
-        <ul class="nav nav-tabs">
+        <ul class="nav nav-tabs" id='ul-tabs'>
           <li class="nav-item">
-            <a class="nav-link active" href="#"><i class="fas fa-cubes"></i> Overview</a>
+            <a class="nav-link" href="{{url_for('view_group', group_name=group_name)}}" id='overview-tab'><i class="fas fa-cubes"></i> Overview</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{url_for('view_group_members', group_name=group_name)}}"><i class="fas fa-user-friends"></i> Members</a>
+            <a class="nav-link" href="{{url_for('view_group_members', group_name=group_name)}}" id='members-tab'><i class="fas fa-user-friends"></i> Members</a>
           </li>
           <li class="nav-item" id='members-request-tab'>
-            <a class="nav-link" href="{{url_for('view_group_members_requests', group_name=group_name)}}">
+            <a class="nav-link" href="{{url_for('view_group_members_requests', group_name=group_name)}}" id='members-requests-tab'>
               <span class="badge badge-warning" v-if="loading"><i class="fas fa-sync fa-spin"></i></span>
               <span class="badge badge-warning" v-else>{[{members_requests_count}]}</span>
                Members Pending
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{url_for('view_group_subgroups', group_name=group_name)}}"><i class="fas fa-project-diagram"></i> Subgroups</a>
+            <a class="nav-link" href="{{url_for('view_group_subgroups', group_name=group_name)}}" id='subgroups-tab'><i class="fas fa-project-diagram"></i> Subgroups</a>
           </li>
           <li class="nav-item" id='subprojects-request-tab'>
-            <a class="nav-link" href="{{url_for('view_group_subgroups_requests', group_name=group_name)}}"><span class="badge badge-warning">{[{subgroup_requests_count}]}</span> Subgroup Requests</a>
+            <a class="nav-link" href="{{url_for('view_group_subgroups_requests', group_name=group_name)}}" id='subgroups-requests-tab'><span class="badge badge-warning">{[{subgroup_requests_count}]}</span> Subgroup Requests</a>
           </li>
-          {% if (user_status == 'admin' or connect_status == 'admin' or enclosing_status == 'admin') %}
+          {% if group_name != 'root' %}
+            {% if (user_status == 'admin' or connect_status == 'admin' or enclosing_status == 'admin') %}
           <li class="nav-item">
-            <a class="nav-link" href="{{url_for('view_group_add_members', group_name=group_name)}}"><i class="fas fa-user-plus"></i> Add Members</a>
+            <a class="nav-link" href="{{url_for('view_group_add_members', group_name=group_name)}}" id='add_members-tab'><i class="fas fa-user-plus"></i> Add Members</a>
           </li>
+            {% endif %}
           {% endif %}
         </ul>
         <br>
 
-        <div class="row" id='group-info'>
+        <div class="row">
           <div class="col-sm-12">
-            <div class="card h-100">
-              <div class="card-body">
-                {% if (user_status == 'admin') %}
-                <p>
-                  <strong>Contact Email:</strong> <a href="mailto:#">{[{group.email}]}</a>
-                </p>
-                <p>
-                  <strong>Phone Number:</strong> {[{group.phone}]}
-                </p>
-                {% endif %}
-                <p>
-                  <strong>Group Unix Name:</strong> {[{unix_name}]}
-                </p>
-                <p>
-                  <strong>Description:</strong> {[{group.description}]}
-                </p>
-                <p>
-                  <strong>Created:</strong> {{group_creation_date}}
-                </p>
-              </div>
-            </div>
+
+            {% block content %}
+            {% endblock%}
+
           </div>
         </div><!-- row -->
 
@@ -120,34 +91,36 @@
 </section>
 
 <script>
+$(document).ready(function() {
+  var pathname = window.location.pathname;
+  var route_split_list = pathname.split('/');
+  var routes_list = ['members', 'add_members', 'members-requests', 'subgroups', 'subgroups-requests']
+  var route = route_split_list[route_split_list.length - 1];
+
+  if (routes_list.includes(route)) {
+    $('#' + route + '-tab').addClass('active');
+    if (route === 'members') {
+      $('.breadcrumb').append("<li class='breadcrumb-item active'>Members</li>");
+    } else if (route === 'add_members') {
+      $('.breadcrumb').append("<li class='breadcrumb-item active'>Add Members</li>");
+    } else if (route === 'members-requests') {
+      $('.breadcrumb').append("<li class='breadcrumb-item active'>Members Pending</li>");
+    } else if (route === 'subgroups') {
+      $('.breadcrumb').append("<li class='breadcrumb-item active'>Subgroups</li>");
+    } else if (route === 'subgroups-requests') {
+      $('.breadcrumb').append("<li class='breadcrumb-item active'>Subgroup Requests</li>");
+    }
+  } else {
+    $('#overview-tab').addClass('active');
+  };
+});
 
 $(document).ready(function() {
-  new Vue({
-	el: '#group-info',
-	data () {
-	    return {
-	      group: {},
-		user_status: '',
-    unix_name: {{group_name[5:]|tojson|safe}},
-		loading: true,
-		failed: false
-	    }
-	},
-	mounted() {
-            axios.get('/groups-xhr/{{group_name}}')
-	        .then(function (response) {
-		    this.group = response.data[0];
-		    this.user_status = response.data[1];
-				this.loading = false;
-		}.bind(this)) //must use bind(this) unless using arrow function
-		.catch(error => { this.failed = true; this.loading = false; })
-		}
-  });
   new Vue({
     el: '#subprojects-request-tab',
     data () {
       return {
-        subgroup_requests_count: {},
+        subgroup_requests_count: null,
         loading: true,
         failed: false
       }
@@ -165,7 +138,7 @@ $(document).ready(function() {
     el: '#members-request-tab',
     data () {
       return {
-        members_requests_count: {},
+        members_requests_count: null,
         loading: true,
         failed: false
       }
