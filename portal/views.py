@@ -17,7 +17,8 @@ from connect_api import (get_user_info, get_user_group_memberships,
                         get_multiplex, get_user_connect_status,
                         get_user_pending_project_requests, get_subgroups,
                         get_group_info, get_user_group_status,
-                        get_enclosing_group_status)
+                        get_enclosing_group_status, update_user_group_status,
+                        delete_group_entry)
 from werkzeug.exceptions import HTTPException
 # Use these four lines on container
 import sys
@@ -73,7 +74,7 @@ def webhooks():
     cd {}
     git pull origin master
     """.format(brand_dir)
-    print("Trying to CD into: {}".format(cmd))
+
     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE, stdin=subprocess.PIPE)
     out, err = p.communicate()
@@ -303,12 +304,11 @@ def view_group(group_name):
                                group_creation_date=group_creation_date,
                                breadcrumb_zip=breadcrumb_zip)
     elif request.method == 'POST':
-        '''Request membership to join group'''
-        put_query = {"apiVersion": 'v1alpha1',
-                     'group_membership': {'state': 'pending'}}
-        user_status = requests.put(
-            ciconnect_api_endpoint + '/v1alpha1/groups/' +
-            group_name + '/members/' + unix_name, params=query, json=put_query)
+        '''
+        Request group membership by setting user status to pending
+        '''
+        status = 'pending'
+        update_user_group_status(group_name, unix_name, status, session)
         # print("UPDATED MEMBERSHIP: {}".format(user_status))
         return redirect(url_for('view_group', group_name=group_name))
 
@@ -321,23 +321,13 @@ def view_group_ajax(group_name):
 
 
 def view_group_ajax_request(group_name):
-    query = {'token': ciconnect_api_token,
-             'globus_id': session['primary_identity']}
-
-    user = requests.get(ciconnect_api_endpoint +
-                        '/v1alpha1/find_user', params=query)
-    user = user.json()
+    # Get user info
+    user = get_user_info(session)
     unix_name = user['metadata']['unix_name']
-
-    group = requests.get(ciconnect_api_endpoint +
-                         '/v1alpha1/groups/' + group_name, params=query)
-    group = group.json()['metadata']
-    group_name = group['name']
+    # Get group info
+    group = get_group_info(group_name)
     # Get User's Group Status
-    user_status = requests.get(
-        ciconnect_api_endpoint + '/v1alpha1/groups/' +
-        group_name + '/members/' + unix_name, params=query)
-    user_status = user_status.json()['membership']['state']
+    user_status = get_user_group_status(unix_name, group_name, session)
 
     return group, user_status
 
@@ -346,10 +336,7 @@ def view_group_ajax_request(group_name):
 @authenticated
 def delete_group(group_name):
     if request.method == 'POST':
-        token_query = {'token': session['access_token']}
-
-        r = requests.delete(
-            ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name, params=token_query)
+        r = delete_group_entry(group_name, session)
 
         if r.status_code == requests.codes.ok:
             flash_message = flash_message_parser('delete_group')
@@ -365,36 +352,20 @@ def delete_group(group_name):
 @authenticated
 def view_group_members(group_name):
     """Detailed view of group's members"""
-    query = {'token': ciconnect_api_token}
     if request.method == 'GET':
         # Get group information
-        group = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/'
-                             + group_name, params=query)
-        group = group.json()['metadata']
+        group = get_group_info(group_name)
 
         # Get User's Group Status
-        user_status = requests.get(
-            ciconnect_api_endpoint + '/v1alpha1/groups/' +
-            group_name + '/members/' + session['unix_name'], params=query)
-        user_status = user_status.json()['membership']['state']
+        unix_name = session['unix_name']
+        user_status = get_user_group_status(unix_name, group_name, session)
 
-        # Query to return user's membership status in a group
-        # specifically if user is a member of the enclosing group
-        enclosing_group_name = '.'.join(group_name.split('.')[:-1])
-        if enclosing_group_name:
-            r = requests.get(
-                ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'] + '/groups/' + enclosing_group_name, params=query)
-            enclosing_status = r.json()['membership']['state']
-        else:
-            enclosing_status = None
+        # Query to return user's enclosing group's membership status
+        enclosing_status = get_enclosing_group_status(group_name, unix_name)
 
-        # Query to check if user's status in root brand group, i.e. CMS, SPT, OSG
-        connect_status = requests.get(
-                            ciconnect_api_endpoint
-                            + '/v1alpha1/users/'
-                            + session['unix_name'] + '/groups/'
-                            + session['url_host']['unix_name'], params=query)
-        connect_status = connect_status.json()['membership']['state']
+        # Query to check user's connect status
+        connect_group = session['url_host']['unix_name']
+        connect_status = get_user_connect_status(unix_name, connect_group)
 
         # Zip list of nested group's display names and associated unix names
         display_names = group_name.split('.')[1:]

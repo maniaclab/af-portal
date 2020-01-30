@@ -30,6 +30,21 @@ def query_status_code(query_response):
     return query_return
 
 
+def get_multiplex(json):
+    """
+    Returns list of objects, containing multiplex information
+    :param json: json object containing query and request methods
+    :return: [{state, name, state_set_by}]
+    """
+    multiplex = requests.post(
+        ciconnect_api_endpoint + '/v1alpha1/multiplex', params=query, json=json)
+    multiplex = multiplex.json()
+    return multiplex
+
+#############################
+#####       USER       ######
+#############################
+
 def get_user_info(session):
     """
     Returns object of user information
@@ -61,6 +76,13 @@ def get_user_group_memberships(session, unix_name):
 
 
 def get_user_group_status(unix_name, group_name, session):
+    """
+    Returns user's status in specific group
+    :param unix_name: string unix name of user
+    :group_name: string name of group
+    :param session: user session to pull primary_identity
+    :return: string
+    """
     query = {'token': ciconnect_api_token,
              'globus_id': session['primary_identity']}
 
@@ -70,36 +92,6 @@ def get_user_group_status(unix_name, group_name, session):
     user_status = user_status.json()['membership']['state']
 
     return user_status
-
-
-def get_multiplex(json):
-    """
-    Returns list of objects, containing multiplex information
-    :param json: json object containing query and request methods
-    :return: [{state, name, state_set_by}]
-    """
-    multiplex = requests.post(
-        ciconnect_api_endpoint + '/v1alpha1/multiplex', params=query, json=json)
-    multiplex = multiplex.json()
-    return multiplex
-
-
-def get_group_info(group_name):
-    group_info = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/'
-                         + group_name, params=query)
-    group_info = group_info.json()['metadata']
-    return group_info
-
-
-def get_subgroups(group_name, session):
-    query = {'token': session['access_token']}
-
-    subgroups = requests.get(
-        ciconnect_api_endpoint + '/v1alpha1/groups/'
-        + group_name + '/subgroups', params=query)
-    subgroups = subgroups.json()['groups']
-
-    return subgroups
 
 
 def get_user_pending_project_requests(unix_name):
@@ -141,6 +133,71 @@ def get_enclosing_group_status(group_name, unix_name):
     else:
         enclosing_status = None
     return enclosing_status
+
+
+#############################
+#####       GROUP      ######
+#############################
+
+def get_group_info(group_name):
+    """
+    Returns group details
+    :group_name: string name of group
+    :return: dict object
+    """
+    group_info = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/'
+                         + group_name, params=query)
+    group_info = group_info.json()['metadata']
+    return group_info
+
+
+def delete_group_entry(group_name, session):
+    """
+    Deletes group entry
+    :group_name: string name of group
+    :return:
+    """
+    query = {'token': session['access_token']}
+
+    r = requests.delete(
+        ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name, params=query)
+    return r
+
+
+def get_subgroups(group_name, session):
+    """
+    Returns list of a group's subgroups
+    :group_name: string name of group
+    :param session: user session to pull primary_identity
+    :return: list of dict objects
+    """
+    query = {'token': session['access_token']}
+
+    subgroups = requests.get(
+        ciconnect_api_endpoint + '/v1alpha1/groups/'
+        + group_name + '/subgroups', params=query)
+    subgroups = subgroups.json()['groups']
+
+    return subgroups
+
+
+def update_user_group_status(group_name, unix_name, status, session):
+    """
+    Returns user's status in root connect group
+    :param group_name: string name of group
+    :param unix_name: string user's unix name
+    :param status: string status to set (pending, active, admin, nonmember)
+    :return:
+    """
+    query = {'token': ciconnect_api_token,
+             'globus_id': session['primary_identity']}
+
+    put_query = {"apiVersion": 'v1alpha1',
+                 'group_membership': {'state': status}}
+    user_status = requests.put(
+        ciconnect_api_endpoint + '/v1alpha1/groups/' +
+        group_name + '/members/' + unix_name, params=query, json=put_query)
+    return user_status
 
 
 def list_connect_admins(group_name):
