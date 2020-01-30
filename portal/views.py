@@ -14,8 +14,10 @@ from portal import app
 from portal.decorators import authenticated
 from portal.utils import (load_portal_client, get_safe_redirect, flash_message_parser)
 from connect_api import (get_user_info, get_user_group_memberships,
-                        get_multiplex, user_connect_status,
-                        get_user_pending_project_requests)
+                        get_multiplex, get_user_connect_status,
+                        get_user_pending_project_requests, get_subgroups,
+                        get_group_info, get_user_group_status,
+                        get_enclosing_group_status)
 from werkzeug.exceptions import HTTPException
 # Use these four lines on container
 import sys
@@ -161,7 +163,7 @@ def users_groups():
         pending_project_requests = get_user_pending_project_requests(unix_name)
         # Check user's member status of root connect group
         connect_group = session['url_host']['unix_name']
-        user_status = user_connect_status(unix_name, connect_group)
+        user_status = get_user_connect_status(unix_name, connect_group)
 
         domain_name = request.headers['Host']
         with open(brand_dir + '/' + domain_name + "/form_descriptions/group_unix_name_description.md", "r") as file:
@@ -189,7 +191,7 @@ def users_groups_pending():
                             ['unix_name'] in project_request['name']]
         # Check user status of root connect group
         connect_group = session['url_host']['unix_name']
-        user_status = user_connect_status(unix_name, connect_group)
+        user_status = get_user_connect_status(unix_name, connect_group)
         return render_template('users_groups_pending.html',
                                 project_requests=project_requests,
                                 user_status=user_status)
@@ -199,20 +201,17 @@ def users_groups_pending():
 def groups():
     """Connect groups"""
     if request.method == 'GET':
-        query = {'token': session['access_token']}
-        root_project = session['url_host']['unix_name']
+        connect_group = session['url_host']['unix_name']
         # Get group's subgroups information
-        group_index = len(root_project.split('.'))
-        groups = requests.get(
-            ciconnect_api_endpoint + '/v1alpha1/groups/' + root_project + '/subgroups', params=query)
-        groups = groups.json()['groups']
+        groups = get_subgroups(connect_group, session)
+
+        # Filter subgroups directly one level nested under group
+        group_index = len(connect_group.split('.'))
         groups = [group for group in groups if (
             len(group['name'].split('.')) == (group_index + 1) and not group['pending'])]
 
-        # Check if user is active member of connect group specifically
-        user_status = requests.get(ciconnect_api_endpoint + '/v1alpha1/users/' +
-                                   session['unix_name'] + '/groups/' + root_project, params=query)
-        user_status = user_status.json()['membership']['state']
+        # Check user's member status of connect group specifically
+        user_status = get_user_connect_status(session['unix_name'], connect_group)
 
         domain_name = request.headers['Host']
         with open(brand_dir + '/' + domain_name + "/form_descriptions/group_unix_name_description.md", "r") as file:
@@ -269,42 +268,24 @@ def view_group(group_name):
     query = {'token': ciconnect_api_token,
              'globus_id': session['primary_identity']}
 
-    user = requests.get(ciconnect_api_endpoint +
-                        '/v1alpha1/find_user', params=query)
-    user = user.json()
+    user = get_user_info(session)
     unix_name = user['metadata']['unix_name']
 
     if request.method == 'GET':
-        group = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/'
-                             + group_name, params=query)
-        group = group.json()['metadata']
+        # Get group information
+        group = get_group_info(group_name)
         group_creation_date = group['creation_date'].split(' ')[0]
-        # print(group_creation_date)
+
         # Get User's Group Status
-        user_status = requests.get(
-            ciconnect_api_endpoint + '/v1alpha1/groups/' +
-            group_name + '/members/' + unix_name, params=query)
-        # print(user_status.json()['membership'])
-        user_status = user_status.json()['membership']['state']
+        user_status = get_user_group_status(unix_name, group_name, session)
 
-        # Query to return user's membership status in a group
-        # specifically if user is a member of the enclosing group
-        enclosing_group_name = '.'.join(group_name.split('.')[:-1])
-        if enclosing_group_name:
-            r = requests.get(
-                ciconnect_api_endpoint + '/v1alpha1/users/' + unix_name + '/groups/' + enclosing_group_name, params=query)
-            enclosing_status = r.json()['membership']['state']
-        else:
-            enclosing_status = None
-        # Query to check if user's status in root brand group, i.e. CMS, SPT, OSG
-        connect_status = requests.get(
-                            ciconnect_api_endpoint
-                            + '/v1alpha1/users/'
-                            + unix_name + '/groups/'
-                            + session['url_host']['unix_name'], params=query)
-        connect_status = connect_status.json()['membership']['state']
+        # Query to return user's enclosing group membership status
+        enclosing_status = get_enclosing_group_status(group_name, unix_name)
 
-        # print(connect_status)
+        # Query to check user's connect group membership status
+        connect_group = session['url_host']['unix_name']
+        connect_status = get_user_connect_status(unix_name, connect_group)
+
         # Zip list of nested group's display names and associated unix names
         display_names = group_name.split('.')[1:]
         project_unix_name = 'root'

@@ -61,45 +61,65 @@
     <script>
 
   	$(document).ready(function() {
-  	// get current URL path and assign 'active' class
-  	var pathname = window.location.pathname;
-  	var pathsplit = pathname.split('/')
-    var hostname = window.location.hostname
+    	// get current URL path and assign 'active' class
+    	var pathname = window.location.pathname;
+    	var pathsplit = pathname.split('/')
+      var hostname = window.location.hostname
 
-  	if(pathsplit.length > 1){
-  		var parentpath = pathsplit[1];
-  		$('nav > ul > li > a[href="/'+parentpath+'"]').parent().addClass('active');
-  	} else {
-  		// look to update the full a[href=''] uri below
-  		$('nav > ul > li > a[href="'+pathname+'"]').parent().addClass('active');
-  	}
-    if(String(hostname).includes('local')){
-      // for local testing
-      document.getElementById("connect-brand").src="{{url_for('static', filename='img/duke-connect-logo.png')}}";
-      document.getElementById("nav-overview").href="https://rc.duke.edu/national-computing-labs/duke-ci-connect-quick-start/";
-    } else if(String(hostname).includes('atlas')){
-      document.getElementById("connect-brand").src="{{url_for('static', filename='img/atlas-connect-logo.png')}}";
-      document.getElementById("nav-overview").href="https://ci-connect.atlassian.net/wiki/spaces/AC/overview";
-      document.getElementById("nav-handbook").href="https://ci-connect.atlassian.net/wiki/spaces/AC/pages/1114129/ATLAS+Connect+Quickstart";
-      var about_element = document.getElementById("nav-about");
-      about_element.parentNode.removeChild(about_element);
-    } else if(String(hostname).includes('cms')){
-      document.getElementById("connect-brand").src="{{url_for('static', filename='img/cms-connectlogo.png')}}";
-      document.getElementById("nav-overview").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/overview";
-      document.getElementById("nav-handbook").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/pages/22609980/Introduction+to+CMS+Connect";
-      document.getElementById("login-node-nav").style.display = "inline";
-    } else if(String(hostname).includes('duke')) {
-      document.getElementById("connect-brand").src="{{url_for('static', filename='img/duke-connect-logo.png')}}";
-      document.getElementById("nav-overview").href="https://rc.duke.edu/national-computing-labs/duke-ci-connect-quick-start/";
-    } else {
-      document.getElementById("connect-brand").src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
-      // Remove Support nav for CI connect
-      var support_nav_element = document.getElementById("support-nav-dropdown");
-      support_nav_element.parentNode.removeChild(support_nav_element);
-      // Remove footer for CI Connect
-      var footer_element = document.getElementById("footer-container");
-      footer_element.parentNode.removeChild(footer_element);
-    }
+    	if(pathsplit.length > 1){
+    		var parentpath = pathsplit[1];
+    		$('nav > ul > li > a[href="/'+parentpath+'"]').parent().addClass('active');
+    	} else {
+    		// look to update the full a[href=''] uri below
+    		$('nav > ul > li > a[href="'+pathname+'"]').parent().addClass('active');
+    	}
+      const connect_brand = document.getElementById("connect-brand");
+      const nav_overview = document.getElementById("nav-overview");
+      const nav_emailto = document.getElementById("nav-email");
+      if(String(hostname).includes('local')){
+        // for local testing
+        connect_brand.src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
+        // Remove Support nav for CI connect
+        var support_nav_element = document.getElementById("support-nav-dropdown");
+        support_nav_element.parentNode.removeChild(support_nav_element);
+        // Remove footer for CI Connect
+        var footer_element = document.getElementById("footer-container");
+        footer_element.parentNode.removeChild(footer_element);
+
+      } else if(String(hostname).includes('atlas')){
+
+        connect_brand.src="{{url_for('static', filename='img/atlas-connect-logo.png')}}";
+        nav_overview.href="https://ci-connect.atlassian.net/wiki/spaces/AC/overview";
+        nav_emailto.href="https://ci-connect.atlassian.net/wiki/spaces/AC/pages/1114129/ATLAS+Connect+Quickstart";
+
+        var about_element = document.getElementById("nav-about");
+        about_element.parentNode.removeChild(about_element);
+
+      } else if(String(hostname).includes('cms')){
+
+        connect_brand.src="{{url_for('static', filename='img/cms-connectlogo.png')}}";
+        nav_overview.href="https://ci-connect.atlassian.net/wiki/spaces/CMS/overview";
+        document.getElementById("nav-handbook").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/pages/22609980/Introduction+to+CMS+Connect";
+        document.getElementById("login-node-nav").style.display = "inline";
+        nav_emailto.href="mailto:cms-connect-support@cern.ch";
+
+      } else if(String(hostname).includes('duke')) {
+
+        connect_brand.src="{{url_for('static', filename='img/duke-connect-logo.png')}}";
+        nav_overview.href="https://rc.duke.edu/national-computing-labs/duke-ci-connect-quick-start/";
+        nav_emailto.href="mailto:scsc@duke.edu";
+        var handbook_element = document.getElementById("nav-handbook");
+        handbook_element.parentNode.removeChild(handbook_element);
+
+      } else {
+        connect_brand.src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
+        // Remove Support nav for CI connect
+        var support_nav_element = document.getElementById("support-nav-dropdown");
+        support_nav_element.parentNode.removeChild(support_nav_element);
+        // Remove footer for CI Connect
+        var footer_element = document.getElementById("footer-container");
+        footer_element.parentNode.removeChild(footer_element);
+      };
   	})
     $(function () {
       $('[data-toggle="popover"]').popover()
@@ -178,7 +198,7 @@
                   <a class="dropdown-item" id="nav-handbook" href="" target="_blank">Handbook</a>
                   <a class="dropdown-item" id="nav-aup" href="{{url_for('aup')}}">Acceptable Use Policy</a>
                   <h6 class="dropdown-header" id="nav-support">Direct Support</h6>
-                  <a class="dropdown-item" id="nav-email" href="mailto:cms-connect-support@cern.ch" target="_blank">Email Us</a>
+                  <a class="dropdown-item" id="nav-email" href="" target="_blank">Email Us</a>
                 </div>
               </li>
               <li class="nav-item" id="nav-about">
