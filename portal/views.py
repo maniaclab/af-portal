@@ -16,7 +16,7 @@ from portal.utils import (load_portal_client, get_safe_redirect, flash_message_p
 from connect_api import (get_user_info, get_user_group_memberships,
                         get_multiplex, get_user_connect_status,
                         get_user_pending_project_requests, get_subgroups,
-                        get_group_info, get_user_group_status,
+                        get_group_info, get_group_members, get_user_group_status,
                         get_enclosing_group_status, update_user_group_status,
                         delete_group_entry)
 from werkzeug.exceptions import HTTPException
@@ -401,9 +401,7 @@ def view_group_members_ajax_request(group_name):
         multiplexJson = {}
         users_statuses = {}
 
-        # start = time.time()
-        # print("START")
-
+        # Get detailed user information from list of users
         for user in memberships:
             unix_name = user['user_name']
             user_state = user['state']
@@ -412,15 +410,11 @@ def view_group_members_ajax_request(group_name):
                     unix_name + "?token=" + query['token']
                 multiplexJson[user_query] = {"method": "GET"}
                 users_statuses[unix_name] = user_state
+
         # POST request for multiplex return
-        multiplex = requests.post(
-            ciconnect_api_endpoint + '/v1alpha1/multiplex', params=query, json=multiplexJson)
-        multiplex = multiplex.json()
+        multiplex = get_multiplex(multiplexJson)
         user_dict = {}
         group_user_dict = {}
-
-        # end = time.time()
-        # print(end - start)
 
         for user in multiplex:
             user_name = user.split('/')[3].split('?')[0]
@@ -430,19 +424,6 @@ def view_group_members_ajax_request(group_name):
             for group_membership in info['metadata']['group_memberships']:
                 if group_membership['name'] == group_name:
                     group_user_dict[user] = info
-
-        # Get User's Group Status
-        user_status = requests.get(
-            ciconnect_api_endpoint + '/v1alpha1/groups/' +
-            group_name + '/members/' + session['unix_name'], params=query)
-        user_status = user_status.json()['membership']['state']
-        query = {'token': ciconnect_api_token}
-        user_super = requests.get(
-            ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'], params=query)
-        try:
-            user_super = user_super.json()['metadata']['superuser']
-        except:
-            user_super = False
 
         return user_dict, users_statuses
 
@@ -456,15 +437,11 @@ def group_pending_members_count_ajax(group_name):
 
 def group_pending_members_count_request(group_name):
     """Get a group's pending members count"""
-    query = {'token': ciconnect_api_token}
     if request.method == 'GET':
-        group_members = requests.get(
-            ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name + '/members', params=query)
-        # print(group_members.json())
-        memberships = group_members.json()['memberships']
+        group_members = get_group_members(group_name)
         pending_user_count = 0
 
-        for user in memberships:
+        for user in group_members:
             if user['state'] == 'pending':
                 pending_user_count += 1
 

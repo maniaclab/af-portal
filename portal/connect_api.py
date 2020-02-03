@@ -151,6 +151,14 @@ def get_group_info(group_name):
     return group_info
 
 
+def get_group_members(group_name):
+    group_members = requests.get(
+        ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name + '/members', params=query)
+    # print(group_members.json())
+    group_members = group_members.json()['memberships']
+    return group_members
+
+
 def delete_group_entry(group_name, session):
     """
     Deletes group entry
