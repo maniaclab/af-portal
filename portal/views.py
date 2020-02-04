@@ -249,7 +249,6 @@ def create_group():
                                   'field_of_science': field_of_science,
                                   'email': email, 'phone': phone,
                                   'description': description}}
-        print(session['url_host']['unix_name '])
         create_group = requests.put(
             ciconnect_api_endpoint + '/v1alpha1/groups/root/subgroups/' + name, params=query, json=put_group)
         if create_group.status_code == requests.codes.ok:
@@ -287,22 +286,11 @@ def view_group(group_name):
         connect_group = session['url_host']['unix_name']
         connect_status = get_user_connect_status(unix_name, connect_group)
 
-        # Zip list of nested group's display names and associated unix names
-        display_names = group_name.split('.')[1:]
-        project_unix_name = 'root'
-        project_unix_names = []
-        for display_name in display_names:
-            project_unix_name = '.'.join([project_unix_name, display_name])
-            project_unix_names.append(project_unix_name)
-        breadcrumb_zip = zip(display_names, project_unix_names)
-
-        # print(user_status, enclosing_status, connect_status)
         return render_template('group_profile_overview.html', group=group,
                                group_name=group_name, user_status=user_status,
                                enclosing_status=enclosing_status,
                                connect_status=connect_status,
-                               group_creation_date=group_creation_date,
-                               breadcrumb_zip=breadcrumb_zip)
+                               group_creation_date=group_creation_date)
     elif request.method == 'POST':
         '''
         Request group membership by setting user status to pending
@@ -367,19 +355,9 @@ def view_group_members(group_name):
         connect_group = session['url_host']['unix_name']
         connect_status = get_user_connect_status(unix_name, connect_group)
 
-        # Zip list of nested group's display names and associated unix names
-        display_names = group_name.split('.')[1:]
-        project_unix_name = 'root'
-        project_unix_names = []
-        for display_name in display_names:
-            project_unix_name = '.'.join([project_unix_name, display_name])
-            project_unix_names.append(project_unix_name)
-        breadcrumb_zip = zip(display_names, project_unix_names)
-
         return render_template('group_profile_members.html', group_name=group_name,
                                user_status=user_status, group=group,
                                connect_status=connect_status,
-                               breadcrumb_zip=breadcrumb_zip,
                                enclosing_status=enclosing_status)
 
 
@@ -494,15 +472,6 @@ def view_group_members_requests(group_name):
         except:
             user_super = False
 
-        # Zip list of nested group's display names and associated unix names
-        display_names = group_name.split('.')[1:]
-        project_unix_name = 'root'
-        project_unix_names = []
-        for display_name in display_names:
-            project_unix_name = '.'.join([project_unix_name, display_name])
-            project_unix_names.append(project_unix_name)
-        breadcrumb_zip = zip(display_names, project_unix_names)
-
         return render_template('group_profile_members_requests.html',
                                group_members=user_dict, group_name=group_name,
                                user_status=user_status,
@@ -510,8 +479,7 @@ def view_group_members_requests(group_name):
                                users_statuses=users_statuses,
                                connect_status=connect_status,
                                enclosing_status=enclosing_status,
-                               group=group,
-                               breadcrumb_zip=breadcrumb_zip)
+                               group=group)
 
 
 @app.route('/groups/<group_name>/add_members', methods=['GET', 'POST'])
@@ -542,22 +510,12 @@ def view_group_add_members(group_name):
         except:
             user_super = False
 
-        # Zip list of nested group's display names and associated unix names
-        display_names = group_name.split('.')[1:]
-        project_unix_name = 'root'
-        project_unix_names = []
-        for display_name in display_names:
-            project_unix_name = '.'.join([project_unix_name, display_name])
-            project_unix_names.append(project_unix_name)
-        breadcrumb_zip = zip(display_names, project_unix_names)
-
         return render_template('group_profile_add_members.html',
                                 group_name=group_name,
                                user_status=user_status,
                                enclosing_status=enclosing_status,
                                user_super=user_super, group=group,
-                               connect_status=connect_status,
-                               breadcrumb_zip=breadcrumb_zip)
+                               connect_status=connect_status)
 
 
 @app.route('/groups-xhr/<group_name>/add_members', methods=['GET', 'POST'])
@@ -647,7 +605,6 @@ def remove_group_member(group_name, unix_name):
             remove_user = requests.delete(
                 ciconnect_api_endpoint + '/v1alpha1/groups/' +
                 group_name + '/members/' + unix_name, params=query)
-        # print("UPDATED remove_user: {}".format(remove_user))
 
         if remove_user.status_code == requests.codes.ok:
             flash_message = flash_message_parser('remove_group_member')
@@ -696,14 +653,6 @@ def view_group_subgroups(group_name):
         connect_group = session['url_host']['unix_name']
         connect_status = get_user_connect_status(unix_name, connect_group)
 
-        # Zip list of nested group's display names and associated unix names
-        display_names = group_name.split('.')[1:]
-        project_unix_name = 'root'
-        project_unix_names = []
-        for display_name in display_names:
-            project_unix_name = '.'.join([project_unix_name, display_name])
-            project_unix_names.append(project_unix_name)
-        breadcrumb_zip = zip(display_names, project_unix_names)
         domain_name = request.headers['Host']
         with open(brand_dir + '/' + domain_name + "/form_descriptions/group_unix_name_description.md", "r") as file:
             group_unix_name_description = file.read()
@@ -712,7 +661,6 @@ def view_group_subgroups(group_name):
                                user_status=user_status, group=group,
                                connect_status=connect_status,
                                enclosing_status=enclosing_status,
-                               breadcrumb_zip=breadcrumb_zip,
                                group_unix_name_description=group_unix_name_description)
 
 
@@ -766,23 +714,13 @@ def view_group_subgroups_requests(group_name):
         connect_group = session['url_host']['unix_name']
         connect_status = get_user_connect_status(unix_name, connect_group)
 
-        # Zip list of nested group's display names and associated unix names
-        display_names = group_name.split('.')[1:]
-        project_unix_name = 'root'
-        project_unix_names = []
-        for display_name in display_names:
-            project_unix_name = '.'.join([project_unix_name, display_name])
-            project_unix_names.append(project_unix_name)
-        breadcrumb_zip = zip(display_names, project_unix_names)
-
         return render_template('group_profile_subgroups_requests.html',
                                subgroup_requests=subgroup_requests,
                                group_name=group_name,
                                user_status=user_status,
                                group=group,
                                connect_status=connect_status,
-                               enclosing_status=enclosing_status,
-                               breadcrumb_zip=breadcrumb_zip)
+                               enclosing_status=enclosing_status)
 
 
 @app.route('/groups-xhr/<group_name>/subgroups-requests', methods=['GET', 'POST'])
@@ -813,24 +751,24 @@ def create_subgroup(group_name):
         sciences = requests.get(
             ciconnect_api_endpoint + '/v1alpha1/fields_of_science')
         sciences = sciences.json()['fields_of_science']
-        group_members = requests.get(
-            ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name + '/members', params=token_query)
+        # Get group members
+        group_members = get_group_members(group_name)
+        # Return list of admins of group
         try:
-            group_members = group_members.json()['memberships']
             group_admins = [
                 member for member in group_members if member['state'] == 'admin']
         except:
             group_admins = []
-        # Check if user is active member of OSG specifically
-        user_status = requests.get(ciconnect_api_endpoint + '/v1alpha1/users/' +
-                                   session['unix_name'] + '/groups/' + session['url_host']['unix_name'], params=token_query)
-        user_status = user_status.json()['membership']['state']
+        # Check if user status of root connect group specifically
+        connect_group = session['url_host']['unix_name']
+        unix_name = session['unix_name']
+        user_status = get_user_connect_status(unix_name, connect_group)
 
-        # Get enclosing group information
-        group = requests.get(ciconnect_api_endpoint +
-                             '/v1alpha1/groups/' + group_name, params=token_query)
-        group = group.json()['metadata']
-        return render_template('groups_create.html', sciences=sciences, group_name=group_name, group_admins=group_admins, user_status=user_status, group=group)
+        # Get group information
+        group = get_group_info(group_name)
+        return render_template('groups_create.html', sciences=sciences,
+                                group_name=group_name, group_admins=group_admins,
+                                user_status=user_status, group=group)
 
     elif request.method == 'POST':
         name = request.form['name']
@@ -849,17 +787,16 @@ def create_subgroup(group_name):
                                   'purpose': field_of_science,
                                   'email': email, 'phone': phone,
                                   'description': description}}
-        # print(put_query)
 
         r = requests.put(
             ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name +
             '/subgroup_requests/' + name, params=token_query, json=put_query)
         full_created_group_name = group_name + '.' + name
 
-        # Check if user is active member of OSG specifically
-        user_status = requests.get(ciconnect_api_endpoint + '/v1alpha1/users/' +
-                                   session['unix_name'] + '/groups/' + session['url_host']['unix_name'], params=token_query)
-        user_status = user_status.json()['membership']['state']
+        # Check if user status of root connect group specifically
+        connect_group = session['url_host']['unix_name']
+        unix_name = session['unix_name']
+        user_status = get_user_connect_status(unix_name, connect_group)
 
         if r.status_code == requests.codes.ok:
             if user_status == 'admin':
@@ -886,11 +823,11 @@ def edit_subgroup_requests(group_name):
         sciences = requests.get(
             ciconnect_api_endpoint + '/v1alpha1/fields_of_science')
         sciences = sciences.json()['fields_of_science']
-        group = requests.get(ciconnect_api_endpoint +
-                             '/v1alpha1/groups/' + group_name, params=token_query)
-        group = group.json()['metadata']
 
-        return render_template('groups_requests_edit.html', sciences=sciences, group_name=group_name, group=group)
+        group = get_group_info(group_name)
+
+        return render_template('groups_requests_edit.html', sciences=sciences,
+                                group_name=group_name, group=group)
 
     elif request.method == 'POST':
         name = request.form['name']
@@ -939,10 +876,9 @@ def edit_subgroup(group_name):
         sciences = requests.get(
             ciconnect_api_endpoint + '/v1alpha1/fields_of_science')
         sciences = sciences.json()['fields_of_science']
-        group = requests.get(ciconnect_api_endpoint +
-                             '/v1alpha1/groups/' + group_name, params=token_query)
-        group = group.json()['metadata']
-        return render_template('groups_edit.html', sciences=sciences, group_name=group_name, group=group)
+        group = get_group_info(group_name)
+        return render_template('groups_edit.html', sciences=sciences,
+                                group_name=group_name, group=group)
 
     elif request.method == 'POST':
         display_name = request.form['display-name']
@@ -957,9 +893,7 @@ def edit_subgroup(group_name):
 
         r = requests.put(
             ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name, params=token_query, json=put_query)
-        # print(r)
-        enclosing_group_name = '.'.join(group_name.split('.')[:-1])
-        # print(enclosing_group_name)
+
         if r.status_code == requests.codes.ok:
             flash_message = flash_message_parser('edit_subgroup')
             flash(flash_message, 'success')
