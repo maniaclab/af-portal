@@ -455,27 +455,19 @@ def view_group_members_requests(group_name):
             user_dict[user_name] = json.loads(multiplex[user]['body'])
 
         # Get User's Group Status
+        unix_name = session['unix_name']
         user_status = get_user_group_status(unix_name, group_name, session)
 
         # Query user's enclosing group status
-        unix_name = session['unix_name']
         enclosing_status = get_enclosing_group_status(group_name, unix_name)
 
         # Query user's status in root connect group
         connect_group = session['url_host']['unix_name']
         connect_status = get_user_connect_status(unix_name, connect_group)
 
-        user_super = requests.get(
-            ciconnect_api_endpoint + '/v1alpha1/users/' + session['unix_name'], params=query)
-        try:
-            user_super = user_super.json()['metadata']['superuser']
-        except:
-            user_super = False
-
         return render_template('group_profile_members_requests.html',
                                group_members=user_dict, group_name=group_name,
                                user_status=user_status,
-                               user_super=user_super,
                                users_statuses=users_statuses,
                                connect_status=connect_status,
                                enclosing_status=enclosing_status,
@@ -496,7 +488,6 @@ def view_group_add_members(group_name):
         user_status = get_user_group_status(unix_name, group_name, session)
 
         # Query user's enclosing group status
-        unix_name = session['unix_name']
         enclosing_status = get_enclosing_group_status(group_name, unix_name)
 
         # Query user's status in root connect group
