@@ -33,6 +33,9 @@ mailgun_api_token = app.config['MAILGUN_API_TOKEN']
 # Read Brand Dir from config and insert path to read
 brand_dir = app.config['MARKDOWN_DIR']
 sys.path.insert(0, brand_dir)
+# Set sys path and import view routes
+# sys.path.insert(1, 'portal/views')
+# import group_views
 
 # Create a custom error handler for Exceptions
 @app.errorhandler(Exception)
@@ -196,7 +199,6 @@ def users_groups_pending():
         return render_template('users_groups_pending.html',
                                 project_requests=project_requests,
                                 user_status=user_status)
-
 
 @app.route('/groups', methods=['GET'])
 def groups():
@@ -1309,13 +1311,14 @@ def authcallback():
                             'ci-connect': {'name': 'ci-connect',
                                            'display_name': 'CI Connect',
                                            'unix_name': 'root'},
-                            'localhost': {'name': 'ci-connect',
-                                          'display_name': 'CI Connect',
-                                          'unix_name': 'root'}}
+                            'localhost': {'name': 'duke-connect',
+                                     'display_name': 'Duke Connect',
+                                     'unix_name': 'root.duke'}}
         url_host = request.host
         for key, value in connect_keynames.iteritems():
             if key in url_host:
                 session['url_host'] = value
+                break
 
         if profile:
             profile = profile['metadata']
