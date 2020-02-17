@@ -1318,7 +1318,6 @@ def authcallback():
         for key, value in connect_keynames.iteritems():
             if key in url_host:
                 session['url_host'] = value
-                break
 
         if profile:
             profile = profile['metadata']
