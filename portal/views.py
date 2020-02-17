@@ -1311,9 +1311,9 @@ def authcallback():
                             'ci-connect': {'name': 'ci-connect',
                                            'display_name': 'CI Connect',
                                            'unix_name': 'root'},
-                            'localhost': {'name': 'duke-connect',
-                                     'display_name': 'Duke Connect',
-                                     'unix_name': 'root.duke'}}
+                            'localhost': {'name': 'cms-connect',
+                                    'display_name': 'CMS Connect',
+                                    'unix_name': 'root.cms'}}
         url_host = request.host
         for key, value in connect_keynames.iteritems():
             if key in url_host:
