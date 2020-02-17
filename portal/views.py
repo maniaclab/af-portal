@@ -1299,10 +1299,7 @@ def authcallback():
             except:
                 print("NOTHING HERE: {}".format(identity))
 
-        connect_keynames = {'ci-connect': {'name': 'ci-connect',
-                                           'display_name': 'CI Connect',
-                                           'unix_name': 'root'},
-                            'atlas': {'name': 'atlas-connect',
+        connect_keynames = {'atlas': {'name': 'atlas-connect',
                                       'display_name': 'Atlas Connect',
                                       'unix_name': 'root.atlas'},
                             'cms': {'name': 'cms-connect',
@@ -1311,13 +1308,19 @@ def authcallback():
                             'duke': {'name': 'duke-connect',
                                      'display_name': 'Duke Connect',
                                      'unix_name': 'root.duke'},
-                            'localhost': {'name': 'cms-connect',
-                                    'display_name': 'CMS Connect',
-                                    'unix_name': 'root.cms'}}
+                            'localhost': {'name': 'duke-connect',
+                                     'display_name': 'Duke Connect',
+                                     'unix_name': 'root.duke'}}
         url_host = request.host
+        print(url_host)
         for key, value in connect_keynames.iteritems():
             if key in url_host:
                 session['url_host'] = value
+
+        if not session['url_host']:
+            session['url_host'] = {'name': 'ci-connect',
+                                    'display_name': 'CI Connect',
+                                    'unix_name': 'root'}
 
         if profile:
             profile = profile['metadata']
