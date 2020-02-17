@@ -1299,7 +1299,10 @@ def authcallback():
             except:
                 print("NOTHING HERE: {}".format(identity))
 
-        connect_keynames = {'atlas': {'name': 'atlas-connect',
+        connect_keynames = {'ci-connect': {'name': 'ci-connect',
+                                           'display_name': 'CI Connect',
+                                           'unix_name': 'root'},
+                            'atlas': {'name': 'atlas-connect',
                                       'display_name': 'Atlas Connect',
                                       'unix_name': 'root.atlas'},
                             'cms': {'name': 'cms-connect',
@@ -1308,9 +1311,6 @@ def authcallback():
                             'duke': {'name': 'duke-connect',
                                      'display_name': 'Duke Connect',
                                      'unix_name': 'root.duke'},
-                            'ci-connect': {'name': 'ci-connect',
-                                           'display_name': 'CI Connect',
-                                           'unix_name': 'root'},
                             'localhost': {'name': 'cms-connect',
                                     'display_name': 'CMS Connect',
                                     'unix_name': 'root.cms'}}
