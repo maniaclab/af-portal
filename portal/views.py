@@ -1313,14 +1313,14 @@ def authcallback():
                                      'unix_name': 'root.duke'}}
         url_host = request.host
         print(url_host)
-        for key, value in connect_keynames.iteritems():
-            if key in url_host:
-                session['url_host'] = value
-
-        if not session['url_host']:
+        if 'ci-connect' in url_host:
             session['url_host'] = {'name': 'ci-connect',
                                     'display_name': 'CI Connect',
                                     'unix_name': 'root'}
+
+        for key, value in connect_keynames.iteritems():
+            if key in url_host:
+                session['url_host'] = value
 
         if profile:
             profile = profile['metadata']
