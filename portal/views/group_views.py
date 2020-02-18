@@ -11,10 +11,13 @@ except ImportError:
 from portal import app
 from portal.decorators import authenticated
 from portal.utils import flash_message_parser
-from portal.connect_api import (get_user_info, get_multiplex, get_user_connect_status,
-                        get_subgroups,get_group_info, get_group_members,
-                        get_user_group_status, get_enclosing_group_status,
-                        update_user_group_status, delete_group_entry)
+from portal.connect_api import (get_user_info, get_multiplex,
+                                get_user_connect_status,
+                                get_subgroups, get_group_info,
+                                get_group_members,
+                                get_user_group_status,
+                                get_enclosing_group_status,
+                                update_user_group_status)
 import sys
 
 # Read configurable tokens and endpoints from config file, values must be set
@@ -39,12 +42,12 @@ def groups():
             len(group['name'].split('.')) == (group_index + 1) and not group['pending'])]
 
         # Check user's member status of connect group specifically
-        user_status = get_user_connect_status(session['unix_name'], connect_group)
+        user_status = get_user_connect_status(
+            session['unix_name'], connect_group)
 
         domain_name = request.headers['Host']
         with open(brand_dir + '/' + domain_name + "/form_descriptions/group_unix_name_description.md", "r") as file:
             group_unix_name_description = file.read()
-        print("REFACTORED")
         return render_template('groups.html', groups=groups,
                                user_status=user_status,
                                group_unix_name_description=group_unix_name_description)
@@ -275,7 +278,7 @@ def view_group_add_members(group_name):
             user_super = False
 
         return render_template('group_profile_add_members.html',
-                                group_name=group_name,
+                               group_name=group_name,
                                user_status=user_status,
                                enclosing_status=enclosing_status,
                                user_super=user_super, group=group,

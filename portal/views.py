@@ -12,11 +12,10 @@ from portal import app
 from portal.decorators import authenticated
 from portal.utils import (load_portal_client, get_safe_redirect, flash_message_parser)
 from connect_api import (get_user_info, get_user_group_memberships,
-                        get_multiplex, get_user_connect_status,
-                        get_user_pending_project_requests, get_subgroups,
-                        get_group_info, get_group_members, get_user_group_status,
-                        get_enclosing_group_status, update_user_group_status,
-                        delete_group_entry)
+                            get_multiplex, get_user_connect_status,
+                            get_user_pending_project_requests,
+                            get_group_info, get_group_members,
+                            delete_group_entry)
 # Use these four lines on container
 import sys
 import subprocess
@@ -125,7 +124,7 @@ def users_groups():
 
         users_groups = []
         for group in multiplex:
-            if session['url_host']['unix_name'] in (json.loads(multiplex[group]['body'])['metadata']['name']):
+            if ((session['url_host']['unix_name'] in (json.loads(multiplex[group]['body'])['metadata']['name'])) and (len((json.loads(multiplex[group]['body'])['metadata']['name']).split('.')) > 2)):
                 users_groups.append(
                     (json.loads(multiplex[group]['body']), group_membership_status[group]))
         # users_groups = [group for group in users_groups if len(group['name'].split('.')) == 3]
@@ -751,7 +750,7 @@ def profile():
 
         group_memberships = []
         for group in profile['group_memberships']:
-            if session['url_host']['unix_name'] in group['name']:
+            if ((session['url_host']['unix_name'] in group['name']) and (len(group['name'].split('.')) > 2)):
                 group_memberships.append(group)
 
         domain_name = request.headers['Host']

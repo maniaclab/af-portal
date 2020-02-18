@@ -47,7 +47,21 @@
           <div class="col-sm-12 col-md-6">
             <div class="card h-100">
               <div class="card-header">
+                {% if user_state == 'nonmember' %}
+                {{session['url_host']['display_name']}} Group Membership Status: <i class="fas fa-users float-right"></i>
+                <div class="btn-group mr-2" role="group", aria-label="first group">
+                  <form role="form" action="{{url_for('view_group', group_name=group_name)}}" method="POST" onsubmit="return confirm('Are you sure you want to request to join this group?');">
+                    <button type="submit" name="request_group" class="btn btn-primary btn-sm" data-submit="Requesting Membership...">Request Membership</button>
+                  </form>
+                </div>
+                {% elif user_status == 'pending'%}
+                {{session['url_host']['display_name']}} Group Membership Status: <i class="fas fa-users float-right"></i>
+                <div class="btn-group mr-2" role="group", aria-label="first group">
+                  <button type="submit" name="pending_membership" class="btn btn-warning btn-sm disabled" data-submit="Pending Membership...">Requested Membership</button>
+                </div>
+                {% else %}
                 {{session['url_host']['display_name']}} Group Membership Status: <strong id='osg-user-status'>{{user_status}}</strong> <i class="fas fa-users float-right"></i>
+                {% endif %}
               </div>
               <div class="card-body">
                 <a href="{{url_for('users_groups')}}" class="btn btn-primary btn-sm">My Groups</a>
