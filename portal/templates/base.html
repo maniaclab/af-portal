@@ -76,6 +76,7 @@
       const connect_brand = document.getElementById("connect-brand");
       const nav_overview = document.getElementById("nav-overview");
       const nav_emailto = document.getElementById("nav-email");
+      const nav_handbook = document.getElementById("nav-handbook");
       if(String(hostname).includes('local')){
         // for local testing
         connect_brand.src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
@@ -99,6 +100,7 @@
 
         connect_brand.src="{{url_for('static', filename='img/cms-connectlogo.png')}}";
         nav_overview.href="https://ci-connect.atlassian.net/wiki/spaces/CMS/overview";
+        document.getElementById("nav-handbook").style.display = "inline";
         document.getElementById("nav-handbook").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/pages/22609980/Introduction+to+CMS+Connect";
         document.getElementById("login-node-nav").style.display = "inline";
         nav_emailto.href="mailto:cms-connect-support@cern.ch";
@@ -108,8 +110,6 @@
         connect_brand.src="{{url_for('static', filename='img/duke-connect-logo.png')}}";
         nav_overview.href="https://rc.duke.edu/national-computing-labs/duke-ci-connect-quick-start/";
         nav_emailto.href="mailto:scsc@duke.edu";
-        var handbook_element = document.getElementById("nav-handbook");
-        handbook_element.parentNode.removeChild(handbook_element);
 
       } else {
         connect_brand.src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
@@ -174,7 +174,7 @@
                 <div class="dropdown-menu" aria-labelledby="support-dropdown-menu">
                   <h6 class="dropdown-header" id="nav-documentation">Documentation</h6>
                   <a class="dropdown-item" id="nav-overview" href="" target="_blank">Overview</a>
-                  <a class="dropdown-item" id="nav-handbook" href="" target="_blank">Handbook</a>
+                  <a class="dropdown-item" id="nav-handbook" href="" target="_blank" style="display: none;">Handbook</a>
                   <a class="dropdown-item" id="nav-aup" href="{{url_for('aup')}}">Acceptable Use Policy</a>
                   <h6 class="dropdown-header" id="nav-support">Direct Support</h6>
                   <!-- Mail email mailgun form -->
@@ -195,7 +195,7 @@
                 <div class="dropdown-menu" aria-labelledby="support-dropdown-menu">
                   <h6 class="dropdown-header" id="nav-documentation">Documentation</h6>
                   <a class="dropdown-item" id="nav-overview" href="" target="_blank">Overview</a>
-                  <a class="dropdown-item" id="nav-handbook" href="" target="_blank">Handbook</a>
+                  <a class="dropdown-item" id="nav-handbook" href="" target="_blank" style="display: none;">Handbook</a>
                   <a class="dropdown-item" id="nav-aup" href="{{url_for('aup')}}">Acceptable Use Policy</a>
                   <h6 class="dropdown-header" id="nav-support">Direct Support</h6>
                   <a class="dropdown-item" id="nav-email" href="" target="_blank">Email Us</a>
