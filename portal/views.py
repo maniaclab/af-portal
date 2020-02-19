@@ -858,9 +858,12 @@ def authcallback():
                             'duke': {'name': 'duke-connect',
                                      'display_name': 'Duke Connect',
                                      'unix_name': 'root.duke'},
-                            'localhost': {'name': 'duke-connect',
-                                     'display_name': 'Duke Connect',
-                                     'unix_name': 'root.duke'}}
+                            'uchicago': {'name': 'uchicago-connect',
+                                     'display_name': 'UChicago Connect',
+                                     'unix_name': 'root.uchicago'},
+                            'localhost': {'name': 'uchicago-connect',
+                                     'display_name': 'UChicago Connect',
+                                     'unix_name': 'root.uchicago'}}
         url_host = request.host
         if 'ci-connect' in url_host:
             session['url_host'] = {'name': 'ci-connect',

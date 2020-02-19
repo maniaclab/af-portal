@@ -79,13 +79,13 @@
       const nav_handbook = document.getElementById("nav-handbook");
       if(String(hostname).includes('local')){
         // for local testing
-        connect_brand.src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
+        connect_brand.src="{{url_for('static', filename='img/uchicago-connect-logo.png')}}";
         // Remove Support nav for CI connect
-        var support_nav_element = document.getElementById("support-nav-dropdown");
-        support_nav_element.parentNode.removeChild(support_nav_element);
+        // var support_nav_element = document.getElementById("support-nav-dropdown");
+        // support_nav_element.parentNode.removeChild(support_nav_element);
         // Remove footer for CI Connect
-        var footer_element = document.getElementById("footer-container");
-        footer_element.parentNode.removeChild(footer_element);
+        // var footer_element = document.getElementById("footer-container");
+        // footer_element.parentNode.removeChild(footer_element);
 
       } else if(String(hostname).includes('atlas')){
 
