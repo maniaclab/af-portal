@@ -32,7 +32,7 @@
             <a href="{{url_for('create_subgroup', group_name=group_name)}}" class="btn btn-primary btn-sm">Create Subgroup</a>
           </div>
           <div class="btn-group mr-2" role="group" aria-label="second group">
-            <a href="{{url_for('edit_subgroup', group_name=group_name)}}" class="btn btn-secondary btn-sm">Edit Subgroup</a>
+            <a href="{{url_for('edit_subgroup', group_name=group_name)}}" class="btn btn-secondary btn-sm">Edit Group</a>
           </div>
             {% if group_name != session['url_host']['unix_name'] %}
           <div class="btn-group mr-2" role="group", aria-label="second group">
