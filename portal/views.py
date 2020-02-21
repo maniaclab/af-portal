@@ -15,7 +15,7 @@ from connect_api import (get_user_info, get_user_group_memberships,
                             get_multiplex, get_user_connect_status,
                             get_user_pending_project_requests,
                             get_group_info, get_group_members,
-                            delete_group_entry)
+                            delete_group_entry, update_user_group_status)
 # Use these four lines on container
 import sys
 import subprocess
@@ -865,9 +865,9 @@ def authcallback():
                             'uchicago': {'name': 'uchicago-connect',
                                      'display_name': 'UChicago Connect',
                                      'unix_name': 'root.uchicago'},
-                            'localhost': {'name': 'uchicago-connect',
-                                     'display_name': 'UChicago Connect',
-                                     'unix_name': 'root.uchicago'}}
+                            'localhost': {'name': 'duke-connect',
+                                     'display_name': 'Duke Connect',
+                                     'unix_name': 'root.duke'}}
         url_host = request.host
         if 'ci-connect' in url_host:
             session['url_host'] = {'name': 'ci-connect',
