@@ -79,7 +79,11 @@ def support(user_email=None):
     elif request.method == 'POST':
         description = request.form['description']
         # mailgun setup here
-        support_email = "cms-connect-support@cern.ch"
+        domain_name = request.headers['Host']
+        support_emails = {"cms.ci-connect.net": "cms-connect-support@cern.ch",
+                          "duke.ci-connect.net": "scsc@duke.edu"}
+
+        support_email = support_emails[domain_name]
         r = requests.post("https://api.mailgun.net/v3/api.ci-connect.net/messages",
                           auth=('api', mailgun_api_token),
                           data={
