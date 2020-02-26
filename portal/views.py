@@ -33,6 +33,7 @@ sys.path.insert(0, brand_dir)
 sys.path.insert(1, 'portal/views')
 import group_views
 import error_handling
+import users_groups
 
 
 @app.route('/webhooks/github', methods=['GET', 'POST'])
@@ -99,76 +100,6 @@ def support(user_email=None):
         else:
             flash("Unable to send message", 'warning')
             return redirect(url_for('support', user_email=session['email']))
-
-
-@app.route('/users-groups', methods=['GET'])
-def users_groups():
-    """Groups that user's are specifically members of"""
-    if request.method == 'GET':
-        query = {'token': ciconnect_api_token,
-                 'globus_id': session['primary_identity']}
-
-        # Get user info to derive unix name
-        user = get_user_info(session)
-        unix_name = user['metadata']['unix_name']
-        # Get user's group membership info based on session unix name
-        users_group_memberships = get_user_group_memberships(session, unix_name)
-
-        multiplexJson = {}
-        group_membership_status = {}
-        for group in users_group_memberships:
-            if group['state'] not in ['nonmember']:
-                group_name = group['name']
-                group_query = "/v1alpha1/groups/" + \
-                    group_name + "?token=" + query['token']
-                multiplexJson[group_query] = {"method": "GET"}
-                group_membership_status[group_query] = group['state']
-        # POST request for multiplex return
-        multiplex = get_multiplex(multiplexJson)
-
-        users_groups = []
-        for group in multiplex:
-            if ((session['url_host']['unix_name'] in (json.loads(multiplex[group]['body'])['metadata']['name'])) and (len((json.loads(multiplex[group]['body'])['metadata']['name']).split('.')) > 2)):
-                users_groups.append(
-                    (json.loads(multiplex[group]['body']), group_membership_status[group]))
-        # users_groups = [group for group in users_groups if len(group['name'].split('.')) == 3]
-
-        # Query user's pending project requests
-        pending_project_requests = get_user_pending_project_requests(unix_name)
-        # Check user's member status of root connect group
-        connect_group = session['url_host']['unix_name']
-        user_status = get_user_connect_status(unix_name, connect_group)
-
-        domain_name = request.headers['Host']
-        with open(brand_dir + '/' + domain_name + "/form_descriptions/group_unix_name_description.md", "r") as file:
-            group_unix_name_description = file.read()
-
-        return render_template('users_groups.html', groups=users_groups,
-                                project_requests=pending_project_requests,
-                                user_status=user_status,
-                                group_unix_name_description=group_unix_name_description)
-
-
-@app.route('/users-groups/pending', methods=['GET'])
-def users_groups_pending():
-    """Groups that user's are specifically members of"""
-    if request.method == 'GET':
-        query = {'token': ciconnect_api_token,
-                 'globus_id': session['primary_identity']}
-        # Get user info
-        user = get_user_info(session)
-        unix_name = user['metadata']['unix_name']
-
-        # Query user's pending project requests
-        project_requests = get_user_pending_project_requests(unix_name)
-        project_requests = [project_request for project_request in project_requests if session['url_host']
-                            ['unix_name'] in project_request['name']]
-        # Check user status of root connect group
-        connect_group = session['url_host']['unix_name']
-        user_status = get_user_connect_status(unix_name, connect_group)
-        return render_template('users_groups_pending.html',
-                                project_requests=project_requests,
-                                user_status=user_status)
 
 
 @app.route('/groups/new', methods=['GET', 'POST'])
@@ -287,7 +218,6 @@ def admin_group_member(group_name, unix_name):
             flash('Failed make member an admin: {}'.format(
                 err_message), 'warning')
             return redirect(url_for('view_group_members', group_name=group_name))
-
 
 
 @app.route('/groups/<group_name>/subgroups/new', methods=['GET', 'POST'])
