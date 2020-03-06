@@ -197,7 +197,7 @@ def update_user_group_status(group_name, unix_name, status, session):
     :param status: string status to set (pending, active, admin, nonmember)
     :return:
     """
-    query = {'token': ciconnect_api_token,
+    query = {'token': session['access_token'],
              'globus_id': session['primary_identity']}
 
     put_query = {"apiVersion": 'v1alpha1',
