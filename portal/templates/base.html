@@ -78,20 +78,20 @@
       const nav_emailto = document.getElementById("nav-email");
       const nav_handbook = document.getElementById("nav-handbook");
       if(String(hostname).includes('local')){
-        // for local testing
-        connect_brand.src="{{url_for('static', filename='img/uchicago-connect-logo.png')}}";
+        connect_brand.src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
         // Remove Support nav for CI connect
-        // var support_nav_element = document.getElementById("support-nav-dropdown");
-        // support_nav_element.parentNode.removeChild(support_nav_element);
+        var support_nav_element = document.getElementById("support-nav-dropdown");
+        support_nav_element.parentNode.removeChild(support_nav_element);
         // Remove footer for CI Connect
-        // var footer_element = document.getElementById("footer-container");
-        // footer_element.parentNode.removeChild(footer_element);
+        var footer_element = document.getElementById("footer-container");
+        footer_element.parentNode.removeChild(footer_element);
 
       } else if(String(hostname).includes('atlas')){
 
-        connect_brand.src="{{url_for('static', filename='img/atlas-connect-logo.png')}}";
+        connect_brand.src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
         nav_overview.href="https://ci-connect.atlassian.net/wiki/spaces/AC/overview";
-        nav_emailto.href="https://ci-connect.atlassian.net/wiki/spaces/AC/pages/1114129/ATLAS+Connect+Quickstart";
+        nav_handbook.href="https://ci-connect.atlassian.net/wiki/spaces/AC/pages/1114129/ATLAS+Connect+Quickstart";
+        nav_emailto.href="atlas-connect-l@lists.bnl.gov";
 
         var about_element = document.getElementById("nav-about");
         about_element.parentNode.removeChild(about_element);
