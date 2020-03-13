@@ -73,10 +73,12 @@
     		// look to update the full a[href=''] uri below
     		$('nav > ul > li > a[href="'+pathname+'"]').parent().addClass('active');
     	}
+
       const connect_brand = document.getElementById("connect-brand");
       const nav_overview = document.getElementById("nav-overview");
       const nav_emailto = document.getElementById("nav-email");
       const nav_handbook = document.getElementById("nav-handbook");
+      // Local
       if(String(hostname).includes('local')){
         connect_brand.src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
         // Remove Support nav for CI connect
@@ -88,7 +90,7 @@
 
       } else if(String(hostname).includes('atlas')){
 
-        connect_brand.src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
+        connect_brand.src="{{url_for('static', filename='img/atlas-connect-logo.png')}}";
         nav_overview.href="https://ci-connect.atlassian.net/wiki/spaces/AC/overview";
         nav_handbook.href="https://ci-connect.atlassian.net/wiki/spaces/AC/pages/1114129/ATLAS+Connect+Quickstart";
         nav_emailto.href="mailto:atlas-connect-l@lists.bnl.gov";
@@ -110,6 +112,14 @@
         connect_brand.src="{{url_for('static', filename='img/duke-connect-logo.png')}}";
         nav_overview.href="https://rc.duke.edu/national-computing-labs/duke-ci-connect-quick-start/";
         nav_emailto.href="mailto:scsc@duke.edu";
+
+      } else if(String(hostname).includes('spt'))  {
+
+        connect_brand.src="{{url_for('static', filename='img/spt-logo.jpg')}}";
+        // nav_overview.href="https://pole.uchicago.edu/index.php";
+        // Remove Support nav for CI connect
+        var support_nav_element = document.getElementById("support-nav-dropdown");
+        support_nav_element.parentNode.removeChild(support_nav_element);
 
       } else {
         connect_brand.src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
