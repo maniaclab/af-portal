@@ -611,6 +611,8 @@ def edit_profile(unix_name):
         public_key = request.form['sshpubstring']
 
         globus_id = session['primary_identity']
+        query = {'token': session['access_token'],
+                 'globus_id': identity_id}
         # Schema and query for adding users to CI Connect DB
         if public_key != ' ':
             post_user = {"apiVersion": 'v1alpha1',
@@ -798,9 +800,9 @@ def authcallback():
                             'spt': {'name': 'spt-connect',
                                     'display_name': 'SPT Connect',
                                     'unix_name': 'root.spt'},
-                            'localhost': {'name': 'ci-connect',
-                                          'display_name': 'CI Connect',
-                                          'unix_name': 'root'}}
+                            'localhost': {'name': 'spt-connect',
+                                    'display_name': 'SPT Connect',
+                                    'unix_name': 'root.spt'}}
         url_host = request.host
         if 'ci-connect' in url_host:
             session['url_host'] = {'name': 'ci-connect',
