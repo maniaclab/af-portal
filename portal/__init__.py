@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_wtf.csrf import CSRFProtect
 import json
 
 # from flask import Markup
@@ -9,8 +10,11 @@ import logging
 import sys
 
 __author__ = 'Jeremy Van <jeremyvan@uchicago.edu>'
+# Enable CSRF protection globally for Flask app
+csrf = CSRFProtect()
 
 app = Flask(__name__)
+csrf.init_app(app)
 
 if len(sys.argv) > 1:
     try:

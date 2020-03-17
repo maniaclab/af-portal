@@ -609,7 +609,7 @@ def edit_profile(unix_name):
         phone = request.form['phone-number']
         institution = request.form['institution']
         public_key = request.form['sshpubstring']
-
+        # print(request.form['csrf_token'])
         globus_id = session['primary_identity']
         query = {'token': session['access_token'],
                  'globus_id': identity_id}
