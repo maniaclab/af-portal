@@ -229,7 +229,7 @@ def create_subgroup(group_name):
             ciconnect_api_endpoint + '/v1alpha1/fields_of_science')
         sciences = sciences.json()['fields_of_science']
         # Get group members
-        group_members = get_group_members(group_name)
+        group_members = get_group_members(group_name, session)
         # Return list of admins of group
         try:
             group_admins = [
