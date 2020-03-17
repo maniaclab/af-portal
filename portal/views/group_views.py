@@ -57,10 +57,13 @@ def groups():
 @authenticated
 def view_group(group_name):
     """Detailed view of specific groups"""
+    query = {'token': ciconnect_api_token,
+             'globus_id': session['primary_identity']}
+
+    user = get_user_info(session)
+    unix_name = user['metadata']['unix_name']
+
     if request.method == 'GET':
-        # Get user unix name info for query
-        user = get_user_info(session)
-        unix_name = user['metadata']['unix_name']
         # Get group information
         group = get_group_info(group_name, session)
         group_creation_date = group['creation_date'].split(' ')[0]
