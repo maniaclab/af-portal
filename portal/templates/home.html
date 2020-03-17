@@ -19,8 +19,8 @@
     </h4>
     {% if session.get('is_authenticated') %}
     {% else %}
-    <a role="button" href="{{url_for('login')}}" class="btn btn-primary">Login</a>
-    <a role="button" href="{{url_for('signup')}}" class="btn btn-primary">Sign Up</a>
+    <a role="button" href="{{url_for('login')}}" class="btn btn-primary btn-box-shadow">Login</a>
+    <a role="button" href="{{url_for('signup')}}" class="btn btn-primary btn-box-shadow">Sign Up</a>
     {% endif %}
     <br>
   </div>
