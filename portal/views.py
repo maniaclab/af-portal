@@ -242,7 +242,7 @@ def create_subgroup(group_name):
         user_status = get_user_connect_status(unix_name, connect_group)
 
         # Get group information
-        group = get_group_info(group_name)
+        group = get_group_info(group_name, session)
         return render_template('groups_create.html', sciences=sciences,
                                 group_name=group_name, group_admins=group_admins,
                                 user_status=user_status, group=group)
@@ -301,7 +301,7 @@ def edit_subgroup_requests(group_name):
             ciconnect_api_endpoint + '/v1alpha1/fields_of_science')
         sciences = sciences.json()['fields_of_science']
 
-        group = get_group_info(group_name)
+        group = get_group_info(group_name, session)
 
         return render_template('groups_requests_edit.html', sciences=sciences,
                                 group_name=group_name, group=group)
@@ -353,7 +353,7 @@ def edit_subgroup(group_name):
         sciences = requests.get(
             ciconnect_api_endpoint + '/v1alpha1/fields_of_science')
         sciences = sciences.json()['fields_of_science']
-        group = get_group_info(group_name)
+        group = get_group_info(group_name, session)
         return render_template('groups_edit.html', sciences=sciences,
                                 group_name=group_name, group=group)
 
