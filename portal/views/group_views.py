@@ -57,23 +57,17 @@ def groups():
 @authenticated
 def view_group(group_name):
     """Detailed view of specific groups"""
-    query = {'token': ciconnect_api_token,
-             'globus_id': session['primary_identity']}
-
-    user = get_user_info(session)
-    unix_name = user['metadata']['unix_name']
-
     if request.method == 'GET':
+        # Get user unix name info for query
+        user = get_user_info(session)
+        unix_name = user['metadata']['unix_name']
         # Get group information
-        group = get_group_info(group_name)
+        group = get_group_info(group_name, session)
         group_creation_date = group['creation_date'].split(' ')[0]
-
         # Get User's Group Status
         user_status = get_user_group_status(unix_name, group_name, session)
-
         # Query to return user's enclosing group membership status
         enclosing_status = get_enclosing_group_status(group_name, unix_name)
-
         # Query to check user's connect group membership status
         connect_group = session['url_host']['unix_name']
         connect_status = get_user_connect_status(unix_name, connect_group)
@@ -105,7 +99,7 @@ def view_group_ajax_request(group_name):
     user = get_user_info(session)
     unix_name = user['metadata']['unix_name']
     # Get group info
-    group = get_group_info(group_name)
+    group = get_group_info(group_name, session)
     # Get User's Group Status
     user_status = get_user_group_status(unix_name, group_name, session)
 
@@ -118,15 +112,12 @@ def view_group_members(group_name):
     """Detailed view of group's members"""
     if request.method == 'GET':
         # Get group information
-        group = get_group_info(group_name)
-
+        group = get_group_info(group_name, session)
         # Get User's Group Status
         unix_name = session['unix_name']
         user_status = get_user_group_status(unix_name, group_name, session)
-
         # Query to return user's enclosing group's membership status
         enclosing_status = get_enclosing_group_status(group_name, unix_name)
-
         # Query to check user's connect status
         connect_group = session['url_host']['unix_name']
         connect_status = get_user_connect_status(unix_name, connect_group)
@@ -148,10 +139,9 @@ def view_group_members_ajax_request(group_name):
     """Detailed view of group's members"""
     query = {'token': ciconnect_api_token}
     if request.method == 'GET':
-        group_members = get_group_members(group_name)
+        group_members = get_group_members(group_name, session)
         multiplexJson = {}
         users_statuses = {}
-
         # Get detailed user information from list of users
         for user in group_members:
             unix_name = user['user_name']
@@ -189,7 +179,7 @@ def group_pending_members_count_ajax(group_name):
 def group_pending_members_count_request(group_name):
     """Get a group's pending members count"""
     if request.method == 'GET':
-        group_members = get_group_members(group_name)
+        group_members = get_group_members(group_name, session)
         pending_user_count = 0
 
         for user in group_members:
@@ -206,8 +196,8 @@ def view_group_members_requests(group_name):
     query = {'token': ciconnect_api_token}
     if request.method == 'GET':
         # Get group information and group members
-        group = get_group_info(group_name)
-        group_members = get_group_members(group_name)
+        group = get_group_info(group_name, session)
+        group_members = get_group_members(group_name, session)
 
         # Set up multiplex while also tracking user status
         multiplexJson = {}
@@ -257,7 +247,7 @@ def view_group_add_members(group_name):
     query = {'token': ciconnect_api_token}
     if request.method == 'GET':
         # Get group information
-        group = get_group_info(group_name)
+        group = get_group_info(group_name, session)
 
         # Get User's Group Status
         unix_name = session['unix_name']
@@ -308,13 +298,13 @@ def view_group_add_members_request(group_name):
             enclosing_group_name = group_name
         # Get all active members of enclosing group
         if enclosing_group_name:
-            enclosing_group = get_group_members(enclosing_group_name)
+            enclosing_group = get_group_members(enclosing_group_name, session)
             enclosing_group_members_names = [
                 member['user_name'] for member in enclosing_group if member['state'] != 'pending']
         else:
             enclosing_group_members_names = []
         # Get all members of current group
-        group_members = get_group_members(group_name)
+        group_members = get_group_members(group_name, session)
         memberships_names = [member['user_name'] for member in group_members]
         # Set the difference to filter all non-members of current group
         non_members = list(
@@ -344,7 +334,7 @@ def view_group_subgroups(group_name):
     """Detailed view of group's subgroups"""
     if request.method == 'GET':
         # Get group information
-        group = get_group_info(group_name)
+        group = get_group_info(group_name, session)
         # Get User's Group Status
         unix_name = session['unix_name']
         user_status = get_user_group_status(unix_name, group_name, session)
@@ -400,7 +390,7 @@ def view_group_subgroups_requests(group_name):
     query = {'token': ciconnect_api_token}
     if request.method == 'GET':
         # Get group information
-        group = get_group_info(group_name)
+        group = get_group_info(group_name, session)
 
         # Get User's Group Status
         unix_name = session['unix_name']

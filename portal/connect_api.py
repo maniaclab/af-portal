@@ -139,19 +139,21 @@ def get_enclosing_group_status(group_name, unix_name):
 #####       GROUP      ######
 #############################
 
-def get_group_info(group_name):
+def get_group_info(group_name, session):
     """
     Returns group details
     :group_name: string name of group
     :return: dict object
     """
+    query = {'token': session['access_token']}
     group_info = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/'
                          + group_name, params=query)
     group_info = group_info.json()['metadata']
     return group_info
 
 
-def get_group_members(group_name):
+def get_group_members(group_name, session):
+    query = {'token': session['access_token']}
     group_members = requests.get(
         ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name + '/members', params=query)
     # print(group_members.json())

@@ -800,9 +800,9 @@ def authcallback():
                             'spt': {'name': 'spt-connect',
                                     'display_name': 'SPT Connect',
                                     'unix_name': 'root.spt'},
-                            'localhost': {'name': 'spt-connect',
-                                    'display_name': 'SPT Connect',
-                                    'unix_name': 'root.spt'}}
+                            'localhost': {'name': 'atlas-connect',
+                                          'display_name': 'Atlas Connect',
+                                          'unix_name': 'root.atlas'}}
         url_host = request.host
         if 'ci-connect' in url_host:
             session['url_host'] = {'name': 'ci-connect',
