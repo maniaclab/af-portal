@@ -15,11 +15,11 @@
         </ol>
         {% if user_status == 'active' %}
         <div class="btn-group mr-2" role="group" aria-label="first group">
-          <a href="{{url_for('create_subgroup', group_name=session['url_host']['unix_name'])}}" class="btn btn-primary btn-sm">Request New Group</a>
+          <a href="{{url_for('create_subgroup', group_name=session['url_host']['unix_name'])}}" class="btn btn-primary btn-sm btn-box-shadow">Request New Group</a>
         </div>
         {% elif user_status == 'admin' %}
         <div class="btn-group mr-2" role="group" aria-label="first group">
-          <a href="{{url_for('create_subgroup', group_name=session['url_host']['unix_name'])}}" class="btn btn-primary btn-sm">Create New Group</a>
+          <a href="{{url_for('create_subgroup', group_name=session['url_host']['unix_name'])}}" class="btn btn-primary btn-sm btn-box-shadow">Create New Group</a>
         </div>
         {% endif %}
         <br></br>
