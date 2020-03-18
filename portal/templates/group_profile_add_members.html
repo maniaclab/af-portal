@@ -37,6 +37,7 @@
         <td>{[{member.metadata.institution}]}</td>
         <td>
           <form role="form" :action="'/groups/' + groupname + '/add_group_member/' + member.metadata.unix_name" method="POST" onsubmit="return confirm('Are you sure you want to add this member?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <button type="submit" name="add_group_member" class="btn btn-xs btn-primary" data-submit="Adding Member..."><i class="fas fa-plus"></i> Add Member</button>
           </form>
         </td>

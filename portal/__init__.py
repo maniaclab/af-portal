@@ -10,10 +10,10 @@ import logging
 import sys
 
 __author__ = 'Jeremy Van <jeremyvan@uchicago.edu>'
-# Enable CSRF protection globally for Flask app
-csrf = CSRFProtect()
 
 app = Flask(__name__)
+# Enable CSRF protection globally for Flask app
+csrf = CSRFProtect(app)
 csrf.init_app(app)
 
 if len(sys.argv) > 1:

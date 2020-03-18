@@ -60,12 +60,15 @@
           <div v-if="users_statuses[member.metadata.unix_name] == 'pending'">
             <div class="btn-group">
               <form role="form" :action="'/groups/' + groupname + '/add_group_member/' + member.metadata.unix_name" method="POST" onsubmit="return confirm('Are you sure you want to confirm this member?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <button type="submit" name="add_group_member" class="btn btn-xs btn-success" data-submit="Adding Member..."><i class="fas fa-check-circle"></i> Accept</button>
               </form>
               <form v-if="groupname !== 'root'" role="form" :action="'/groups/' + groupname + '/delete_group_member/' + member.metadata.unix_name" method="POST" onsubmit="return confirm('Are you sure you want to remove this member?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <button type="submit" name="remove_group_member" class="btn btn-xs btn-danger" data-submit="Removing Member..."><i class="fas fa-times-circle"></i> Remove</button>
               </form>
               <form role="form" :action="'/groups/' + groupname + '/admin_group_member/' + member.metadata.unix_name" method="POST" onsubmit="return confirm('Are you sure you want to make this member an admin?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <button type="submit" name="admin_group_member" class="btn btn-xs btn-warning" data-submit="Making Member Admin..."><i class="fas fa-user-shield"></i> Admin</button>
               </form>
             </div>
@@ -73,9 +76,11 @@
           <div v-else-if="users_statuses[member.metadata.unix_name] == 'active'">
             <div class="btn-group">
               <form v-if="groupname !== 'root'"role="form" :action="'/groups/' + groupname + '/delete_group_member/' + member.metadata.unix_name" method="POST" onsubmit="return confirm('Are you sure you want to remove this member?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <button type="submit" name="remove_group_member" class="btn btn-xs btn-danger" data-submit="Removing Member..."><i class="fas fa-times-circle"></i> Remove</button>
               </form>
               <form role="form" :action="'/groups/' + groupname + '/admin_group_member/' + member.metadata.unix_name" method="POST" onsubmit="return confirm('Are you sure you want to make this member an admin?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <button type="submit" name="admin_group_member" class="btn btn-xs btn-warning" data-submit="Making Member Admin..."><i class="fas fa-user-shield"></i> Admin</button>
               </form>
             </div>
@@ -83,6 +88,7 @@
           <div v-else-if="users_statuses[member.metadata.unix_name] == 'admin' && groupname !== 'root'">
             <div class="btn-group">
               <form role="form" :action="'/groups/' + groupname + '/delete_group_member/' + member.metadata.unix_name" method="POST" onsubmit="return confirm('Are you sure you want to remove this member?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <button type="submit" name="remove_group_member" class="btn btn-xs btn-danger" data-submit="Removing Member..."><i class="fas fa-times-circle"></i> Remove</button>
               </form>
             </div>

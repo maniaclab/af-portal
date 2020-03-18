@@ -19,6 +19,9 @@
         <hr/>
         <form role="form" action="{{url_for('edit_subgroup_requests', group_name=group_name)}}" method="POST">
           <div class="form-group">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+          </div>
+          <div class="form-group">
             <label for="name">Project Name <span class='text-muted'>(only alpha-numeric, dash and underscore allowed)</span><span class="asterik">*</span></label>
             <input
               type="text"

@@ -51,6 +51,9 @@
                 {{session['url_host']['display_name']}} Group Membership Status: <strong id='osg-user-status'>{{user_status}}</strong> <i class="fas fa-users float-right"></i>
                 <div class="btn-group mr-2" role="group" aria-label="first group">
                   <form role="form" action="{{url_for('view_group', group_name=session['url_host']['unix_name'])}}" method="POST" onsubmit="return confirm('Are you sure you want to request to join this group?');">
+                    <div class="form-group">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    </div>
                     <button type="submit" name="request_group" class="btn btn-primary btn-sm btn-box-shadow" data-submit="Requesting Membership...">Request Membership</button>
                   </form>
                 </div>

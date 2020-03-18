@@ -31,6 +31,7 @@
         <td>
           <div class="btn-group">
             <form role="form" action="{{url_for('approve_subgroup', group_name=group_name, subgroup_name=subgroup_request['name'])}}" method="GET" onsubmit="return confirm('Are you sure you want to approve this subproject?');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
               <button type="submit" name="add_group_member" class="btn btn-xs btn-success" data-submit="Approving Subproject Request..."><i class="fas fa-check-circle"></i> Approve</button>
             </form>
 
@@ -46,6 +47,9 @@
                   </div>
                   <div class="modal-body">
                     <form role="form" action="{{url_for('deny_subgroup', group_name=group_name, subgroup_name=subgroup_request['name'])}}" method="POST">
+                      <div class="form-group">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                      </div>
                       <div class="form-group">
                         <label for="description">Reason for denial <span id="asterik">*</span></label>
                         <textarea
