@@ -30,6 +30,7 @@ sys.path.insert(0, brand_dir)
 
 
 @app.route('/groups', methods=['GET'])
+@authenticated
 def groups():
     """Connect groups"""
     if request.method == 'GET':

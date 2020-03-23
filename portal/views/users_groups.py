@@ -23,6 +23,7 @@ sys.path.insert(0, brand_dir)
 
 
 @app.route('/users-groups', methods=['GET'])
+@authenticated
 def users_groups():
     """Groups that user's are specifically members of"""
     if request.method == 'GET':
@@ -71,6 +72,7 @@ def users_groups():
 
 
 @app.route('/users-groups/pending', methods=['GET'])
+@authenticated
 def users_groups_pending():
     """Groups that user's are specifically members of"""
     if request.method == 'GET':
