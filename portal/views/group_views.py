@@ -66,6 +66,7 @@ def view_group(group_name):
     if request.method == 'GET':
         # Get group information
         group = get_group_info(group_name, session)
+        # print(group)
         group_creation_date = group['creation_date'].split(' ')[0]
         # Get User's Group Status
         user_status = get_user_group_status(unix_name, group_name, session)
@@ -73,6 +74,7 @@ def view_group(group_name):
         enclosing_status = get_enclosing_group_status(group_name, unix_name)
         # Query to check user's connect group membership status
         connect_group = session['url_host']['unix_name']
+        # print(connect_group)
         connect_status = get_user_connect_status(unix_name, connect_group)
 
         return render_template('group_profile_overview.html', group=group,
@@ -105,7 +107,6 @@ def view_group_ajax_request(group_name):
     group = get_group_info(group_name, session)
     # Get User's Group Status
     user_status = get_user_group_status(unix_name, group_name, session)
-
     return group, user_status
 
 

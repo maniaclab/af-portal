@@ -15,7 +15,8 @@ from connect_api import (get_user_info, get_user_group_memberships,
                             get_multiplex, get_user_connect_status,
                             get_user_pending_project_requests,
                             get_group_info, get_group_members,
-                            delete_group_entry, update_user_group_status)
+                            delete_group_entry, update_user_group_status,
+                            get_user_access_token)
 # Use these four lines on container
 import sys
 import subprocess
@@ -106,7 +107,9 @@ def support(user_email=None):
 @authenticated
 def create_group():
     """Create groups"""
-    query = {'token': session['access_token']}
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
+    print(query)
     if request.method == 'GET':
         sciences = requests.get(
             ciconnect_api_endpoint + '/v1alpha1/fields_of_science')
@@ -179,7 +182,8 @@ def add_group_member(group_name, unix_name):
 @authenticated
 def remove_group_member(group_name, unix_name):
     if request.method == 'POST':
-        query = {'token': session['access_token']}
+        access_token = get_user_access_token(session)
+        query = {'token': access_token}
         try:
             message = request.form['denial-message']
             denial_message = {'message': message}
@@ -223,7 +227,8 @@ def admin_group_member(group_name, unix_name):
 @app.route('/groups/<group_name>/subgroups/new', methods=['GET', 'POST'])
 @authenticated
 def create_subgroup(group_name):
-    token_query = {'token': session['access_token']}
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
     if request.method == 'GET':
         sciences = requests.get(
             ciconnect_api_endpoint + '/v1alpha1/fields_of_science')
@@ -267,7 +272,7 @@ def create_subgroup(group_name):
 
         r = requests.put(
             ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name +
-            '/subgroup_requests/' + name, params=token_query, json=put_query)
+            '/subgroup_requests/' + name, params=query, json=put_query)
         full_created_group_name = group_name + '.' + name
 
         # Check if user status of root connect group specifically
@@ -294,7 +299,8 @@ def create_subgroup(group_name):
 @app.route('/groups/<group_name>/requests/edit', methods=['GET', 'POST'])
 @authenticated
 def edit_subgroup_requests(group_name):
-    token_query = {'token': session['access_token']}
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
     enclosing_group_name = '.'.join(group_name.split('.')[:-1])
     if request.method == 'GET':
         sciences = requests.get(
@@ -328,7 +334,7 @@ def edit_subgroup_requests(group_name):
                                       'description': description}}
 
         r = requests.put(
-            ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name, params=token_query, json=put_query)
+            ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name, params=query, json=put_query)
 
         enclosing_group_name = '.'.join(group_name.split('.')[:-1])
         if r.status_code == requests.codes.ok:
@@ -348,7 +354,8 @@ def edit_subgroup_requests(group_name):
 @app.route('/groups/<group_name>/edit', methods=['GET', 'POST'])
 @authenticated
 def edit_subgroup(group_name):
-    token_query = {'token': session['access_token']}
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
     if request.method == 'GET':
         sciences = requests.get(
             ciconnect_api_endpoint + '/v1alpha1/fields_of_science')
@@ -369,7 +376,7 @@ def edit_subgroup(group_name):
                                   'description': description}}
 
         r = requests.put(
-            ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name, params=token_query, json=put_query)
+            ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name, params=query, json=put_query)
 
         if r.status_code == requests.codes.ok:
             flash_message = flash_message_parser('edit_subgroup')
@@ -385,12 +392,13 @@ def edit_subgroup(group_name):
 @app.route('/groups/<group_name>/subgroups/<subgroup_name>/approve', methods=['GET'])
 @authenticated
 def approve_subgroup(group_name, subgroup_name):
-    token_query = {'token': session['access_token']}
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
     if request.method == 'GET':
 
         r = requests.put(
             ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name +
-            '/subgroup_requests/' + subgroup_name + '/approve', params=token_query)
+            '/subgroup_requests/' + subgroup_name + '/approve', params=query)
 
         if r.status_code == requests.codes.ok:
             flash_message = flash_message_parser('approve_subgroup')
@@ -406,14 +414,15 @@ def approve_subgroup(group_name, subgroup_name):
 @app.route('/groups/<group_name>/subgroups/<subgroup_name>/deny', methods=['POST'])
 @authenticated
 def deny_subgroup(group_name, subgroup_name):
-    token_query = {'token': session['access_token']}
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
     if request.method == 'POST':
         message = request.form['denial-message']
         denial_message = {'message': message}
 
         r = requests.delete(
             ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name +
-            '/subgroup_requests/' + subgroup_name, params=token_query, json=denial_message)
+            '/subgroup_requests/' + subgroup_name, params=query, json=denial_message)
 
         if r.status_code == requests.codes.ok:
             flash_message = flash_message_parser('deny_subgroup')
@@ -551,7 +560,6 @@ def create_profile():
             session['email'] = r['email']
             session['phone'] = r['phone']
             session['institution'] = r['institution']
-            session['access_token'] = r['access_token']
             session['unix_name'] = r['unix_name']
 
             # Auto generate group membership into connect group
@@ -611,7 +619,8 @@ def edit_profile(unix_name):
         public_key = request.form['sshpubstring']
         # print(request.form['csrf_token'])
         globus_id = session['primary_identity']
-        query = {'token': session['access_token'],
+        access_token = get_user_access_token(session)
+        query = {'token': access_token,
                  'globus_id': identity_id}
         # Schema and query for adding users to CI Connect DB
         if public_key != ' ':
@@ -657,7 +666,6 @@ def profile():
                                 '/v1alpha1/find_user', params=query)
             user = user.json()
             unix_name = user['metadata']['unix_name']
-            user_token = user['metadata']['access_token']
 
             profile = requests.get(
                 ciconnect_api_endpoint + '/v1alpha1/users/' + unix_name, params=query)
@@ -776,7 +784,7 @@ def authcallback():
                     ciconnect_api_endpoint + '/v1alpha1/find_user', params=query)
                 if r.status_code == requests.codes.ok:
                     user_info = r.json()
-                    user_access_token = user_info['metadata']['access_token']
+                    # user_access_token = user_info['metadata']['access_token']
                     unix_name = user_info['metadata']['unix_name']
                     profile = requests.get(
                         ciconnect_api_endpoint + '/v1alpha1/users/' + unix_name, params=query)
@@ -800,9 +808,9 @@ def authcallback():
                             'spt': {'name': 'spt-connect',
                                     'display_name': 'SPT Connect',
                                     'unix_name': 'root.spt'},
-                            'localhost': {'name': 'atlas-connect',
-                                          'display_name': 'Atlas Connect',
-                                          'unix_name': 'root.atlas'}}
+                            'localhost': {'name': 'cms-connect',
+                                          'display_name': 'CMS Connect',
+                                          'unix_name': 'root.cms'}}
         url_host = request.host
         if 'ci-connect' in url_host:
             session['url_host'] = {'name': 'ci-connect',
@@ -819,7 +827,7 @@ def authcallback():
             session['email'] = profile['email']
             session['phone'] = profile['phone']
             session['institution'] = profile['institution']
-            session['access_token'] = profile['access_token']
+            # session['access_token'] = profile['access_token']
             session['unix_name'] = profile['unix_name']
             session['url_root'] = request.url_root
             # session['url_host'] = (request.host).split(':')[0]

@@ -7,7 +7,8 @@ ciconnect_api_token = app.config['CONNECT_API_TOKEN']
 ciconnect_api_endpoint = app.config['CONNECT_API_ENDPOINT']
 
 try:
-    query = {'token': session['access_token']}
+    user_access_token = get_user_access_token(session)
+    query = {'token': user_access_token}
 except:
     query = {'token': ciconnect_api_token}
 
@@ -145,7 +146,8 @@ def get_group_info(group_name, session):
     :group_name: string name of group
     :return: dict object
     """
-    query = {'token': session['access_token']}
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
     group_info = requests.get(ciconnect_api_endpoint + '/v1alpha1/groups/'
                          + group_name, params=query)
     group_info = group_info.json()['metadata']
@@ -153,7 +155,8 @@ def get_group_info(group_name, session):
 
 
 def get_group_members(group_name, session):
-    query = {'token': session['access_token']}
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
     group_members = requests.get(
         ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name + '/members', params=query)
     # print(group_members.json())
@@ -167,7 +170,8 @@ def delete_group_entry(group_name, session):
     :group_name: string name of group
     :return:
     """
-    query = {'token': session['access_token']}
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
 
     r = requests.delete(
         ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name, params=query)
@@ -181,7 +185,8 @@ def get_subgroups(group_name, session):
     :param session: user session to pull primary_identity
     :return: list of dict objects
     """
-    query = {'token': session['access_token']}
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
 
     subgroups = requests.get(
         ciconnect_api_endpoint + '/v1alpha1/groups/'
@@ -199,7 +204,8 @@ def update_user_group_status(group_name, unix_name, status, session):
     :param status: string status to set (pending, active, admin, nonmember)
     :return:
     """
-    query = {'token': session['access_token'],
+    access_token = get_user_access_token(session)
+    query = {'token': access_token,
              'globus_id': session['primary_identity']}
 
     put_query = {"apiVersion": 'v1alpha1',
@@ -223,3 +229,31 @@ def list_connect_admins(group_name):
     memberships = [member for member in memberships if member['state'] == 'admin']
 
     return memberships
+
+
+def get_user_profile(unix_name):
+
+    identity_id = session.get('primary_identity')
+
+    query = {'token': ciconnect_api_token,
+             'globus_id': identity_id}
+
+    profile = requests.get(
+        ciconnect_api_endpoint + '/v1alpha1/users/' + unix_name, params=query)
+
+    if profile.status_code == requests.codes.ok:
+        profile = profile.json()
+        return profile
+    else:
+        err_message = profile.json()['message']
+        print(err_message)
+        return None
+
+
+def get_user_access_token(session):
+    user = get_user_info(session)
+    if user:
+        access_token = user['metadata']['access_token']
+    else:
+        access_token = None
+    return access_token
