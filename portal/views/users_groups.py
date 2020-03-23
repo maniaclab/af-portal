@@ -50,7 +50,7 @@ def users_groups():
 
         users_groups = []
         for group in multiplex:
-            if ((session['url_host']['unix_name'] in (json.loads(multiplex[group]['body'])['metadata']['name'])) and (len((json.loads(multiplex[group]['body'])['metadata']['name']).split('.')) > 2)):
+            if ((session['url_host']['unix_name'] in (json.loads(multiplex[group]['body'])['metadata']['name'])) and (len((json.loads(multiplex[group]['body'])['metadata']['name']).split('.')) > 1)):
                 users_groups.append(
                     (json.loads(multiplex[group]['body']), group_membership_status[group]))
         # users_groups = [group for group in users_groups if len(group['name'].split('.')) == 3]

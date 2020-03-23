@@ -699,7 +699,7 @@ def profile():
 
         group_memberships = []
         for group in profile['group_memberships']:
-            if ((session['url_host']['unix_name'] in group['name']) and (len(group['name'].split('.')) > 2)):
+            if ((session['url_host']['unix_name'] in group['name']) and (len(group['name'].split('.')) > 1)):
                 group_memberships.append(group)
 
         domain_name = request.headers['Host']
@@ -813,9 +813,9 @@ def authcallback():
                             'spt': {'name': 'spt-connect',
                                     'display_name': 'SPT Connect',
                                     'unix_name': 'root.spt'},
-                            'localhost': {'name': 'cms-connect',
-                                          'display_name': 'CMS Connect',
-                                          'unix_name': 'root.cms'}}
+                            'localhost': {'name': 'spt-connect',
+                                          'display_name': 'SPT Connect',
+                                          'unix_name': 'root.spt'}}
         url_host = request.host
         if 'ci-connect' in url_host:
             session['url_host'] = {'name': 'ci-connect',
