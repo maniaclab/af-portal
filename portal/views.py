@@ -601,7 +601,12 @@ def edit_profile(unix_name):
              'globus_id': identity_id}
     user = requests.get(
         ciconnect_api_endpoint + '/v1alpha1/find_user', params=query)
-    unix_name = user.json()['metadata']['unix_name']
+    expected_unix_name = user.json()['metadata']['unix_name']
+
+    try:
+        unix_name == expected_unix_name
+    except Exception:
+        return redirect(url_for('handle_exception', e=Exception))
 
     if request.method == 'GET':
         # Get user info, pass through as args, convert to json and load input fields
