@@ -31,7 +31,7 @@
       <tr v-for="subgroup in subgroups" v-cloak >
         <td><a :href="'/groups/' + subgroup.name">{[{subgroup.display_name}]}</a></td>
         <td>{[{subgroup.clean_unix_name}]}</td>
-        <td v-if="connect_status === 'admin'" ><a href="mailto:{[{subgroup.email}]}?subject=Project Inquiry">{[{subgroup.email}]}</a></td>
+        <td v-if="connect_status === 'admin'" ><a :href="'mailto:'+subgroup.email+'?subject=Project Inquiry'">{[{subgroup.email}]}</a></td>
         <td>{[{subgroup.description}]}</td>
       </tr>
     </tbody>
