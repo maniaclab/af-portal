@@ -66,7 +66,13 @@
     	var pathsplit = pathname.split('/')
       var hostname = window.location.hostname
       var connect_name = hostname.split('.')[0];
-      document.title = connect_name.charAt(0).toUpperCase() + connect_name.slice(1) + ' ' + document.title;
+      if(connect_name === 'connect') {
+        document.title = 'Cms ' + document.title;
+      } else if(connect_name === 'www') {
+        document.title = 'CI-' + document.title;
+      } else {
+        document.title = connect_name.charAt(0).toUpperCase() + connect_name.slice(1) + ' ' + document.title;
+      }
 
     	if(pathsplit.length > 1){
     		var parentpath = pathsplit[1];
