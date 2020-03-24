@@ -19,7 +19,7 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <title>Connect {%block title%}{%endblock%}</title>
+    <title>Connect - {%block title%}{%endblock%}</title>
 
     {# CSS files #}
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
@@ -105,6 +105,7 @@
         document.getElementById("nav-handbook").style.display = "inline";
         document.getElementById("nav-handbook").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/pages/22609980/Introduction+to+CMS+Connect";
         document.getElementById("login-node-nav").style.display = "inline";
+        document.getElementById("login-node-nav").href = "https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=login_uscms_org";
         nav_emailto.href="mailto:cms-connect-support@cern.ch";
 
       } else if(String(hostname).includes('duke')) {
@@ -115,8 +116,9 @@
 
       } else if(String(hostname).includes('spt'))  {
 
-        connect_brand.src="{{url_for('static', filename='img/spt-connect-logo.jpg')}}";
-        // connect_brand.parentNode.text = "SPT Connect"
+        connect_brand.src="{{url_for('static', filename='img/spt-connect-logo.png')}}";
+        document.getElementById("login-node-nav").style.display = "inline";
+        document.getElementById("login-node-nav").href = "https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=amundsen_grid_uchicago_edu";
         // nav_overview.href="https://pole.uchicago.edu/index.php";
         // Remove Support nav for CI connect
         var support_nav_element = document.getElementById("support-nav-dropdown");
@@ -173,7 +175,7 @@
                 <a class="nav-link" href="{{url_for('users_groups')}}">My Groups</a>
               </li>
               <li class="nav-item" id="login-node-nav" style="display: none;">
-                <a class="nav-link" href="https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=login_uscms_org" target="_blank">Login Nodes</a>
+                <a class="nav-link" href="" target="_blank">Login Nodes</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{{url_for('profile')}}">Profile</a>
