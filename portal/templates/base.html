@@ -19,7 +19,7 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <title>{% if session['url_host'] %}{{session['url_host']['display_name']}} {% else %} Connect Portal {% endif %} {%block title%}{%endblock%}</title>
+    <title>Connect {%block title%}{%endblock%}</title>
 
     {# CSS files #}
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
@@ -65,6 +65,8 @@
     	var pathname = window.location.pathname;
     	var pathsplit = pathname.split('/')
       var hostname = window.location.hostname
+      var connect_name = hostname.split('.')[0];
+      document.title = connect_name.charAt(0).toUpperCase() + connect_name.slice(1) + ' ' + document.title;
 
     	if(pathsplit.length > 1){
     		var parentpath = pathsplit[1];
@@ -80,8 +82,7 @@
       const nav_handbook = document.getElementById("nav-handbook");
       // Local
       if(String(hostname).includes('local')){
-        // connect_brand.src="{{url_for('static', filename='img/spt-logo.jpg')}}";
-        connect_brand.parentNode.text = "SPT Connect"
+        connect_brand.src="{{url_for('static', filename='img/spt-connect-logo.png')}}";
         // nav_overview.href="https://pole.uchicago.edu/index.php";
         // Remove Support nav for CI connect
         var support_nav_element = document.getElementById("support-nav-dropdown");
@@ -114,8 +115,8 @@
 
       } else if(String(hostname).includes('spt'))  {
 
-        // connect_brand.src="{{url_for('static', filename='img/spt-logo.jpg')}}";
-        connect_brand.parentNode.text = "SPT Connect"
+        connect_brand.src="{{url_for('static', filename='img/spt-connect-logo.jpg')}}";
+        // connect_brand.parentNode.text = "SPT Connect"
         // nav_overview.href="https://pole.uchicago.edu/index.php";
         // Remove Support nav for CI connect
         var support_nav_element = document.getElementById("support-nav-dropdown");

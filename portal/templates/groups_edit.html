@@ -1,7 +1,7 @@
 {%extends "base.html"%}
 
 {%block title%}
-  Edit Project Information
+  Edit Group Information
 {%endblock%}
 
 {%block body%}
@@ -14,7 +14,7 @@
     {%include 'messages.html'%}
     <div class="row">
       <div class="col-lg-8 mx-auto">
-        <h2>Edit Project Information</h2>
+        <h2>Edit Group Information</h2>
         <hr/>
         <form role="form" action="{{url_for('edit_subgroup', group_name=group_name)}}" method="POST">
           <div class="form-group">
@@ -28,7 +28,7 @@
               class="form-control"
               id="display-name"
               name="display-name"
-              placeholder="Display Name of Research Project"
+              placeholder="Display Name of Group"
               required="required"
               tabindex="1"
               maxlength="64"
