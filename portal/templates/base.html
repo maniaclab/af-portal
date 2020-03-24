@@ -84,6 +84,9 @@
       if(String(hostname).includes('local')){
         connect_brand.src="{{url_for('static', filename='img/spt-connect-logo.png')}}";
         nav_overview.href="https://pole.uchicago.edu/index.php";
+        nav_emailto.href="mailto:jlstephen@uchicago.edu";
+        document.getElementById("login-node-nav").style.display = "inline";
+        document.getElementById("login-node-link").href="https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=amundsen_grid_uchicago_edu";
         // Remove Support nav for CI connect
         // var support_nav_element = document.getElementById("support-nav-dropdown");
         // support_nav_element.parentNode.removeChild(support_nav_element);
@@ -117,9 +120,10 @@
       } else if(String(hostname).includes('spt'))  {
 
         connect_brand.src="{{url_for('static', filename='img/spt-connect-logo.png')}}";
-        document.getElementById("login-node-nav").style.display = "inline";
-        document.getElementById("login-node-nav").href = "https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=amundsen_grid_uchicago_edu";
         nav_overview.href="https://pole.uchicago.edu/index.php";
+        nav_emailto.href="mailto:jlstephen@uchicago.edu";
+        document.getElementById("login-node-nav").style.display = "inline";
+        document.getElementById("login-node-link").href="https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=amundsen_grid_uchicago_edu";
         // Remove Support nav for CI connect
         // var support_nav_element = document.getElementById("support-nav-dropdown");
         // support_nav_element.parentNode.removeChild(support_nav_element);
@@ -175,11 +179,12 @@
                 <a class="nav-link" href="{{url_for('users_groups')}}">My Groups</a>
               </li>
               <li class="nav-item" id="login-node-nav" style="display: none;">
-                <a class="nav-link" href="" target="_blank">Login Nodes</a>
+                <a class="nav-link" id="login-node-link" href="" target="_blank">Login Nodes</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{{url_for('profile')}}">Profile</a>
               </li>
+              {% endif %}
               <li class="nav-item dropdown" id="support-nav-dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="support-dropdown-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Support
@@ -191,17 +196,20 @@
                   <a class="dropdown-item" id="nav-aup" href="{{url_for('aup')}}">Acceptable Use Policy</a>
                   <h6 class="dropdown-header" id="nav-support">Direct Support</h6>
                   <!-- Mail email mailgun form -->
-                  <a class="dropdown-item" id="nav-contact" href="{{url_for('support', user_email=session['email'])}}">Contact Us</a>
+                  <!-- <a class="dropdown-item" id="nav-contact" href="{{url_for('support', user_email=session['email'])}}">Contact Us</a> -->
+                  <a class="dropdown-item" href="{{url_for('about')}}">About</a>
+                  <a class="dropdown-item" id="nav-email" href="" target="_blank">Email Us</a>
                 </div>
               </li>
-              <li class="nav-item" id="nav-about">
+              <!-- <li class="nav-item" id="nav-about">
                 <a class="nav-link" href="{{url_for('about')}}">About</a>
-              </li>
+              </li> -->
+              {% if session.get('is_authenticated') %}
               <li class="nav-item">
                 <a class="nav-link" href="{{url_for('logout')}}">Log out</a>
               </li>
               {% else %}
-              <li class="nav-item dropdown" id="support-nav-dropdown">
+              <!-- <li class="nav-item dropdown" id="support-nav-dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="support-dropdown-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Support
                 </a>
@@ -216,7 +224,7 @@
               </li>
               <li class="nav-item" id="nav-about">
                 <a class="nav-link" href="{{url_for('about')}}">About</a>
-              </li>
+              </li> -->
               <li class="nav-item">
                 <a class="nav-link" href="{{url_for('login')}}">Login</a>
               </li>
