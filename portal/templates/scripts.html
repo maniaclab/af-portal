@@ -76,14 +76,14 @@
 
       connect_brand.src="{{url_for('static', filename='img/cms-connectlogo.png')}}";
       nav_overview.href="https://ci-connect.atlassian.net/wiki/spaces/CMS/overview";
-      document.getElementById("nav-handbook").style.display = "inline";
-      document.getElementById("nav-handbook").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/pages/22609980/Introduction+to+CMS+Connect";
+      nav_emailto.href="mailto:cms-connect-support@cern.ch";
       document.getElementById("login-node-nav").style.display = "inline";
       // document.getElementById("login-node-nav").href = "https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=login_uscms_org";
-      // Append the anchor element to the body
-      dropdown.prepend(a);
+      var dropdown = document.getElementById("login-node-dropdown");
       // Create anchor element
       var a = document.createElement('a');
+      // Append the anchor element to the body
+      dropdown.append(a);
       // Create the text node for achor element
       var link = document.createTextNode("US CMS");
       // Append the text node to anchor element.
@@ -96,7 +96,8 @@
       a.target = '_blank';
       // Append the anchor element to the body
       dropdown.append(a);
-      nav_emailto.href="mailto:cms-connect-support@cern.ch";
+      document.getElementById("nav-handbook").style.display = "inline";
+      document.getElementById("nav-handbook").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/pages/22609980/Introduction+to+CMS+Connect";
 
     } else if(String(hostname).includes('duke')) {
 
