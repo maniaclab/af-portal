@@ -72,21 +72,28 @@ def home():
                            home_text_rotating=home_text_rotating)
 
 
-@app.route('/support/<user_email>', methods=['GET', 'POST'])
-def support(user_email=None):
+@app.route('/support', methods=['POST'])
+def support():
     """
     Support page, utilize mailgun to send message
     """
-    if request.method == 'GET':
-        return render_template('support_email_form.html')
-    elif request.method == 'POST':
+    if request.method == 'POST':
+        user_email = request.form['email']
+        # print("User Email: {}".format(user_email))
         description = request.form['description']
         # mailgun setup here
         domain_name = request.headers['Host']
-        support_emails = {"cms.ci-connect.net": "cms-connect-support@cern.ch",
-                          "duke.ci-connect.net": "scsc@duke.edu"}
+        # print(domain_name)
+        support_emails = {
+                            "cms.ci-connect.net": "cms-connect-support@cern.ch",
+                            "duke.ci-connect.net": "scsc@duke.edu",
+                            "spt.ci-connect.net": "jlstephen@uchicago.edu",
+                            "atlas.ci-connect.net": "atlas-connect-l@lists.bnl.gov",
+                            "localhost:5000": "jeremyvan614@gmail.com"
+                            }
 
         support_email = support_emails[domain_name]
+        # print("Support Email: {} {}".format(support_email, mailgun_api_token))
         r = requests.post("https://api.mailgun.net/v3/api.ci-connect.net/messages",
                           auth=('api', mailgun_api_token),
                           data={
@@ -98,10 +105,10 @@ def support(user_email=None):
                           })
         if r.status_code == requests.codes.ok:
             flash("Your message has been sent to the support team.", 'success')
-            return redirect(url_for('support', user_email=session['email']))
+            return redirect(url_for('about'))
         else:
             flash("Unable to send message", 'warning')
-            return redirect(url_for('support', user_email=session['email']))
+            return redirect(url_for('about'))
 
 
 @app.route('/groups/new', methods=['GET', 'POST'])

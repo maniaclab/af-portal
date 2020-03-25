@@ -58,96 +58,7 @@
     <script type="text/javascript" src="{{url_for('static', filename='js/morphext.js')}}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.7.4/remarkable.js"></script>
     <!-- <script type="text/javascript" src="{{url_for('static', filename='js/intlTelInput.js')}}"></script> -->
-    <script>
-
-  	$(document).ready(function() {
-    	// get current URL path and assign 'active' class
-    	var pathname = window.location.pathname;
-    	var pathsplit = pathname.split('/')
-      var hostname = window.location.hostname
-      var connect_name = hostname.split('.')[0];
-      if(connect_name === 'connect') {
-        document.title = 'Cms ' + document.title;
-      } else if(connect_name === 'www') {
-        document.title = 'CI-' + document.title;
-      } else {
-        document.title = connect_name.charAt(0).toUpperCase() + connect_name.slice(1) + ' ' + document.title;
-      }
-
-    	if(pathsplit.length > 1){
-    		var parentpath = pathsplit[1];
-    		$('nav > ul > li > a[href="/'+parentpath+'"]').parent().addClass('active');
-    	} else {
-    		// look to update the full a[href=''] uri below
-    		$('nav > ul > li > a[href="'+pathname+'"]').parent().addClass('active');
-    	}
-
-      const connect_brand = document.getElementById("connect-brand");
-      const nav_overview = document.getElementById("nav-overview");
-      const nav_emailto = document.getElementById("nav-email");
-      const nav_handbook = document.getElementById("nav-handbook");
-      // Local
-      if(String(hostname).includes('local')){
-        connect_brand.src="{{url_for('static', filename='img/spt-connect-logo.png')}}";
-        nav_overview.href="https://pole.uchicago.edu/index.php";
-        nav_emailto.href="mailto:jlstephen@uchicago.edu";
-        document.getElementById("login-node-nav").style.display = "inline";
-        document.getElementById("login-node-link").href="https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=amundsen_grid_uchicago_edu";
-        // Remove Support nav for CI connect
-        // var support_nav_element = document.getElementById("support-nav-dropdown");
-        // support_nav_element.parentNode.removeChild(support_nav_element);
-
-      } else if(String(hostname).includes('atlas')){
-
-        connect_brand.src="{{url_for('static', filename='img/atlas-connect-logo.png')}}";
-        nav_overview.href="https://ci-connect.atlassian.net/wiki/spaces/AC/overview";
-        nav_handbook.href="https://ci-connect.atlassian.net/wiki/spaces/AC/pages/1114129/ATLAS+Connect+Quickstart";
-        nav_emailto.href="mailto:atlas-connect-l@lists.bnl.gov";
-
-        var about_element = document.getElementById("nav-about");
-        about_element.parentNode.removeChild(about_element);
-
-      } else if(String(hostname).includes('cms')){
-
-        connect_brand.src="{{url_for('static', filename='img/cms-connectlogo.png')}}";
-        nav_overview.href="https://ci-connect.atlassian.net/wiki/spaces/CMS/overview";
-        document.getElementById("nav-handbook").style.display = "inline";
-        document.getElementById("nav-handbook").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/pages/22609980/Introduction+to+CMS+Connect";
-        document.getElementById("login-node-nav").style.display = "inline";
-        document.getElementById("login-node-nav").href = "https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=login_uscms_org";
-        nav_emailto.href="mailto:cms-connect-support@cern.ch";
-
-      } else if(String(hostname).includes('duke')) {
-
-        connect_brand.src="{{url_for('static', filename='img/duke-connect-logo.png')}}";
-        nav_overview.href="https://rc.duke.edu/national-computing-labs/duke-ci-connect-quick-start/";
-        nav_emailto.href="mailto:scsc@duke.edu";
-
-      } else if(String(hostname).includes('spt'))  {
-
-        connect_brand.src="{{url_for('static', filename='img/spt-connect-logo.png')}}";
-        nav_overview.href="https://pole.uchicago.edu/index.php";
-        nav_emailto.href="mailto:jlstephen@uchicago.edu";
-        document.getElementById("login-node-nav").style.display = "inline";
-        document.getElementById("login-node-link").href="https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=amundsen_grid_uchicago_edu";
-        // Remove Support nav for CI connect
-        // var support_nav_element = document.getElementById("support-nav-dropdown");
-        // support_nav_element.parentNode.removeChild(support_nav_element);
-
-      } else {
-        connect_brand.src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
-        // Remove Support nav for CI connect
-        var support_nav_element = document.getElementById("support-nav-dropdown");
-        support_nav_element.parentNode.removeChild(support_nav_element);
-        // Remove footer for CI Connect
-        var footer_element = document.getElementById("footer-container");
-        footer_element.parentNode.removeChild(footer_element);
-      };
-  	})
-    $(function () {
-      $('[data-toggle="popover"]').popover()
-    })
-  	</script>
+    {%include 'scripts.html'%}
     <style>
       [v-cloak] {display: none}
     </style>
@@ -184,8 +95,17 @@
               <li class="nav-item">
                 <a class="nav-link" href="{{url_for('users_groups')}}">My Groups</a>
               </li>
-              <li class="nav-item" id="login-node-nav" style="display: none;">
+              <!-- <li class="nav-item" id="login-node-nav" style="display: none;">
                 <a class="nav-link" id="login-node-link" href="" target="_blank">Login Nodes</a>
+              </li> -->
+              <li class="nav-item dropdown" id="login-node-nav" style="display: none;">
+                <a class="nav-link dropdown-toggle" href="#" id="support-dropdown-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Login Nodes
+                </a>
+                <div class="dropdown-menu dropdown-menu-right" id="login-node-dropdown" aria-labelledby="support-dropdown-menu">
+                  <!-- <a class="dropdown-item" href="https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=amundsen_grid_uchicago_edu" target="_blank">Amundsen Grid</a>
+                  <a class="dropdown-item" href="https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=scott_grid_uchicago_edu" target="_blank">Scott Grid</a> -->
+                </div>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{{url_for('profile')}}">Profile</a>
@@ -201,36 +121,15 @@
                   <a class="dropdown-item" id="nav-handbook" href="" target="_blank" style="display: none;">Handbook</a>
                   <a class="dropdown-item" id="nav-aup" href="{{url_for('aup')}}">Acceptable Use Policy</a>
                   <h6 class="dropdown-header" id="nav-support">Direct Support</h6>
-                  <!-- Mail email mailgun form -->
-                  <!-- <a class="dropdown-item" id="nav-contact" href="{{url_for('support', user_email=session['email'])}}">Contact Us</a> -->
                   <a class="dropdown-item" href="{{url_for('about')}}">About</a>
                   <a class="dropdown-item" id="nav-email" href="" target="_blank">Email Us</a>
                 </div>
               </li>
-              <!-- <li class="nav-item" id="nav-about">
-                <a class="nav-link" href="{{url_for('about')}}">About</a>
-              </li> -->
               {% if session.get('is_authenticated') %}
               <li class="nav-item">
                 <a class="nav-link" href="{{url_for('logout')}}">Log out</a>
               </li>
               {% else %}
-              <!-- <li class="nav-item dropdown" id="support-nav-dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="support-dropdown-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  Support
-                </a>
-                <div class="dropdown-menu" aria-labelledby="support-dropdown-menu">
-                  <h6 class="dropdown-header" id="nav-documentation">Documentation</h6>
-                  <a class="dropdown-item" id="nav-overview" href="" target="_blank">Overview</a>
-                  <a class="dropdown-item" id="nav-handbook" href="" target="_blank" style="display: none;">Handbook</a>
-                  <a class="dropdown-item" id="nav-aup" href="{{url_for('aup')}}">Acceptable Use Policy</a>
-                  <h6 class="dropdown-header" id="nav-support">Direct Support</h6>
-                  <a class="dropdown-item" id="nav-email" href="" target="_blank">Email Us</a>
-                </div>
-              </li>
-              <li class="nav-item" id="nav-about">
-                <a class="nav-link" href="{{url_for('about')}}">About</a>
-              </li> -->
               <li class="nav-item">
                 <a class="nav-link" href="{{url_for('login')}}">Login</a>
               </li>

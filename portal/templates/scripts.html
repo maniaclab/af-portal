@@ -1,29 +1,157 @@
 <script type="text/javascript">
-// Navigation Scripts to Show Header on Scroll-Up
-jQuery(document).ready(function($) {
-  var MQL = 1170;
-
-  //primary navigation slide-in effect
-  if ($(window).width() > MQL) {
-    var headerHeight = $('.navbar-custom').height();
-    $(window).on('scroll', {previousTop: 0},
-      function() {
-        var currentTop = $(window).scrollTop();
-        //check if user is scrolling up
-        if (currentTop < this.previousTop) {
-          //if scrolling up...
-          if (currentTop > 0 && $('.navbar-custom').hasClass('is-fixed')) {
-            $('.navbar-custom').addClass('is-visible');
-          } else {
-            $('.navbar-custom').removeClass('is-visible is-fixed');
-          }
-        } else {
-          //if scrolling down...
-          $('.navbar-custom').removeClass('is-visible');
-          if (currentTop > headerHeight && !$('.navbar-custom').hasClass('is-fixed')) $('.navbar-custom').addClass('is-fixed');
-        }
-        this.previousTop = currentTop;
-      });
+  $(document).ready(function() {
+    // get current URL path and assign 'active' class
+    var pathname = window.location.pathname;
+    var pathsplit = pathname.split('/')
+    var hostname = window.location.hostname
+    var connect_name = hostname.split('.')[0];
+    if(connect_name === 'connect') {
+      document.title = 'Cms ' + document.title;
+    } else if(connect_name === 'www') {
+      document.title = 'CI-' + document.title;
+    } else {
+      document.title = connect_name.charAt(0).toUpperCase() + connect_name.slice(1) + ' ' + document.title;
     }
-});
-</script>
+
+    if(pathsplit.length > 1){
+      var parentpath = pathsplit[1];
+      $('nav > ul > li > a[href="/'+parentpath+'"]').parent().addClass('active');
+    } else {
+      // look to update the full a[href=''] uri below
+      $('nav > ul > li > a[href="'+pathname+'"]').parent().addClass('active');
+    }
+
+    const connect_brand = document.getElementById("connect-brand");
+    const nav_overview = document.getElementById("nav-overview");
+    const nav_emailto = document.getElementById("nav-email");
+    const nav_handbook = document.getElementById("nav-handbook");
+    // Local
+    if(String(hostname).includes('local')){
+      connect_brand.src="{{url_for('static', filename='img/spt-connect-logo.png')}}";
+      nav_overview.href="https://pole.uchicago.edu/index.php";
+      nav_emailto.href="mailto:jlstephen@uchicago.edu";
+      document.getElementById("login-node-nav").style.display = "inline";
+      // document.getElementById("login-node-link").href="https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=amundsen_grid_uchicago_edu";
+      var dropdown = document.getElementById("login-node-dropdown");
+      // Create anchor element
+      var a = document.createElement('a');
+      // Create the text node for achor element
+      var link = document.createTextNode("Amundsen Grid");
+      // Append the text node to anchor element.
+      a.appendChild(link);
+      // Set the title
+      a.title = "Amundsen Grid"
+      // Set the href property
+      a.href = 'https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=amundsen_grid_uchicago_edu';
+      a.className = 'dropdown-item';
+      a.target = '_blank';
+      // Append the anchor element to the body
+      dropdown.prepend(a);
+      // Create anchor element
+      var a = document.createElement('a');
+      // Create the text node for achor element
+      var link = document.createTextNode("Scott Grid");
+      // Append the text node to anchor element.
+      a.appendChild(link);
+      // Set the title
+      a.title = "Scott Grid"
+      // Set the href property
+      a.href = 'https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=scott_grid_uchicago_edu';
+      a.className = 'dropdown-item';
+      a.target = '_blank';
+      // Append the anchor element to the body
+      dropdown.append(a);
+
+    } else if(String(hostname).includes('atlas')){
+
+      connect_brand.src="{{url_for('static', filename='img/atlas-connect-logo.png')}}";
+      nav_overview.href="https://ci-connect.atlassian.net/wiki/spaces/AC/overview";
+      nav_handbook.href="https://ci-connect.atlassian.net/wiki/spaces/AC/pages/1114129/ATLAS+Connect+Quickstart";
+      nav_emailto.href="mailto:atlas-connect-l@lists.bnl.gov";
+
+      var about_element = document.getElementById("nav-about");
+      about_element.parentNode.removeChild(about_element);
+
+    } else if(String(hostname).includes('cms')){
+
+      connect_brand.src="{{url_for('static', filename='img/cms-connectlogo.png')}}";
+      nav_overview.href="https://ci-connect.atlassian.net/wiki/spaces/CMS/overview";
+      document.getElementById("nav-handbook").style.display = "inline";
+      document.getElementById("nav-handbook").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/pages/22609980/Introduction+to+CMS+Connect";
+      // document.getElementById("login-node-nav").style.display = "inline";
+      // document.getElementById("login-node-nav").href = "https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=login_uscms_org";
+      // Append the anchor element to the body
+      dropdown.prepend(a);
+      // Create anchor element
+      var a = document.createElement('a');
+      // Create the text node for achor element
+      var link = document.createTextNode("US CMS");
+      // Append the text node to anchor element.
+      a.appendChild(link);
+      // Set the title
+      a.title = "US CMS"
+      // Set the href property
+      a.href = 'https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=login_uscms_org';
+      a.className = 'dropdown-item';
+      a.target = '_blank';
+      // Append the anchor element to the body
+      dropdown.append(a);
+      nav_emailto.href="mailto:cms-connect-support@cern.ch";
+
+    } else if(String(hostname).includes('duke')) {
+
+      connect_brand.src="{{url_for('static', filename='img/duke-connect-logo.png')}}";
+      nav_overview.href="https://rc.duke.edu/national-computing-labs/duke-ci-connect-quick-start/";
+      nav_emailto.href="mailto:scsc@duke.edu";
+
+    } else if(String(hostname).includes('spt'))  {
+
+      connect_brand.src="{{url_for('static', filename='img/spt-connect-logo.png')}}";
+      nav_overview.href="https://pole.uchicago.edu/index.php";
+      nav_emailto.href="mailto:jlstephen@uchicago.edu";
+      document.getElementById("login-node-nav").style.display = "inline";
+      // document.getElementById("login-node-link").href="https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=amundsen_grid_uchicago_edu";
+      var dropdown = document.getElementById("login-node-dropdown");
+      // Create anchor element
+      var a = document.createElement('a');
+      // Create the text node for achor element
+      var link = document.createTextNode("Amundsen Grid");
+      // Append the text node to anchor element.
+      a.appendChild(link);
+      // Set the title
+      a.title = "Amundsen Grid"
+      // Set the href property
+      a.href = 'https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=amundsen_grid_uchicago_edu';
+      a.className = 'dropdown-item';
+      a.target = '_blank';
+      // Append the anchor element to the body
+      dropdown.prepend(a);
+      // Create anchor element
+      var a = document.createElement('a');
+      // Create the text node for achor element
+      var link = document.createTextNode("Scott Grid");
+      // Append the text node to anchor element.
+      a.appendChild(link);
+      // Set the title
+      a.title = "Scott Grid"
+      // Set the href property
+      a.href = 'https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=scott_grid_uchicago_edu';
+      a.className = 'dropdown-item';
+      a.target = '_blank';
+      // Append the anchor element to the body
+      dropdown.append(a);
+
+    } else {
+      connect_brand.src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
+      // Remove Support nav for CI connect
+      var support_nav_element = document.getElementById("support-nav-dropdown");
+      support_nav_element.parentNode.removeChild(support_nav_element);
+      // Remove footer for CI Connect
+      var footer_element = document.getElementById("footer-container");
+      footer_element.parentNode.removeChild(footer_element);
+    };
+  })
+  $(function () {
+    $('[data-toggle="popover"]').popover()
+  })
+  </script>
