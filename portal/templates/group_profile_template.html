@@ -40,9 +40,7 @@
             {% if group_name != session['url_host']['unix_name'] %}
           <div class="btn-group mr-2" role="group", aria-label="second group">
             <form role="form" action="{{url_for('delete_group', group_name=group_name)}}" method="POST" onsubmit="return confirm('Are you sure you want to delete this group?');">
-              <div class="form-group">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-              </div>
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
               <button type="submit" name="delete_group" class="btn btn-danger btn-sm btn-sm btn-box-shadow" data-submit="Deleting Group...">Delete Group</button>
             </form>
           </div>
