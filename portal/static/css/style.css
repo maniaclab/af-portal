@@ -211,3 +211,7 @@ ul, #myUL {
 .dataTables_info, .dataTables_paginate {
   font-size: 0.8em;
 }
+.psd-uchicago {
+  background-color: #800000!important;
+  border-bottom: 1px solid #670000;
+}

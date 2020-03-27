@@ -74,7 +74,7 @@
     <div class="wrapper">
     <!-- Navigation -->
       <div id="content">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top nav-bar-shadow">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top nav-bar-shadow" id="nav-main">
           <a class="navbar-brand" href="{{url_for('home')}}">
             <img src="" id="connect-brand" height="35" class="d-inline-block align-top" alt="">
           </a>
@@ -95,16 +95,11 @@
               <li class="nav-item">
                 <a class="nav-link" href="{{url_for('users_groups')}}">My Groups</a>
               </li>
-              <!-- <li class="nav-item" id="login-node-nav" style="display: none;">
-                <a class="nav-link" id="login-node-link" href="" target="_blank">Login Nodes</a>
-              </li> -->
               <li class="nav-item dropdown" id="login-node-nav" style="display: none;">
                 <a class="nav-link dropdown-toggle" href="#" id="support-dropdown-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Login Nodes
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" id="login-node-dropdown" aria-labelledby="support-dropdown-menu">
-                  <!-- <a class="dropdown-item" href="https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=amundsen_grid_uchicago_edu" target="_blank">Amundsen Grid</a>
-                  <a class="dropdown-item" href="https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=scott_grid_uchicago_edu" target="_blank">Scott Grid</a> -->
                 </div>
               </li>
               <li class="nav-item">

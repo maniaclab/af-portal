@@ -89,6 +89,7 @@ def support():
                             "duke.ci-connect.net": "scsc@duke.edu",
                             "spt.ci-connect.net": "jlstephen@uchicago.edu",
                             "atlas.ci-connect.net": "atlas-connect-l@lists.bnl.gov",
+                            "psdconnect.uchicago.edu": "support@ci-connect.uchicago.edu",
                             "localhost:5000": "jeremyvan614@gmail.com"
                             }
 
@@ -821,9 +822,9 @@ def authcallback():
                             'spt': {'name': 'spt-connect',
                                     'display_name': 'SPT Connect',
                                     'unix_name': 'root.spt'},
-                            'localhost': {'name': 'spt-connect',
-                                          'display_name': 'SPT Connect',
-                                          'unix_name': 'root.spt'}}
+                            'localhost': {'name': 'uchicago-connect',
+                                          'display_name': 'UChicago Connect',
+                                          'unix_name': 'root.uchicago'}}
         url_host = request.host
         if 'ci-connect' in url_host:
             session['url_host'] = {'name': 'ci-connect',
