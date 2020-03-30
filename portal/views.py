@@ -90,11 +90,14 @@ def support():
                             "spt.ci-connect.net": "jlstephen@uchicago.edu",
                             "atlas.ci-connect.net": "atlas-connect-l@lists.bnl.gov",
                             "psdconnect.uchicago.edu": "support@ci-connect.uchicago.edu",
-                            "ci-connect.net": "support@ci-connect.uchicago.edu",
+                            "www.ci-connect.net": "support@ci-connect.net",
                             "localhost:5000": "jeremyvan614@gmail.com"
                             }
 
-        support_email = support_emails[domain_name]
+        try:
+            support_email = support_emails[domain_name]
+        except:
+            support_email = "support@ci-connect.net"
         # print("Support Email: {} {}".format(support_email, mailgun_api_token))
         r = requests.post("https://api.mailgun.net/v3/api.ci-connect.net/messages",
                           auth=('api', mailgun_api_token),
