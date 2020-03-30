@@ -41,6 +41,10 @@
       document.title = connect_name.charAt(0).toUpperCase() + connect_name.slice(1) + ' ' + document.title;
     }
 
+    if(String(hostname).includes('connect.usatlas')){
+      document.title = 'Atlas ' + document.title;
+    }
+
     if(pathsplit.length > 1){
       var parentpath = pathsplit[1];
       $('nav > ul > li > a[href="/'+parentpath+'"]').parent().addClass('active');
