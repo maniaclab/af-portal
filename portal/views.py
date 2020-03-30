@@ -90,6 +90,7 @@ def support():
                             "spt.ci-connect.net": "jlstephen@uchicago.edu",
                             "atlas.ci-connect.net": "atlas-connect-l@lists.bnl.gov",
                             "psdconnect.uchicago.edu": "support@ci-connect.uchicago.edu",
+                            "ci-connect.net": "support@ci-connect.uchicago.edu",
                             "localhost:5000": "jeremyvan614@gmail.com"
                             }
 
