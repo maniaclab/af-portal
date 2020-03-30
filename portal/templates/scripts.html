@@ -31,19 +31,17 @@
     const nav_handbook = document.getElementById("nav-handbook");
     const nav_bar = document.getElementById("nav-main");
 
-    if(connect_name === 'connect') {
-      document.title = 'Cms ' + document.title;
-    } else if(connect_name === 'www') {
+    if(connect_name === 'www') {
       document.title = 'CI-' + document.title;
     } else if(connect_name === 'psdconnect') {
       document.title = 'PSD UChicago ' + document.title;
+    } else if(String(hostname).includes('connect.usatlas')){
+      document.title = 'Atlas ' + document.title;
+    } else if(String(hostname).includes('connect.uscms')) {
+      document.title = 'Cms ' + document.title;
     } else {
       document.title = connect_name.charAt(0).toUpperCase() + connect_name.slice(1) + ' ' + document.title;
-    }
-
-    if(String(hostname).includes('connect.usatlas')){
-      document.title = 'Atlas ' + document.title;
-    }
+    };
 
     if(pathsplit.length > 1){
       var parentpath = pathsplit[1];
