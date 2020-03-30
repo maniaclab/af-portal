@@ -51,7 +51,8 @@
 
     // Local
     if(String(hostname).includes('local')){
-      connect_brand.src="{{url_for('static', filename='img/psd-uchicago-logo.svg')}}";
+
+      connect_brand.src="{{url_for('static', filename='img/psd-connect-logo.png')}}";
       nav_overview.href="https://physicalsciences.uchicago.edu/";
       nav_emailto.href="mailto:support@ci-connect.uchicago.edu";
       // nav_bar.classList.add("psd-uchicago");
@@ -110,13 +111,21 @@
 
     } else if(String(hostname).includes('psd')){
 
-      connect_brand.src="{{url_for('static', filename='img/uchicago-connect-logo.png')}}";
+      connect_brand.src="{{url_for('static', filename='img/psd-connect-logo.png')}}";
+      nav_overview.href="https://physicalsciences.uchicago.edu/";
+      nav_emailto.href="mailto:support@ci-connect.uchicago.edu";
+      // nav_bar.classList.add("psd-uchicago");
+      document.getElementById("login-node-nav").style.display = "inline";
+      // Set the title
+      var title = "UChicago CI"
+      // Set the href property
+      var href = 'https://gracc.opensciencegrid.org/dashboard/db/osg-connect-summary-uchicago-ci?orgId=1';
+      addDropdownItem(title, href);
 
     } else {
       connect_brand.src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
-      // Remove Support nav for CI connect
-      var support_nav_element = document.getElementById("support-nav-dropdown");
-      support_nav_element.parentNode.removeChild(support_nav_element);
+      nav_overview.parentNode.removeChild(nav_overview);
+      nav_emailto.parentNode.removeChild(nav_emailto);
       // Remove footer for CI Connect
       var footer_element = document.getElementById("footer-container");
       footer_element.parentNode.removeChild(footer_element);
