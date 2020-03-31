@@ -57,7 +57,6 @@
       connect_brand.src="{{url_for('static', filename='img/psd-connect-logo.png')}}";
       nav_overview.href="https://physicalsciences.uchicago.edu/";
       nav_emailto.href="mailto:support@ci-connect.uchicago.edu";
-      // nav_bar.classList.add("psd-uchicago");
       document.getElementById("login-node-nav").style.display = "inline";
       // Set the title
       var title = "UChicago CI"
@@ -114,6 +113,9 @@
       addDropdownItem(title, href_amundsen);
       addDropdownItem(title_scott, href_scott);
       addDropdownItem(title_spt, href_spt);
+
+      var nav_link = document.getElementById("login-node-nav-link");
+      nav_link.innerText = 'Monitoring';
 
     } else if(String(hostname).includes('psd')){
 
