@@ -64,6 +64,10 @@ def webhooks():
 def home():
     """Home page - play with it if you must!"""
     domain_name = request.headers['Host']
+    if 'usatlas' in domain_name:
+        domain_name = 'atlas.ci-connect.net'
+    elif 'uscms' in domain_name:
+        domain_name = 'cms.ci-connect.net'
     with open(brand_dir + '/' + domain_name + '/home_content/home_text_headline.md', "r") as file:
         home_text_headline = file.read()
     with open(brand_dir + '/' + domain_name + '/home_content/home_text_rotating.md', "r") as file:
@@ -452,6 +456,10 @@ def deny_subgroup(group_name, subgroup_name):
 def signup():
     """Send the user to Globus Auth with signup=1."""
     domain_name = request.headers['Host']
+    if 'usatlas' in domain_name:
+        domain_name = 'atlas.ci-connect.net'
+    elif 'uscms' in domain_name:
+        domain_name = 'cms.ci-connect.net'
     with open(brand_dir + '/' + domain_name + '/signup_content/signup_modal.md', "r") as file:
         signup_modal_md = file.read()
     with open(brand_dir + '/' + domain_name + '/signup_content/signup_instructions.md', "r") as file:
@@ -466,6 +474,10 @@ def aup():
     """Send the user to Acceptable Use Policy page"""
     # Read AUP from markdown dir
     domain_name = request.headers['Host']
+    if 'usatlas' in domain_name:
+        domain_name = 'atlas.ci-connect.net'
+    elif 'uscms' in domain_name:
+        domain_name = 'cms.ci-connect.net'
     with open(brand_dir + '/' + domain_name + '/signup_content/signup_modal.md', "r") as file:
         aup_md = file.read()
     return render_template('AUP.html', aup_md=aup_md)
