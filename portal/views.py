@@ -476,11 +476,11 @@ def about():
     """Send the user to the About page"""
     # Read About from markdown dir
     domain_name = request.headers['Host']
-    
+
     if 'usatlas' in domain_name:
-        domain_name = 'connect.usatlas.org'
+        domain_name = 'atlas.ci-connect.net'
     elif 'uscms' in domain_name:
-        domain_name = 'connect.uscms.org'
+        domain_name = 'cms.ci-connect.net'
 
     with open(brand_dir + '/' + domain_name + '/about/about.md', "r") as file:
         about = file.read()
