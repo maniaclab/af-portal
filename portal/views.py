@@ -476,6 +476,12 @@ def about():
     """Send the user to the About page"""
     # Read About from markdown dir
     domain_name = request.headers['Host']
+    
+    if 'usatlas' in domain_name:
+        domain_name = 'connect.usatlas.org'
+    elif 'uscms' in domain_name:
+        domain_name = 'connect.uscms.org'
+
     with open(brand_dir + '/' + domain_name + '/about/about.md', "r") as file:
         about = file.read()
     return render_template('about.html', about=about)
@@ -845,7 +851,6 @@ def authcallback():
             session['email'] = profile['email']
             session['phone'] = profile['phone']
             session['institution'] = profile['institution']
-            # session['access_token'] = profile['access_token']
             session['unix_name'] = profile['unix_name']
             session['url_root'] = request.url_root
             # session['url_host'] = (request.host).split(':')[0]
