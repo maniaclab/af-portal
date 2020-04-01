@@ -64,6 +64,10 @@ def webhooks():
 def home():
     """Home page - play with it if you must!"""
     domain_name = request.headers['Host']
+    if 'usatlas' in domain_name:
+        domain_name = 'atlas.ci-connect.net'
+    elif 'uscms' in domain_name:
+        domain_name = 'cms.ci-connect.net'
     with open(brand_dir + '/' + domain_name + '/home_content/home_text_headline.md', "r") as file:
         home_text_headline = file.read()
     with open(brand_dir + '/' + domain_name + '/home_content/home_text_rotating.md', "r") as file:
@@ -90,10 +94,14 @@ def support():
                             "spt.ci-connect.net": "jlstephen@uchicago.edu",
                             "atlas.ci-connect.net": "atlas-connect-l@lists.bnl.gov",
                             "psdconnect.uchicago.edu": "support@ci-connect.uchicago.edu",
+                            "www.ci-connect.net": "support@ci-connect.net",
                             "localhost:5000": "jeremyvan614@gmail.com"
                             }
 
-        support_email = support_emails[domain_name]
+        try:
+            support_email = support_emails[domain_name]
+        except:
+            support_email = "support@ci-connect.net"
         # print("Support Email: {} {}".format(support_email, mailgun_api_token))
         r = requests.post("https://api.mailgun.net/v3/api.ci-connect.net/messages",
                           auth=('api', mailgun_api_token),
@@ -448,6 +456,10 @@ def deny_subgroup(group_name, subgroup_name):
 def signup():
     """Send the user to Globus Auth with signup=1."""
     domain_name = request.headers['Host']
+    if 'usatlas' in domain_name:
+        domain_name = 'atlas.ci-connect.net'
+    elif 'uscms' in domain_name:
+        domain_name = 'cms.ci-connect.net'
     with open(brand_dir + '/' + domain_name + '/signup_content/signup_modal.md', "r") as file:
         signup_modal_md = file.read()
     with open(brand_dir + '/' + domain_name + '/signup_content/signup_instructions.md', "r") as file:
@@ -462,6 +474,10 @@ def aup():
     """Send the user to Acceptable Use Policy page"""
     # Read AUP from markdown dir
     domain_name = request.headers['Host']
+    if 'usatlas' in domain_name:
+        domain_name = 'atlas.ci-connect.net'
+    elif 'uscms' in domain_name:
+        domain_name = 'cms.ci-connect.net'
     with open(brand_dir + '/' + domain_name + '/signup_content/signup_modal.md', "r") as file:
         aup_md = file.read()
     return render_template('AUP.html', aup_md=aup_md)
@@ -472,6 +488,12 @@ def about():
     """Send the user to the About page"""
     # Read About from markdown dir
     domain_name = request.headers['Host']
+
+    if 'usatlas' in domain_name:
+        domain_name = 'atlas.ci-connect.net'
+    elif 'uscms' in domain_name:
+        domain_name = 'cms.ci-connect.net'
+
     with open(brand_dir + '/' + domain_name + '/about/about.md', "r") as file:
         about = file.read()
     return render_template('about.html', about=about)
@@ -844,7 +866,6 @@ def authcallback():
             session['email'] = profile['email']
             session['phone'] = profile['phone']
             session['institution'] = profile['institution']
-            # session['access_token'] = profile['access_token']
             session['unix_name'] = profile['unix_name']
             session['url_root'] = request.url_root
             # session['url_host'] = (request.host).split(':')[0]

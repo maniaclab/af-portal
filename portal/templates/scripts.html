@@ -57,7 +57,6 @@
       connect_brand.src="{{url_for('static', filename='img/psd-connect-logo.png')}}";
       nav_overview.href="https://physicalsciences.uchicago.edu/";
       nav_emailto.href="mailto:support@ci-connect.uchicago.edu";
-      // nav_bar.classList.add("psd-uchicago");
       document.getElementById("login-node-nav").style.display = "inline";
       // Set the title
       var title = "UChicago CI"
@@ -102,14 +101,21 @@
       nav_overview.href="https://pole.uchicago.edu/index.php";
       nav_emailto.href="mailto:jlstephen@uchicago.edu";
       document.getElementById("login-node-nav").style.display = "inline";
+      // document.getElementById("login-node-nav-link").update("Monitoring");
       // Set the title
       var title = "Amundsen Grid"
       var title_scott = 'Scott Grid'
+      var title_spt = 'SPT Storage'
       // Set the href property
       var href_amundsen = 'https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=amundsen_grid_uchicago_edu';
       var href_scott = 'https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=scott_grid_uchicago_edu';
+      var href_spt = 'https://grafana.mwt2.org/d/0HbLiB_Wk/spt-storage?orgId=1&refresh=5m'
       addDropdownItem(title, href_amundsen);
       addDropdownItem(title_scott, href_scott);
+      addDropdownItem(title_spt, href_spt);
+
+      var nav_link = document.getElementById("login-node-nav-link");
+      nav_link.innerText = 'Monitoring';
 
     } else if(String(hostname).includes('psd')){
 
