@@ -52,7 +52,7 @@ if(String(hostname).includes('local')){
   document.getElementById("home-brand").src="{{url_for('static', filename='img/duke-connect-logo.png')}}";
 } else if(String(hostname).includes('spt')){
   document.getElementById("home-brand").src="{{url_for('static', filename='img/spt-logo.jpg')}}";
-} else if(String(hostname).includes('psdconnect')){
+} else if(String(hostname).includes('psdconnect') || String(hostname).includes('uchicago')){
   document.getElementById("home-brand").src="{{url_for('static', filename='img/psd-uchicago-logo.svg')}}";
 } else {
   document.getElementById("home-brand").src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
