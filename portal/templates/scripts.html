@@ -95,7 +95,7 @@
       nav_overview.href="https://rc.duke.edu/national-computing-labs/duke-ci-connect-quick-start/";
       nav_emailto.href="mailto:scsc@duke.edu";
 
-    } else if(String(hostname).includes('spt') || String(hostname).includes('uchicago'))  {
+    } else if(String(hostname).includes('spt'))  {
 
       connect_brand.src="{{url_for('static', filename='img/spt-connect-logo.png')}}";
       nav_overview.href="https://pole.uchicago.edu/index.php";
@@ -117,7 +117,7 @@
       var nav_link = document.getElementById("login-node-nav-link");
       nav_link.innerText = 'Monitoring';
 
-    } else if(String(hostname).includes('psd')){
+    } else if(String(hostname).includes('psd') || String(hostname).includes('uchicago')){
 
       connect_brand.src="{{url_for('static', filename='img/psd-connect-logo.png')}}";
       nav_overview.href="https://physicalsciences.uchicago.edu/";
