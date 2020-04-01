@@ -822,6 +822,9 @@ def authcallback():
                             'spt': {'name': 'spt-connect',
                                     'display_name': 'SPT Connect',
                                     'unix_name': 'root.spt'},
+                            'psdconnect': {'name': 'psd-connect',
+                                           'display_name': 'PSD Connect',
+                                           'unix_name': 'root.uchicago'},
                             'localhost': {'name': 'uchicago-connect',
                                           'display_name': 'UChicago Connect',
                                           'unix_name': 'root.uchicago'}}
