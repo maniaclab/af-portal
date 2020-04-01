@@ -745,6 +745,14 @@ def profile():
                 group_memberships.append(group)
 
         domain_name = request.headers['Host']
+
+        if 'usatlas' in domain_name:
+            domain_name = 'atlas.ci-connect.net'
+        elif 'uscms' in domain_name:
+            domain_name = 'cms.ci-connect.net'
+        elif 'uchicago' in domain_name:
+            domain_name = 'psdconnect.uchicago.edu'
+
         with open(brand_dir + '/' + domain_name + "/form_descriptions/group_unix_name_description.md", "r") as file:
             group_unix_name_description = file.read()
 
