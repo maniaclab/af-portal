@@ -134,6 +134,7 @@
       connect_brand.src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
       nav_overview.parentNode.removeChild(nav_overview);
       nav_emailto.parentNode.removeChild(nav_emailto);
+      document.getElementById("about").style.display = "inline";
       // Remove footer for CI Connect
       var footer_element = document.getElementById("footer-container");
       footer_element.parentNode.removeChild(footer_element);
