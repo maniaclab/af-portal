@@ -25,12 +25,44 @@
     <br>
   </div>
 </header>
-<br>
+
+<section id="about" class="container wow animate fadeInUp">
+  <div class="container" id="about-vc3-scroll">
+    <div class="content container col-xs-12">
+      <h2 class="section-title">
+        About <span id="brand">CI-Connect</span>
+      </h2>
+       <h5 class="section-description">
+          CI Connect provides hosted job submission services for
+          distributed, high-throughput computing.
+       </h5>
+      <div class="section-title-divider"></div>
+    </div>
+
+    <div class="content col-xs-12">
+      {% for collab in collaborations %}
+      <div class="row container wow animate fadeInRight">
+        <div class="col-xs-12 col-md-4">
+          <a href="{{collab['href']}}" target="_blank">
+            <img class="img-responsive" id="apf-icon" src="{{url_for('static', filename=collab['img'])}}">
+          </a>
+        </div>
+        <div class="col-xs-12 col-md-8">
+          <h5 class="section-description">
+            {{collab['description']}}
+          </h5>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
 <!-- Page footer -->
 {%include 'footer.html'%}
 
 <script type="text/javascript">
-
+new WOW().init();
 var md = new Remarkable('full');
 var home_text_headline = {{home_text_headline|tojson}};
 var home_text_headline = md.render(home_text_headline);
@@ -43,11 +75,11 @@ $(document).ready(function() {
 var hostname = window.location.hostname
 
 if(String(hostname).includes('local')){
-  document.getElementById("home-brand").src="{{url_for('static', filename='img/psd-uchicago-logo.png')}}";
+  document.getElementById("home-brand").src="{{url_for('static', filename='img/psd-main-logo.png')}}";
 } else if(String(hostname).includes('atlas')){
   document.getElementById("home-brand").src="{{url_for('static', filename='img/atlas-connect-logo.png')}}";
 } else if(String(hostname).includes('cms')){
-  document.getElementById("home-brand").src="{{url_for('static', filename='img/cms-connectlogo.png')}}";
+  document.getElementById("home-brand").src="{{url_for('static', filename='img/cms-connect-logo.png')}}";
 } else if(String(hostname).includes('duke')){
   document.getElementById("home-brand").src="{{url_for('static', filename='img/duke-connect-logo.png')}}";
 } else if(String(hostname).includes('spt')){
