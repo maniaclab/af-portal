@@ -33,7 +33,7 @@
 
     if(connect_name === 'www') {
       document.title = 'CI-' + document.title;
-    } else if(connect_name === 'psdconnect') {
+    } else if(String(hostname).includes('connect.uchicago.edu')) {
       document.title = 'PSD UChicago ' + document.title;
     } else if(String(hostname).includes('connect.usatlas')){
       document.title = 'Atlas ' + document.title;
@@ -57,6 +57,7 @@
       connect_brand.src="{{url_for('static', filename='img/psd-connect-logo.png')}}";
       nav_overview.href="https://physicalsciences.uchicago.edu/";
       nav_emailto.href="mailto:support@ci-connect.uchicago.edu";
+      document.getElementById("about").style.display = "inline";
       document.getElementById("login-node-nav").style.display = "inline";
       // Set the title
       var title = "UChicago CI"
@@ -70,18 +71,21 @@
       nav_overview.href="https://ci-connect.atlassian.net/wiki/spaces/AC/overview";
       nav_handbook.href="https://ci-connect.atlassian.net/wiki/spaces/AC/pages/1114129/ATLAS+Connect+Quickstart";
       nav_emailto.href="mailto:atlas-connect-l@lists.bnl.gov";
-
-      var about_element = document.getElementById("nav-about");
-      about_element.parentNode.removeChild(about_element);
+      document.getElementById("login-node-nav").style.display = "inline";
+      // Set the title and href property
+      var title = 'login.usatlas.org'
+      var href = 'https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=login_usatlas_org'
+      // Call method to create dropdown menu item
+      addDropdownItem(title, href);
 
     } else if(String(hostname).includes('cms')){
 
-      connect_brand.src="{{url_for('static', filename='img/cms-connectlogo.png')}}";
+      connect_brand.src="{{url_for('static', filename='img/cms-connect-logo.png')}}";
       nav_overview.href="https://ci-connect.atlassian.net/wiki/spaces/CMS/overview";
       nav_emailto.href="mailto:cms-connect-support@cern.ch";
       document.getElementById("login-node-nav").style.display = "inline";
       // Set the title and href property
-      var title = 'US CMS';
+      var title = 'login.uscms.org';
       var href = 'https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=login_uscms_org';
       // Call method to create dropdown menu item
       addDropdownItem(title, href);
@@ -94,6 +98,12 @@
       connect_brand.src="{{url_for('static', filename='img/duke-connect-logo.png')}}";
       nav_overview.href="https://rc.duke.edu/national-computing-labs/duke-ci-connect-quick-start/";
       nav_emailto.href="mailto:scsc@duke.edu";
+      document.getElementById("login-node-nav").style.display = "inline";
+      // Set the title and href property
+      var title = 'login.duke.ci-connect.net'
+      var href = 'https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=login_duke_ci-connect_net'
+      // Call method to create dropdown menu item
+      addDropdownItem(title, href);
 
     } else if(String(hostname).includes('spt'))  {
 
@@ -117,7 +127,7 @@
       var nav_link = document.getElementById("login-node-nav-link");
       nav_link.innerText = 'Monitoring';
 
-    } else if(String(hostname).includes('psd')){
+    } else if(String(hostname).includes('psd') || String(hostname).includes('uchicago')){
 
       connect_brand.src="{{url_for('static', filename='img/psd-connect-logo.png')}}";
       nav_overview.href="https://physicalsciences.uchicago.edu/";
@@ -125,7 +135,7 @@
       // nav_bar.classList.add("psd-uchicago");
       document.getElementById("login-node-nav").style.display = "inline";
       // Set the title
-      var title = "UChicago CI"
+      var title = "UChicago CI Connect"
       // Set the href property
       var href = 'https://gracc.opensciencegrid.org/dashboard/db/osg-connect-summary-uchicago-ci?orgId=1';
       addDropdownItem(title, href);
@@ -134,6 +144,7 @@
       connect_brand.src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
       nav_overview.parentNode.removeChild(nav_overview);
       nav_emailto.parentNode.removeChild(nav_emailto);
+      document.getElementById("about").style.display = "inline";
       // Remove footer for CI Connect
       var footer_element = document.getElementById("footer-container");
       footer_element.parentNode.removeChild(footer_element);

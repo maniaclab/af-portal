@@ -68,12 +68,48 @@ def home():
         domain_name = 'atlas.ci-connect.net'
     elif 'uscms' in domain_name:
         domain_name = 'cms.ci-connect.net'
+    elif 'uchicago' in domain_name:
+        domain_name = 'psdconnect.uchicago.edu'
+
     with open(brand_dir + '/' + domain_name + '/home_content/home_text_headline.md', "r") as file:
         home_text_headline = file.read()
     with open(brand_dir + '/' + domain_name + '/home_content/home_text_rotating.md', "r") as file:
         home_text_rotating = file.read()
+
+    collaborations = [{'name': 'Atlas',
+                       'href': 'https://atlas.ci-connect.net',
+                       'img': 'img/atlas-connect-logo.png',
+                       'description': get_about_markdown("atlas.ci-connect.net")},
+                      {'name': 'CMS',
+                       'href': 'https://cms.ci-connect.net',
+                       'img': 'img/cms-connect-logo.png',
+                       'description': get_about_markdown("cms.ci-connect.net")},
+                      {'name': 'Duke',
+                       'href': 'https://duke.ci-connect.net',
+                       'img': 'img/duke-connect-logo.png',
+                       'description': get_about_markdown("duke.ci-connect.net")},
+                      {'name': 'OSG',
+                       'href': 'https://www.osgconnect.net',
+                       'img': 'img/osg-connect-logo.png',
+                       'description': get_about_markdown("osgconnect.net")},
+                      {'name': 'SPT',
+                       'href': 'https://spt.ci-connect.net',
+                       'img': 'img/spt-connect-logo.png',
+                       'description': get_about_markdown("spt.ci-connect.net")},
+                      {'name': 'PSD',
+                       'href': 'https://psdconnect.uchicago.edu',
+                       'img': 'img/psd-connect-logo.png',
+                       'description': get_about_markdown("psdconnect.uchicago.edu")}]
+
     return render_template('home.html', home_text_headline=home_text_headline,
-                           home_text_rotating=home_text_rotating)
+                                        home_text_rotating=home_text_rotating,
+                                        collaborations=collaborations)
+
+
+def get_about_markdown(domain_name):
+    with open(brand_dir + '/' + domain_name + '/about/about.md', "r") as file:
+        about = file.read()
+    return about
 
 
 @app.route('/support', methods=['POST'])
@@ -460,6 +496,9 @@ def signup():
         domain_name = 'atlas.ci-connect.net'
     elif 'uscms' in domain_name:
         domain_name = 'cms.ci-connect.net'
+    elif 'uchicago' in domain_name:
+        domain_name = 'psdconnect.uchicago.edu'
+
     with open(brand_dir + '/' + domain_name + '/signup_content/signup_modal.md', "r") as file:
         signup_modal_md = file.read()
     with open(brand_dir + '/' + domain_name + '/signup_content/signup_instructions.md', "r") as file:
@@ -478,6 +517,9 @@ def aup():
         domain_name = 'atlas.ci-connect.net'
     elif 'uscms' in domain_name:
         domain_name = 'cms.ci-connect.net'
+    elif 'uchicago' in domain_name:
+        domain_name = 'psdconnect.uchicago.edu'
+
     with open(brand_dir + '/' + domain_name + '/signup_content/signup_modal.md', "r") as file:
         aup_md = file.read()
     return render_template('AUP.html', aup_md=aup_md)
@@ -493,6 +535,8 @@ def about():
         domain_name = 'atlas.ci-connect.net'
     elif 'uscms' in domain_name:
         domain_name = 'cms.ci-connect.net'
+    elif 'uchicago' in domain_name:
+        domain_name = 'psdconnect.uchicago.edu'
 
     with open(brand_dir + '/' + domain_name + '/about/about.md', "r") as file:
         about = file.read()
@@ -734,6 +778,14 @@ def profile():
                 group_memberships.append(group)
 
         domain_name = request.headers['Host']
+
+        if 'usatlas' in domain_name:
+            domain_name = 'atlas.ci-connect.net'
+        elif 'uscms' in domain_name:
+            domain_name = 'cms.ci-connect.net'
+        elif 'uchicago' in domain_name:
+            domain_name = 'psdconnect.uchicago.edu'
+
         with open(brand_dir + '/' + domain_name + "/form_descriptions/group_unix_name_description.md", "r") as file:
             group_unix_name_description = file.read()
 
@@ -844,6 +896,9 @@ def authcallback():
                             'spt': {'name': 'spt-connect',
                                     'display_name': 'SPT Connect',
                                     'unix_name': 'root.spt'},
+                            'psdconnect': {'name': 'psd-connect',
+                                           'display_name': 'PSD Connect',
+                                           'unix_name': 'root.uchicago'},
                             'localhost': {'name': 'uchicago-connect',
                                           'display_name': 'UChicago Connect',
                                           'unix_name': 'root.uchicago'}}
