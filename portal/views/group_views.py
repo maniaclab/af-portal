@@ -46,6 +46,8 @@ def groups():
         user_status = get_user_connect_status(
             session['unix_name'], connect_group)
 
+        domain_name = request.headers['Host']
+
         if 'usatlas' in domain_name:
             domain_name = 'atlas.ci-connect.net'
         elif 'uscms' in domain_name:
@@ -357,13 +359,15 @@ def view_group_subgroups(group_name):
         connect_group = session['url_host']['unix_name']
         connect_status = get_user_connect_status(unix_name, connect_group)
 
+        domain_name = request.headers['Host']
+
         if 'usatlas' in domain_name:
             domain_name = 'atlas.ci-connect.net'
         elif 'uscms' in domain_name:
             domain_name = 'cms.ci-connect.net'
         elif 'uchicago' in domain_name:
             domain_name = 'psdconnect.uchicago.edu'
-        
+
         with open(brand_dir + '/' + domain_name + "/form_descriptions/group_unix_name_description.md", "r") as file:
             group_unix_name_description = file.read()
 
