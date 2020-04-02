@@ -30,7 +30,7 @@
   <div class="container" id="about-vc3-scroll">
     <div class="content container col-xs-12">
       <h2 class="section-title">
-        About <span id="brand">CI-Connect</span>
+        About <span id="brand">CI Connect</span>
       </h2>
        <h5 class="section-description">
           CI Connect provides hosted job submission services for
@@ -48,9 +48,7 @@
           </a>
         </div>
         <div class="col-xs-12 col-md-8">
-          <h5 class="section-description">
-            {{collab['description']}}
-          </h5>
+          <h5 class="section-description" id="{{collab['name']}}"></h5>
         </div>
       </div>
       {% endfor %}
@@ -67,6 +65,14 @@ var md = new Remarkable('full');
 var home_text_headline = {{home_text_headline|tojson}};
 var home_text_headline = md.render(home_text_headline);
 $('#headline').html(home_text_headline);
+
+var collaborations = {{collaborations|tojson}};
+for(collab of collaborations) {
+  console.log(collab['description'])
+  let description = md.render(collab['description']);
+  $('#'+collab['name']).html(description);
+  document.getElementById(collab['name']).querySelector("h2").style.display = 'none';
+}
 
 $('.carousel').carousel()
 

@@ -79,53 +79,37 @@ def home():
     collaborations = [{'name': 'Atlas',
                        'href': 'https://atlas.ci-connect.net',
                        'img': 'img/atlas-connect-logo.png',
-                       'description': """ATLAS Connect offers access to
-                        high-throughput computing resources from various
-                        opportunistic sources. A login host, login.usatlas.org,
-                        provides a HTCondor job submission service. The service
-                        is not an official part of the US ATLAS Computing Facility
-                        and is offered on a best-effort basis by the ATLAS group
-                         at the University of Chicago."""},
+                       'description': get_about_markdown("atlas.ci-connect.net")},
                       {'name': 'CMS',
                        'href': 'https://cms.ci-connect.net',
                        'img': 'img/cms-connect-logo.png',
-                       'description': """A single sign-on service provides
-                        direct institutional and working group access to the
-                         US CMS Global Pool. A login host login.uscms.org
-                          provides a HTCondor job submission service."""},
+                       'description': get_about_markdown("cms.ci-connect.net")},
                       {'name': 'Duke',
                        'href': 'https://duke.ci-connect.net',
                        'img': 'img/duke-connect-logo.png',
-                       'description': """Duke CI Connect offers investigators
-                        access to distributed high throughput computing
-                         resources from the Scalable Computing Support Center
-                          and from the Open Science Grid."""},
+                       'description': get_about_markdown("duke.ci-connect.net")},
                       {'name': 'OSG',
                        'href': 'https://www.osgconnect.net',
                        'img': 'img/osg-connect-logo.png',
-                       'description': """OSG Connect offers access to
-                       high-throughput computing resources for US researchers as
-                       well as research computing facilitation for all new users."""},
+                       'description': get_about_markdown("osgconnect.net")},
                       {'name': 'SPT',
                        'href': 'https://spt.ci-connect.net',
                        'img': 'img/spt-connect-logo.png',
-                       'description': """SPT Connect offers collaboration
-                        access to two dedicated analysis servers,
-                         amundsen.grid.uchicago.edu and scott.grid.uchicago.edu.
-                          From these you can submit to the high-throughput
-                           computing resources of the Open Science Grid, and to
-                            the "friends queue" provided by the ATLAS group at
-                             UChicago."""},
+                       'description': get_about_markdown("spt.ci-connect.net")},
                       {'name': 'PSD',
                        'href': 'https://psdconnect.uchicago.edu',
                        'img': 'img/psd-connect-logo.png',
-                       'description': """PSD Connect has been developed for
-                        Research Computing Center users to facilitate
-                         submission to the OSG from Midway."""}]
+                       'description': get_about_markdown("psdconnect.uchicago.edu")}]
 
     return render_template('home.html', home_text_headline=home_text_headline,
                                         home_text_rotating=home_text_rotating,
                                         collaborations=collaborations)
+
+
+def get_about_markdown(domain_name):
+    with open(brand_dir + '/' + domain_name + '/about/about.md', "r") as file:
+        about = file.read()
+    return about
 
 
 @app.route('/support', methods=['POST'])
