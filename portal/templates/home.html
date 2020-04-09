@@ -81,7 +81,7 @@ $(document).ready(function() {
 var hostname = window.location.hostname
 
 if(String(hostname).includes('local')){
-  document.getElementById("home-brand").src="{{url_for('static', filename='img/psd-main-logo.png')}}";
+  document.getElementById("home-brand").src="{{url_for('static', filename='img/psd-connect-logo.png')}}";
 } else if(String(hostname).includes('atlas')){
   document.getElementById("home-brand").src="{{url_for('static', filename='img/atlas-connect-logo.png')}}";
 } else if(String(hostname).includes('cms')){
@@ -91,7 +91,7 @@ if(String(hostname).includes('local')){
 } else if(String(hostname).includes('spt')){
   document.getElementById("home-brand").src="{{url_for('static', filename='img/spt-logo.jpg')}}";
 } else if(String(hostname).includes('psdconnect') || String(hostname).includes('uchicago')){
-  document.getElementById("home-brand").src="{{url_for('static', filename='img/psd-main-logo.png')}}";
+  document.getElementById("home-brand").src="{{url_for('static', filename='img/psd-connect-logo.png')}}";
 } else {
   document.getElementById("home-brand").src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
 }
