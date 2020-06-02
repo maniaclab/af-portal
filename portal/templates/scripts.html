@@ -128,6 +128,12 @@
       var nav_link = document.getElementById("login-node-nav-link");
       nav_link.innerText = 'Monitoring';
 
+    } else if(String(hostname).includes('snowmass21')) {
+      
+      connect_brand.src="{{url_for('static', filename='img/snowmass-connect-logo.png')}}";
+      nav_overview.href="https://snowmass21.org/energy/start";
+      nav_emailto.href="mailto:snowmass-communication@fnal.gov";
+      
     } else if(String(hostname).includes('psd') || String(hostname).includes('uchicago')){
 
       connect_brand.src="{{url_for('static', filename='img/psd-connect-logo.png')}}";
