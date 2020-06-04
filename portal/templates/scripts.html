@@ -1,7 +1,12 @@
 <script type="text/javascript">
 
-  function addDropdownItem(title, href) {
-    var dropdown = document.getElementById("login-node-dropdown");
+  function addDropdownItem(title, href, id=null) {
+    if(id === null){
+      var dropdown = document.getElementById("login-node-dropdown");
+    } else {
+      var dropdown = document.getElementById(id);
+    }
+    // var dropdown = document.getElementById("login-node-dropdown");
     // Create anchor element
     var a = document.createElement('a');
     // Create the text node for achor element
@@ -133,6 +138,10 @@
       connect_brand.src="{{url_for('static', filename='img/snowmass-connect-logo.png')}}";
       nav_overview.href="https://snowmass21.org/energy/start";
       nav_emailto.href="mailto:snowmass-communication@fnal.gov";
+      var title = 'SnowMass21 Docs';
+      var href = 'https://maniaclab.uchicago.edu/snowmass-connect-docs/';
+      var id = 'support-dropdown'; 
+      addDropdownItem(title, href, id);
       
     } else if(String(hostname).includes('psd') || String(hostname).includes('uchicago')){
 
