@@ -55,22 +55,6 @@
       {% endfor %}
     </div>
 
-    <div class="content col-xs-12" id="snowmass-about" style='display: none'>
-      <!-- in views, if snowmass -> swap collab info, send same obj -->
-      {% for collab in organizations %}
-      <div class="row container wow animate fadeInRight">
-        <div class="col-xs-12 col-md-4">
-          <a href="{{collab['href']}}" target="_blank">
-            <img class="img-responsive" id="apf-icon" src="{{url_for('static', filename=collab['img'])}}">
-          </a>
-        </div>
-        <div class="col-xs-12 col-md-8">
-          <h5 class="section-description"">{{collab['description']}}</h5>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-
   </div>
 </section>
 
@@ -94,7 +78,7 @@
       <div class="row container wow animate fadeInRight">
         <div class="col-xs-12 col-md-4">
           <a href="{{collab['href']}}" target="_blank">
-            <img class="img-responsive" id="apf-icon" src="{{url_for('static', filename=collab['img'])}}">
+            <img style='width: 50%' class="img-responsive" src="{{url_for('static', filename=collab['img'])}}">
           </a>
         </div>
         <div class="col-xs-12 col-md-8">
@@ -118,7 +102,6 @@ $('#headline').html(home_text_headline);
 
 var collaborations = {{collaborations|tojson}};
 for(collab of collaborations) {
-  console.log(collab['description'])
   let description = md.render(collab['description']);
   $('#'+collab['name']).html(description);
   document.getElementById(collab['name']).querySelector("h2").style.display = 'none';

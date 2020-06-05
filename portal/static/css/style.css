@@ -27,6 +27,11 @@ p {
   color: #800000;
   font-weight: 700;
 }
+
+#snowmass-about #brand {
+  color: #6cc5dd;
+  font-weight: 700;
+}
 #base-p {
   color: #999;
 }
