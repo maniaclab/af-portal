@@ -11,7 +11,7 @@ except ImportError:
 from portal import app, csrf
 from portal.decorators import authenticated
 from portal.utils import (load_portal_client, get_safe_redirect, flash_message_parser)
-from connect_api import (get_user_info, get_user_group_memberships,
+from portal.connect_api import (get_user_info, get_user_group_memberships,
                             get_multiplex, get_user_connect_status,
                             get_user_pending_project_requests,
                             get_group_info, get_group_members,
@@ -27,6 +27,8 @@ import signal
 ciconnect_api_token = app.config['CONNECT_API_TOKEN']
 ciconnect_api_endpoint = app.config['CONNECT_API_ENDPOINT']
 mailgun_api_token = app.config['MAILGUN_API_TOKEN']
+# slate_api_token = app.config['SLATE_API_TOKEN']
+# slate_api_endpoint = app.config['SLATE_API_ENDPOINT']
 # Read Brand Dir from config and insert path to read
 brand_dir = app.config['MARKDOWN_DIR']
 sys.path.insert(0, brand_dir)
@@ -899,6 +901,9 @@ def authcallback():
                             'psdconnect': {'name': 'psd-connect',
                                            'display_name': 'PSD Connect',
                                            'unix_name': 'root.uchicago'},
+                            'snowmass21': {'name': 'snowmass21-connect',
+                                    'display_name': 'Snowmass21 Connect',
+                                    'unix_name': 'root.snowmass21'},
                             'localhost': {'name': 'uchicago-connect',
                                           'display_name': 'UChicago Connect',
                                           'unix_name': 'root.uchicago'}}
