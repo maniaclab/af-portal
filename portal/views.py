@@ -558,7 +558,11 @@ def about():
                       {'name': 'MANIAC lab',
                        'href': 'https://maniaclab.uchicago.edu/',
                        'img': 'img/maniac-org.png',
-                       'description': "Powered by MANIAC lab"}]
+                       'description': "The team at MANIAC lab provides facilitation work with CI-Connect"},
+                      {'name': 'IRIS-HEP',
+                       'href': 'https://iris-hep.org/',
+                       'img': 'img/iris-hep-org.png',
+                       'description': "IRIS-HEP provides software cyberinfrastructure required for scientific research"}]
     return render_template('about.html', about=about, organizations=organizations)
 
 
