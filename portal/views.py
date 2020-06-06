@@ -549,7 +549,7 @@ def about():
                        'description': "Member institutions of the the Open Science Grid are providing opportunistic CPU to support MC Taskforce simulations"},
                       {'name': 'PSD',
                        'href': 'https://psdconnect.uchicago.edu',
-                       'img': 'img/psd-org.svg',
+                       'img': 'img/psd-org.png',
                        'description': "The Physical Sciences Division is providing IT infrastructure supporting the login services and storage"},
                       {'name': 'SLATE',
                        'href': 'https://slateci.io/',
