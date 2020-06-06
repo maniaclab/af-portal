@@ -103,27 +103,9 @@ def home():
                        'img': 'img/psd-connect-logo.png',
                        'description': get_about_markdown("psdconnect.uchicago.edu")}]
 
-    organizations = [{'name': 'OSG',
-                       'href': 'https://www.osgconnect.net',
-                       'img': 'img/osg-org.png',
-                       'description': "Member institutions of the the Open Science Grid are providing opportunistic CPU to support MC Taskforce simulations"},
-                      {'name': 'PSD',
-                       'href': 'https://psdconnect.uchicago.edu',
-                       'img': 'img/psd-org.svg',
-                       'description': "The Physical Sciences Division is providing IT infrastructure supporting the login services and storage"},
-                      {'name': 'SLATE',
-                       'href': 'https://slateci.io/',
-                       'img': 'img/slate-org.png',
-                       'description': "The SLATE platform is utilized to assist in automating job submissions"},
-                      {'name': 'MANIAC lab',
-                       'href': 'https://maniaclab.uchicago.edu/',
-                       'img': 'img/maniac-org.png',
-                       'description': "Powered by MANIAC lab"}]
-
     return render_template('home.html', home_text_headline=home_text_headline,
                                         home_text_rotating=home_text_rotating,
-                                        collaborations=collaborations,
-                                        organizations=organizations)
+                                        collaborations=collaborations)
 
 
 def get_about_markdown(domain_name):
@@ -560,7 +542,24 @@ def about():
 
     with open(brand_dir + '/' + domain_name + '/about/about.md', "r") as file:
         about = file.read()
-    return render_template('about.html', about=about)
+    
+    organizations = [{'name': 'OSG',
+                       'href': 'https://www.osgconnect.net',
+                       'img': 'img/osg-org.png',
+                       'description': "Member institutions of the the Open Science Grid are providing opportunistic CPU to support MC Taskforce simulations"},
+                      {'name': 'PSD',
+                       'href': 'https://psdconnect.uchicago.edu',
+                       'img': 'img/psd-org.svg',
+                       'description': "The Physical Sciences Division is providing IT infrastructure supporting the login services and storage"},
+                      {'name': 'SLATE',
+                       'href': 'https://slateci.io/',
+                       'img': 'img/slate-org.png',
+                       'description': "The SLATE platform is utilized to assist in automating job submissions"},
+                      {'name': 'MANIAC lab',
+                       'href': 'https://maniaclab.uchicago.edu/',
+                       'img': 'img/maniac-org.png',
+                       'description': "Powered by MANIAC lab"}]
+    return render_template('about.html', about=about, organizations=organizations)
 
 
 @app.route('/login', methods=['GET'])

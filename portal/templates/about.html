@@ -4,7 +4,7 @@
 
 {%block body%}
 
-<section id="create-group" class="bg-light">
+<section id="about-section" class="bg-light">
   <div class="container col-lg-12">
     {%include 'messages.html'%}
     <div class="row">
@@ -14,7 +14,7 @@
       </div>
     </div>
     <br>
-    <div class="row">
+    <div class="row" id='contact-us' style="display: inline;">
       <div class="col-lg-8 mx-auto">
         <h2>Contact Us</h2>
         <hr/>
@@ -54,16 +54,53 @@
     </div> <!-- row -->
 
   </div>
+
+  <section id="snowmass-about" class="bg-light wow animate fadeInUp" style="display: none;">
+    <div class="container col-lg-12" id="about-vc3-scroll">
+      <div class="content container col-xs-12">
+         <h5 class="section-description">
+            Snowmass21 Connect provides hosted job submission services for
+            distributed, high-throughput computing through collaborative efforts with the follow organizations
+         </h5>
+        <div class="section-title-divider"></div>
+      </div>
+      <div class="row">
+        <div class="content col-lg-8 mx-auto">
+          {% for collab in organizations %}
+          <div class="row container wow animate fadeInRight">
+            <div class="col-xs-12 col-md-4">
+              <a href="{{collab['href']}}" target="_blank">
+                <img style='width: 50%' class="img-responsive" src="{{url_for('static', filename=collab['img'])}}">
+              </a>
+            </div>
+            <div class="col-xs-12 col-md-8">
+              <h5 class="section-description"">{{collab['description']}}</h5>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+  
+    </div>
+  </section>
+
 </section>
 
 <script type="text/javascript">
   var md = new Remarkable('full');
   var about_md = {{about|tojson}};
+  // get current URL path and assign connect branding
+  var hostname = window.location.hostname;
+  console.log(hostname);
 
   $(window).on('load',function(){
     var about_rendered = md.render(about_md);
     $('#about_content').html(about_rendered);
   });
+  if(String(hostname).includes('snowmass21')){
+    document.getElementById("contact-us").style.display = "none";
+    document.getElementById("snowmass-about").style.display = "inline";
+  };
 </script>
 
 {%endblock%}

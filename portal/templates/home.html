@@ -71,23 +71,6 @@
        </h5>
       <div class="section-title-divider"></div>
     </div>
-
-    <div class="content col-xs-12">
-      <!-- in views, if snowmass -> swap collab info, send same obj -->
-      {% for collab in organizations %}
-      <div class="row container wow animate fadeInRight">
-        <div class="col-xs-12 col-md-4">
-          <a href="{{collab['href']}}" target="_blank">
-            <img style='width: 50%' class="img-responsive" src="{{url_for('static', filename=collab['img'])}}">
-          </a>
-        </div>
-        <div class="col-xs-12 col-md-8">
-          <h5 class="section-description"">{{collab['description']}}</h5>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-
   </div>
 </section>
 <!-- Page footer -->

@@ -59,16 +59,13 @@
     // Local
     if(String(hostname).includes('local')){
 
-      connect_brand.src="{{url_for('static', filename='img/psd-connect-logo.png')}}";
-      nav_overview.href="https://physicalsciences.uchicago.edu/";
-      nav_emailto.href="mailto:support@ci-connect.uchicago.edu";
-      document.getElementById("about").style.display = "inline";
-      document.getElementById("login-node-nav").style.display = "inline";
-      // Set the title
-      var title = "UChicago CI"
-      // Set the href property
-      var href = 'https://gracc.opensciencegrid.org/dashboard/db/osg-connect-summary-uchicago-ci?orgId=1';
-      addDropdownItem(title, href);
+      // connect_brand.src="{{url_for('static', filename='img/snowmass-connect-logo.png')}}";
+      // nav_overview.href="https://snowmass21.org/energy/start";
+      // nav_emailto.href="mailto:snowmass-communication@fnal.gov";
+      // var title = 'Documentation';
+      // var href = 'https://maniaclab.uchicago.edu/snowmass-connect-docs/';
+      // var id = 'support-dropdown'; 
+      // addDropdownItem(title, href, id);
 
     } else if(String(hostname).includes('atlas')){
 
