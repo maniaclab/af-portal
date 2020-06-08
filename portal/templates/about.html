@@ -94,7 +94,6 @@
   var about_md = {{about|tojson}};
   // get current URL path and assign connect branding
   var hostname = window.location.hostname;
-  console.log(hostname);
 
   $(window).on('load',function(){
     var about_rendered = md.render(about_md);
