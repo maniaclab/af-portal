@@ -73,6 +73,10 @@ section .container {
   padding: 50px;
 }
 
+#about .container {
+  padding: 15px;
+}
+
 pre {
   background-color: #f8f8f8;
   font-weight: bold;
