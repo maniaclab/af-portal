@@ -54,36 +54,37 @@
     </div> <!-- row -->
 
   </div>
+</section>
 
-  <section id="snowmass-about" class="bg-light wow animate fadeInUp" style="display: none; padding: 15px!important;">
-    <div class="container col-lg-12" id="about-vc3-scroll">
-      <div class="content container col-xs-12">
-         <h5 class="section-description">
-            Snowmass21 Connect provides hosted job submission services for
-            distributed, high-throughput computing through collaborative efforts with the following organizations
-         </h5>
-        <div class="section-title-divider"></div>
+<section id="snowmass-about" class="bg-light wow animate fadeInUp" style='display: none;'>
+  <div class="container col-lg-12" id="about-vc3-scroll">
+    <div class="row">
+      <div class="content col-lg-8 mx-auto">
+        <h5 class="section-description">
+          Snowmass21 Connect provides hosted job submission services for
+          distributed, high-throughput computing through collaborative efforts with the following organizations
+        </h5>
+      <div class="section-title-divider"></div>
       </div>
-      <div class="row">
-        <div class="content col-lg-8 mx-auto">
-          {% for collab in organizations %}
-          <div class="row container wow animate fadeInRight">
-            <div class="col-xs-12 col-md-4">
-              <a href="{{collab['href']}}" target="_blank">
-                <img style='width: 50%' class="img-responsive" src="{{url_for('static', filename=collab['img'])}}">
-              </a>
-            </div>
-            <div class="col-xs-12 col-md-8">
-              <h5 class="section-description"">{{collab['description']}}</h5>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-      </div>
-  
     </div>
-  </section>
+    <div class="row">
+      <div class="content col-lg-8 mx-auto">
+        {% for collab in organizations %}
+        <div class="row wow animate fadeInRight">
+          <div class="col-xs-12 col-md-4">
+            <a href="{{collab['href']}}" target="_blank">
+              <img style='width: 50%' class="img-responsive" src="{{url_for('static', filename=collab['img'])}}">
+            </a>
+          </div>
+          <div class="col-xs-12 col-md-8 section-description">
+            <h5>{{collab['description']}}</h5>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
 
+  </div>
 </section>
 
 <!-- Page footer -->

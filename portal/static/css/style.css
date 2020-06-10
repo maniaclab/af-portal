@@ -233,10 +233,14 @@ ul, #myUL {
   padding-top: 30px;
 }
 .section-description {
-  display: table-cell;
+  /* display: table-cell;
+  top: 50%;
   height: 100px;
   text-align: left;
-  vertical-align: middle;
+  vertical-align: middle; */
+  display: -webkit-flex;
+  display: flex;
+  align-items: center;
 }
 .section-description h2 {
   font-size: 18px;
