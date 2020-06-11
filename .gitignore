@@ -83,3 +83,4 @@ rebates/uploads
 # portal.conf file and keys
 portal.conf
 run_portal.py
+test_markdown.py
