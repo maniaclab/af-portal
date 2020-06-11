@@ -552,22 +552,23 @@ def about():
                        'href': 'https://www.osgconnect.net',
                        'img': 'img/osg-org.png',
                        'description': "The OSG is providing a job submission service to the member institutions of the the Open Science Grid which are providing opportunistic CPU resources"},
-                      {'name': 'PSD',
-                       'href': 'https://psdconnect.uchicago.edu',
-                       'img': 'img/psd-org.png',
-                       'description': "The Physical Sciences Division of the University of Chicago is providing IT infrastructure supporting the login service and storage"},
                       {'name': 'SLATE',
                        'href': 'https://slateci.io/',
                        'img': 'img/slate-org.png',
                        'description': "The SLATE platform is utilized for job submission services"},
-                      {'name': 'MANIAC lab',
-                       'href': 'https://maniaclab.uchicago.edu/',
-                       'img': 'img/maniac-org.png',
-                       'description': "The team at MANIAC Lab provides the CI-Connect service"},
                       {'name': 'IRIS-HEP',
                        'href': 'https://iris-hep.org/',
                        'img': 'img/iris-hep-org.png',
-                       'description': "The IRIS-HEP Scalable Systems Laboratory provides support for Snowmass21 Connect analysis services"}]
+                       'description': "The IRIS-HEP Scalable Systems Laboratory provides support for Snowmass21 Connect analysis services"},
+                      {'name': 'PSD',
+                       'href': 'https://psdconnect.uchicago.edu',
+                       'img': 'img/psd-org.png',
+                       'description': "The Physical Sciences Division of the University of Chicago is providing IT infrastructure supporting the login service and storage"},
+                      {'name': 'MANIAC lab',
+                       'href': 'https://maniaclab.uchicago.edu/',
+                       'img': 'img/maniac-org.png',
+                       'description': "The team at MANIAC Lab provides the CI-Connect service"}
+                    ]
     return render_template('about.html', about=about, organizations=organizations)
 
 
