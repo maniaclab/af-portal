@@ -2,7 +2,7 @@ from flask import request
 from threading import Lock
 
 import globus_sdk
-import ConfigParser
+import configparser
 
 try:
     from urllib.parse import urlparse, urljoin
@@ -22,7 +22,9 @@ def flash_message_parser(route_name):
         domain_name = 'cms.ci-connect.net'
     elif 'uchicago' in domain_name:
         domain_name = 'psdconnect.uchicago.edu'
-    config = ConfigParser.RawConfigParser(allow_no_value=True)
+    elif 'snowmass21' in domain_name:
+        domain_name = 'snowmass21.ci-connect.edu'
+    config = configparser.RawConfigParser(allow_no_value=True)
     config.read(brand_dir + '/' + domain_name +
                 '/flash_messages/flash_messages.cfg')
     flash_message = config.get('flash_messages', route_name)
