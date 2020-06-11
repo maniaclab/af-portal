@@ -70,8 +70,6 @@ def home():
         domain_name = 'cms.ci-connect.net'
     elif 'uchicago' in domain_name:
         domain_name = 'psdconnect.uchicago.edu'
-    elif 'snowmass21' in domain_name:
-        domain_name = 'snowmass21.ci-connect.net'
 
     with open(brand_dir + '/' + domain_name + '/home_content/home_text_headline.md', "r") as file:
         home_text_headline = file.read()
@@ -500,8 +498,6 @@ def signup():
         domain_name = 'cms.ci-connect.net'
     elif 'uchicago' in domain_name:
         domain_name = 'psdconnect.uchicago.edu'
-    elif 'snowmass21' in domain_name:
-        domain_name = 'snowmass21.ci-connect.net'
 
     with open(brand_dir + '/' + domain_name + '/signup_content/signup_modal.md', "r") as file:
         signup_modal_md = file.read()
@@ -523,8 +519,6 @@ def aup():
         domain_name = 'cms.ci-connect.net'
     elif 'uchicago' in domain_name:
         domain_name = 'psdconnect.uchicago.edu'
-    elif 'snowmass21' in domain_name:
-        domain_name = 'snowmass21.ci-connect.net'
 
     with open(brand_dir + '/' + domain_name + '/signup_content/signup_modal.md', "r") as file:
         aup_md = file.read()
@@ -543,8 +537,6 @@ def about():
         domain_name = 'cms.ci-connect.net'
     elif 'uchicago' in domain_name:
         domain_name = 'psdconnect.uchicago.edu'
-    elif 'snowmass21' in domain_name:
-        domain_name = 'snowmass21.ci-connect.net'
 
     with open(brand_dir + '/' + domain_name + '/about/about.md', "r") as file:
         about = file.read()
@@ -815,8 +807,6 @@ def profile():
             domain_name = 'cms.ci-connect.net'
         elif 'uchicago' in domain_name:
             domain_name = 'psdconnect.uchicago.edu'
-        elif 'snowmass21' in domain_name:
-        domain_name = 'snowmass21.ci-connect.net'
 
         with open(brand_dir + '/' + domain_name + "/form_descriptions/group_unix_name_description.md", "r") as file:
             group_unix_name_description = file.read()
