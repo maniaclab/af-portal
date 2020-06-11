@@ -2,7 +2,7 @@ from flask import request
 from threading import Lock
 
 import globus_sdk
-import configparser
+import ConfigParser
 
 try:
     from urllib.parse import urlparse, urljoin
@@ -14,8 +14,10 @@ from portal import app
 brand_dir = app.config['MARKDOWN_DIR']
 
 
-def flash_message_parser(route_name):
-    domain_name = request.headers['Host']
+def flash_message_parser(route_name, domain_name=None):
+    if not domain_name:
+        domain_name = request.headers['Host']
+
     if 'usatlas' in domain_name:
         domain_name = 'atlas.ci-connect.net'
     elif 'uscms' in domain_name:
@@ -24,7 +26,7 @@ def flash_message_parser(route_name):
         domain_name = 'psdconnect.uchicago.edu'
     elif 'snowmass21' in domain_name:
         domain_name = 'snowmass21.ci-connect.edu'
-    config = configparser.RawConfigParser(allow_no_value=True)
+    config = ConfigParser.RawConfigParser(allow_no_value=True)
     config.read(brand_dir + '/' + domain_name +
                 '/flash_messages/flash_messages.cfg')
     flash_message = config.get('flash_messages', route_name)
