@@ -44,6 +44,8 @@
       document.title = 'Atlas ' + document.title;
     } else if(String(hostname).includes('connect.uscms')) {
       document.title = 'Cms ' + document.title;
+    } else if(String(hostname).includes('connect.snowmass21.io')) {
+      document.title = 'Snowmass21 ' + document.title;
     } else {
       document.title = connect_name.charAt(0).toUpperCase() + connect_name.slice(1) + ' ' + document.title;
     };
