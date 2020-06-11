@@ -54,6 +54,8 @@ def groups():
             domain_name = 'cms.ci-connect.net'
         elif 'uchicago' in domain_name:
             domain_name = 'psdconnect.uchicago.edu'
+        elif 'snowmass21' in domain_name:
+            domain_name = 'snowmass21.ci-connect.net'
 
         with open(brand_dir + '/' + domain_name + "/form_descriptions/group_unix_name_description.md", "r") as file:
             group_unix_name_description = file.read()
@@ -367,6 +369,8 @@ def view_group_subgroups(group_name):
             domain_name = 'cms.ci-connect.net'
         elif 'uchicago' in domain_name:
             domain_name = 'psdconnect.uchicago.edu'
+        elif 'snowmass21' in domain_name:
+            domain_name = 'snowmass21.ci-connect.net'
 
         with open(brand_dir + '/' + domain_name + "/form_descriptions/group_unix_name_description.md", "r") as file:
             group_unix_name_description = file.read()
