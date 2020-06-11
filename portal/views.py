@@ -70,7 +70,9 @@ def home():
         domain_name = 'cms.ci-connect.net'
     elif 'uchicago' in domain_name:
         domain_name = 'psdconnect.uchicago.edu'
-
+    elif 'snowmass21' in domain_name:
+        domain_name = 'snowmass21.ci-connect.net'
+    
     with open(brand_dir + '/' + domain_name + '/home_content/home_text_headline.md', "r") as file:
         home_text_headline = file.read()
     with open(brand_dir + '/' + domain_name + '/home_content/home_text_rotating.md', "r") as file:
