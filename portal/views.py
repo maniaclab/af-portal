@@ -17,7 +17,6 @@ from portal.connect_api import (get_user_info, get_user_group_memberships,
                             get_group_info, get_group_members,
                             delete_group_entry, update_user_group_status,
                             get_user_access_token)
-from portal.slate_api import list_applications_request
 # Use these four lines on container
 import sys
 import subprocess
@@ -28,6 +27,8 @@ import signal
 ciconnect_api_token = app.config['CONNECT_API_TOKEN']
 ciconnect_api_endpoint = app.config['CONNECT_API_ENDPOINT']
 mailgun_api_token = app.config['MAILGUN_API_TOKEN']
+# slate_api_token = app.config['SLATE_API_TOKEN']
+# slate_api_endpoint = app.config['SLATE_API_ENDPOINT']
 # Read Brand Dir from config and insert path to read
 brand_dir = app.config['MARKDOWN_DIR']
 sys.path.insert(0, brand_dir)
@@ -36,12 +37,6 @@ sys.path.insert(1, 'portal/views')
 import group_views
 import error_handling
 import users_groups
-
-# @app.route('/slate_list_apps', methods=['GET'])
-# def slate_list_apps():
-#     apps = list_applications_request()
-#     print(apps)
-#     return render_template('slate_apps.html', apps=apps) 
 
 
 @app.route('/webhooks/github', methods=['GET', 'POST'])
@@ -551,24 +546,23 @@ def about():
     organizations = [{'name': 'OSG',
                        'href': 'https://www.osgconnect.net',
                        'img': 'img/osg-org.png',
-                       'description': "The OSG is providing a job submission service to the member institutions of the the Open Science Grid which are providing opportunistic CPU resources"},
-                      {'name': 'SLATE',
-                       'href': 'https://slateci.io/',
-                       'img': 'img/slate-org.png',
-                       'description': "The SLATE platform is utilized for job submission services"},
-                      {'name': 'IRIS-HEP',
-                       'href': 'https://iris-hep.org/',
-                       'img': 'img/iris-hep-org.png',
-                       'description': "The IRIS-HEP Scalable Systems Laboratory provides support for Snowmass21 Connect analysis services"},
+                       'description': "Member institutions of the the Open Science Grid are providing opportunistic CPU to support MC Taskforce simulations"},
                       {'name': 'PSD',
                        'href': 'https://psdconnect.uchicago.edu',
                        'img': 'img/psd-org.png',
                        'description': "The Physical Sciences Division of the University of Chicago is providing IT infrastructure supporting the login service and storage"},
+                      {'name': 'SLATE',
+                       'href': 'https://slateci.io/',
+                       'img': 'img/slate-org.png',
+                       'description': "The SLATE platform is utilized for job submission services"},
                       {'name': 'MANIAC lab',
                        'href': 'https://maniaclab.uchicago.edu/',
                        'img': 'img/maniac-org.png',
-                       'description': "The team at MANIAC Lab provides the CI-Connect service"}
-                    ]
+                       'description': "The team at MANIAC Lab provides the CI-Connect service"},
+                      {'name': 'IRIS-HEP',
+                       'href': 'https://iris-hep.org/',
+                       'img': 'img/iris-hep-org.png',
+                       'description': "The IRIS-HEP Scalable Systems Laboratory provides support for Snowmass21 Connect analysis services"}]
     return render_template('about.html', about=about, organizations=organizations)
 
 
