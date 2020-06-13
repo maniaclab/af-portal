@@ -16,7 +16,7 @@ from portal.connect_api import (get_user_info, get_user_group_memberships,
                             get_user_pending_project_requests,
                             get_group_info, get_group_members,
                             delete_group_entry, update_user_group_status,
-                            get_user_access_token)
+                            get_user_access_token, domain_name_edgecase)
 # Use these four lines on container
 import sys
 import subprocess
@@ -35,6 +35,7 @@ sys.path.insert(1, 'portal/views')
 import group_views
 import error_handling
 import users_groups
+# import slate_views
 
 
 @app.route('/webhooks/github', methods=['GET', 'POST'])
@@ -63,15 +64,7 @@ def webhooks():
 @app.route('/', methods=['GET'])
 def home():
     """Home page - play with it if you must!"""
-    domain_name = request.headers['Host']
-    if 'usatlas' in domain_name:
-        domain_name = 'atlas.ci-connect.net'
-    elif 'uscms' in domain_name:
-        domain_name = 'cms.ci-connect.net'
-    elif 'uchicago' in domain_name:
-        domain_name = 'psdconnect.uchicago.edu'
-    elif 'snowmass21' in domain_name:
-        domain_name = 'snowmass21.ci-connect.net'
+    domain_name = domain_name_edgecase()
     
     with open(brand_dir + '/' + domain_name + '/home_content/home_text_headline.md', "r") as file:
         home_text_headline = file.read()
@@ -124,7 +117,7 @@ def support():
         # print("User Email: {}".format(user_email))
         description = request.form['description']
         # mailgun setup here
-        domain_name = request.headers['Host']
+        domain_name = domain_name_edgecase()
         # print(domain_name)
         support_emails = {
                             "cms.ci-connect.net": "cms-connect-support@cern.ch",
@@ -493,15 +486,7 @@ def deny_subgroup(group_name, subgroup_name):
 @app.route('/signup', methods=['GET'])
 def signup():
     """Send the user to Globus Auth with signup=1."""
-    domain_name = request.headers['Host']
-    if 'usatlas' in domain_name:
-        domain_name = 'atlas.ci-connect.net'
-    elif 'uscms' in domain_name:
-        domain_name = 'cms.ci-connect.net'
-    elif 'uchicago' in domain_name:
-        domain_name = 'psdconnect.uchicago.edu'
-    elif 'snowmass21' in domain_name:
-        domain_name = 'snowmass21.ci-connect.net'
+    domain_name = domain_name_edgecase()
 
     with open(brand_dir + '/' + domain_name + '/signup_content/signup_modal.md', "r") as file:
         signup_modal_md = file.read()
@@ -516,15 +501,7 @@ def signup():
 def aup():
     """Send the user to Acceptable Use Policy page"""
     # Read AUP from markdown dir
-    domain_name = request.headers['Host']
-    if 'usatlas' in domain_name:
-        domain_name = 'atlas.ci-connect.net'
-    elif 'uscms' in domain_name:
-        domain_name = 'cms.ci-connect.net'
-    elif 'uchicago' in domain_name:
-        domain_name = 'psdconnect.uchicago.edu'
-    elif 'snowmass21' in domain_name:
-        domain_name = 'snowmass21.ci-connect.net'
+    domain_name = domain_name_edgecase()
 
     with open(brand_dir + '/' + domain_name + '/signup_content/signup_modal.md', "r") as file:
         aup_md = file.read()
@@ -535,16 +512,7 @@ def aup():
 def about():
     """Send the user to the About page"""
     # Read About from markdown dir
-    domain_name = request.headers['Host']
-
-    if 'usatlas' in domain_name:
-        domain_name = 'atlas.ci-connect.net'
-    elif 'uscms' in domain_name:
-        domain_name = 'cms.ci-connect.net'
-    elif 'uchicago' in domain_name:
-        domain_name = 'psdconnect.uchicago.edu'
-    elif 'snowmass21' in domain_name:
-        domain_name = 'snowmass21.ci-connect.net'
+    domain_name = domain_name_edgecase()
 
     with open(brand_dir + '/' + domain_name + '/about/about.md', "r") as file:
         about = file.read()
@@ -807,16 +775,7 @@ def profile():
             if ((session['url_host']['unix_name'] in group['name']) and (len(group['name'].split('.')) > 1)):
                 group_memberships.append(group)
 
-        domain_name = request.headers['Host']
-
-        if 'usatlas' in domain_name:
-            domain_name = 'atlas.ci-connect.net'
-        elif 'uscms' in domain_name:
-            domain_name = 'cms.ci-connect.net'
-        elif 'uchicago' in domain_name:
-            domain_name = 'psdconnect.uchicago.edu'
-        elif 'snowmass21' in domain_name:
-            domain_name = 'snowmass21.ci-connect.net'
+        domain_name = domain_name_edgecase()
 
         with open(brand_dir + '/' + domain_name + "/form_descriptions/group_unix_name_description.md", "r") as file:
             group_unix_name_description = file.read()
@@ -943,7 +902,7 @@ def authcallback():
                                    'display_name': 'CI Connect',
                                    'unix_name': 'root'}
 
-        for key, value in connect_keynames.iteritems():
+        for key, value in list(connect_keynames.items()):
             if key in url_host:
                 session['url_host'] = value
 

@@ -1,4 +1,4 @@
-from flask import session
+from flask import session, request
 from portal import app
 import requests
 
@@ -102,6 +102,7 @@ def get_user_pending_project_requests(unix_name):
     :param connect_group: string name of connect group
     :return: string (active, admin, nonmember)
     """
+    query = {'token': ciconnect_api_token}
     pending_project_requests = requests.get(ciconnect_api_endpoint
                                             + '/v1alpha1/users/'
                                             + unix_name
@@ -127,14 +128,24 @@ def get_user_connect_status(unix_name, connect_group):
 def get_enclosing_group_status(group_name, unix_name):
     enclosing_group_name = '.'.join(group_name.split('.')[:-1])
     if enclosing_group_name:
-        r = requests.get(
-            ciconnect_api_endpoint + '/v1alpha1/users/' + unix_name
-            + '/groups/' + enclosing_group_name, params=query)
-        enclosing_status = r.json()['membership']['state']
+        enclosing_status = get_user_connect_status(unix_name, enclosing_group_name)
     else:
         enclosing_status = None
     return enclosing_status
 
+
+def enclosing_admin_status(session, group_name):
+    group_split = group_name.split('.')
+    admin = False
+    enclosing_group = group_split[0]
+    
+    while group_split and not admin:
+        enclosing_group += '.{}'.format(group_split.pop(0))
+        if get_user_connect_status(session['unix_name'], enclosing_group) == 'admin':
+            admin = True
+        else:
+            enclosing_group
+    return admin
 
 #############################
 #####       GROUP      ######
@@ -257,3 +268,19 @@ def get_user_access_token(session):
     else:
         access_token = None
     return access_token
+
+
+def domain_name_edgecase():
+    """"""
+    domain_name = request.headers['Host']
+
+    if 'usatlas' in domain_name:
+        domain_name = 'atlas.ci-connect.net'
+    elif 'uscms' in domain_name:
+        domain_name = 'cms.ci-connect.net'
+    elif 'uchicago' in domain_name:
+        domain_name = 'psdconnect.uchicago.edu'
+    elif 'snowmass21' in domain_name:
+        domain_name = 'snowmass21.ci-connect.net'
+
+    return domain_name

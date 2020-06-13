@@ -10,7 +10,7 @@ from portal import app
 from portal.decorators import authenticated
 from portal.connect_api import (get_multiplex, get_user_connect_status,
                                 get_user_info, get_user_group_memberships,
-                                get_user_pending_project_requests,)
+                                get_user_pending_project_requests, domain_name_edgecase)
 import sys
 
 # Read configurable tokens and endpoints from config file, values must be set
@@ -61,16 +61,7 @@ def users_groups():
         connect_group = session['url_host']['unix_name']
         user_status = get_user_connect_status(unix_name, connect_group)
 
-        domain_name = request.headers['Host']
-
-        if 'usatlas' in domain_name:
-            domain_name = 'atlas.ci-connect.net'
-        elif 'uscms' in domain_name:
-            domain_name = 'cms.ci-connect.net'
-        elif 'uchicago' in domain_name:
-            domain_name = 'psdconnect.uchicago.edu'
-        elif 'snowmass21' in domain_name:
-            domain_name = 'snowmass21.ci-connect.net'
+        domain_name = domain_name_edgecase()
 
         with open(brand_dir + '/' + domain_name + "/form_descriptions/group_unix_name_description.md", "r") as file:
             group_unix_name_description = file.read()
