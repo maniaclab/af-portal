@@ -1,0 +1,51 @@
+<section id="contributions" class="container" style="display: inline;">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 org-container">
+                <h3 class='text-center'>Contributions</h3>
+                <div class="orgs-slider">
+                    <div class='org-div'>
+                        <a href="https://opensciencegrid.org/" target="_blank">
+                            <img class='img-orgs' src="{{url_for('static', filename='img/osg-org.png')}}">
+                        </a>
+                    </div>
+                    <div class='org-div'>
+                        <a href="https://slateci.io/" target="_blank">
+                            <img class='img-orgs' src="{{url_for('static', filename='img/slate-org.png')}}">
+                        </a>
+                    </div>
+                    <div class='org-div'>
+                        <a href="https://iris-hep.org/" target="_blank">
+                            <img class='img-orgs' src="{{url_for('static', filename='img/iris-hep-org.png')}}">
+                        </a>
+                    </div>
+                    <div class='org-div'>
+                        <a href="https://physicalsciences.uchicago.edu/" target="_blank">
+                            <img class='img-orgs' src="{{url_for('static', filename='img/psd-org.png')}}">
+                        </a>
+                    </div>
+                    <div class='org-div'>
+                        <a href="https://maniaclab.uchicago.edu/" target="_blank">
+                            <img class='img-orgs' src="{{url_for('static', filename='img/maniac-org.png')}}">
+                        </a>
+                    </div>
+                </div>
+                <a href='{{url_for('about')}}' class='pull-right learn-anchor'><span class='learn-text'>LEARN MORE</span> <i class="fa fa-2x fa-chevron-circle-right" aria-hidden="true"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+$(document).ready(function(){
+    $('.orgs-slider').slick({
+        accessibility: false,
+        adaptiveHeight: true,
+        arrows: false,
+        slidesToShow: 5,
+        slidesToScroll: 1,
+        autoplay: true,
+        autoplaySpeed: 2000,
+    });
+});
+</script>

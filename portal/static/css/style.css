@@ -88,6 +88,32 @@ pre {
   overflow-x: auto;
   white-space: pre;
 }
+/* pre {
+  background-color: #eaecee;
+  border-radius: 3px;
+  font-size: 85%;
+  line-height: 1.45;
+  overflow: auto;
+  padding: 16px;
+} */
+code {
+  background-color: transparent;
+  border: 0;
+  display: inline;
+  margin: 0;
+  overflow: visible;
+  padding 0;
+  word-wrap: normal;
+
+}
+
+.termsx {
+  overflow-y: scroll;
+  height: 300px;
+  width: 100%;
+  border: 1px solid #DDD;
+  padding: 10px;
+}
 
 .lead {
   font-size: 1.2rem;
@@ -451,4 +477,24 @@ animation-delay: 3.3s;
 .fadeInRight {
   -webkit-animation-name: fadeInRight;
   animation-name: fadeInRight;
+}
+
+.img-orgs {
+  width: 100px;
+  height: 100px;
+  /* padding: 5px; */
+}
+.org-container {
+  display: block;
+  margin: auto;
+}
+.org-div {
+  padding: 10px;
+}
+.learn-anchor {
+  display: flex;
+  align-items: center;
+}
+.learn-text {
+  padding-right: 5px;
 }

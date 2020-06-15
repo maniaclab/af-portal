@@ -33,6 +33,8 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
     <!-- <link rel="stylesheet" href="{{url_for('static', filename='css/intlTelInput.css')}}"></style> -->
+    <!-- Slick Slider CDN -->
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
 
     {# Custom Fonts #}
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
@@ -57,6 +59,8 @@
     <script type="text/javascript" src="{{url_for('static', filename='js/scrolling-nav.js')}}"></script>
     <script type="text/javascript" src="{{url_for('static', filename='js/morphext.js')}}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.7.4/remarkable.js"></script>
+    <!-- Slick Slider JS CDN -->
+    <script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
     {%include 'scripts.html'%}
     <style>
       [v-cloak] {display: none}
@@ -98,6 +102,9 @@
                 <a class="nav-link dropdown-toggle" href="#" id="login-node-nav-link" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Login Nodes</a>
                 <div class="dropdown-menu dropdown-menu-right" id="login-node-dropdown" aria-labelledby="support-dropdown-menu">
                 </div>
+              </li>
+              <li class="nav-item" id="jupyter-notebook-nav" style="display: none;">
+                <a class="nav-link" href="{{url_for('jupyter_notebook')}}">Jupyter</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{{url_for('profile')}}">Profile</a>
