@@ -21,12 +21,12 @@
                     </div>
                     <div class='org-div'>
                         <a href="https://physicalsciences.uchicago.edu/" target="_blank">
-                            <img class='img-orgs' src="{{url_for('static', filename='img/psd-org.png')}}">
+                            <img class='img-orgs' src="{{url_for('static', filename='img/psd-org-plain.png')}}">
                         </a>
                     </div>
                     <div class='org-div'>
                         <a href="https://maniaclab.uchicago.edu/" target="_blank">
-                            <img class='img-orgs' src="{{url_for('static', filename='img/maniac-org.png')}}">
+                            <img class='img-orgs' src="{{url_for('static', filename='img/maniac-org-plain.png')}}">
                         </a>
                     </div>
                 </div>
@@ -39,13 +39,14 @@
 <script>
 $(document).ready(function(){
     $('.orgs-slider').slick({
-        accessibility: false,
-        adaptiveHeight: true,
-        arrows: false,
-        slidesToShow: 5,
-        slidesToScroll: 1,
         autoplay: true,
         autoplaySpeed: 2000,
+        infinite: true,
+        slidesToShow: 5,
+        slidesToScroll: 1,
+        accessibility: false,
+        adaptiveHeight: true,
+        arrows: true,
     });
 });
 </script>
