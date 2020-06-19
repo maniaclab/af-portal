@@ -9,7 +9,7 @@ try:
 except ImportError:
     # Python 3
     from urlparse import urlparse
-    from urllib import urlencode
+    from urllib import urlencode, parse_qs
 
 from portal import app, csrf
 from portal.decorators import authenticated
