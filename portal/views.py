@@ -5,7 +5,7 @@ import json
 
 try:
     # Python 2
-    from urllib.parse import urlparse, urlencode
+    from urllib.parse import urlparse, urlencode, parse_qs
 except ImportError:
     # Python 3
     from urlparse import urlparse
