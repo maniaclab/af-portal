@@ -4,9 +4,11 @@ import requests
 import json
 
 try:
-    from urllib.parse import urlencode
+    # Python 2
+    from urllib.parse import urlparse, urlencode
 except ImportError:
-    # from urlparse import urlencode, urlparse, parse_qs
+    # Python 3
+    from urlparse import urlparse
     from urllib import urlencode
 
 from portal import app, csrf
