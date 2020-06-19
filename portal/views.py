@@ -8,8 +8,8 @@ try:
     from urllib.parse import urlparse, urlencode, parse_qs
 except ImportError:
     # Python 3
-    from urlparse import urlparse
-    from urllib import urlencode, parse_qs
+    from urlparse import urlparse, parse_qs
+    from urllib import urlencode
 
 from portal import app, csrf
 from portal.decorators import authenticated
