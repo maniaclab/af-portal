@@ -4,9 +4,9 @@ import requests
 import json
 
 try:
-    from urllib.parse import urlencode
+    from urllib.parse import urlencode, urlparse, parse_qs
 except ImportError:
-    from urllib import urlencode
+    from urllib import urlencode, urlparse, parse_qs
 
 from portal import app, csrf
 from portal.decorators import authenticated
@@ -32,8 +32,8 @@ brand_dir = app.config['MARKDOWN_DIR']
 sys.path.insert(0, brand_dir)
 # Set sys path and import view routes
 sys.path.insert(1, 'portal/views')
-import group_views
 import error_handling
+import group_views
 import users_groups
 # import slate_views
 
@@ -544,7 +544,10 @@ def about():
 @app.route('/login', methods=['GET'])
 def login():
     """Send the user to Globus Auth."""
-    return redirect(url_for('authcallback'))
+    # next_url = request.args.get('next', '')
+    next_url = get_safe_redirect()
+    # print("NEXT URL FROM INSIDE LOGIN ROUTE: {}".format(next_url))
+    return redirect(url_for('authcallback', next=next_url))
 
 
 @app.route('/logout', methods=['GET'])
@@ -811,6 +814,9 @@ def authcallback():
     """Handles the interaction with Globus Auth."""
     # If we're coming back from Globus Auth in an error state, the error
     # will be in the "error" query string parameter.
+    # next_url = request.args.get('next', '')
+    next_url = get_safe_redirect()
+    # print("NEXT URL FROM INSIDE AUTHCALLBACK: {}".format(next_url))
     if 'error' in request.args:
         flash("You could not be logged into the portal: " +
               request.args.get('error_description', request.args['error']), 'warning')
@@ -826,7 +832,7 @@ def authcallback():
     # starting a Globus Auth login flow.
     if 'code' not in request.args:
         additional_authorize_params = (
-            {'signup': 1} if request.args.get('signup') else {})
+            {'signup': 1} if request.args.get('signup') else {'next': next_url})
 
         auth_uri = client.oauth2_get_authorize_url(
             additional_params=additional_authorize_params)
@@ -870,7 +876,7 @@ def authcallback():
                     profile = profile.json()
                     session['primary_identity'] = identity
             except:
-                print("NOTHING HERE: {}".format(identity))
+                print("NO PROFILE FOUND WITH IDENTITY: {}".format(identity))
 
         connect_keynames = {'atlas': {'name': 'atlas-connect',
                                       'display_name': 'Atlas Connect',
@@ -893,10 +899,17 @@ def authcallback():
                             'snowmass21': {'name': 'snowmass21-connect',
                                     'display_name': 'Snowmass21 Connect',
                                     'unix_name': 'root.snowmass21'},
-                            'localhost': {'name': 'uchicago-connect',
-                                          'display_name': 'UChicago Connect',
-                                          'unix_name': 'root.uchicago'}}
+                            'localhost': {'name': 'snowmass21-connect',
+                                    'display_name': 'Snowmass21 Connect',
+                                    'unix_name': 'root.snowmass21'}}
         url_host = request.host
+        # endpoint = request.endpoint
+        # print("ENDPOINT: {}".format(endpoint))
+        # print("REFERRER: {}".format(request.referrer))
+        referrer = urlparse(request.referrer)
+        queries = parse_qs(referrer.query)
+        next_url = queries['next'][0]
+        # print("FINAL NEXT: {}".format(next_url))
         if 'ci-connect' in url_host:
             session['url_host'] = {'name': 'ci-connect',
                                    'display_name': 'CI Connect',
@@ -920,7 +933,8 @@ def authcallback():
             session['url_root'] = request.url_root
             return redirect(url_for('create_profile',
                                     next=url_for('profile')))
-        return redirect(url_for('profile'))
+        # print("NEXT URL RIGHT BEFORE FINAL REDIRECT TO PROFILE: {}".format(next_url))
+        return redirect(next_url)
 
 
 def admin_check(unix_name):
