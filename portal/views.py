@@ -2,12 +2,13 @@ from flask import (flash, redirect, render_template, request,
                    session, url_for, jsonify)
 import requests
 import json
-
+from future.standard_library import install_aliases
+install_aliases()
 try:
-    from urllib.parse import urlencode
+    from urllib.parse import urlencode, urlparse, parse_qs
 except ImportError:
     # from urlparse import urlencode, urlparse, parse_qs
-    from urllib import urlencode
+    from urllib import urlencode, urlparse, parse_qs
 
 from portal import app, csrf
 from portal.decorators import authenticated
