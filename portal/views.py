@@ -547,7 +547,8 @@ def about():
 @app.route('/login', methods=['GET'])
 def login():
     """Send the user to Globus Auth."""
-    return redirect(url_for('authcallback'))
+    next_url = get_safe_redirect()
+    return redirect(url_for('authcallback', next=next_url))
 
 
 @app.route('/logout', methods=['GET'])
@@ -828,16 +829,22 @@ def authcallback():
     # If there's no "code" query string parameter, we're in this route
     # starting a Globus Auth login flow.
     if 'code' not in request.args:
+        next_url = get_safe_redirect()
         additional_authorize_params = (
-            {'signup': 1} if request.args.get('signup') else {})
+            {'signup': 1} if request.args.get('signup') else {'next': next_url})
 
         auth_uri = client.oauth2_get_authorize_url(
             additional_params=additional_authorize_params)
+        print("ADDITIONAL AUTHORIZED PARAMS: {}".format(additional_authorize_params))
+        print("NEXT URL: {}".format(next_url))
 
         return redirect(auth_uri)
     else:
         # If we do have a "code" param, we're coming back from Globus Auth
         # and can start the process of exchanging an auth code for a token.
+        print("GOT OUT OF AUTH URI LOOP")
+        next_url = get_safe_redirect()
+        print("NEXT URL: {}".format(next_url))
         code = request.args.get('code')
         tokens = client.oauth2_exchange_code_for_tokens(code)
 
@@ -873,7 +880,8 @@ def authcallback():
                     profile = profile.json()
                     session['primary_identity'] = identity
             except:
-                print("NOTHING HERE: {}".format(identity))
+                print("NO PROFILE FOUND WITH IDENTITY: {}".format(identity))
+                # print("NOTHING HERE: {}".format(identity))
 
         connect_keynames = {'atlas': {'name': 'atlas-connect',
                                       'display_name': 'Atlas Connect',
@@ -900,6 +908,14 @@ def authcallback():
                                           'display_name': 'UChicago Connect',
                                           'unix_name': 'root.uchicago'}}
         url_host = request.host
+        referrer = urlparse(request.referrer)
+        # print("REFERRER: {}".format(referrer))
+        queries = parse_qs(referrer.query)
+        # print("QUERIES: {}".format(queries))
+        redirect_uri = queries['redirect_uri'][0]
+        # print("REDIRECT URI: {}".format(redirect_uri))
+        next_url = queries['next'][0]
+        # print("AFTER QUERIES NEXT URL: {}".format(next_url))
         if 'ci-connect' in url_host:
             session['url_host'] = {'name': 'ci-connect',
                                    'display_name': 'CI Connect',
@@ -923,7 +939,7 @@ def authcallback():
             session['url_root'] = request.url_root
             return redirect(url_for('create_profile',
                                     next=url_for('profile')))
-        return redirect(url_for('profile'))
+        return redirect(next_url)
 
 
 def admin_check(unix_name):
