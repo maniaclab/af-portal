@@ -829,6 +829,7 @@ def authcallback():
     # If there's no "code" query string parameter, we're in this route
     # starting a Globus Auth login flow.
     if 'code' not in request.args:
+        # print("SIGNUP: {} ".format(request.args))
         next_url = get_safe_redirect()
         additional_authorize_params = (
             {'signup': 1} if request.args.get('signup') else {'next': next_url})
@@ -908,14 +909,17 @@ def authcallback():
                                           'display_name': 'UChicago Connect',
                                           'unix_name': 'root.uchicago'}}
         url_host = request.host
-        referrer = urlparse(request.referrer)
-        # print("REFERRER: {}".format(referrer))
-        queries = parse_qs(referrer.query)
-        # print("QUERIES: {}".format(queries))
-        redirect_uri = queries['redirect_uri'][0]
-        # print("REDIRECT URI: {}".format(redirect_uri))
-        next_url = queries['next'][0]
-        # print("AFTER QUERIES NEXT URL: {}".format(next_url))
+        try:
+            referrer = urlparse(request.referrer)
+            # print("REFERRER: {}".format(referrer))
+            queries = parse_qs(referrer.query)
+            # print("QUERIES: {}".format(queries))
+            redirect_uri = queries['redirect_uri'][0]
+            # print("REDIRECT URI: {}".format(redirect_uri))
+            next_url = queries['next'][0]
+            # print("AFTER QUERIES NEXT URL: {}".format(next_url))
+        except:
+            next_url = '/'
         if 'ci-connect' in url_host:
             session['url_host'] = {'name': 'ci-connect',
                                    'display_name': 'CI Connect',
@@ -939,7 +943,12 @@ def authcallback():
             session['url_root'] = request.url_root
             return redirect(url_for('create_profile',
                                     next=url_for('profile')))
-        return redirect(next_url)
+
+        # print("FINAL NEXT URL: {}".format(next_url))
+        if next_url == '/':
+            return redirect(url_for('profile'))
+        else:
+            return redirect(next_url)
 
 
 def admin_check(unix_name):
