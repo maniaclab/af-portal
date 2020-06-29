@@ -82,7 +82,7 @@ rebates/uploads
 
 # portal.conf file and keys
 portal.conf
-run_portal.py
+portal/run_portal.py
 tests/
 .DS_Store
 portal/.DS_Store
