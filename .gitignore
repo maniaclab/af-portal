@@ -84,3 +84,5 @@ rebates/uploads
 portal.conf
 run_portal.py
 tests/
+DS_Store
+.vscode
