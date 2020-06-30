@@ -2,6 +2,4 @@ from flask import session, request, render_template, jsonify, redirect, url_for,
 import requests
 from portal import app
 from portal.decorators import authenticated
-
-slate_api_token = app.config['SLATE_API_TOKEN']
-slate_api_endpoint = app.config['SLATE_API_ENDPOINT']
+from portal.slate_api import get_app_config
