@@ -172,11 +172,11 @@ def list_instances_request():
     """
     instances = requests.get(
         slate_api_endpoint + '/v1alpha3/instances', params=query)
-    try:
-        instances = instances.json()['items']
-    except:
-        instances = []
-    return instances
+    instances = instances.json()
+    if instances['items']:
+        return instances['items']
+    else:
+        return instances
 
 def get_instance_details(instance_id):
     """
