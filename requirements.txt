@@ -4,3 +4,4 @@ Flask-Misaka
 flask_wtf
 pygal==2.1.1
 globus-sdk==1.7.1
+pyyaml
