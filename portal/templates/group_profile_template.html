@@ -7,8 +7,9 @@
     <div class="row">
       <div class="col-lg-12 mx-auto">
         {%include 'messages.html' %}
+        
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{{url_for('view_group', group_name=group_name)}}">{{group['display_name']}}</a></li>
+          <li class="breadcrumb-item"><a href="{{url_for('groups')}}">Groups</a></li>
         </ol>
         <h2>{{group['display_name']}}</h2>
         <br>
@@ -97,21 +98,39 @@
 <script>
 $(document).ready(function() {
   var pathname = window.location.pathname;
+  var href = window.location.href;
   var route_split_list = pathname.split('/');
   var routes_list = ['members', 'add_members', 'members-requests', 'subgroups', 'subgroups-requests']
-  var route = route_split_list[route_split_list.length - 1];
+  var route = route_split_list[2];
+  var subroute = route_split_list[route_split_list.length - 1];
+  var breadcrumb_split = route.split('.').slice(1);
+  var breadcrumb_route = 'root';
+  var protocol = window.location.protocol;
+  var host = window.location.host;
 
-  if (routes_list.includes(route)) {
-    $('#' + route + '-tab').addClass('active');
-    if (route === 'members') {
+  var url_for = function(group_name) {
+    var final_url = protocol.concat(host, '/groups/', group_name);
+    return final_url;
+  }
+
+  for(breadcrumb of breadcrumb_split){
+    breadcrumb_route += ('.'+breadcrumb);
+    var breadcrumb_href = url_for(breadcrumb_route);
+    console.log(breadcrumb_href)
+    $('.breadcrumb').append("<li class='breadcrumb-item active'><a href='https://google.com' id='breadcrumb-"+breadcrumb+"'>"+breadcrumb+"</a></li>");
+  }
+
+  if (routes_list.includes(subroute)) {
+    $('#' + subroute + '-tab').addClass('active');
+    if (subroute === 'members') {
       $('.breadcrumb').append("<li class='breadcrumb-item active'>Members</li>");
-    } else if (route === 'add_members') {
+    } else if (subroute === 'add_members') {
       $('.breadcrumb').append("<li class='breadcrumb-item active'>Add Members</li>");
-    } else if (route === 'members-requests') {
+    } else if (subroute === 'members-requests') {
       $('.breadcrumb').append("<li class='breadcrumb-item active'>Members Pending</li>");
-    } else if (route === 'subgroups') {
+    } else if (subroute === 'subgroups') {
       $('.breadcrumb').append("<li class='breadcrumb-item active'>Subgroups</li>");
-    } else if (route === 'subgroups-requests') {
+    } else if (subroute === 'subgroups-requests') {
       $('.breadcrumb').append("<li class='breadcrumb-item active'>Subgroup Requests</li>");
     }
   } else {

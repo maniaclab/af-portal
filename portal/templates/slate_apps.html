@@ -1,0 +1,70 @@
+{%extends "base.html"%}
+
+{%block title%}SLATE Applications{%endblock%}
+
+{%block body%}
+
+<section id="projets">
+  <div class="container col-lg-12 mx-auto">
+
+    <div class='row'>
+      <div class="col-lg-12 mx-auto">
+        {%include 'messages.html' %}
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">SLATE Apps</li>
+        </ol>
+        <br></br>
+
+        <div class="table-responsive">
+          <table class="table" id="groups-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+            <thead>
+              <tr>
+                <th data-field="name" data-sortable="true">Name</th>
+                <th data-field="description" data-sortable="true">Description</th>
+                <th data-field="app-version" data-sortable="true">App Version</th>
+                <th data-field="chart-version" data-sortable="true">Chart Version</th>
+              </tr>
+            </thead>
+            <tbody data-link="row" class="rowlink" style="font-size:14px;">
+              {% for app in apps %}
+              <tr>
+                <td><a href="">{{app['metadata']['name']}}</a></td>
+                <td>{{app['metadata']['description']}}</td>
+                <td>{{app['metadata']['app_version']}}</td>
+                <td>{{app['metadata']['chart_version']}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+  </div> <!-- container -->
+</section>
+
+<script>
+
+$(document).ready(function() {
+  // Setup - add a text input to each footer cell
+  $('#groups-table tfoot th').each( function () {
+    var title = $(this).text();
+    $(this).html('<input type="text" placeholder="Search '+title+'" />');
+  });
+  // DataTable
+  var table = $('#groups-table').DataTable();
+  // Apply the search
+  table.columns().every(function(){
+    var that = this;
+    $('input', this.footer()).on('keyup change clear', function (){
+      if(that.search() !== this.value){
+        that
+        .search(this.value)
+        .draw();
+      }
+    });
+  });
+});
+</script>
+{%endblock%}

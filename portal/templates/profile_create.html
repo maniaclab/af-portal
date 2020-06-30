@@ -189,12 +189,12 @@
     </div> <!-- row -->
 
   </div>
-</section>
 
-<script>
-var name = {{session['name']|tojson}};
-var email = {{session['email']|tojson}};
-var institution = {{session['institution']|tojson}};
+<script type="text/javascript">
+var session = {{session|tojson}};
+var name = session['name'];
+var email = session['email']
+var institution = session['institution'];
 
 window.onload = setEditFields(name, email, institution);
 

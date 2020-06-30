@@ -1,0 +1,184 @@
+{%extends "base.html"%}
+
+{%block title%}
+  Instance Profile
+{%endblock%}
+
+{%block body%}
+<section id="app-profile" class="bg-light">
+  <div class="container col-lg-12 mx-auto">
+
+    <div class="row">
+      <div class="col-lg-12 mx-auto">
+        {%include 'messages.html' %}
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{{url_for('view_instances')}}">Instances</a></li>
+          <li class="breadcrumb-item active">{{instance_details['metadata']['name']}}</li>
+        </ol>
+
+        <h1>Instance: {{instance_details['metadata']['name']}}</h1>
+        <h4>Cluster: <span class='text-muted'>{{instance_details['metadata']['cluster']}}</span></h4>
+        <a href="{{url_for('view_delete_instance', instance_id=instance_details['metadata']['id'])}}" class="btn btn-danger btn-sm btn-box-shadow" onclick="btnConfirm()">Delete Instance</a>
+        <hr/>
+
+        <ul class="nav nav-tabs" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link active" href="#details" role="tab" data-toggle="tab">Details</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#configuration" role="tab" data-toggle="tab">Configuration</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#logs" role="tab" data-toggle="tab">Logs</a>
+          </li>
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+
+          <div role="tabpanel" class="tab-pane active" id="details">
+            {% if instance_status %}
+              {% if instance_details['services'] %}
+            <div class="table-responsive">
+              <br>
+              <h4>Detailed Services</h4>
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">External IP</th>
+                    <th scope="col">Cluster IP</th>
+                    <th scope="col">Ports</th>
+                    <th scope="col">URL</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for service in instance_details['services'] %}
+                  <tr>
+                    {% set addr = 'http://' +service['externalIP'] + ':' + service['ports'].split(':')[1].split('/')[0] %}
+                    <td>{{service['name']}}</td>
+                    <td><a href="{{addr}}" target="_blank">{{service['externalIP']}}</a></td>
+                    <td>{{service['clusterIP']}}</td>
+                    <td>{{service['ports']}}</td>
+                    <td><a href="{{service['url']}}" target="_blank">{{service['url']}}</a></td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+              {% endif %}
+            <br>
+
+            <div class="table-responsive">
+              <h4>Pods</h4>
+              <table class="table" id="pods-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+                <thead>
+                  <tr>
+                    <th data-field="name" data-sortable="true">Name</th>
+                    <!-- <th data-field="host-name" data-sortable="true">Host Name</th> -->
+                    <th data-field="status" data-sortable="true">Status</th>
+                    <th data-field="created" data-sortable="true">Created</th>
+                  </tr>
+                </thead>
+                <tbody data-link="row" class="rowlink" style="font-size:14px;">
+
+              {% if instance_details['details'] and instance_details['details']['pods'] %}
+                {% for pod in instance_details['details']['pods'] %}
+                  <tr data-toggle="collapse" data-target="#accordion-{{pod['name']}}" class="clickable">
+                    <td><a href="#" data-toggle="collapse" data-target="#accordion-{{pod['name']}}">{{pod['name']}}</a></td>
+                    <!-- <td>{{pod['hostName']}}</td> -->
+                    {% if pod['status'] == 'Running'%}
+                    <td><span style='color:green;'>{{pod['status']}}</span></td>
+                    {% else %}
+                    <td><span style='color:orange;'>{{pod['status']}}</span></td>
+                    {% endif %}
+                    <td>{{pod['created']}}</td>
+                  </tr>
+                  <tr>
+                    <td colspan="3">
+                      <div id="accordion-{{pod['name']}}" class="collapse row">
+                        <div class="col-sm-4">
+                          <h5 class="card-title">Conditions</h5>
+                          <h6 class="card-subtitle mb-2 text-muted">Created: {{pod['created']}}</h6>
+                          <div>
+                    {% for condition in pod['conditions']%}
+                            <p class="card-text">{{condition['lastTransitionTime']}} - {{condition['type']}}</p>
+                    {% endfor %}
+                          </div>
+                        </div>
+                        <div class="col-sm-4">
+                          <h5 class="card-title">Containers</h5>
+                    {% for container in pod['containers'] %}
+                            <li style="list-style: none"><strong>Name:</strong> {{container['name']}}</li>
+                            <li style="list-style: none"><strong>Restarts:</strong> {{container['restartCount']}}</li>
+                            <li style="list-style: none"><strong>State:</strong> {% for key, value in container['state'].items() %} {{key}} - {% for k, v in value.items() %} {{k}}: {{v}} {% endfor %} {% endfor %}</li>
+                      {% if container['lastState'] %}
+                            <li style="list-style: none"><strong>Last State:</strong> {% for state, info in container['lastState'].items() %}{{state}} at {{info['startedAt']}}{% endfor %}</li>
+                      {% endif %}
+                            <li style="list-style: none"><strong>Image:</strong> {{container['image']}}</li>
+                            <hr/>
+                    {% endfor %}
+                        </div>
+                        <div class="col-sm-4">
+                          <h5 class="card-title">Events</h5>
+                    {% for event in pod['events']%}
+                      {% if event['count'] and event['count']> 1 %}
+                          <li style="list-style: none"><strong>Count:</strong> {{event['count']}}</li>
+                      {% endif %}
+                          <li style="list-style: none"><strong>First Timestamp:</strong> {{event['firstTimestamp'].split('T')[0] if event['firstTimestamp'] != None }} {{event['firstTimestamp'].split('T')[1].split('Z')[0] if event['firstTimestamp'] != None else 'None'}}</li>
+                          <li style="list-style: none"><strong>Last Timestamp:</strong> {{event['lastTimestamp'].split('T')[0] if event['lastTimestamp'] != None }} {{event['lastTimestamp'].split('T')[1].split('Z')[0] if event['lastTimestamp'] != None else 'None'}}</li>
+                          <li style="list-style: none"><strong>Reason:</strong> {{event['reason']}}</li>
+                          <li style="list-style: none"><strong>Message:</strong> {{event['message']}}</li>
+                          <hr/>
+                    {% endfor %}
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% endif %}
+                </tbody>
+
+              </table>
+            </div>
+            <br>
+            {% else %}
+            <h1>Detailed services information currently not available</h1>
+            {% endif %}
+          </div>
+
+          <!-- CONFIGURATION TAB PANEL -->
+          <div role="tabpanel" class="tab-pane fade" id="configuration">
+            <br>
+            <!-- <h3>Configuration</h3> -->
+            <pre>{% if instance_details['metadata']['configuration'] %}{{instance_details['metadata']['configuration']}}{% else %}Configuration currently unavailable{% endif %}</pre>
+          </div>
+          <!-- INSTANE LOG TAB PANEL -->
+          <div role="tabpanel" class="tab-pane fade" id="logs">
+            <br>
+            <!-- <h3>Logs</h3> -->
+            <pre class="app-logs">{% if instance_logs['logs'] %}{{instance_logs['logs']}}{% else %}Logs currently unavailable{% endif %}</pre>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+$(document).ready(function() {
+    $('#pods-table').DataTable();
+});
+
+function btnConfirm() {
+    var r = confirm("Are you sure you want to delete this instance?");
+    if(r == true){
+      window.location.href = "#";
+    }
+}
+
+</script>
+{%endblock%}
