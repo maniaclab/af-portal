@@ -172,7 +172,10 @@ def list_instances_request():
     """
     instances = requests.get(
         slate_api_endpoint + '/v1alpha3/instances', params=query)
-    instances = instances.json()['items']
+    try:
+        instances = instances.json()['items']
+    except:
+        instances = []
     return instances
 
 def get_instance_details(instance_id):
@@ -242,9 +245,10 @@ def list_users_instances_request(session):
     # print("user_groups: {}".format(user_groups))
     # Logic to isolate instances belonging to specific user
     user_instances = []
-    for instance in instances:
-        if instance['metadata']['group'] in user_groups:
-            user_instances.append(instance)
+    if instances:
+        for instance in instances:
+            if instance['metadata']['group'] in user_groups:
+                user_instances.append(instance)
     # print("User instances: {}".format(user_instances))
     # Return list of instances in sorted order
     sorted_instances = sorted(
