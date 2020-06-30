@@ -230,7 +230,10 @@ def list_users_instances_request(session):
     :return: list of instances belonging to a specific user
     """
     # Get list of all instances
-    instances = list_instances_request()
+    try:
+        instances = list_instances_request()
+    except:
+        instances = []
     # print("Instances: {}".format(instances))
     # Get groups to which the user belongs
     user_groups_list = list_user_groups(session)
@@ -242,10 +245,9 @@ def list_users_instances_request(session):
     # print("user_groups: {}".format(user_groups))
     # Logic to isolate instances belonging to specific user
     user_instances = []
-    if instances:
-        for instance in instances:
-            if instance['metadata']['group'] in user_groups:
-                user_instances.append(instance)
+    for instance in instances:
+        if instance['metadata']['group'] in user_groups:
+            user_instances.append(instance)
     # print("User instances: {}".format(user_instances))
     # Return list of instances in sorted order
     sorted_instances = sorted(
