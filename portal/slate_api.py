@@ -4,7 +4,6 @@ import os
 import yaml
 from base64 import b64encode
 from portal import app
-from portal.connect_api import get_user_profile
 
 slate_api_token = app.config['SLATE_API_TOKEN']
 slate_api_endpoint = app.config['SLATE_API_ENDPOINT']
