@@ -38,7 +38,7 @@ sys.path.insert(1, 'portal/views')
 import group_views
 import error_handling
 import users_groups
-import slate_views
+# import slate_views
 
 
 @app.route('/webhooks/github', methods=['GET', 'POST'])
