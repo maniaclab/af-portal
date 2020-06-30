@@ -82,9 +82,5 @@ rebates/uploads
 
 # portal.conf file and keys
 portal.conf
-portal/run_portal.py
+run_portal.py
 tests/
-.DS_Store
-portal/.DS_Store
-portal/static/.DS_Store
-.vscode

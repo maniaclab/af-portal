@@ -38,7 +38,7 @@ sys.path.insert(1, 'portal/views')
 import group_views
 import error_handling
 import users_groups
-import slate_views
+# import slate_views
 
 
 @app.route('/webhooks/github', methods=['GET', 'POST'])
@@ -313,7 +313,7 @@ def create_subgroup(group_name):
             # Purpose/Field of Science for CMS will always be High Energy Physics
             field_of_science = request.form['field_of_science']
         except:
-            field_of_science = "High Energy Physics"
+            field_of_science = "High Energy Physics".decode('utf-8')
 
         put_query = {"apiVersion": 'v1alpha1',
                      'metadata': {'name': name, 'display_name': display_name,
@@ -905,9 +905,9 @@ def authcallback():
                             'snowmass21': {'name': 'snowmass21-connect',
                                     'display_name': 'Snowmass21 Connect',
                                     'unix_name': 'root.snowmass21'},
-                            'localhost': {'name': 'snowmass21-connect',
-                                    'display_name': 'Snowmass21 Connect',
-                                    'unix_name': 'root.snowmass21'}}
+                            'localhost': {'name': 'uchicago-connect',
+                                          'display_name': 'UChicago Connect',
+                                          'unix_name': 'root.uchicago'}}
         url_host = request.host
         try:
             referrer = urlparse(request.referrer)
