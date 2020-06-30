@@ -2,7 +2,7 @@ from flask import session, request, render_template, jsonify, redirect, url_for,
 import requests
 from portal import app
 from portal.decorators import authenticated
-from portal.slate_api import get_app_config, get_app_readme, list_users_instances_request, get_instance_details, get_instance_logs
+from portal.slate_api import get_app_config, get_app_readme, list_users_instances_request, get_instance_details, get_instance_logs, delete_instance
 from portal.connect_api import get_user_profile
 import os
 import yaml, json
@@ -78,6 +78,18 @@ def view_instance(instance_id):
                                 instance_details=instance_details, 
                                 instance_status=instance_status, 
                                 instance_logs=instance_logs)
+
+
+@app.route('/instances/delete/<instance_id>', methods=['GET'])
+@authenticated
+def view_delete_instance(instance_id):
+    """View instance details"""
+    if request.method == 'GET':
+
+        deleted_instance_response = delete_instance(instance_id)
+        print(deleted_instance_response)
+
+        return redirect(url_for('view_instances'))
 
 
 @app.route('/instances/deploy', methods=['GET', 'POST'])

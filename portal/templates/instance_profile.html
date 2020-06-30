@@ -18,7 +18,7 @@
 
         <h1>Instance: {{instance_details['metadata']['name']}}</h1>
         <h4>Cluster: <span class='text-muted'>{{instance_details['metadata']['cluster']}}</span></h4>
-        <a href="#" class="btn btn-danger btn-sm btn-box-shadow" onclick="btnConfirm()">Delete Instance</a>
+        <a href="{{url_for('view_delete_instance', instance_id=instance_details['metadata']['id'])}}" class="btn btn-danger btn-sm btn-box-shadow" onclick="btnConfirm()">Delete Instance</a>
         <hr/>
 
         <ul class="nav nav-tabs" role="tablist">
@@ -122,14 +122,14 @@
                         <div class="col-sm-4">
                           <h5 class="card-title">Events</h5>
                     {% for event in pod['events']%}
-                      {% if event['count'] > 1 %}
-                              <li style="list-style: none"><strong>Count:</strong> {{event['count']}}</li>
+                      {% if event['count'] and event['count']> 1 %}
+                          <li style="list-style: none"><strong>Count:</strong> {{event['count']}}</li>
                       {% endif %}
-                              <li style="list-style: none"><strong>First Timestamp:</strong> {{event['firstTimestamp'].split('T')[0]}} {{event['firstTimestamp'].split('T')[1].split('Z')[0]}}</li>
-                              <li style="list-style: none"><strong>Last Timestamp:</strong> {{event['lastTimestamp'].split('T')[0]}} {{event['lastTimestamp'].split('T')[1].split('Z')[0]}}</li>
-                              <li style="list-style: none"><strong>Reason:</strong> {{event['reason']}}</li>
-                              <li style="list-style: none"><strong>Message:</strong> {{event['message']}}</li>
-                              <hr/>
+                          <li style="list-style: none"><strong>First Timestamp:</strong> {{event['firstTimestamp'].split('T')[0] if event['firstTimestamp'] != None }} {{event['firstTimestamp'].split('T')[1].split('Z')[0] if event['firstTimestamp'] != None else 'None'}}</li>
+                          <li style="list-style: none"><strong>Last Timestamp:</strong> {{event['lastTimestamp'].split('T')[0] if event['lastTimestamp'] != None }} {{event['lastTimestamp'].split('T')[1].split('Z')[0] if event['lastTimestamp'] != None else 'None'}}</li>
+                          <li style="list-style: none"><strong>Reason:</strong> {{event['reason']}}</li>
+                          <li style="list-style: none"><strong>Message:</strong> {{event['message']}}</li>
+                          <hr/>
                     {% endfor %}
                         </div>
                       </div>
