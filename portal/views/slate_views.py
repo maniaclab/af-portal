@@ -60,24 +60,24 @@ def view_instances():
         return render_template('instances.html', name=app_name, public_key=public_key, instances=instances)
 
 
-@app.route('/instances/<instance_id>', methods=['GET'])
-@authenticated
-def view_instance(instance_id):
-    """View instance details"""
-    if request.method == 'GET':
+# @app.route('/instances/<instance_id>', methods=['GET'])
+# @authenticated
+# def view_instance(instance_id):
+#     """View instance details"""
+#     if request.method == 'GET':
 
-        instance_details = get_instance_details(instance_id)
-        instance_logs = get_instance_logs(instance_id)
-        instance_status = True
+#         instance_details = get_instance_details(instance_id)
+#         instance_logs = get_instance_logs(instance_id)
+#         instance_status = True
 
-        if instance_details['kind'] == 'Error':
-            instance_status = False
-            return render_template('404.html')
+#         if instance_details['kind'] == 'Error':
+#             instance_status = False
+#             return render_template('404.html')
 
-        return render_template('instance_profile.html', 
-                                instance_details=instance_details, 
-                                instance_status=instance_status, 
-                                instance_logs=instance_logs)
+#         return render_template('instance_profile.html', 
+#                                 instance_details=instance_details, 
+#                                 instance_status=instance_status, 
+#                                 instance_logs=instance_logs)
 
 
 @app.route('/instances/delete/<instance_id>', methods=['GET'])
