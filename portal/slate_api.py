@@ -230,10 +230,7 @@ def list_users_instances_request(session):
     :return: list of instances belonging to a specific user
     """
     # Get list of all instances
-    try:
-        instances = list_instances_request()
-    except:
-        instances = []
+    instances = list_instances_request()
     # print("Instances: {}".format(instances))
     # Get groups to which the user belongs
     user_groups_list = list_user_groups(session)
