@@ -172,8 +172,8 @@ def list_instances_request():
     """
     instances = requests.get(
         slate_api_endpoint + '/v1alpha3/instances', params=query)
-    print("TRYING GET INSTANCES LIST WITH URL: {}".format(instances.url))
-    print("RESPONSE: {}".format(instances.json()))
+    # print("TRYING GET INSTANCES LIST WITH URL: {}".format(instances.url))
+    # print("RESPONSE: {}".format(instances.json()))
     instances = instances.json()['items']
     return instances
 
