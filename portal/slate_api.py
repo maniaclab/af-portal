@@ -244,7 +244,7 @@ def list_users_instances_request(session):
     # Logic to isolate instances belonging to specific user
     user_instances = []
     for instance in instances:
-        if instance['metadata']['group'] in user_groups:
+        if (instance['metadata']['group'] in user_groups) and ("-{}".format(session['unix_name']) in instance['metadata']['name']):
             user_instances.append(instance)
     # print("User instances: {}".format(user_instances))
     # Return list of instances in sorted order
