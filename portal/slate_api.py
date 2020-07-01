@@ -207,7 +207,6 @@ def delete_instance(instance_id):
     """
     response = requests.delete(
         slate_api_endpoint + '/v1alpha3/instances/' + instance_id, params=query)
-    response = response.json()
     return response
 
 
