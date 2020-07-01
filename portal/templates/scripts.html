@@ -61,15 +61,15 @@
     // Local
     if(String(hostname).includes('local')){
 
-      connect_brand.src="{{url_for('static', filename='img/snowmass-connect-logo.png')}}";
-      nav_overview.href="https://snowmass21.org/montecarlo/energy";
-      nav_emailto.href="mailto:rwg@uchicago.edu";
-      var title = 'Documentation';
-      var href = 'https://maniaclab.uchicago.edu/snowmass-connect-docs/';
-      var id = 'support-dropdown'; 
-      addDropdownItem(title, href, id);
-      document.getElementById("instances-nav").style.display = "inline";
-      document.getElementById("contributions").style.display = "inline";
+      // connect_brand.src="{{url_for('static', filename='img/snowmass-connect-logo.png')}}";
+      // nav_overview.href="https://snowmass21.org/montecarlo/energy";
+      // nav_emailto.href="mailto:rwg@uchicago.edu";
+      // var title = 'Documentation';
+      // var href = 'https://maniaclab.uchicago.edu/snowmass-connect-docs/';
+      // var id = 'support-dropdown'; 
+      // addDropdownItem(title, href, id);
+      // document.getElementById("instances-nav").style.display = "inline";
+      // document.getElementById("contributions").style.display = "inline";
 
     } else if(String(hostname).includes('atlas')){
 
@@ -143,7 +143,7 @@
       var href = 'https://maniaclab.uchicago.edu/snowmass-connect-docs/';
       var id = 'support-dropdown'; 
       addDropdownItem(title, href, id);
-      document.getElementById("instances-nav").style.display = "inline";
+      // document.getElementById("instances-nav").style.display = "inline";
       document.getElementById("contributions").style.display = "inline";
       
     } else if(String(hostname).includes('psd') || String(hostname).includes('uchicago')){
