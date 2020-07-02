@@ -85,7 +85,7 @@ def view_instance(instance_id):
             return render_template('404.html')
         try:
             config = instance_details['metadata']['configuration']
-            yaml_config = yaml.load(config, Loader=yaml.FullLoader)
+            yaml_config = yaml.safe_load(config)
             token = yaml_config['Jupyter']['Token']
         except:
             token = None
