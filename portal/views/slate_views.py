@@ -75,11 +75,17 @@ def view_instance(instance_id):
         if instance_details['kind'] == 'Error':
             instance_status = False
             return render_template('404.html')
-
+        try:
+            config = instance_details['metadata']['configuration']
+            yaml_config = yaml.load(config, Loader=yaml.FullLoader)
+            token = yaml_config['Jupyter']['Token']
+        except:
+            token = None
+        
         return render_template('instance_profile.html', 
                                 instance_details=instance_details, 
                                 instance_status=instance_status, 
-                                instance_logs=instance_logs)
+                                instance_logs=instance_logs, token=token)
 
 
 @app.route('/instances/delete/<instance_id>', methods=['GET'])
@@ -150,15 +156,14 @@ def create_application():
         group = 'group_2Q9yPCOLxMg'
         cluster = 'uchicago-river-v2'
         configuration = yaml.dump(app_config_yaml)
-        print("THERE")
         # SLATE API: slate app install jupyter-notebook --dev --group <your-group> --cluster <a-cluster> --conf jupyter.conf
         install_app = {"apiVersion": 'v1alpha3', "group": group, "cluster": cluster, "configuration": configuration}
 
         # Post query to install application config
         app_install = requests.post(
             slate_api_endpoint + '/v1alpha3/apps/' + app_name, params=query, json=install_app)
-        print(app_install)
-        print(app_install.json())
+        # print(app_install)
+        # print(app_install.json())
 
         if app_install.status_code == requests.codes.ok:
             # Store base64_encoded_token as slate secret to be retrieved by user later

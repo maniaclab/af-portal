@@ -18,6 +18,7 @@
 
         <h1>Instance: {{instance_details['metadata']['name']}}</h1>
         <h4>Cluster: <span class='text-muted'>{{instance_details['metadata']['cluster']}}</span></h4>
+        <h5>Jupyter Token: <span class='text-muted'>{{token}}</span></h5>
         <a href="{{url_for('view_delete_instance', instance_id=instance_details['metadata']['id'])}}" class="btn btn-danger btn-sm btn-box-shadow" onclick="btnConfirm()">Delete Instance</a>
         <hr/>
 
