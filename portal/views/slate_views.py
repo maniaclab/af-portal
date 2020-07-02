@@ -3,7 +3,7 @@ import requests
 from portal import app
 from portal.decorators import authenticated
 from portal.slate_api import get_app_config, get_app_readme, list_users_instances_request, get_instance_details, get_instance_logs, delete_instance
-from portal.connect_api import get_user_profile
+from portal.connect_api import get_user_profile, get_user_connect_status
 import os
 import json
 import yaml
@@ -22,7 +22,7 @@ def generateToken():
 def createTokenSecret(generated_token, user_unix_name):
     # Initialize empty contents dict
     contents = {}
-
+    # Hardcode values while Jupyter-Notebook is the only app being launched
     group = 'group_2Q9yPCOLxMg'
     cluster = 'uchicago-river-v2'
     secret_name = '{}-jupyter-token'.format(user_unix_name)
@@ -59,7 +59,15 @@ def view_instances():
             public_key = None
         instances = list_users_instances_request(session)
 
-        return render_template('instances.html', name=app_name, public_key=public_key, instances=instances)
+        # Check user's member status of connect group specifically
+        connect_group = session['url_host']['unix_name']
+        user_status = get_user_connect_status(
+            session['unix_name'], connect_group)
+
+        return render_template('instances.html', name=app_name, 
+                                                 public_key=public_key, 
+                                                 instances=instances,
+                                                 user_status=user_status)
 
 
 @app.route('/instances/<instance_id>', methods=['GET'])
@@ -112,10 +120,8 @@ def create_application():
             public_key = profile['metadata']['public_key']
         except:
             public_key = None
-        instances = list_users_instances_request(session)
-        # print(instances)
 
-        return render_template('instance_create.html', name=app_name, public_key=public_key, instances=instances)
+        return render_template('instance_create.html', name=app_name, public_key=public_key)
     elif request.method == 'POST':
         app_name = 'jupyter-notebook'
 
@@ -170,9 +176,9 @@ def create_application():
             # secrets_query = {'token': slate_api_token, 'group': 'group_2Q9yPCOLxMg'}
             # r = requests.get(slate_api_endpoint + '/v1alpha3/secrets', params=secrets_query)
             # print("getting group secrets: {} {}".format(r, r.json()))
-            user_unix_name = session['unix_name']
-            print(user_unix_name)
-            createTokenSecret(base64_encoded_token, user_unix_name)
+            # user_unix_name = session['unix_name']
+            # print(user_unix_name)
+            # createTokenSecret(base64_encoded_token, user_unix_name)
 
             flash("Your application has been deployed.", 'success')
             return redirect(url_for('view_instances'))
