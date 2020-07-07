@@ -89,7 +89,6 @@ def view_instance(instance_id):
             yaml_config = yaml.load(config, Loader=yaml.FullLoader)
             print('Successfully loaded yaml config')
             token = yaml_config['Jupyter']['Token']
-            print('Token: {}'.format(token))
         except:
             token = None
         
@@ -133,8 +132,10 @@ def create_application():
         # The FullLoader parameter handles the conversion from YAML
         # scalar values to Python the dictionary format
         app_config_yaml = yaml.load(app_config, Loader=yaml.FullLoader)
+        # Extract connect group name and replace dot notation with dash for app name format compatibility
+        connect_group_name = session['url_host']['unix_name'].replace('.','-')
+        app_config_yaml['Instance'] = '{}-{}'.format(session['unix_name'], connect_group_name)
 
-        app_config_yaml['Instance'] = session['unix_name']
         app_config_yaml['Ingress']['Subdomain'] = '{}-jupyter'.format(session['unix_name'])
         app_config_yaml['Jupyter']['NB_USER'] = session['unix_name']
 
@@ -185,6 +186,10 @@ def create_application():
 
             flash("Your application has been deployed.", 'success')
             return redirect(url_for('view_instances'))
+        elif app_install.status_code == 400:
+            err_message = app_install.json()['message']
+            flash('Unable to deploy application: You already have a launched instance of this application', 'warning')
+            return redirect(url_for('create_application'))
         else:
             err_message = app_install.json()['message']
             flash('Unable to deploy application: {}'.format(err_message), 'warning')
