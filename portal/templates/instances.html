@@ -26,7 +26,6 @@
             <thead>
               <tr>
                 <th data-field="name" data-sortable="true">Name</th>
-                <th data-field="group-name" data-sortable="true">Group Unix Name <i class="fas fa-question-circle" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="{{group_unix_name_description}}"></i></th>
                 <th data-field="cluster" data-sortable="true">Cluster</th>
                 <th data-field="instance-id" data-sortable="true">ID</th>
               </tr>
@@ -35,7 +34,6 @@
               {% for instance in instances %}
               <tr>
                 <td><a href="{{url_for('view_instance', instance_id=instance['metadata']['id'])}}">{{instance['metadata']['name']}}</a></td>
-                <td>{{instance['metadata']['group']}}</td>
                 <td>{{instance['metadata']['cluster']}}</td>
                 <td>{{instance['metadata']['id']}}</td>
               </tr>
