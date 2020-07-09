@@ -13,7 +13,7 @@
         <h2>{{group['display_name']}}</h2>
         <br>
         <div class="btn-toolbar" role="toolbar">
-          {% if (user_status == 'nonmember' and connect_status == 'active') %}
+          {% if (user_status == 'nonmember' and connect_status == 'active' and (connect_status != 'admin' or enclosing_status != 'admin')) %}
           <div class="btn-group mr-2" role="group", aria-label="first group">
             <form role="form" action="{{url_for('view_group', group_name=group_name)}}" method="POST" onsubmit="return confirm('Are you sure you want to request to join this group?');">
               <div class="form-group">
