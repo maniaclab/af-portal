@@ -26,10 +26,6 @@
           <div class="btn-group mr-2" role="group", aria-label="first group">
             <button type="submit" name="pending_membership" class="btn btn-warning btn-sm disabled btn-sm btn-box-shadow" data-submit="Pending Membership...">Requested Membership</button>
           </div>
-          {% elif user_status == 'active' %}
-          <div class="btn-group mr-2" role="group" aria-label="first group">
-            <a href="{{url_for('create_subgroup', group_name=group_name)}}" class="btn btn-primary btn-sm btn-sm btn-box-shadow">Request New Subgroup</a>
-          </div>
           {% elif (user_status == 'admin' or connect_status == 'admin' or enclosing_status == 'admin') %}
           <div class="btn-group mr-2" role="group" aria-label="first group">
             <a href="{{url_for('create_subgroup', group_name=group_name)}}" class="btn btn-primary btn-sm btn-sm btn-box-shadow">Create Subgroup</a>
@@ -45,6 +41,10 @@
             </form>
           </div>
             {% endif %}
+          {% elif user_status == 'active' %}
+          <div class="btn-group mr-2" role="group" aria-label="first group">
+            <a href="{{url_for('create_subgroup', group_name=group_name)}}" class="btn btn-primary btn-sm btn-sm btn-box-shadow">Request New Subgroup</a>
+          </div>
           {% endif %}
         </div>
 
