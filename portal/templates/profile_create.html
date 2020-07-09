@@ -191,11 +191,17 @@
   </div>
 </section>
 
+<meta id="profile-data" 
+      data-name="{{session['name']}}"
+      data-email="{{session['email']}}"
+      data-institution="{{session['institution']}}">
+
 <script>
+var profile = $('#profile-data').data();
 var navbrand = document.getElementsByClassName("navbar-brand")[0].href = '#';
-var name = {{session['name']|tojson}};
-var email = {{session['email']|tojson}};
-var institution = {{session['institution']|tojson}};
+var name = profile.name;
+var email = profile.email;
+var institution = profile.institution;
 
 window.onload = setEditFields(name, email, institution);
 

@@ -171,13 +171,19 @@
 
   </div>
 </section>
-
+<meta id="profile-data" 
+      data-name="{{profile['name']}}" 
+      data-email="{{profile['email']}}" 
+      data-phone="{{profile['phone']}}" 
+      data-institution="{{profile['institution']}}"
+      data-ssh_pubkey="{{profile['public_key']}}">
 <script>
-var name = {{profile['name']|tojson}};
-var email = {{profile['email']|tojson}};
-var phone = {{profile['phone']|tojson}};
-var institution = {{profile['institution']|tojson}};
-var ssh_pubkey = {{profile['public_key']|tojson}};
+var profile = $('#profile-data').data();
+var name = profile.name;
+var email = profile.email;
+var phone = profile.phone;
+var institution = profile.institution;
+var ssh_pubkey = profile.ssh_pubkey;
 
 window.onload = setEditFields(name, email, phone, institution, ssh_pubkey);
 
