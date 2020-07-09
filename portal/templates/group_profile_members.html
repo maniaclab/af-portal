@@ -42,9 +42,9 @@
       <tr v-for="(member, index) in members" v-cloak >
   		  <td>{[{member.metadata.name}]}</td>
         <td>{[{member.metadata.unix_name}]}</td>
-  		  <td v-if="(admin == 'admin' || connect_status == 'admin')" class="email-th">{[{member.metadata.email}]}</td>
+  		  <td v-if="(admin == 'admin' || connect_status == 'admin' || enclosing_status == 'admin')" class="email-th">{[{member.metadata.email}]}</td>
         <td v-else class="email-th">Admin View Only</td>
-  		  <td v-if="(admin == 'admin' || connect_status == 'admin')">{[{member.metadata.phone}]}</td>
+  		  <td v-if="(admin == 'admin' || connect_status == 'admin' || enclosing_status == 'admin')">{[{member.metadata.phone}]}</td>
         <td v-else>Admin View Only</td>
         <td>{[{member.metadata.institution}]}</td>
         <td>
@@ -56,7 +56,7 @@
             </div>
           </div>
         </td>
-        <td v-if="(admin == 'admin' || connect_status == 'admin')">
+        <td v-if="(admin == 'admin' || connect_status == 'admin' || enclosing_status == 'admin')">
           <div v-if="users_statuses[member.metadata.unix_name] == 'pending'">
             <div class="btn-group">
               <form role="form" :action="'/groups/' + groupname + '/add_group_member/' + member.metadata.unix_name" method="POST" onsubmit="return confirm('Are you sure you want to confirm this member?');">
@@ -100,7 +100,14 @@
   </table>
 </div>
 
+<meta id="flask-data" 
+      data-group_name="{{group_name}}" 
+      data-user_status="{{user_status}}" 
+      data-connect_status="{{connect_status}}"
+      data-enclosing_status="{{enclosing_status}}">
+
 <script>
+var flask_data = $('#flask-data').data();
 $(document).ready(function() {
   new Vue({
     el: '#members-table',
@@ -108,9 +115,10 @@ $(document).ready(function() {
       return {
         members: {},
         users_statuses: {},
-        groupname: {{ group_name|tojson|safe }},
-        admin: {{ user_status|tojson|safe }},
-        connect_status: {{ connect_status|tojson|safe }},
+        groupname: flask_data.group_name,
+        admin: flask_data.user_status,
+        connect_status: flask_data.connect_status,
+        enclosing_status: flask_data.enclosing_status,
         loading: true,
         failed: false
       }
@@ -122,7 +130,7 @@ $(document).ready(function() {
         });
   	},
     mounted(){
-      axios.get('/groups-xhr/{{group_name}}/members')
+      axios.get('/groups-xhr/'+flask_data.group_name+'/members')
     .then(function (response) {
       this.members = response.data[0];
       this.users_statuses = response.data[1];

@@ -39,15 +39,16 @@
   </table>
 </div>
 
+<meta id="flask-data" data-connect_status="{{connect_status}}" data-group_name="{{group_name}}">
 <script>
-
+var flask_data = $('#flask-data').data();
 $(document).ready(function() {
   new Vue({
     el: '#subgroups-table',
     data () {
       return {
         subgroups: {},
-        connect_status: {{connect_status|tojson|safe}},
+        connect_status: flask_data.connect_status,
         loading: true,
         failed: false
       }
@@ -57,10 +58,11 @@ $(document).ready(function() {
         $('#groups-table').DataTable();
   	},
     mounted(){
-      axios.get('/groups-xhr/{{group_name}}/subgroups')
+      axios.get('/groups-xhr/'+flask_data.group_name+'/subgroups')
     .then(function (response) {
       this.subgroups = response.data;
       this.loading = false;
+      console.log(this.connect_status)
     }.bind(this)) //must use bind(this) unless using arrow function
     .catch(error => { this.failed = true; this.loading = false; })
     }
