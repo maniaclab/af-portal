@@ -28,8 +28,11 @@
   </div>
 </div>
 
+<meta id="group-data" data-name="{{group_name}}">
 <script>
-
+var group_data = $('#group-data').data();
+var group_name = group_data.name
+var group_unix_name = group_name.slice(5);
 $(document).ready(function() {
   new Vue({
 	el: '#group-info',
@@ -37,13 +40,13 @@ $(document).ready(function() {
 	    return {
 	      group: {},
 		user_status: '',
-    unix_name: {{group_name[5:]|tojson|safe}},
+    unix_name: group_unix_name,
 		loading: true,
 		failed: false
 	    }
 	},
 	mounted() {
-            axios.get('/groups-xhr/{{group_name}}')
+            axios.get('/groups-xhr/' + group_name)
 	        .then(function (response) {
 		    this.group = response.data[0];
 		    this.user_status = response.data[1];
