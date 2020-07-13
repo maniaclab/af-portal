@@ -640,21 +640,20 @@ def create_profile():
             session['unix_name'] = r['unix_name']
 
             # Auto generate group membership into connect group
-            put_query = {"apiVersion": 'v1alpha1',
-                         'group_membership': {'state': 'pending'}}
-            user_status = requests.put(
-                ciconnect_api_endpoint +
-                '/v1alpha1/groups/' +
-                session['url_host']['unix_name'] + '/members/' + unix_name,
-                params=query, json=put_query)
+            # put_query = {"apiVersion": 'v1alpha1',
+            #              'group_membership': {'state': 'pending'}}
+            # user_status = requests.put(
+            #     ciconnect_api_endpoint +
+            #     '/v1alpha1/groups/' +
+            #     session['url_host']['unix_name'] + '/members/' + unix_name,
+            #     params=query, json=put_query)
+            group_name = session['url_host']['unix_name']
+            status = 'pending'
+            update_user_group_status(group_name, unix_name, status, session)
 
             flash_message = flash_message_parser('create_profile')
             flash(flash_message, 'success')
 
-            # flash(
-            #     'Account registration successful. A request for Unix account '
-            #     + 'activation on the Connect job submission server has been '
-            #     + 'forwarded to connect staff.', 'success')
             if 'next' in session:
                 redirect_to = session['next']
                 session.pop('next')
@@ -676,9 +675,8 @@ def edit_profile(unix_name):
     identity_id = session.get('primary_identity')
     query = {'token': ciconnect_api_token,
              'globus_id': identity_id}
-    user = requests.get(
-        ciconnect_api_endpoint + '/v1alpha1/find_user', params=query)
-    expected_unix_name = user.json()['metadata']['unix_name']
+    user = get_user_info(session)
+    expected_unix_name = user['metadata']['unix_name']
 
     try:
         unix_name == expected_unix_name
@@ -687,9 +685,8 @@ def edit_profile(unix_name):
 
     if request.method == 'GET':
         # Get user info, pass through as args, convert to json and load input fields
-        profile = requests.get(
-            ciconnect_api_endpoint + '/v1alpha1/users/' + unix_name, params=query)
-        profile = profile.json()['metadata']
+        profile = get_user_profile(unix_name)
+        profile = profile['metadata']
 
         return render_template('profile_edit.html', profile=profile, unix_name=unix_name)
 
@@ -735,7 +732,7 @@ def edit_profile(unix_name):
         return redirect(url_for('profile'))
 
 
-@app.route('/profile', methods=['GET', 'POST'])
+@app.route('/profile', methods=['GET'])
 @authenticated
 def profile():
     """User profile information. Assocated with a Globus Auth identity."""
@@ -775,27 +772,6 @@ def profile():
                                user_status=user_status,
                                group_memberships=group_memberships,
                                group_unix_name_description=group_unix_name_description)
-
-    elif request.method == 'POST':
-        # NO LONGER USING POST METHOD ON THIS ROUTE
-        name = session['name'] = request.form['name']
-        email = session['email'] = request.form['email']
-        institution = session['institution'] = request.form['institution']
-        globus_id = session['primary_identity']
-        phone = request.form['phone-number']
-        public_key = request.form['sshpubstring']
-        superuser = True
-        service_account = False
-
-        # flash('Thank you! Your profile has been successfully updated.', 'success')
-
-        if 'next' in session:
-            redirect_to = session['next']
-            session.pop('next')
-        else:
-            redirect_to = url_for('profile')
-
-        return redirect(redirect_to)
 
 
 @app.route('/authcallback', methods=['GET'])
@@ -860,6 +836,7 @@ def authcallback():
             try:
                 r = requests.get(
                     ciconnect_api_endpoint + '/v1alpha1/find_user', params=query)
+                # r = get_user_info(session)
                 if r.status_code == requests.codes.ok:
                     user_info = r.json()
                     # user_access_token = user_info['metadata']['access_token']
