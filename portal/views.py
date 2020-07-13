@@ -19,7 +19,7 @@ from portal.connect_api import (get_user_info, get_user_group_memberships,
                             get_user_pending_project_requests,
                             get_group_info, get_group_members,
                             delete_group_entry, update_user_group_status,
-                            get_user_access_token, domain_name_edgecase)
+                            get_user_access_token, domain_name_edgecase, get_user_profile, get_user_group_status)
 # Use these four lines on container
 import sys
 import subprocess
@@ -175,7 +175,7 @@ def create_group():
             # Purpose/Field of Science for CMS will always be High Energy Physics
             field_of_science = request.form['field_of_science']
         except:
-            field_of_science = "High Energy Physics".decode('utf-8')
+            field_of_science = "High Energy Physics"
 
         put_group = {"apiVersion": 'v1alpha1', "kind": "Group",
                      'metadata': {'name': name,
@@ -313,7 +313,7 @@ def create_subgroup(group_name):
             # Purpose/Field of Science for CMS will always be High Energy Physics
             field_of_science = request.form['field_of_science']
         except:
-            field_of_science = "High Energy Physics".decode('utf-8')
+            field_of_science = "High Energy Physics"
 
         put_query = {"apiVersion": 'v1alpha1',
                      'metadata': {'name': name, 'display_name': display_name,
@@ -741,31 +741,18 @@ def profile():
     """User profile information. Assocated with a Globus Auth identity."""
     if request.method == 'GET':
         identity_id = session.get('primary_identity')
-        query = {'token': ciconnect_api_token,
-                 'globus_id': identity_id}
         try:
-            user = requests.get(ciconnect_api_endpoint +
-                                '/v1alpha1/find_user', params=query)
-            user = user.json()
+            user = get_user_info(session)
             unix_name = user['metadata']['unix_name']
-
-            profile = requests.get(
-                ciconnect_api_endpoint + '/v1alpha1/users/' + unix_name, params=query)
-            profile = profile.json()
+            profile = get_user_profile(unix_name)
         except:
             profile = None
 
         if profile:
             profile = profile['metadata']
-            name = profile['name']
-            email = profile['email']
-            phone = profile['phone']
-            institution = profile['institution']
-            ssh_pubkey = profile['public_key']
-            # Check User's Status in Specific Connect Group
-            user_status = requests.get(ciconnect_api_endpoint + '/v1alpha1/users/' +
-                                       profile['unix_name'] + '/groups/' + session['url_host']['unix_name'], params=query)
-            user_status = user_status.json()['membership']['state']
+            unix_name = profile['unix_name']
+            group_name = session['url_host']['unix_name']
+            user_status = get_user_group_status(unix_name, group_name, session)
         else:
             flash(
                 'Please complete any missing profile fields and press Save.', 'warning')
@@ -790,6 +777,7 @@ def profile():
                                group_unix_name_description=group_unix_name_description)
 
     elif request.method == 'POST':
+        # NO LONGER USING POST METHOD ON THIS ROUTE
         name = session['name'] = request.form['name']
         email = session['email'] = request.form['email']
         institution = session['institution'] = request.form['institution']
@@ -882,7 +870,6 @@ def authcallback():
                     session['primary_identity'] = identity
             except:
                 print("NO PROFILE FOUND WITH IDENTITY: {}".format(identity))
-                # print("NOTHING HERE: {}".format(identity))
 
         connect_keynames = {'atlas': {'name': 'atlas-connect',
                                       'display_name': 'Atlas Connect',
@@ -905,9 +892,9 @@ def authcallback():
                             'snowmass21': {'name': 'snowmass21-connect',
                                     'display_name': 'Snowmass21 Connect',
                                     'unix_name': 'root.snowmass21'},
-                            'localhost': {'name': 'uchicago-connect',
-                                          'display_name': 'UChicago Connect',
-                                          'unix_name': 'root.uchicago'}}
+                            'localhost': {'name': 'snowmass21-connect',
+                                    'display_name': 'Snowmass21 Connect',
+                                    'unix_name': 'root.snowmass21'}}
         url_host = request.host
         try:
             referrer = urlparse(request.referrer)
