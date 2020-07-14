@@ -8,7 +8,7 @@
       <div class="col-lg-12 mx-auto">
         {%include 'messages.html' %}
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{{url_for('view_group', group_name=group_name)}}">{{group['display_name']}}</a></li>
+          <li class="breadcrumb-item"><a href="{{url_for('groups')}}">Groups</a></li>
         </ol>
         <h2>{{group['display_name']}}</h2>
         <br>
@@ -95,7 +95,16 @@
   </div>
 </section>
 
+<meta id="group-data" data-name="{{group['name']}}">
 <script>
+var group_data = $('#group-data').data();
+var group_names = group_data.name.split('.').slice(1);
+var unix_names = 'root'
+for(group_name of group_names){
+  unix_names += ('.' + group_name);
+  $('.breadcrumb').append("<li class='breadcrumb-item'><a href='/groups/"+unix_names+"'>"+group_name+"</li>");
+}
+
 $(document).ready(function() {
   var pathname = window.location.pathname;
   var route_split_list = pathname.split('/');
