@@ -8,15 +8,15 @@
 <section id="jupyter-notebook" class="bg-light">
   <div class="container col-lg-12">
     {%include 'messages.html' %}
-    <!-- <ol class="breadcrumb">
-      <li class="breadcrumb-item">Instances</li>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{url_for('view_instances')}}">Applications</a></li>
+      <li class="breadcrumb-item active">Deploy</li>
     </ol>
-    <br></br> -->
+    <h1>Deploy</h1>
+    <hr/>
+    <br></br>
     <div class="row">
       <div class="col-lg-6 mx-auto">
-        <h2>Deploy Application</h2>
-        <!-- <p class="asterik">* = required field</p> -->
-        <hr/>
         <div class="card" style="width: 18rem;">
           <img class="card-img-top" src="{{url_for('static', filename='img/jupyter-lab-logo.png')}}" alt="Jupyter Notebook Logo" style="padding: 5px;">
           <div class="card-body">

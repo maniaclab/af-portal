@@ -12,11 +12,11 @@
       <div class="col-lg-12 mx-auto">
         {%include 'messages.html' %}
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{{url_for('view_instances')}}">Instances</a></li>
+          <li class="breadcrumb-item"><a href="{{url_for('view_instances')}}">Applications</a></li>
           <li class="breadcrumb-item active">{{instance_details['metadata']['name']}}</li>
         </ol>
 
-        <h1>Instance: {{instance_details['metadata']['name']}}</h1>
+        <h1>Application: {{instance_details['metadata']['name']}}</h1>
         <h4>Cluster: <span class='text-muted'>{{instance_details['metadata']['cluster']}}</span></h4>
         <h5>Jupyter Token: </h5>
         <div class="input-group mb-3" style='max-width: 600px;'>
@@ -25,7 +25,7 @@
             <button class="btn btn-outline-secondary" type="button" id="button-addon2" onclick="copyToClipboard()">Copy</button>
           </div>
         </div>
-        <a href="{{url_for('view_delete_instance', instance_id=instance_details['metadata']['id'])}}" class="btn btn-danger btn-sm btn-box-shadow" onclick="btnConfirm()">Delete Instance</a>
+        <a href="{{url_for('view_delete_instance', instance_id=instance_details['metadata']['id'])}}" class="btn btn-danger btn-sm btn-box-shadow" onclick="btnConfirm()">Delete Application</a>
         <hr/>
 
         <ul class="nav nav-tabs" role="tablist">
@@ -63,10 +63,18 @@
                   {% for service in instance_details['services'] %}
                   <tr>
                     {% set addr = 'http://' +service['externalIP'] + ':' + service['ports'].split(':')[1].split('/')[0] %}
+                    {% set kub_port = service['ports'].split(':')[0] %}
+                    {% set port = service['ports'].split(':')[1].split('/')[0] %}
                     <td>{{service['name']}}</td>
                     <td><a href="{{addr}}" target="_blank">{{service['externalIP']}}</a></td>
                     <td>{{service['clusterIP']}}</td>
+                    {% if kub_port == '8888' %}
+                    <td>{{port}} <span class='text-muted'>(HTTP server)</span></td>
+                    {% elif kub_port == '22' %}
+                    <td>{{port}} <span class='text-muted'>(SSH server)</span></td>
+                    {% else %}
                     <td>{{service['ports']}}</td>
+                    {% endif %}
                     <td><a href="{{addr}}" target="_blank">{{service['url']}}</a></td>
                   </tr>
                   {% endfor %}
@@ -128,16 +136,20 @@
                         </div>
                         <div class="col-sm-4">
                           <h5 class="card-title">Events</h5>
-                    {% for event in pod['events']%}
-                      {% if event['count'] and event['count']> 1 %}
+                    {% if pod['events'] %}
+                      {% for event in pod['events']%}
+                        {% if event['count'] and event['count']> 1 %}
                           <li style="list-style: none"><strong>Count:</strong> {{event['count']}}</li>
-                      {% endif %}
+                        {% endif %}
                           <li style="list-style: none"><strong>First Timestamp:</strong> {{event['firstTimestamp'].split('T')[0] if event['firstTimestamp'] != None }} {{event['firstTimestamp'].split('T')[1].split('Z')[0] if event['firstTimestamp'] != None else 'None'}}</li>
                           <li style="list-style: none"><strong>Last Timestamp:</strong> {{event['lastTimestamp'].split('T')[0] if event['lastTimestamp'] != None }} {{event['lastTimestamp'].split('T')[1].split('Z')[0] if event['lastTimestamp'] != None else 'None'}}</li>
                           <li style="list-style: none"><strong>Reason:</strong> {{event['reason']}}</li>
                           <li style="list-style: none"><strong>Message:</strong> {{event['message']}}</li>
                           <hr/>
-                    {% endfor %}
+                      {% endfor %}
+                    {% else %}
+                          <li style="list-style: none"><strong>No events currently</li>
+                    {% endif %}
                         </div>
                       </div>
                     </td>
@@ -175,13 +187,37 @@
   </div>
 </section>
 
+<meta id="instance-data" data-name="{{instance_id}}">
 <script>
+var instance_id = $('#instance-data').data();
 $(document).ready(function() {
-    $('#pods-table').DataTable();
+  new Vue({
+    el: '#details',
+    data () {
+      return {
+        details: {},
+        loading: true,
+        failed: false
+      }
+    },
+    updated: function() {
+  	    //call DataTable after view is updated
+        $('#pods-table').DataTable();
+  	},
+    mounted() {
+      axios.get('/instance-details-xhr/' + instance_id.name)
+      .then(function (response) {
+        this.details = response.data;
+        this.loading = false;
+        console.log(this.details);
+      }.bind(this)) //must use bind(this) unless using arrow function
+      .catch(error => { this.failed = true; this.loading = false; })
+    }
+  });
 });
 
 function btnConfirm() {
-    var r = confirm("Are you sure you want to delete this instance?");
+    var r = confirm("Are you sure you want to delete this application?");
     if(r == true){
       window.location.href = "#";
     }

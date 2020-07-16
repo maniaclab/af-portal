@@ -10,8 +10,9 @@
   <div class="container col-lg-12 mx-auto">
     {%include 'messages.html' %}
     <ol class="breadcrumb">
-      <li class="breadcrumb-item">Instances</li>
+      <li class="breadcrumb-item">Applications</li>
     </ol>
+    <h1>Deployed Applications</h1>
     {% if user_status in ['active', 'admin'] %}
     <div class="btn-group mr-2" role="group" aria-label="first group">
       <a href="{{url_for('create_application')}}" class="btn btn-primary btn-sm btn-box-shadow">Deploy Application</a>
