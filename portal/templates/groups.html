@@ -13,6 +13,7 @@
         <ol class="breadcrumb">
           <li class="breadcrumb-item">Groups</li>
         </ol>
+        <h1>{{session['url_host']['display_name']}} Groups</h1>
         {% if user_status == 'active' %}
         <div class="btn-group mr-2" role="group" aria-label="first group">
           <a href="{{url_for('create_subgroup', group_name=session['url_host']['unix_name'])}}" class="btn btn-primary btn-sm btn-box-shadow">Request New Group</a>
