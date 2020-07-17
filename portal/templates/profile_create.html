@@ -39,6 +39,7 @@
 
           <div class="form-group">
             <label for="unix_name">Unix Username <span class="asterik">*</span></label>
+            <p class="text-muted">Please use POSIX unix convention <i class="fas fa-question-circle" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="Usernames must start with a lowercase letter. All other characters may be lowercase letters, numbers, or hyphens."></i></p>
             <input
               type="text"
               class="form-control"
@@ -49,6 +50,7 @@
               required="required"
               tabindex="2"
               maxlength="32"
+              pattern="^[a-z][-a-z0-9]*$"
             >
           </div>
 
@@ -197,6 +199,7 @@
       data-institution="{{session['institution']}}">
 
 <script>
+$('[data-toggle="popover"]').popover()
 var profile = $('#profile-data').data();
 var navbrand = document.getElementsByClassName("navbar-brand")[0].href = '#';
 var name = profile.name;
