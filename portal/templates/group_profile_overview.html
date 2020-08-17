@@ -46,7 +46,7 @@ $(document).ready(function() {
 	    }
 	},
 	mounted() {
-            axios.get('/groups-xhr/' + group_name)
+            axios.get('/groups-xhr/' + group_unix_name)
 	        .then(function (response) {
 		    this.group = response.data[0];
 		    this.user_status = response.data[1];

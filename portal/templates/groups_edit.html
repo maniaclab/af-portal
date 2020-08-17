@@ -42,7 +42,7 @@
               id="email"
               name="email"
               class="form-control"
-              placeholder="{{session['email']}}"
+              placeholder="Contact Email"
               required="required"
               tabindex="2"
             >
@@ -55,7 +55,7 @@
               id="phone"
               name="phone"
               class="form-control"
-              placeholder="555 555 5555"
+              placeholder="Contact Phone Number"
               required="required"
               tabindex="3"
               maxlength="20"
@@ -84,21 +84,25 @@
   </div>
 </section>
 
+<meta id="flask-data" 
+      data-name="{{group['display_name']}}" 
+      data-email="{{group['email']}}" 
+      data-phone="{{group['phone']}}" 
+      data-description="{{group['description']}}">
 <script>
-var display_name = {{group['display_name']|tojson}};
-var email = {{group['email']|tojson}};
-var phone = {{group['phone']|tojson}};
-var field_of_science = {{group['purpose']|tojson}};
-var description = {{group['description']|tojson}};
+var flask_data = $('#flask-data').data();
 
+var display_name = flask_data.name;
+var email = flask_data.email;
+var phone = flask_data.phone;
+var description = flask_data.description;
 
-window.onload = setFormFields(display_name, email, phone, field_of_science, description);
+window.onload = setFormFields(display_name, email, phone, description);
 
-function setFormFields(display_name, email, phone, field_of_science, description){
+function setFormFields(display_name, email, phone, description){
   document.getElementById('display-name').value = display_name;
   document.getElementById('email').value = email;
   document.getElementById('phone').value = phone;
-  document.getElementById('field_of_science').value = field_of_science;
   document.getElementById("description").value = description;
 }
 
