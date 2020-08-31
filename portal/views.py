@@ -90,6 +90,10 @@ def home():
                        'href': 'https://www.osgconnect.net',
                        'img': 'img/osg-connect-logo.png',
                        'description': get_about_markdown("osgconnect.net")},
+                      {'name': 'Snowmass21',
+                       'href': 'https://snowmass21.ci-connect.net',
+                       'img': 'img/snowmass-connect-logo.png',
+                       'description': get_about_markdown("snowmass21.ci-connect.net")},
                       {'name': 'SPT',
                        'href': 'https://spt.ci-connect.net',
                        'img': 'img/spt-connect-logo.png',
@@ -696,7 +700,6 @@ def edit_profile(unix_name):
         phone = request.form['phone-number']
         institution = request.form['institution']
         public_key = request.form['sshpubstring']
-        # print(request.form['csrf_token'])
         globus_id = session['primary_identity']
         access_token = get_user_access_token(session)
         query = {'token': access_token,
