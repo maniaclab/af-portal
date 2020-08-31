@@ -144,7 +144,9 @@
       var id = 'support-dropdown'; 
       addDropdownItem(title, href, id);
       document.getElementById("instances-nav").style.display = "inline";
-      document.getElementById("contributions").style.display = "inline";
+      if (typeof document.getElementById("contributions") != "undefined") {
+        document.getElementById("contributions").style.display = "inline";
+      }
       
     } else if(String(hostname).includes('psd') || String(hostname).includes('uchicago')){
 
