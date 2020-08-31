@@ -97,7 +97,11 @@ def home():
                       {'name': 'PSD',
                        'href': 'https://psdconnect.uchicago.edu',
                        'img': 'img/psd-connect-logo.png',
-                       'description': get_about_markdown("psdconnect.uchicago.edu")}]
+                       'description': get_about_markdown("psdconnect.uchicago.edu")},
+                      {'name': 'Snowmass21',
+                       'href': 'https://snowmass21.ci-connect.net',
+                       'img': 'img/snowmass-connect-logo.png',
+                       'description': get_about_markdown("snowmass21.ci-connect.net")}]
 
     return render_template('home.html', home_text_headline=home_text_headline,
                                         home_text_rotating=home_text_rotating,
