@@ -141,10 +141,20 @@
       nav_emailto.href="mailto:help@opensciencegrid.org";
       var title = 'Documentation';
       var href = 'https://maniaclab.uchicago.edu/snowmass-connect-docs/';
-      var id = 'support-dropdown'; 
+      var id = 'support-dropdown';
       addDropdownItem(title, href, id);
-      document.getElementById("contributions").style.display = "inline";
-      document.getElementById("instances-nav").style.display = "inline";
+      var instance_nav = document.getElementById("instances-nav");
+      if (typeof instance_nav != "undefined") {
+        console.log("No instance nav");
+      } else {
+        document.getElementById("instances-nav").style.display = "inline";
+      }
+      var contributions = document.getElementById("contributions");
+      if (typeof contributions != "undefined") {
+        console.log("No contributions here");
+      } else {
+        document.getElementById("contributions").style.display = "inline";
+      }
       
     } else if(String(hostname).includes('psd') || String(hostname).includes('uchicago')){
 
