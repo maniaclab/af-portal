@@ -143,9 +143,15 @@
       var href = 'https://maniaclab.uchicago.edu/snowmass-connect-docs/';
       var id = 'support-dropdown'; 
       addDropdownItem(title, href, id);
-      document.getElementById("instances-nav").style.display = "inline";
-      if (typeof document.getElementById("contributions") != "undefined") {
+      try {
+        document.getElementById("instances-nav").style.display = "inline";
+      } catch(err) {
+        console.log("User is currently not logged in")
+      }
+      try {
         document.getElementById("contributions").style.display = "inline";
+      } catch(err) {
+        console.log("Currently no contributions")
       }
       
     } else if(String(hostname).includes('psd') || String(hostname).includes('uchicago')){
