@@ -543,7 +543,15 @@ def about():
                       {'name': 'MANIAC lab',
                        'href': 'https://maniaclab.uchicago.edu/',
                        'img': 'img/maniac-org.png',
-                       'description': "The team at MANIAC Lab provides the CI-Connect service"}
+                       'description': "The team at MANIAC Lab provides the CI-Connect service"},
+                      {'name': 'Brookhaven National Lab',
+                       'href': 'https://www.bnl.gov/world/',
+                       'img': 'img/brookhaven_national_lab.jpg',
+                       'description': "Brookhaven National Laboratory has pledged to store data from Snowmass21 Monte Carlo simulation activities"},
+                      {'name': 'Fermilab',
+                       'href': 'https://www.fnal.gov/',
+                       'img': 'img/fermilab_plain_logo.jpeg',
+                       'description': "Fermilab is pledging storage resources for Snowmass21"}
                       ]
     return render_template('about.html', about=about, organizations=organizations)
 
