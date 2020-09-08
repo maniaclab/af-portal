@@ -189,7 +189,8 @@
       data-email="{{profile['email']}}" 
       data-phone="{{profile['phone']}}" 
       data-institution="{{profile['institution']}}"
-      data-ssh_pubkey="{{profile['public_key']}}">
+      data-ssh_pubkey="{{profile['public_key']}}"
+      data-x509dn="{{profile['X.509_DN']}}">
 <script>
 var profile = $('#profile-data').data();
 var name = profile.name;
@@ -197,14 +198,16 @@ var email = profile.email;
 var phone = profile.phone;
 var institution = profile.institution;
 var ssh_pubkey = profile.ssh_pubkey;
+var x509dn = profile.x509dn
 
-window.onload = setEditFields(name, email, phone, institution, ssh_pubkey);
+window.onload = setEditFields(name, email, phone, institution, ssh_pubkey, x509dn);
 
-function setEditFields(name, email, phone, institution, ssh_pubkey){
+function setEditFields(name, email, phone, institution, ssh_pubkey, x509dn){
   document.getElementById('name').value = name;
   document.getElementById('email').value = email;
   document.getElementById('phone-number').value = phone;
   document.getElementById('institution').value = institution;
+  document.getElementById('x509dn').value = x509dn;
   document.getElementById('sshpubstring').value = ssh_pubkey;
 }
 
