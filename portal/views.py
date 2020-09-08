@@ -709,6 +709,7 @@ def edit_profile(unix_name):
         institution = request.form['institution']
         public_key = request.form['sshpubstring']
         globus_id = session['primary_identity']
+        x509dn = request.form['x509dn']
         access_token = get_user_access_token(session)
         query = {'token': access_token,
                  'globus_id': identity_id}
@@ -717,11 +718,13 @@ def edit_profile(unix_name):
             post_user = {"apiVersion": 'v1alpha1',
                          'metadata': {'name': name, 'email': email,
                                       'phone': phone, 'institution': institution,
-                                      'public_key': public_key}}
+                                      'public_key': public_key,
+                                      'X.509_DN': x509dn}}
         else:
             post_user = {"apiVersion": 'v1alpha1',
                          'metadata': {'name': name, 'email': email,
-                                      'phone': phone, 'institution': institution}}
+                                      'phone': phone, 'institution': institution,
+                                      'X.509_DN': x509dn}}
         # PUT request to update user information
         r = requests.put(ciconnect_api_endpoint + '/v1alpha1/users/' +
                          unix_name, params=query, json=post_user)
@@ -757,6 +760,7 @@ def profile():
             profile = None
 
         if profile:
+            print("Found profile: {}".format(profile))
             profile = profile['metadata']
             unix_name = profile['unix_name']
             group_name = session['url_host']['unix_name']
