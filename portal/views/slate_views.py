@@ -1,14 +1,13 @@
 from flask import session, request, render_template, jsonify, redirect, url_for, flash
 import requests
 from portal import app
-from portal.decorators import authenticated, instance_authenticated
+from portal.decorators import authenticated
 from portal.slate_api import get_app_config, get_app_readme, list_users_instances_request, get_instance_details, get_instance_logs, delete_instance
 from portal.connect_api import get_user_profile, get_user_connect_status
 import os
 import json
 import yaml
 from base64 import b64encode
-import random
 
 slate_api_token = app.config['SLATE_API_TOKEN']
 slate_api_endpoint = app.config['SLATE_API_ENDPOINT']
@@ -18,13 +17,6 @@ def generateToken():
     token_bytes = os.urandom(32)
     b64_encoded = b64encode(token_bytes).decode()
     return b64_encoded
-
-
-def generateRandomPort():
-    """Generate random number between 30000 and 32767 for External Condor Port"""
-    random.seed()
-    port = random.randrange(30000,32767)
-    return port
 
 
 def createTokenSecret(generated_token, user_unix_name):
@@ -80,7 +72,6 @@ def view_instances():
 
 @app.route('/instances/<instance_id>', methods=['GET'])
 @authenticated
-@instance_authenticated
 def view_instance(instance_id):
     """View instance details"""
     if request.method == 'GET':
@@ -104,29 +95,18 @@ def view_instance(instance_id):
         return render_template('instance_profile.html', 
                                 instance_details=instance_details, 
                                 instance_status=instance_status, 
-                                instance_logs=instance_logs, 
-                                instance_id=instance_id,
-                                token=token)
-
-
-@app.route('/instance-details-xhr/<instance_id>', methods=['GET'])
-@authenticated
-def view_get_instance_details_xhr(instance_id):
-    instance_details = instance_details = get_instance_details(instance_id)
-    # print(instance_details)
-    return jsonify(instance_details)
+                                instance_logs=instance_logs, token=token)
 
 
 @app.route('/instances/delete/<instance_id>', methods=['GET'])
 @authenticated
-@instance_authenticated
 def view_delete_instance(instance_id):
     """View instance details"""
     if request.method == 'GET':
 
         deleted_instance_response = delete_instance(instance_id)
         print(deleted_instance_response)
-        flash("Your application has been deleted.", 'success')
+
         return redirect(url_for('view_instances'))
 
 
@@ -174,7 +154,6 @@ def create_application():
         app_config_yaml['CondorConfig']['Enabled'] = True
         app_config_yaml['CondorConfig']['CollectorHost'] = 'flock.opensciencegrid.org'
         app_config_yaml['CondorConfig']['CollectorPort'] = 9618
-        app_config_yaml['CondorConfig']['ExternalCondorPort'] = generateRandomPort()
         app_config_yaml['CondorConfig']['AuthTokenSecret'] = 'submit-auth-token'
         app_config_yaml['SSH']['Enabled'] = True
         try:
@@ -197,6 +176,13 @@ def create_application():
         # print(app_install.json())
 
         if app_install.status_code == requests.codes.ok:
+            # Store base64_encoded_token as slate secret to be retrieved by user later
+            # secrets_query = {'token': slate_api_token, 'group': 'group_2Q9yPCOLxMg'}
+            # r = requests.get(slate_api_endpoint + '/v1alpha3/secrets', params=secrets_query)
+            # print("getting group secrets: {} {}".format(r, r.json()))
+            # user_unix_name = session['unix_name']
+            # print(user_unix_name)
+            # createTokenSecret(base64_encoded_token, user_unix_name)
 
             flash("Your application has been deployed.", 'success')
             return redirect(url_for('view_instances'))
@@ -206,12 +192,6 @@ def create_application():
             return redirect(url_for('create_application'))
         else:
             err_message = app_install.json()['message']
-
-            if 'port is not in the valid range' in err_message:
-                print("Port was invalid, retrying with new external condor port")
-                # Flask code 307 preserve the POST request to retry method
-                return redirect(url_for('create_application'), code=307)
-
             flash('Unable to deploy application: {}'.format(err_message), 'warning')
             return redirect(url_for('create_application'))
 

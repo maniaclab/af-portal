@@ -35,8 +35,6 @@ def create_application():
     Query SLATE API to create application based on config, group, and cluster
     :return:
     """
-    # Currently hardcoded app name since initial implementation. May want to make dynamic feature in future.
-    # This would require create a form template in order to get a selected app name
     app_name = 'jupyter-notebook'
     group = 'group_2Q9yPCOLxMg'
     cluster = 'uchicago-river-v2'
@@ -50,8 +48,8 @@ def create_application():
     app_install = requests.post(
         slate_api_endpoint + '/v1alpha3/apps/' + app_name, params=query, json=install_app)
 
-    # print("APP INSTALL STATUS: {}".format(app_install))
-    # print("APP NAME: {}".format(app_name))
+    print("APP INSTALL STATUS: {}".format(app_install))
+    print("APP NAME: {}".format(app_name))
 
     create_application = query_status_code(app_install)
     return create_application
