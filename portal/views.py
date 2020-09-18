@@ -75,11 +75,11 @@ def home():
         home_text_rotating = file.read()
 
     collaborations = [{'name': 'Atlas',
-                       'href': 'https://atlas.ci-connect.net',
+                       'href': 'https://connect.usatlas.org',
                        'img': 'img/atlas-connect-logo.png',
                        'description': get_about_markdown("atlas.ci-connect.net")},
                       {'name': 'CMS',
-                       'href': 'https://cms.ci-connect.net',
+                       'href': 'https://connect.uscms.org',
                        'img': 'img/cms-connect-logo.png',
                        'description': get_about_markdown("cms.ci-connect.net")},
                       {'name': 'Duke',
@@ -99,7 +99,7 @@ def home():
                        'img': 'img/psd-connect-logo.png',
                        'description': get_about_markdown("psdconnect.uchicago.edu")},
                       {'name': 'Snowmass21',
-                       'href': 'https://snowmass21.ci-connect.net',
+                       'href': 'http://connect.snowmass21.io/',
                        'img': 'img/snowmass-connect-logo.png',
                        'description': get_about_markdown("snowmass21.ci-connect.net")}]
 
