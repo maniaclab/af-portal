@@ -8,6 +8,7 @@ import os
 import json
 import yaml
 from base64 import b64encode
+import random
 
 slate_api_token = app.config['SLATE_API_TOKEN']
 slate_api_endpoint = app.config['SLATE_API_ENDPOINT']
@@ -17,6 +18,14 @@ def generateToken():
     token_bytes = os.urandom(32)
     b64_encoded = b64encode(token_bytes).decode()
     return b64_encoded
+
+
+def generateRandomPort():
+    """Generate random number between 30000 and 32767 for External Condor Port"""
+    random.seed()
+    port = random.randrange(30000,32767)
+    print("Now using port: {}".format(port))
+    return port
 
 
 def createTokenSecret(generated_token, user_unix_name):
@@ -154,6 +163,7 @@ def create_application():
         app_config_yaml['CondorConfig']['Enabled'] = True
         app_config_yaml['CondorConfig']['CollectorHost'] = 'flock.opensciencegrid.org'
         app_config_yaml['CondorConfig']['CollectorPort'] = 9618
+        app_config_yaml['CondorConfig']['ExternalCondorPort'] = generateRandomPort()
         app_config_yaml['CondorConfig']['AuthTokenSecret'] = 'submit-auth-token'
         app_config_yaml['SSH']['Enabled'] = True
         try:
@@ -176,14 +186,6 @@ def create_application():
         # print(app_install.json())
 
         if app_install.status_code == requests.codes.ok:
-            # Store base64_encoded_token as slate secret to be retrieved by user later
-            # secrets_query = {'token': slate_api_token, 'group': 'group_2Q9yPCOLxMg'}
-            # r = requests.get(slate_api_endpoint + '/v1alpha3/secrets', params=secrets_query)
-            # print("getting group secrets: {} {}".format(r, r.json()))
-            # user_unix_name = session['unix_name']
-            # print(user_unix_name)
-            # createTokenSecret(base64_encoded_token, user_unix_name)
-
             flash("Your application has been deployed.", 'success')
             return redirect(url_for('view_instances'))
         elif app_install.status_code == 400:
@@ -192,8 +194,10 @@ def create_application():
             return redirect(url_for('create_application'))
         else:
             err_message = app_install.json()['message']
-            flash('Unable to deploy application: {}'.format(err_message), 'warning')
-            return redirect(url_for('create_application'))
+            if 'port is not in the valid range' in err_message:
+                print("Port was invalid, retrying with new external condor port")
+                # Flask code 307 preserve the POST request to retry method
+                return redirect(url_for('create_application'), code=307)
 
         return redirect(url_for('view_instances'))
 
