@@ -68,6 +68,7 @@
                   {% for service in instance_details['services'] %}
                   <tr>
                     {% set addr = 'http://' +service['externalIP'] + ':' + service['ports'].split(':')[1].split('/')[0] %}
+                    {% set url = service['url'].replace('http', 'https') %}
                     {% set kub_port = service['ports'].split(':')[0] %}
                     {% set port = service['ports'].split(':')[1].split('/')[0] %}
                     <td>{{service['name']}}</td>
@@ -80,7 +81,7 @@
                     {% else %}
                     <td>{{service['ports']}}</td>
                     {% endif %}
-                    <td><a href="{{addr}}" target="_blank">{{service['url']}}</a></td>
+                    <td><a href="{{url}}" target="_blank">{{url}}</a></td>
                   </tr>
                   {% endfor %}
                 </tbody>
