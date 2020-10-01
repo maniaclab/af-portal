@@ -163,6 +163,7 @@ def create_application():
         app_config_yaml['CondorConfig']['Enabled'] = True
         app_config_yaml['CondorConfig']['CollectorHost'] = 'flock.opensciencegrid.org'
         app_config_yaml['CondorConfig']['CollectorPort'] = 9618
+        app_config_yaml['CondorConfig']['IsExternalPool'] = True
         app_config_yaml['CondorConfig']['ExternalCondorPort'] = generateRandomPort()
         app_config_yaml['CondorConfig']['AuthTokenSecret'] = 'submit-auth-token'
         app_config_yaml['SSH']['Enabled'] = True
