@@ -166,6 +166,21 @@ def create_application():
         app_config_yaml['CondorConfig']['ExternalCondorPort'] = generateRandomPort()
         app_config_yaml['CondorConfig']['AuthTokenSecret'] = 'submit-auth-token'
         app_config_yaml['SSH']['Enabled'] = True
+
+        try:
+            extra_ports_enabled = request.form['extra-ports']
+            low_port = request.form['low-port']
+            high_port = request.form['high-port']
+            
+            app_config_yaml['ExtraPort']['Enabled'] = True
+            app_config_yaml['ExtraPort']['HighPort'] = low_port
+            app_config_yaml['ExtraPort']['LowPort'] = high_port
+            print("Using App Config with Extra Ports: {} - {}".format(low_port, high_port))
+        except:
+            extra_ports_enabled = False
+            print("Using App Config without Extra Ports")
+
+
         try:
             app_config_yaml['SSH']['SSH_Public_Key'] = request.form['sshpubstring']
         except:
