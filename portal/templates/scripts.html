@@ -72,6 +72,11 @@
       document.getElementById("contributions").style.display = "inline";
 
     } else if(String(hostname).includes('atlas')){
+      // Global site tag (gtag.js) - Google Analytics
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-178331567-5');
 
       connect_brand.src="{{url_for('static', filename='img/atlas-connect-logo.png')}}";
       nav_overview.href="https://ci-connect.atlassian.net/wiki/spaces/AC/overview";
@@ -85,6 +90,11 @@
       addDropdownItem(title, href);
 
     } else if(String(hostname).includes('cms')){
+      // Global site tag (gtag.js) - Google Analytics
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-178331567-4');
 
       connect_brand.src="{{url_for('static', filename='img/cms-connect-logo.png')}}";
       nav_overview.href="https://ci-connect.atlassian.net/wiki/spaces/CMS/overview";
@@ -100,6 +110,11 @@
       document.getElementById("nav-handbook").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/pages/22609980/Introduction+to+CMS+Connect";
 
     } else if(String(hostname).includes('duke')) {
+      // Global site tag (gtag.js) - Google Analytics
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-178331567-7');
 
       connect_brand.src="{{url_for('static', filename='img/duke-connect-logo.png')}}";
       nav_overview.href="https://rc.duke.edu/national-computing-labs/duke-ci-connect-quick-start/";
@@ -112,6 +127,11 @@
       addDropdownItem(title, href);
 
     } else if(String(hostname).includes('spt'))  {
+      // Global site tag (gtag.js) - Google Analytics
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-178331567-6');
 
       connect_brand.src="{{url_for('static', filename='img/spt-connect-logo.png')}}";
       nav_overview.href="https://pole.uchicago.edu/index.php";
@@ -135,6 +155,11 @@
       nav_link.innerText = 'Monitoring';
 
     } else if(String(hostname).includes('snowmass21')) {
+      // Global site tag (gtag.js) - Google Analytics
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-178331567-1');
       
       connect_brand.src="{{url_for('static', filename='img/snowmass-connect-logo.png')}}";
       nav_overview.href="https://snowmass21.org/montecarlo/energy";
@@ -155,6 +180,11 @@
       }
       
     } else if(String(hostname).includes('psd') || String(hostname).includes('uchicago')){
+      // Global site tag (gtag.js) - Google Analytics
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-178331567-8');
 
       connect_brand.src="{{url_for('static', filename='img/psd-connect-logo.png')}}";
       nav_overview.href="https://physicalsciences.uchicago.edu/";
@@ -168,6 +198,12 @@
       addDropdownItem(title, href);
 
     } else {
+      // Global site tag (gtag.js) - Google Analytics
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-178331567-3');
+
       connect_brand.src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
       nav_overview.parentNode.removeChild(nav_overview);
       nav_emailto.parentNode.removeChild(nav_emailto);
