@@ -63,13 +63,22 @@
 
       connect_brand.src="{{url_for('static', filename='img/snowmass-connect-logo.png')}}";
       nav_overview.href="https://snowmass21.org/montecarlo/energy";
-      nav_emailto.href="mailto:rwg@uchicago.edu";
-      var title = 'Documentation';
+      nav_overview.innerText = "Energy Frontier"
+      nav_emailto.href="mailto:help@opensciencegrid.org";
+      var title = 'User Docs';
       var href = 'https://maniaclab.uchicago.edu/snowmass-connect-docs/';
       var id = 'support-dropdown'; 
       addDropdownItem(title, href, id);
-      document.getElementById("instances-nav").style.display = "inline";
-      document.getElementById("contributions").style.display = "inline";
+      try {
+        document.getElementById("instances-nav").style.display = "inline";
+      } catch(err) {
+        console.log("User is currently not logged in")
+      }
+      try {
+        document.getElementById("contributions").style.display = "inline";
+      } catch(err) {
+        console.log("Currently no contributions")
+      }
 
     } else if(String(hostname).includes('atlas')){
       // Global site tag (gtag.js) - Google Analytics
@@ -163,8 +172,9 @@
       
       connect_brand.src="{{url_for('static', filename='img/snowmass-connect-logo.png')}}";
       nav_overview.href="https://snowmass21.org/montecarlo/energy";
+      nav_overview.innerText = "Energy Frontier"
       nav_emailto.href="mailto:help@opensciencegrid.org";
-      var title = 'Documentation';
+      var title = 'User Docs';
       var href = 'https://maniaclab.uchicago.edu/snowmass-connect-docs/';
       var id = 'support-dropdown'; 
       addDropdownItem(title, href, id);
