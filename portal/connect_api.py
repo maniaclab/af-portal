@@ -1,6 +1,7 @@
 from flask import session, request
 from portal import app
 import requests
+import json
 
 # Read configurable tokens and endpoints from config file, values must be set
 ciconnect_api_token = app.config['CONNECT_API_TOKEN']
@@ -170,9 +171,41 @@ def get_group_members(group_name, session):
     query = {'token': access_token}
     group_members = requests.get(
         ciconnect_api_endpoint + '/v1alpha1/groups/' + group_name + '/members', params=query)
-    # print(group_members.json())
     group_members = group_members.json()['memberships']
     return group_members
+
+
+def get_group_members_emails(group_name):
+    query = {'token': ciconnect_api_token}
+
+    group_members = get_group_members(group_name, session)
+    multiplexJson = {}
+    users_statuses = {}
+    # Get detailed user information from list of users
+    for user in group_members:
+        unix_name = user['user_name']
+        user_state = user['state']
+        if (user_state != 'nonmember' and unix_name != 'root'):
+            user_query = "/v1alpha1/users/" + \
+                unix_name + "?token=" + query['token']
+            multiplexJson[user_query] = {"method": "GET"}
+            users_statuses[unix_name] = user_state
+
+    # POST request for multiplex return
+    multiplex = get_multiplex(multiplexJson)
+    user_dict = {}
+    group_user_dict = {}
+
+    for user in multiplex:
+        user_name = user.split('/')[3].split('?')[0]
+        user_dict[user_name] = json.loads(multiplex[user]['body'])
+
+    for user, info in user_dict.items():
+        for group_membership in info['metadata']['group_memberships']:
+            if group_membership['name'] == group_name:
+                group_user_dict[user] = info
+
+    return user_dict, users_statuses
 
 
 def delete_group_entry(group_name, session):
