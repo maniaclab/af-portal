@@ -1,0 +1,94 @@
+{%extends "group_profile_template.html"%}
+
+{%block title%}
+  {{group['display_name']}} - Email
+{%endblock%}
+
+{%block content%}
+
+<div class="row" id='contact-us' style="display: inline;">
+  <div class="col-lg-8 mx-auto">
+    <h2>Email {{group['display_name']}} Users</h2>
+    <hr/>
+    <form role="form" action="{{url_for('view_group_email', group_name=group_name)}}" method="POST">
+      <div class="form-group">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+      </div>
+      <div class="form-group">
+        <label for="subject">Subject <span class="asterik">*</span></label>
+        <input
+          type="text"
+          id="subject"
+          name="subject"
+          class="form-control"
+          placeholder="Subject"
+          required="required"
+          tabindex="1"
+        >
+      </div>
+      <div class="form-group">
+        <label for="description">Body <span class="asterik" id="asterik">*</span></label>
+        <textarea
+          placeholder="Add email content here"
+          name="description"
+          required
+          tabindex="2"
+          style="background-color:white; color:black; border-radius:4px; border-color:lightgrey;"
+          value=""
+          ></textarea>
+      </div>
+
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="html-enabled" name="html-enabled">
+        <label class="form-check-label" for="html-enabled">Enable HTML</label>
+      </div>
+
+      <div class="form-group">
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </div>
+    </form>
+  </div> <!-- Profile Form Container -->
+</div> <!-- row -->
+
+<!-- <meta id="flask-data" 
+      data-group_name="{{group_name}}" 
+      data-user_status="{{user_status}}" 
+      data-connect_status="{{connect_status}}"
+      data-enclosing_status="{{enclosing_status}}">
+
+<script>
+var flask_data = $('#flask-data').data();
+$(document).ready(function() {
+  new Vue({
+    el: '#members-table',
+    data () {
+      return {
+        members: {},
+        users_statuses: {},
+        groupname: flask_data.group_name,
+        admin: flask_data.user_status,
+        connect_status: flask_data.connect_status,
+        enclosing_status: flask_data.enclosing_status,
+        loading: true,
+        failed: false
+      }
+    },
+    updated: function() {
+  	    //call DataTable after view is updated
+        $('#groups-table').DataTable({
+          order: [[5, 'desc'],[0, 'asc']],
+        });
+  	},
+    mounted(){
+      axios.get('/groups-xhr/'+flask_data.group_name+'/members')
+    .then(function (response) {
+      this.members = response.data[0];
+      this.users_statuses = response.data[1];
+      this.loading = false;
+    }.bind(this)) //must use bind(this) unless using arrow function
+    .catch(error => { this.failed = true; this.loading = false; })
+    }
+  });
+});
+</script> -->
+{%endblock%}
