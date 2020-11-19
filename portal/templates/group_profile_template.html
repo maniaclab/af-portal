@@ -11,7 +11,6 @@
           <li class="breadcrumb-item"><a href="{{url_for('groups')}}">Groups</a></li>
         </ol>
         <h2>{{group['display_name']}}</h2>
-        <!-- <p>{{user_status}}, {{ connect_status }}, {{ enclosing_status }}</p> -->
         <br>
         <div class="btn-toolbar" role="toolbar">
           {% if (user_status == 'nonmember' and connect_status != 'nonmember' and enclosing_status != 'nonmember') %}
@@ -79,7 +78,7 @@
           </li>
             {% endif %}
           {% endif %}
-          {% if group_name.split('.')|length == 2 %}
+          {% if group_name.split('.')|length == 2 and (connect_status == 'admin') %}
           <li class="nav-item">
             <a class="nav-link" href="{{url_for('view_group_email', group_name=group_name)}}" id='email-tab'><i class="fas fa-envelope"></i> Email</a>
           </li>
