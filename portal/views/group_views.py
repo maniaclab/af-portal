@@ -17,7 +17,8 @@ from portal.connect_api import (get_user_info, get_multiplex,
                                 get_group_members,
                                 get_user_group_status,
                                 get_enclosing_group_status,
-                                update_user_group_status)
+                                update_user_group_status, domain_name_edgecase,
+                                get_group_members_emails)
 import sys
 
 # Read configurable tokens and endpoints from config file, values must be set
@@ -459,3 +460,69 @@ def view_group_subgroups_ajax_requests(group_name):
         subgroup_requests = subgroup_requests.json()['groups']
 
         return subgroup_requests
+
+
+@app.route('/groups/<group_name>/email', methods=['GET', 'POST'])
+@authenticated
+def view_group_email(group_name):
+    """View for email form to members"""
+    if request.method == 'GET':
+        # Get group information
+        group = get_group_info(group_name, session)
+        # Get User's Group Status
+        unix_name = session['unix_name']
+        user_status = get_user_group_status(unix_name, group_name, session)
+        # Query to return user's enclosing group's membership status
+        enclosing_status = get_enclosing_group_status(group_name, unix_name)
+        # Query to check user's connect status
+        connect_group = session['url_host']['unix_name']
+        connect_status = get_user_connect_status(unix_name, connect_group)
+
+        return render_template('group_profile_email.html', group_name=group_name,
+                               user_status=user_status, group=group,
+                               connect_status=connect_status,
+                               enclosing_status=enclosing_status)
+    elif request.method == 'POST':
+        subject = request.form['subject']
+        body = request.form['description']
+        try:
+            html = request.form['html-enabled']
+            body_or_html = "html"
+        except:
+            body_or_html = "text"
+
+        # mailgun setup here
+        domain_name = domain_name_edgecase()
+        support_emails = {
+                            "cms.ci-connect.net": "cms-connect-support@cern.ch",
+                            "duke.ci-connect.net": "scsc@duke.edu",
+                            "spt.ci-connect.net": "jlstephen@uchicago.edu",
+                            "atlas.ci-connect.net": "atlas-connect-l@lists.bnl.gov",
+                            "psdconnect.uchicago.edu": "support@ci-connect.uchicago.edu",
+                            "www.ci-connect.net": "support@ci-connect.net",
+                            "localhost:5000": "jeremyvan614@gmail.com"
+                            }
+
+        try:
+            support_email = support_emails[domain_name]
+        except:
+            support_email = "support@ci-connect.net"
+        
+        user_dict, users_statuses = get_group_members_emails(group_name)
+        user_emails = [user_dict[user]['metadata']['email'] for user in user_dict]
+        # print(user_emails)
+        r = requests.post("https://api.mailgun.net/v3/api.ci-connect.net/messages",
+                          auth=('api', mailgun_api_token),
+                          data={
+                              "from": "<" + support_email + ">",
+                              "to": [support_email],
+                              "bcc": user_emails,
+                              "subject": subject,
+                              body_or_html: body,
+                          })
+        if r.status_code == requests.codes.ok:
+            flash("Your message has been sent to the members of this group", 'success')
+            return redirect(url_for('view_group_email', group_name=group_name))
+        else:
+            flash("Unable to send message: {}".format(r.json()), 'warning')
+            return redirect(url_for('view_group_email', group_name=group_name))
