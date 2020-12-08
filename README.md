@@ -76,3 +76,8 @@ This repository contains the base code for the CI-Connect branded portal applica
 
 * `./run_portal.py`
 * point your web browser to `https://YOUR_IP:5000/`
+
+
+## Branded Portal Cases
+
+All code pertaining to individual branded portals is located in `/portal/templates/scripts.html`. This file handles stylistic differences between the portals, mainly pertaining to google analytics, nav-header menus, and branded images.
