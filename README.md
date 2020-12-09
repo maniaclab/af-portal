@@ -8,9 +8,6 @@ This repository contains the base code for the CI-Connect branded portal applica
 ## Getting Started
 #### Set up your environment.
 * [OS X](#os-x)
-* [Linux](#linux-ubuntu)
-* [Windows](#windows)
-* [Amazon EC2](#amazon-ec2)
 
 #### Create your own App registration for use in the Portal. 
 * Visit the [Globus Developer Pages](https://developers.globus.org) to register an App.
@@ -24,60 +21,49 @@ This repository contains the base code for the CI-Connect branded portal applica
 
 ### OS X
 
-##### Environment Setup
+##### Portal Environment Setup
 
 * `sudo easy_install pip`
 * `sudo pip install virtualenv`
+* `sudo mkdir ~/projects`
+* `cd ~/projects`
 * `git clone https://github.com/maniaclab/ciconnect-portal`
 * `cd ciconnect-portal`
 * `virtualenv venv`
 * `source venv/bin/activate`
 * `pip install -r requirements.txt`
-* Note that current `portal.conf` file located in `ciconnect-portal/portal/portal.conf` is the default .conf file from the Globus Developer Portal.
+* Note that current `portal.conf` file located in `ciconnect-portal/portal/portal.conf` is the default .conf file from the Globus Developer Portal and will need to be updated to include correct API keys.
+
+##### Markdown Content Setup
+
+* `cd ~/projects`
+* `git clone https://github.com/maniaclab/ciconnect-portal-markdowns`
+* Make a copy of one of the branded markdown directories, label it as localhost:5000 or your local webserver
+* `cp -R psdconnect.uchicago.edu/ localhost\:5000/`
+
 
 ##### Running the Portal App
 
+* `cd ~/projects/ciconnect-portal`
 * `./run_portal.py`
 * point your browser to `https://localhost:5000`
-
-### Linux (Ubuntu)
-
-##### Environment Setup
-
-* `sudo apt-get update`
-* `sudo apt-get install python-pip python-dev gcc`
-* `sudo pip install virtualenv`
-* `sudo apt-get install git`
-* `git clone https://github.com/maniaclab/ciconnect-portal`
-* `cd ciconnect-portal`
-* `virtualenv venv`
-* `source venv/bin/activate`
-* `pip install -r requirements.txt`
-
-##### Running the Portal App
-
-* `./run_portal.py`
-* point your browser to `https://localhost:5000`
-
-### Amazon EC2
-
-##### Environment Setup
-
-* `git clone https://github.com/maniaclab/ciconnect-portal`
-* `cd ciconnect-portal`
-* `virtualenv venv`
-* `source venv/bin/activate`
-* `pip install -r requirements.txt`
-* `sed -i 's/localhost/0.0.0.0/' run_portal.py`
-* `sed -i '4,//s/localhost/YOUR_IP/' portal/portal.conf`
-* `echo "SESSION_COOKIE_DOMAIN = 'YOUR_IP'" >> portal/portal.conf`
-
-##### Running the Portal App
-
-* `./run_portal.py`
-* point your web browser to `https://YOUR_IP:5000/`
 
 
 ## Branded Portal Cases
 
 All code pertaining to individual branded portals is located in `/portal/templates/scripts.html`. This file handles stylistic differences between the portals, mainly pertaining to google analytics, nav-header menus, and branded images.
+
+
+## Changes to run local environment
+
+Update `/run_portal.py` file to match below:
+
+```
+#!/usr/bin/env python
+
+from portal import app
+
+if __name__ == '__main__':
+    app.run(host='localhost',
+            ssl_context=('./ssl/server.crt', './ssl/server.key'))
+```
