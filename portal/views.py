@@ -113,51 +113,6 @@ def get_about_markdown(domain_name):
         about = file.read()
     return about
 
-
-@app.route('/support', methods=['POST'])
-def support():
-    """
-    Support page, utilize mailgun to send message
-    """
-    if request.method == 'POST':
-        user_email = request.form['email']
-        # print("User Email: {}".format(user_email))
-        description = request.form['description']
-        # mailgun setup here
-        domain_name = domain_name_edgecase()
-        # print(domain_name)
-        support_emails = {
-                            "cms.ci-connect.net": "cms-connect-support@cern.ch",
-                            "duke.ci-connect.net": "scsc@duke.edu",
-                            "spt.ci-connect.net": "jlstephen@uchicago.edu",
-                            "atlas.ci-connect.net": "atlas-connect-l@lists.bnl.gov",
-                            "psdconnect.uchicago.edu": "support@ci-connect.uchicago.edu",
-                            "www.ci-connect.net": "support@ci-connect.net",
-                            "localhost:5000": "jeremyvan614@gmail.com"
-                            }
-
-        try:
-            support_email = support_emails[domain_name]
-        except:
-            support_email = "support@ci-connect.net"
-        # print("Support Email: {} {}".format(support_email, mailgun_api_token))
-        r = requests.post("https://api.mailgun.net/v3/api.ci-connect.net/messages",
-                          auth=('api', mailgun_api_token),
-                          data={
-                              "from": "<" + user_email + ">",
-                              "to": [support_email],
-                              "cc": "<{}>".format(user_email),
-                              "subject": "Support Inquiry",
-                              "text": description
-                          })
-        if r.status_code == requests.codes.ok:
-            flash("Your message has been sent to the support team.", 'success')
-            return redirect(url_for('about'))
-        else:
-            flash("Unable to send message", 'warning')
-            return redirect(url_for('about'))
-
-
 @app.route('/groups/new', methods=['GET', 'POST'])
 @authenticated
 def create_group():
