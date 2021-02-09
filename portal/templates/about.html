@@ -13,45 +13,6 @@
         <p class="leadl" id="about_content"></p>
       </div>
     </div>
-    <div class="row" id='contact-us' style="display: inline;">
-      <div class="col-lg-8 mx-auto">
-        <h2>Contact Us</h2>
-        <hr/>
-        <form role="form" action="{{url_for('support')}}" method="POST">
-          <div class="form-group">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-          </div>
-          <div class="form-group">
-            <label for="email">Email <span class="asterik">*</span></label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              class="form-control"
-              placeholder="contact-email@domain.com"
-              required="required"
-              tabindex="1"
-            >
-          </div>
-          <div class="form-group">
-            <label for="description">Questions/Comments <span class="asterik" id="asterik">*</span></label>
-            <textarea
-              placeholder="Brief description of your issue"
-              name="description"
-              required
-              tabindex="2"
-              style="background-color:white; color:black; border-radius:4px; border-color:lightgrey;"
-              value=""
-              ></textarea>
-          </div>
-
-          <div class="form-group">
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </div>
-        </form>
-      </div> <!-- Profile Form Container -->
-    </div> <!-- row -->
-
   </div>
 </section>
 
