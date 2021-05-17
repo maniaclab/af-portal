@@ -16,6 +16,7 @@
       <div class="col-lg-6 mx-auto">
         <h2>Edit Profile</h2>
         <h6>Unix Username: {{session['unix_name']}}</h6>
+        <h6>User Globus ID: {{session['primary_identity']}}</h6>
         <p class="asterik">* = required field</p>
         <hr/>
         <form role="form" action="{{url_for('edit_profile', unix_name=unix_name)}}" method="POST">
