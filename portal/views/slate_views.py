@@ -68,7 +68,7 @@ def createTokenSecret(generated_token, user_unix_name):
 @authenticated
 def view_instances():
     """Connect groups"""
-    #query = {"token": slate_api_token, "dev": "true"}
+    # query = {"token": slate_api_token, "dev": "true"}
     if request.method == "GET":
         app_name = "jupyter-notebook"
         profile = get_user_profile(session["unix_name"])
@@ -190,7 +190,7 @@ def create_application():
         app_config_yaml["SSH"]["Enabled"] = True
 
         try:
-            #extra_ports_enabled = request.form["extra-ports"]
+            # extra_ports_enabled = request.form["extra-ports"]
             low_port = request.form["low-port"]
             high_port = request.form["high-port"]
 
@@ -201,7 +201,7 @@ def create_application():
                 "Using App Config with Extra Ports: {} - {}".format(low_port, high_port)
             )
         except:
-            #extra_ports_enabled = False
+            # extra_ports_enabled = False
             print("Using App Config without Extra Ports")
 
         try:

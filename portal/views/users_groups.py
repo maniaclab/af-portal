@@ -99,7 +99,7 @@ def users_groups():
 def users_groups_pending():
     """Groups that user's are specifically members of"""
     if request.method == "GET":
-        #query = {"token": ciconnect_api_token, "globus_id": session["primary_identity"]}
+        # query = {"token": ciconnect_api_token, "globus_id": session["primary_identity"]}
         # Get user info
         user = get_user_info(session)
         unix_name = user["metadata"]["unix_name"]

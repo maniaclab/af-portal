@@ -8,11 +8,11 @@ ciconnect_api_token = app.config["CONNECT_API_TOKEN"]
 ciconnect_api_endpoint = app.config["CONNECT_API_ENDPOINT"]
 
 # get_user_access_token seems to be undefined here
-#try:
+# try:
 #    user_access_token = get_user_access_token(session)
 #    query = {"token": user_access_token}
-#except:
-    query = {"token": ciconnect_api_token}
+# except:
+query = {"token": ciconnect_api_token}
 
 
 def connect_name(group_name):

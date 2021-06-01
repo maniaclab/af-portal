@@ -798,9 +798,9 @@ def create_profile():
 
             # <LB> This seems to be unused. We never use the redirect_to variable.
             if "next" in session:
-                #redirect_to = session["next"]
+                # redirect_to = session["next"]
                 session.pop("next")
-            #else:
+            # else:
             #    redirect_to = url_for("profile")
             return redirect(url_for("profile"))
         else:
@@ -891,10 +891,10 @@ def edit_profile(unix_name):
         # know that I understand it well enough to make a direct change in the
         # return value.
         if "next" in session:
-            #redirect_to = session["next"]
+            # redirect_to = session["next"]
             session.pop("next")
-        #else:
-            #redirect_to = url_for("profile")
+        # else:
+        # redirect_to = url_for("profile")
 
         return redirect(url_for("profile"))
 

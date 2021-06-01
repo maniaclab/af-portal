@@ -82,7 +82,7 @@ def groups():
 def view_group(group_name):
     """Detailed view of specific groups"""
     # <LB> Appears unused.
-    #query = {"token": ciconnect_api_token, "globus_id": session["primary_identity"]}
+    # query = {"token": ciconnect_api_token, "globus_id": session["primary_identity"]}
 
     user = get_user_info(session)
     unix_name = user["metadata"]["unix_name"]
