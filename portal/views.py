@@ -1,24 +1,19 @@
-from flask import flash, redirect, render_template, request, session, url_for, jsonify
+from flask import flash, redirect, render_template, request, session, url_for
 import requests
-import json
 
 try:
     # Python 2
-    from urllib.parse import urlparse, urlencode, parse_qs
+    from urllib.parse import urlparse, parse_qs
 except ImportError:
     # Python 3
     from urlparse import urlparse, parse_qs
-    from urllib import urlencode
 
 from portal import app, csrf
 from portal.decorators import authenticated
 from portal.utils import load_portal_client, get_safe_redirect, flash_message_parser
 from portal.connect_api import (
     get_user_info,
-    get_user_group_memberships,
-    get_multiplex,
     get_user_connect_status,
-    get_user_pending_project_requests,
     get_group_info,
     get_group_members,
     delete_group_entry,
@@ -44,10 +39,6 @@ brand_dir = app.config["MARKDOWN_DIR"]
 sys.path.insert(0, brand_dir)
 # Set sys path and import view routes
 sys.path.insert(1, "portal/views")
-import group_views
-import error_handling
-import users_groups
-import slate_views
 
 
 @app.route("/webhooks/github", methods=["GET", "POST"])
@@ -805,11 +796,12 @@ def create_profile():
             flash_message = flash_message_parser("create_profile")
             flash(flash_message, "success")
 
+            # <LB> This seems to be unused. We never use the redirect_to variable.
             if "next" in session:
-                redirect_to = session["next"]
+                #redirect_to = session["next"]
                 session.pop("next")
-            else:
-                redirect_to = url_for("profile")
+            #else:
+            #    redirect_to = url_for("profile")
             return redirect(url_for("profile"))
         else:
             error_msg = r.json()["message"]
@@ -853,7 +845,6 @@ def edit_profile(unix_name):
         phone = request.form["phone-number"]
         institution = request.form["institution"]
         public_key = request.form["sshpubstring"]
-        globus_id = session["primary_identity"]
         x509dn = request.form["x509dn"]
         access_token = get_user_access_token(session)
         query = {"token": access_token, "globus_id": identity_id}
@@ -882,7 +873,7 @@ def edit_profile(unix_name):
                 },
             }
         # PUT request to update user information
-        r = requests.put(
+        requests.put(
             ciconnect_api_endpoint + "/v1alpha1/users/" + unix_name,
             params=query,
             json=post_user,
@@ -896,11 +887,14 @@ def edit_profile(unix_name):
         flash_message = flash_message_parser("edit_profile")
         flash(flash_message, "success")
 
+        # As before, not sure that the redirect_to is ever used, and I don't
+        # know that I understand it well enough to make a direct change in the
+        # return value.
         if "next" in session:
-            redirect_to = session["next"]
+            #redirect_to = session["next"]
             session.pop("next")
-        else:
-            redirect_to = url_for("profile")
+        #else:
+            #redirect_to = url_for("profile")
 
         return redirect(url_for("profile"))
 
@@ -910,7 +904,7 @@ def edit_profile(unix_name):
 def profile():
     """User profile information. Assocated with a Globus Auth identity."""
     if request.method == "GET":
-        identity_id = session.get("primary_identity")
+        session.get("primary_identity")
         try:
             user = get_user_info(session)
             unix_name = user["metadata"]["unix_name"]

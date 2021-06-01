@@ -1,11 +1,6 @@
 from flask import render_template, request, session
 import json
 
-try:
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib import urlencode
-
 from portal import app
 from portal.decorators import authenticated
 from portal.connect_api import (
@@ -104,7 +99,7 @@ def users_groups():
 def users_groups_pending():
     """Groups that user's are specifically members of"""
     if request.method == "GET":
-        query = {"token": ciconnect_api_token, "globus_id": session["primary_identity"]}
+        #query = {"token": ciconnect_api_token, "globus_id": session["primary_identity"]}
         # Get user info
         user = get_user_info(session)
         unix_name = user["metadata"]["unix_name"]

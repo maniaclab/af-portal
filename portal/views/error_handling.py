@@ -5,6 +5,7 @@ import sys
 from werkzeug.exceptions import HTTPException
 from portal import app
 
+
 # Create a custom error handler for Exceptions
 @app.errorhandler(Exception)
 def exception_occurred(e):

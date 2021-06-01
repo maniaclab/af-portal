@@ -2,14 +2,8 @@ from flask import flash, redirect, render_template, request, session, url_for, j
 import requests
 import json
 
-try:
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib import urlencode
-
 from portal import app
 from portal.decorators import authenticated
-from portal.utils import flash_message_parser
 from portal.connect_api import (
     get_user_info,
     get_multiplex,
@@ -87,7 +81,8 @@ def groups():
 @authenticated
 def view_group(group_name):
     """Detailed view of specific groups"""
-    query = {"token": ciconnect_api_token, "globus_id": session["primary_identity"]}
+    # <LB> Appears unused.
+    #query = {"token": ciconnect_api_token, "globus_id": session["primary_identity"]}
 
     user = get_user_info(session)
     unix_name = user["metadata"]["unix_name"]
@@ -550,7 +545,7 @@ def view_group_email(group_name):
         subject = request.form["subject"]
         body = request.form["description"]
         try:
-            html = request.form["html-enabled"]
+            request.form["html-enabled"]
             body_or_html = "html"
         except:
             body_or_html = "text"
