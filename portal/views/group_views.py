@@ -553,14 +553,14 @@ def view_group_email(group_name):
         # mailgun setup here
         domain_name = domain_name_edgecase()
         support_emails = {
-                            "cms.ci-connect.net": "cms-connect-support@cern.ch",
-                            "duke.ci-connect.net": "scsc@duke.edu",
-                            "spt.ci-connect.net": "spt-connect-approvers@api.ci-connect.net",
-                            "atlas.ci-connect.net": "atlas-connect-l@lists.bnl.gov",
-                            "psdconnect.uchicago.edu": "support@ci-connect.uchicago.edu",
-                            "www.ci-connect.net": "support@ci-connect.net",
-                            "localhost:5000": "localhost@localdomain"
-                            }
+            "cms.ci-connect.net": "cms-connect-support@cern.ch",
+            "duke.ci-connect.net": "scsc@duke.edu",
+            "spt.ci-connect.net": "spt-connect-approvers@api.ci-connect.net",
+            "atlas.ci-connect.net": "atlas-connect-l@lists.bnl.gov",
+            "psdconnect.uchicago.edu": "support@ci-connect.uchicago.edu",
+            "www.ci-connect.net": "support@ci-connect.net",
+            "localhost:5000": "localhost@localdomain",
+        }
         try:
             support_email = support_emails[domain_name]
         except:
