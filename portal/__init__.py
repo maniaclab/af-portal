@@ -1,13 +1,10 @@
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 from datetime import timedelta
-import json
 
 # from flask import Markup
-from flask_misaka import markdown
 from flask_misaka import Misaka
 import logging.handlers
-import logging
 import sys
 
 __author__ = "MANIAC Lab <gardnergroup@lists.uchicago.edu>"
