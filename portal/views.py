@@ -1,24 +1,19 @@
-from flask import flash, redirect, render_template, request, session, url_for, jsonify
+from flask import flash, redirect, render_template, request, session, url_for
 import requests
-import json
 
 try:
     # Python 2
-    from urllib.parse import urlparse, urlencode, parse_qs
+    from urllib.parse import urlparse, parse_qs
 except ImportError:
     # Python 3
     from urlparse import urlparse, parse_qs
-    from urllib import urlencode
 
 from portal import app, csrf
 from portal.decorators import authenticated
 from portal.utils import load_portal_client, get_safe_redirect, flash_message_parser
 from portal.connect_api import (
     get_user_info,
-    get_user_group_memberships,
-    get_multiplex,
     get_user_connect_status,
-    get_user_pending_project_requests,
     get_group_info,
     get_group_members,
     delete_group_entry,
@@ -44,11 +39,6 @@ brand_dir = app.config["MARKDOWN_DIR"]
 sys.path.insert(0, brand_dir)
 # Set sys path and import view routes
 sys.path.insert(1, "portal/views")
-import group_views
-import error_handling
-import users_groups
-import slate_views
-
 
 @app.route("/webhooks/github", methods=["GET", "POST"])
 @csrf.exempt
