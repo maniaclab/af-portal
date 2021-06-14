@@ -10,7 +10,7 @@ import logging.handlers
 import logging
 import sys
 
-__author__ = "Jeremy Van <jeremyvan@uchicago.edu>"
+__author__ = "MANIAC Lab <gardnergroup@lists.uchicago.edu>"
 
 app = Flask(__name__)
 # Enable CSRF protection globally for Flask app
