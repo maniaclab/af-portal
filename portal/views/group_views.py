@@ -564,7 +564,7 @@ def view_group_email(group_name):
             "atlas.ci-connect.net": "atlas-connect-l@lists.bnl.gov",
             "psdconnect.uchicago.edu": "support@ci-connect.uchicago.edu",
             "www.ci-connect.net": "support@ci-connect.net",
-            "localhost:5000": "jeremyvan614@gmail.com",
+            "localhost:5000": "root@localhost.localdomain",
         }
 
         try:
