@@ -99,7 +99,7 @@ def home():
             "name": "ATLAS Analysis Facility",
             "href": "https://af.uchicago.edu",
             "img": "img/atlas-af-logo.png",
-            "description": get_about_markdown("atlas-af.ci-connect.net"),
+            "description": get_about_markdown("af.uchicago.edu"),
         },
         {
             "name": "Atlas",
