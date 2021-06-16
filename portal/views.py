@@ -96,6 +96,12 @@ def home():
 
     collaborations = [
         {
+            "name": "ATLAS Analysis Facility",
+            "href": "https://af.uchicago.edu",
+            "img": "img/atlas-af-logo.png",
+            "description": get_about_markdown("atlas-af.ci-connect.net"),
+        },
+        {
             "name": "Atlas",
             "href": "https://connect.usatlas.org",
             "img": "img/atlas-connect-logo.png",
