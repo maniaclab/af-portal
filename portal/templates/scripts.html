@@ -172,22 +172,16 @@
       gtag('config', 'UA-178331567-5');
 
       connect_brand.src="{{url_for('static', filename='img/atlas-af-logo.png')}}";
-      nav_overview.href="https://pole.uchicago.edu/index.php";
-      nav_emailto.href="mailto:jlstephen@uchicago.edu";
+      nav_overview.href="https://www.usatlas.org/";
+      nav_emailto.href="mailto:atlas-connect-l@lists.bnl.gov"
       // nav_overview.parentNode.removeChild(nav_overview);
       // nav_emailto.parentNode.removeChild(nav_emailto);
       document.getElementById("login-node-nav").style.display = "inline";
       // Set the title
-      var title = "amundsen.grid.uchicago.edu"
-      var title_scott = 'scott.grid.uchicago.edu'
-      var title_spt = 'SPT Storage'
+      var title_login = "Login Nodes"
       // Set the href property
-      var href_amundsen = 'https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=amundsen_grid_uchicago_edu';
-      var href_scott = 'https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=scott_grid_uchicago_edu';
-      var href_spt = 'https://grafana.mwt2.org/d/0HbLiB_Wk/spt-storage?orgId=1&refresh=5m'
-      addDropdownItem(title, href_amundsen);
-      addDropdownItem(title_scott, href_scott);
-      addDropdownItem(title_spt, href_spt);
+      var href_login = 'https://grafana.mwt2.org/d/000000072/atlas-connect-queue?orgId=1';
+      addDropdownItem(title_login, href_login);
 
       var nav_link = document.getElementById("login-node-nav-link");
       nav_link.innerText = 'Monitoring';
