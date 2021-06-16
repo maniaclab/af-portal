@@ -1074,6 +1074,11 @@ def authcallback():
                 "display_name": "SPT Connect",
                 "unix_name": "root.spt",
             },
+            "af": {
+                "name": "atlas-af",
+                "display_name": "ATLAS Analysis Facility",
+                "unix_name": "root.atlas-af",
+            },
             "psdconnect": {
                 "name": "psd-connect",
                 "display_name": "PSD Connect",

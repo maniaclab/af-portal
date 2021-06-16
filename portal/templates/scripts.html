@@ -191,7 +191,31 @@
         console.log("Currently no contributions")
       }
       
-    } else if(String(hostname).includes('psd') || String(hostname).includes('uchicago')){
+    } else if(String(hostname).includes('af.uchicago')) {
+      // Global site tag (gtag.js) - Google Analytics
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-178331567-5');
+      
+      connect_brand.src="{{url_for('static', filename='img/atlas-af-logo.png')}}";
+      nav_emailto.href="mailto:atlas-connect-l@lists.bnl.gov";
+      var title = 'User Docs';
+      var href = 'https://maniaclab.uchicago.edu/snowmass-connect-docs/';
+      var id = 'support-dropdown'; 
+      addDropdownItem(title, href, id);
+      try {
+        document.getElementById("instances-nav").style.display = "inline";
+      } catch(err) {
+        console.log("User is currently not logged in")
+      }
+      try {
+        document.getElementById("contributions").style.display = "inline";
+      } catch(err) {
+        console.log("Currently no contributions")
+      }
+      
+    } else if(String(hostname).includes('psd') {
       // Global site tag (gtag.js) - Google Analytics
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
