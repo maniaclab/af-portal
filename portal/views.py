@@ -1,4 +1,5 @@
-from flask import flash, redirect, render_template, request, session, url_for, jsonify
+from flask import flash, redirect, render_template, request, session, url_for, jsonify 
+from flask_qrcode import QRcode
 import requests
 import json
 
@@ -28,6 +29,9 @@ from portal.connect_api import (
     get_user_profile,
     get_user_group_status,
 )
+
+# enable QR code support
+QRcode(app)
 
 # Use these four lines on container
 import sys
@@ -795,6 +799,7 @@ def create_profile():
             session["phone"] = r["phone"]
             session["institution"] = r["institution"]
             session["unix_name"] = r["unix_name"]
+	    #session["totp_secret"] = r["totp_secret"]
 
             # Auto generate group membership into connect group
             # put_query = {"apiVersion": 'v1alpha1',
