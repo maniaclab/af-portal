@@ -812,7 +812,7 @@ def create_profile():
             session["phone"] = r["phone"]
             session["institution"] = r["institution"]
             session["unix_name"] = r["unix_name"]
-	        session["totp_secret"] = r["totp_secret"]
+            session["totp_secret"] = r["totp_secret"]
 
             # Auto generate group membership into connect group
             # put_query = {"apiVersion": 'v1alpha1',
