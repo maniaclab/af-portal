@@ -81,6 +81,8 @@ if(String(hostname).includes('local')){
   document.getElementById("home-brand").src="{{url_for('static', filename='img/spt-logo.jpg')}}";
 } else if(String(hostname).includes('af.uchicago')){
   document.getElementById("home-brand").src="{{url_for('static', filename='img/atlas-af-logo.png')}}";
+} else if(String(hostname).includes('test')){
+  document.getElementById("home-brand").src="{{url_for('static', filename='img/www-test-logo.png')}}";
 } else if(String(hostname).includes('snowmass21')){
   document.getElementById("home-brand").src="{{url_for('static', filename='img/snowmass-connect-logo.png')}}";
 } else if(String(hostname).includes('psdconnect') || String(hostname).includes('uchicago')){
