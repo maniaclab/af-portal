@@ -180,6 +180,7 @@
           </div>
         </div><!-- /.accordion-->
 
+        {% if profile['totp_secret'] %}
         <h2 class="title">
           <small>Multi-Factor Authentication</small>
         </h2>
@@ -206,13 +207,15 @@
                   </li>
                   <li> Click the "+" icon in the lower righthand corner, and click "Scan a QR Code" </li>
                   <li> Scan the following QR code: </li>
-                  <div> <img src="{{ qrcode("hello world") }}"> </div>
+		  <div> <img src="{{ qrcode(authenticator_string) }}"> </div>
 		  <li> Once the QR code has been scanned, the app will start to generate six digit security tokens. You will need to enter this token when logging in </li>
                 </ol>
               </div>
             </div>
           </div>
         </div><!-- /.accordionTwo-->
+      {% endif %}
+
       </div><!-- /.col-md-6 -->
     </div> <!-- row -->
 
