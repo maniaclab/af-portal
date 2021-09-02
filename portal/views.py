@@ -158,9 +158,13 @@ def home():
 
 
 def get_about_markdown(domain_name):
-    with open(brand_dir + "/" + domain_name + "/about/about.md", "r") as file:
-        about = file.read()
-    return about
+    try:
+        with open(brand_dir + "/" + domain_name + "/about/about.md", "r") as file:
+            about = file.read()
+        return about
+    except EnvironmentError as e:
+        print("Could not open markdown directories")
+        return "Empty or missing about.md - did you create the portal markdowns?"
 
 
 @app.route("/groups/new", methods=["GET", "POST"])
