@@ -762,6 +762,7 @@ def create_profile():
         globus_id = session["primary_identity"]
         superuser = False
         service_account = False
+        create_totp_secret = True
 
         # Schema and query for adding users to CI Connect DB
         if public_key:
@@ -777,6 +778,7 @@ def create_profile():
                     "unix_name": unix_name,
                     "superuser": superuser,
                     "service_account": service_account,
+                    "create_totp_secret": create_totp_secret,
                 },
             }
         else:
@@ -791,6 +793,7 @@ def create_profile():
                     "unix_name": unix_name,
                     "superuser": superuser,
                     "service_account": service_account,
+                    "create_totp_secret": create_totp_secret,
                 },
             }
         r = requests.post(
@@ -805,7 +808,7 @@ def create_profile():
             session["phone"] = r["phone"]
             session["institution"] = r["institution"]
             session["unix_name"] = r["unix_name"]
-	    #session["totp_secret"] = r["totp_secret"]
+	        session["totp_secret"] = r["totp_secret"]
 
             # Auto generate group membership into connect group
             # put_query = {"apiVersion": 'v1alpha1',
