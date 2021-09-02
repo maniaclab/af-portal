@@ -147,6 +147,12 @@ def home():
             "img": "img/snowmass-connect-logo.png",
             "description": get_about_markdown("snowmass21.ci-connect.net"),
         },
+        {
+            "name": "Test",
+            "href": "https://www-test.ci-connect.net",
+            "img": "img/www-test-logo.png",
+            "description": get_about_markdown("www-test.ci-connect.net"),
+        },
     ]
 
     return render_template(

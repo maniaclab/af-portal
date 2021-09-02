@@ -338,6 +338,8 @@ def domain_name_edgecase():
         domain_name = "cms.ci-connect.net"
     elif "af" in domain_name:
         domain_name = "af.uchicago.edu"
+    elif "test" in domain_name:
+        domain_name = "www-test.ci-connect.net"
     elif "uchicago" in domain_name:
         domain_name = "psdconnect.uchicago.edu"
     elif "snowmass21" in domain_name:

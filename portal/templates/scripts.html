@@ -228,7 +228,16 @@
       // Set the href property
       var href = 'https://gracc.opensciencegrid.org/dashboard/db/osg-connect-summary-uchicago-ci?orgId=1';
       addDropdownItem(title, href);
-
+    } else if(String(hostname).includes('test')) {
+      connect_brand.src="{{url_for('static', filename='img/www-test-logo.png')}}";
+      nav_overview.href="https://www-test.ci-connect.net/";
+      nav_emailto.href="mailto:support@ci-connect.uchicago.edu";
+      document.getElementById("login-node-nav").style.display = "inline";
+      // Set the title
+      var title = "CI Connect Test Branch"
+      // Set the href property
+      var href = 'https://gracc.opensciencegrid.org/dashboard/db/osg-connect-summary-uchicago-ci?orgId=1';
+      addDropdownItem(title, href);
     } else {
       // Global site tag (gtag.js) - Google Analytics
       window.dataLayer = window.dataLayer || [];
