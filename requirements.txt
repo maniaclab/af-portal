@@ -2,6 +2,7 @@ Flask==1.0.2
 Flask-Markdown
 Flask-Misaka
 flask_wtf
+flask-qrcode
 pygal==2.1.1
 globus-sdk==1.7.1
 pyyaml
