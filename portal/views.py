@@ -164,9 +164,13 @@ def home():
 
 
 def get_about_markdown(domain_name):
-    with open(brand_dir + "/" + domain_name + "/about/about.md", "r") as file:
-        about = file.read()
-    return about
+    try:
+        with open(brand_dir + "/" + domain_name + "/about/about.md", "r") as file:
+            about = file.read()
+        return about
+    except EnvironmentError as e:
+        print("Could not open markdown directories")
+        return "Empty or missing about.md - did you create the portal markdowns?"
 
 
 @app.route("/groups/new", methods=["GET", "POST"])
@@ -808,7 +812,6 @@ def create_profile():
             session["phone"] = r["phone"]
             session["institution"] = r["institution"]
             session["unix_name"] = r["unix_name"]
-	        session["totp_secret"] = r["totp_secret"]
 
             # Auto generate group membership into connect group
             # put_query = {"apiVersion": 'v1alpha1',
@@ -862,9 +865,15 @@ def edit_profile(unix_name):
         # Get user info, pass through as args, convert to json and load input fields
         profile = get_user_profile(unix_name)
         profile = profile["metadata"]
+        
+        # The auth string should never get used if the totp_secret key doesn't exist anyhow.
+        try:
+            authenticator_string = "otpauth://totp/" + unix_name + "@ci-connect?secret=" + profile["totp_secret"] + "&issuer=CI%20Connect"
+        except KeyError:
+            authenticator_string = None
 
         return render_template(
-            "profile_edit.html", profile=profile, unix_name=unix_name
+            "profile_edit.html", profile=profile, unix_name=unix_name, authenticator_string=authenticator_string
         )
 
     elif request.method == "POST":
