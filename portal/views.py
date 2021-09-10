@@ -5,7 +5,7 @@ import json
 
 try:
     # Python 2
-    from urllib.parse import urlparse, urlencode, parse_qs
+    from urllib.parse import urlparse, urlencode, parse_qs, quote
 except ImportError:
     # Python 3
     from urlparse import urlparse, parse_qs
@@ -764,7 +764,7 @@ def create_profile():
         institution = request.form["institution"]
         public_key = request.form["sshpubstring"]
         globus_id = session["primary_identity"]
-        superuser = False
+        superuser = False #  is this safe? TODO flagging this one
         service_account = False
         create_totp_secret = True
 
@@ -865,10 +865,13 @@ def edit_profile(unix_name):
         # Get user info, pass through as args, convert to json and load input fields
         profile = get_user_profile(unix_name)
         profile = profile["metadata"]
+
+        print("SESSION IS: " + str(session))
         
         # The auth string should never get used if the totp_secret key doesn't exist anyhow.
         try:
-            authenticator_string = "otpauth://totp/" + unix_name + "@ci-connect?secret=" + profile["totp_secret"] + "&issuer=CI%20Connect"
+            issuer = quote(session["url_host"]["display_name"])
+            authenticator_string = "otpauth://totp/" + unix_name + "?secret=" + profile["totp_secret"] + "&issuer=" + issuer
         except KeyError:
             authenticator_string = None
 
