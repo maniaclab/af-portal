@@ -887,6 +887,7 @@ def edit_profile(unix_name):
         public_key = request.form["sshpubstring"]
         globus_id = session["primary_identity"]
         x509dn = request.form["x509dn"]
+        create_totp_secret = request.form["create_totp_secret"]
         access_token = get_user_access_token(session)
         query = {"token": access_token, "globus_id": identity_id}
         # Schema and query for adding users to CI Connect DB
