@@ -1,4 +1,4 @@
-from flask import flash, redirect, render_template, request, session, url_for, jsonify 
+from flask import flash, redirect, render_template, request, session, url_for, jsonify
 from flask_qrcode import QRcode
 import requests
 import json
@@ -764,7 +764,7 @@ def create_profile():
         institution = request.form["institution"]
         public_key = request.form["sshpubstring"]
         globus_id = session["primary_identity"]
-        superuser = False #  is this safe? TODO flagging this one
+        superuser = False  #  is this safe? TODO flagging this one
         service_account = False
         create_totp_secret = True
 
@@ -879,9 +879,9 @@ def edit_profile(unix_name):
         globus_id = session["primary_identity"]
         x509dn = request.form["x509dn"]
         if request.form.get("totpsecret") is not None:
-                create_totp_secret = True
+            create_totp_secret = True
         else:
-                create_totp_secret = False
+            create_totp_secret = False
         access_token = get_user_access_token(session)
         query = {"token": access_token, "globus_id": identity_id}
         # Schema and query for adding users to CI Connect DB
@@ -948,13 +948,22 @@ def profile():
             profile = None
 
         if profile:
-            profile = profile["metadata"] # let's fix this, sometime. it's kinda unsavory.
+            profile = profile[
+                "metadata"
+            ]  # let's fix this, sometime. it's kinda unsavory.
             # The auth string should never get used if the totp_secret key doesn't exist anyhow.
             try:
                 issuer = quote(session["url_host"]["display_name"])
-                authenticator_string = "otpauth://totp/" + unix_name + "?secret=" + profile["totp_secret"] + "&issuer=" + issuer
+                authenticator_string = (
+                    "otpauth://totp/"
+                    + unix_name
+                    + "?secret="
+                    + profile["totp_secret"]
+                    + "&issuer="
+                    + issuer
+                )
             except KeyError as e:
-                print("Couldn't find a totp_secret in the profile for ",unix_name)
+                print("Couldn't find a totp_secret in the profile for ", unix_name)
                 authenticator_string = None
             unix_name = profile["unix_name"]
             group_name = session["url_host"]["unix_name"]
@@ -992,7 +1001,7 @@ def profile():
             user_status=user_status,
             group_memberships=group_memberships,
             group_unix_name_description=group_unix_name_description,
-            authenticator_string=authenticator_string
+            authenticator_string=authenticator_string,
         )
 
 
