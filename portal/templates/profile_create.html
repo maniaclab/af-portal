@@ -15,7 +15,7 @@
     <div class="row">
       <div class="col-lg-6 mx-auto">
         <h2>Create Profile</h2>
-        <h4>Globus ID: {{session['primary_identity']}}</h4>
+        <small id="globusID" class="text-muted">Globus ID: {{session['primary_identity']}}</small>
         <p class="asterik">* = required field</p>
         <hr/>
         <form role="form" action="{{url_for('create_profile')}}" method="POST">
@@ -38,8 +38,7 @@
           </div>
 
           <div class="form-group">
-            <label for="unix_name">Unix Username <span class="asterik">*</span></label>
-            <p class="text-muted"> Usernames must start with a lowercase letter. All other characters may be lowercase letters, numbers, or hyphens.</p>
+            <label for="unix_name">UNIX Username <span class="asterik">*</span></label>
             <input
               type="text"
               class="form-control"
@@ -52,6 +51,7 @@
               maxlength="32"
               pattern="^[a-z][-a-z0-9]*$"
             >
+            <small id="unixHelp" class="form-text text-muted">Usernames must start with a lowercase letter. All other characters may be lowercase letters, numbers, or hyphens.</small>
           </div>
 
           <div class="form-group">
@@ -85,7 +85,7 @@
           </div>
 
           <div class="form-group">
-            <label for="email">Email <span class="asterik">*</span> (please use institutional email)</label>
+            <label for="email">Email <span class="asterik">*</span></label>
             <input
               type="email"
               id="email"
@@ -96,6 +96,7 @@
               required="required"
               tabindex="5"
             >
+            <small id="emailHelp" class="form-text text-muted"> Please use an institutional email address </small>
           </div>
 
           <div class="form-group">
