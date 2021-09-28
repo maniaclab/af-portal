@@ -15,8 +15,8 @@
     <div class="row">
       <div class="col-lg-6 mx-auto">
         <h2>Edit Profile</h2>
-        <h6>Unix Username: {{session['unix_name']}}</h6>
-        <h6>User Globus ID: {{session['primary_identity']}}</h6>
+        <small id="unixName" class="text-muted">UNIX Username: {{session['unix_name']}}</small>
+        <br/><small id="globusID" class="text-muted">Globus ID: {{session['primary_identity']}}</small>
         <p class="asterik">* = required field</p>
         <hr/>
         <form role="form" action="{{url_for('edit_profile', unix_name=unix_name)}}" method="POST">
@@ -66,7 +66,7 @@
           </div>
 
           <div class="form-group">
-            <label for="email">Email <span class="asterik">*</span> (please use institutional email)</label>
+            <label for="email">Email <span class="asterik">*</span></label>
             <input
               type="email"
               id="email"
@@ -76,6 +76,7 @@
               required="required"
               tabindex="4"
             >
+            <small id="emailHelp" class="form-text text-muted">   Please use an institutional email address </small>
           </div>
 
           <div class="form-group">
@@ -91,6 +92,16 @@
             >
           </div>
 
+	  <div class="form-check">
+	    <input type="checkbox" class="form-check-input" id="totpsecret" name="totpsecret">
+	    <label class="form-check-label" for="totpsecret">Set up Multi-Factor Authentication</label>
+            {% if profile['totp_secret'] %}
+            <small id="mfaHelp" class="form-text text-muted">This will <b>delete</b> your current MFA secret and generate a new one </small>
+            {% else %}
+            <small id="mfaHelp" class="form-text text-muted">Enabling MFA will add an additional layer of security for SSH connections </small>
+            {% endif %}
+	  </div></br>
+
           <div class="form-group">
             <label for="sshpubstring">SSH Public Key</label>
             <textarea
@@ -100,16 +111,6 @@
               tabindex="6"
               style="background-color:white; color:black; border-radius:4px; border-color:lightgrey;"
               ></textarea>
-          </div>
-
-          <div class="form-group">   
-            <label for="create_totp_secret">Create new MFA sceret</label>
-            <input
-               class="form-check-input"
-               type="checkbox"
-               value="" 
-               id="create_totp_secret"
-            >
           </div>
 
           <div class="form-group">
@@ -189,43 +190,6 @@
             </div>
           </div>
         </div><!-- /.accordion-->
-
-        {% if profile['totp_secret'] %}
-        <h2 class="title">
-          <small>Multi-Factor Authentication</small>
-        </h2>
-        <hr/>
-        <div id="accordionTwo" role="tablist" aria-multiselectable="true">
-	</div>
-          <div class="card panel panel-info resource-profile" style="margin: 1em;">
-            <div class="card-header panel-title" role="tab" id="heading">
-              <h6 class="mb-0">
-                <a class="collapsed" data-toggle="collapse" data-parent="#accordionTwo" href="#collapseFour" aria-expanded="true" aria-controls="collapse">
-                  Google Authenticator Setup<i class="fa fa-info-circle pull-right" aria-hidden="true"></i>
-                </a>
-              </h6>
-            </div>
-            <div id="collapseFour" class="collapse" role="tabpanel" aria-labelledby="heading">
-            <!-- TODO: Put information here -->
-              <div class="card-block panel-body disabled" style="font-size: 14px">
-                <ol>
-                  <li>Download the Google Authenticator application: 
-                    <ul>
-                    <li> <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2"> Android </a> </li>
-                    <li> <a href="https://apps.apple.com/us/app/google-authenticator/id388497605"> iOS </a> </li>
-                    </ul>
-                  </li>
-                  <li> Click the "+" icon in the lower righthand corner, and click "Scan a QR Code" </li>
-                  <li> Scan the following QR code: </li>
-		  <div> <img src="{{ qrcode(authenticator_string) }}"> </div>
-		  <li> Once the QR code has been scanned, the app will start to generate six digit security tokens. You will need to enter this token when logging in </li>
-                </ol>
-              </div>
-            </div>
-          </div>
-        </div><!-- /.accordionTwo-->
-      {% endif %}
-
       </div><!-- /.col-md-6 -->
     </div> <!-- row -->
 
