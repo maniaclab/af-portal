@@ -105,8 +105,53 @@
           </div>
 
         </div>
-      </div>
+      </div> <!-- inner row -->
     </div> <!-- row -->
+    {% if profile['totp_secret'] %}
+    <br>
+    <div class="row"> <!-- MFA card begin -->
+      <div class="col-lg-12 mx-auto">
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="card h-100 btn-box-shadow ">
+              <div class="card-header">
+                <b>Multi-Factor Authentication</b> <i class="fas fa-user-secret float-right"></i>
+		<div id="accordionTwo" role="tablist" aria-multiselectable="true">
+		</div>
+		  <div class="card panel panel-info resource-profile" style="margin: 1em;">
+		    <div class="card-header panel-title" role="tab" id="heading">
+		      <h6 class="mb-0">
+			<a class="collapsed" data-toggle="collapse" data-parent="#accordionTwo" href="#collapseFour" aria-expanded="true" aria-controls="collapse">
+			  Setup Information<i class="fa fa-info-circle pull-right" aria-hidden="true"></i>
+			</a>
+		      </h6>
+		    </div>
+		    <div id="collapseFour" class="collapse" role="tabpanel" aria-labelledby="heading">
+		    <!-- TODO: Put information here -->
+		      <div class="card-block panel-body disabled" style="font-size: 14px">
+			<ol>
+			  <li>Download the Google Authenticator application:
+			    <ul>
+			    <li> <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2"> Android </a> </li>
+			    <li> <a href="https://apps.apple.com/us/app/google-authenticator/id388497605"> iOS </a> </li>
+			    </ul>
+			  </li>
+			  <li> Click the "+" icon in the lower righthand corner, and click "Scan a QR Code" </li>
+			  <li> Scan the following QR code: </li>
+			  <div> <img src="{{ qrcode(authenticator_string) }}"> </div>
+			  <li> Once the QR code has been scanned, the app will start to generate six digit security tokens. You will need to enter this token when logging in </li>
+			</ol>
+		      </div>
+		    </div>
+		  </div>
+		</div><!-- /.accordionTwo-->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- MFA card end -->
+    {% endif %}
   </div>
 </section>
 
