@@ -866,17 +866,8 @@ def edit_profile(unix_name):
         profile = get_user_profile(unix_name)
         profile = profile["metadata"]
 
-        print("SESSION IS: " + str(session))
-        
-        # The auth string should never get used if the totp_secret key doesn't exist anyhow.
-        try:
-            issuer = quote(session["url_host"]["display_name"])
-            authenticator_string = "otpauth://totp/" + unix_name + "?secret=" + profile["totp_secret"] + "&issuer=" + issuer
-        except KeyError:
-            authenticator_string = None
-
         return render_template(
-            "profile_edit.html", profile=profile, unix_name=unix_name, authenticator_string=authenticator_string
+            "profile_edit.html", profile=profile, unix_name=unix_name
         )
 
     elif request.method == "POST":
@@ -887,7 +878,10 @@ def edit_profile(unix_name):
         public_key = request.form["sshpubstring"]
         globus_id = session["primary_identity"]
         x509dn = request.form["x509dn"]
-        create_totp_secret = request.form["create_totp_secret"]
+        if request.form.get("totpsecret") is not None:
+                create_totp_secret = True
+        else:
+                create_totp_secret = False
         access_token = get_user_access_token(session)
         query = {"token": access_token, "globus_id": identity_id}
         # Schema and query for adding users to CI Connect DB
@@ -901,6 +895,7 @@ def edit_profile(unix_name):
                     "institution": institution,
                     "public_key": public_key,
                     "X.509_DN": x509dn,
+                    "create_totp_secret": create_totp_secret,
                 },
             }
         else:
@@ -912,6 +907,7 @@ def edit_profile(unix_name):
                     "phone": phone,
                     "institution": institution,
                     "X.509_DN": x509dn,
+                    "totp_secret": create_totp_secret,
                 },
             }
         # PUT request to update user information
@@ -952,8 +948,14 @@ def profile():
             profile = None
 
         if profile:
-            print("Found profile: {}".format(profile))
-            profile = profile["metadata"]
+            profile = profile["metadata"] # let's fix this, sometime. it's kinda unsavory.
+            # The auth string should never get used if the totp_secret key doesn't exist anyhow.
+            try:
+                issuer = quote(session["url_host"]["display_name"])
+                authenticator_string = "otpauth://totp/" + unix_name + "?secret=" + profile["totp_secret"] + "&issuer=" + issuer
+            except KeyError as e:
+                print("Couldn't find a totp_secret in the profile for ",unix_name)
+                authenticator_string = None
             unix_name = profile["unix_name"]
             group_name = session["url_host"]["unix_name"]
             user_status = get_user_group_status(unix_name, group_name, session)
@@ -990,6 +992,7 @@ def profile():
             user_status=user_status,
             group_memberships=group_memberships,
             group_unix_name_description=group_unix_name_description,
+            authenticator_string=authenticator_string
         )
 
 
