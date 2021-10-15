@@ -100,7 +100,7 @@ def home():
         with open(htd_file, "r") as file:
             home_text_description = file.read() 
     else:
-        home_text_description = "CI Connect Portal, Effiently connect your science to cycles and data and physics (default)"
+        home_text_description = "CI Connect Portal, Efficiently connect your science to cycles and data"
 
     collaborations = [
         {
