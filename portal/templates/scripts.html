@@ -185,7 +185,10 @@
 
       var nav_link = document.getElementById("login-node-nav-link");
       nav_link.innerText = 'Monitoring';
-
+      var title = 'User Docs';
+      var href = 'https://maniaclab.uchicago.edu/af-docs/';
+      var id = 'support-dropdown'; 
+      addDropdownItem(title, href, id);
     } else if(String(hostname).includes('snowmass21')) {
       // Global site tag (gtag.js) - Google Analytics
       window.dataLayer = window.dataLayer || [];
