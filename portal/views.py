@@ -1,6 +1,7 @@
 from flask import flash, redirect, render_template, request, session, url_for, jsonify
 import requests
 import json
+import os.path
 
 try:
     # Python 2
@@ -93,6 +94,13 @@ def home():
         brand_dir + "/" + domain_name + "/home_content/home_text_rotating.md", "r"
     ) as file:
         home_text_rotating = file.read()
+    
+    htd_file = brand_dir + "/" + domain_name + "/home_content/home_text_description.md"
+    if os.path.isfile(htd_file):
+        with open(htd_file, "r") as file:
+            home_text_description = file.read() 
+    else:
+        home_text_description = "CI Connect Portal, Efficiently connect your science to cycles and data"
 
     collaborations = [
         {
@@ -149,6 +157,7 @@ def home():
         "home.html",
         home_text_headline=home_text_headline,
         home_text_rotating=home_text_rotating,
+        home_text_description=home_text_description,
         collaborations=collaborations,
     )
 
