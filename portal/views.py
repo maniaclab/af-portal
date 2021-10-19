@@ -153,13 +153,28 @@ def home():
         },
     ]
 
+    try:
+        user = get_user_info(session)
+        unix_name = user["metadata"]["unix_name"]
+        profile = get_user_profile(unix_name)
+    except:
+        profile = None
+
+    group_memberships = []
+    if profile:
+        for group in profile["group_memberships"]:
+            if (session["url_host"]["unix_name"] in group["name"]) and (
+                len(group["name"].split(".")) > 1
+            ):
+                group_memberships.append(group)
+
     return render_template(
         "home.html",
         home_text_headline=home_text_headline,
         home_text_rotating=home_text_rotating,
         home_text_description=home_text_description,
         collaborations=collaborations,
-        group_memberships=group_memberships if 'group_memberships' in globals() else [],
+        group_memberships=group_memberships
     )
 
 
