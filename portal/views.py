@@ -168,9 +168,11 @@ def home():
     #        ):
     #            group_memberships.append(group)
     
-    connect_group = session["url_host"]["unix_name"]
-    # Get group's subgroups information
-    group_memberships = get_subgroups(connect_group, session)
+    group_memberships = []
+    if session and session.has_key("url_host"):
+        connect_group = session["url_host"]["unix_name"]
+        # Get group's subgroups information
+        group_memberships.extend(get_subgroups(connect_group, session))
 
     return render_template(
         "home.html",
