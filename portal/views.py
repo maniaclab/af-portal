@@ -159,6 +159,7 @@ def home():
         home_text_rotating=home_text_rotating,
         home_text_description=home_text_description,
         collaborations=collaborations,
+        group_memberships=group_memberships if 'group_memberships' in globals() else [],
     )
 
 
