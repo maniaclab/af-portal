@@ -160,13 +160,17 @@ def home():
     except:
         profile = None
 
-    group_memberships = []
-    if profile:
-        for group in profile["group_memberships"]:
-            if (session["url_host"]["unix_name"] in group["name"]) and (
-                len(group["name"].split(".")) > 1
-            ):
-                group_memberships.append(group)
+    # group_memberships = []
+    # if profile:
+    #    for group in profile["group_memberships"]:
+    #        if (session["url_host"]["unix_name"] in group["name"]) and (
+    #            len(group["name"].split(".")) > 1
+    #        ):
+    #            group_memberships.append(group)
+    
+    connect_group = session["url_host"]["unix_name"]
+    # Get group's subgroups information
+    group_memberships = get_subgroups(connect_group, session)
 
     return render_template(
         "home.html",
