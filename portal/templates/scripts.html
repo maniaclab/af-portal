@@ -20,7 +20,8 @@
     a.className = 'dropdown-item';
     a.target = '_blank';
     // Append the anchor element to the body
-    dropdown.prepend(a);
+    if (dropdown)
+        dropdown.prepend(a);
   };
 
   $(document).ready(function() {
@@ -203,7 +204,8 @@
       nav_emailto.href="mailto:atlas-us-chicago-tier3-admins@cern.ch"
       // nav_overview.parentNode.removeChild(nav_overview);
       // nav_emailto.parentNode.removeChild(nav_emailto);
-      document.getElementById("login-node-nav").style.display = "inline";
+      if (document.getElementById("login-node-nav"))
+        document.getElementById("login-node-nav").style.display = "inline";
       // Set the title
       var title_login = "Login Nodes"
       // Set the href property
@@ -211,7 +213,8 @@
       addDropdownItem(title_login, href_login);
 
       var nav_link = document.getElementById("login-node-nav-link");
-      nav_link.innerText = 'Monitoring';
+      if (nav_link)
+        nav_link.innerText = 'Monitoring';
       var title = 'User Docs';
       var href = 'https://maniaclab.uchicago.edu/af-docs/';
       var id = 'support-dropdown'; 
