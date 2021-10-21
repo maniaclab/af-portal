@@ -47,12 +47,13 @@
   </div>
 </section>
 
-<div id="analysisfacility-about" class="bg-light" style='display: none;'>
+<section id="hardware-section" class="bg-light" style='display: none; padding-top: 0px !important'>
   <div class="container col-lg-12">
     <div class="row">
         <div class="col-lg-8 mx-auto">
+            <h2>Hardware Information</h2><br/>
             <table class="table table-striped">
-                <caption style="caption-side: top; text-align: center">Hardware Information</caption>
+                <!-- <caption style="caption-side: top; text-align: center">Hardware Information</caption> -->
                 <tr>
                     <th scope="row">Compute</th>
                     <td>
@@ -119,7 +120,7 @@
         </div>
     </div>
   </div>
-</div>
+</section>
 
 <!-- Page footer -->
 {%include 'footer.html'%}
@@ -139,13 +140,18 @@
     document.getElementById("snowmass-about").style.display = "inline";
   };
   if(String(hostname).includes('af.uchicago.edu')){
-    document.getElementById("analysisfacility-about").style.display = "block";
+    $('#about-section').css('padding-bottom', '0px');
+    $('#hardware-section').css('display', 'block').css('padding', '0px');
   };
   if(String(hostname).includes('www-test.ci-connect.net')){
-    document.getElementById("analysisfacility-about").style.display = "block";
+    $('#about-section').css('padding-bottom', '0px');
+    $('#hardware-section').css('display', 'block').css('padding', '0px');
   };
   if(String(hostname).includes('localhost')){
-    document.getElementById("analysisfacility-about").style.display = "block";
+    $('#about-section').css('padding-bottom', '0px');
+    $('#hardware-section').css('display', 'block').css('padding', '0px');
+    $('#about-section div.container').css('padding-bottom', '0px');
+    $('#hardware-section div.container').css('padding-top', '0px');
   };
 </script>
 
