@@ -54,24 +54,66 @@
             <table class="table table-striped">
                 <caption style="caption-side: top; text-align: center">Hardware Information</caption>
                 <tr>
-                    <th scope="row">Processors</th>
-                    <td>AMD EPYC 7402 24-Core Processor, 2.794 GHz, 96 CPUs, x86_64 architecture</td>
-                </tr>
-                <tr>
-                    <th scope="row">Memory</th>
-                    <td>256 GiB</td>
+                    <th scope="row">Compute</th>
+                    <td>
+                        <ul style="list-style: none; padding: 0">
+                            <li>16 primary compute nodes</li>
+                            <li>Dual AMD EPYC 7402 CPU</li>
+                            <li>2.8GHz clock rate</li>
+                            <li>24C/48Thread core count</li>
+                            <li>512GB RAM per node 3200MT/s DDR4</li>
+                            <li>Local disk 2x960GB SSD</li>
+                        </ul>
+                    </td>
                 </tr>
                 <tr>
                     <th scope="row">Storage</th>
-                    <td>/home has 33 terabytes capacity</td>
+                    <td>
+                        <ul style="list-style: none; padding: 0">
+                            <li>NFS machine</li>
+                            <li>192GB RAM 3200MT/s DDR4</li>
+                            <li>24x3.2TB NVMe SSDs</li>
+                            <li>/home NFS file system 33.0 TB capacity</li>
+                            <li>/work NFS file system 1.1 PB capacity</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Interactive</th>
+                    <td>
+                        <ul style="list-style:none; padding: 0">
+                            <li>8 interactive nodes</li>
+                            <li>256GB RAM per node 3200MT/s DDR4</li>
+                            <li>Local disk 2x960GB SSD</li>
+                            <li>Dual AMD EPYC 7402 CPU</li>
+                            <li>2.8GHz clock rate</li>
+                            <li>24C/48Thread core count</li>
+                        </ul>
+                    </td>
                 </tr>
                 <tr>
                     <th scope="row">GPU</th>
-                    <td>Integrated Matrox G200eW3 Graphics Controller, 66 MHz, width 32 bits</td>
+                    <td>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>AMD 7543 CPU</li>
+                            <li>2.8 GHz clock speed</li>
+                            <li>32C/64Thread core count</li>
+                            <li>192GB RAM 3200MT/s DDR4</li>
+                            <li>Local disk 2x960GB SSDs</li>
+                            <li>4 x NVIDIA HGX A100 GPUs</li>
+                        </ul>
+                    </td>
                 </tr>
                 <tr>
                     <th scope="row">Network</th>
-                    <td>Juniper QFX5120 pair, 48 10/25GbE SFP28 ports each for 96 total ports</td>
+                    <td>
+                        <ul style="list-style: none; padding: 0">
+                            <li>Juniper QFX5120 pair</li>
+                            <li>48 10/25GbE SFP28 ports each for 96 total ports</li>
+                            <li>Each switch connected via 1x40Gbps to edge to UC SciDMZ</li>
+                            <li>MC LAG together 2x100GB</li>
+                        </ul>
+                    </td>
                 </tr>
             </table>
         </div>
