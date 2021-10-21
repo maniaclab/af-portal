@@ -47,6 +47,38 @@
   </div>
 </section>
 
+<div id="analysisfacility-about" class="bg-light" style='display: none;'>
+  <div class="container col-lg-12">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <table class="table table-striped">
+                <caption style="caption-side: top; text-align: center">Hardware Information</caption>
+                <tr>
+                    <th scope="row">Processors</th>
+                    <td>AMD EPYC 7402 24-Core Processor, 2.794 GHz, 96 CPUs, x86_64 architecture</td>
+                </tr>
+                <tr>
+                    <th scope="row">Memory</th>
+                    <td>256 GiB</td>
+                </tr>
+                <tr>
+                    <th scope="row">Storage</th>
+                    <td>/home has 33 terabytes capacity</td>
+                </tr>
+                <tr>
+                    <th scope="row">GPU</th>
+                    <td>Integrated Matrox G200eW3 Graphics Controller, 66 MHz, width 32 bits</td>
+                </tr>
+                <tr>
+                    <th scope="row">Network</th>
+                    <td>Juniper QFX5120 pair, 48 10/25GbE SFP28 ports each for 96 total ports</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+  </div>
+</div>
+
 <!-- Page footer -->
 {%include 'footer.html'%}
 
@@ -63,6 +95,15 @@
   if(String(hostname).includes('snowmass21')){
     document.getElementById("contact-us").style.display = "none";
     document.getElementById("snowmass-about").style.display = "inline";
+  };
+  if(String(hostname).includes('af.uchicago.edu')){
+    document.getElementById("analysisfacility-about").style.display = "block";
+  };
+  if(String(hostname).includes('www-test.ci-connect.net')){
+    document.getElementById("analysisfacility-about").style.display = "block";
+  };
+  if(String(hostname).includes('localhost')){
+    document.getElementById("analysisfacility-about").style.display = "block";
   };
 </script>
 
