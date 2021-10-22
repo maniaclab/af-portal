@@ -59,11 +59,14 @@
                     <td>
                         <ul style="list-style: none; padding: 0">
                             <li>19 primary compute nodes</li>
-                            <li>Dual AMD EPYC 7402 CPU</li>
-                            <li>48 cores and 96 threads</li>
-                            <li>2.8GHz clock speed</li>
-                            <li>512GB RAM per node 3200MT/s DDR4</li>
-                            <li>Local disk 2x960GB SSD</li>
+                            <li>Two AMD EPYC 7402 CPUs per node</li>
+                            <li>AMD EPYC 7402 has a 2.8 GHz clock speed</li>a
+                            <li>AMD EPYC 7404 has a total of 24 cores and 48 threads</li>
+                            <li>This totals to 48 cores and 96 threads per node</li>
+                            <li>DDR4 SDRAM for system memory on each node</li>
+                            <li>DDR4 SDRAM has a memory capacity of 512GB</li>
+                            <li>DDR4 SDRAM has a transfer rate of 3200 megatransfers per second</li>
+                            <li>Two 960GB SSD for disk storage on each node<li>
                         </ul>
                     </td>
                 </tr>
@@ -72,10 +75,12 @@
                     <td>
                         <ul style="list-style: none; padding: 0">
                             <li>NFS machine</li>
-                            <li>192GB RAM 3200MT/s DDR4</li>
-                            <li>24x3.2TB NVMe SSDs</li>
-                            <li>/home NFS file system 33.0 TB capacity</li>
-                            <li>/work Ceph file system 1.1 PB capacity</li>
+                            <li>DDR4 SDRAM for system memory</li>
+                            <li>DDR4 SDRAM has a memory capacity of 192GB</li>
+                            <li>DDR4 SDRAM has a transfer rate of 3200 megatransfers per second</li>
+                            <li>Twenty-four 3.2TB NVMe SSDs</li>
+                            <li>/home NFS file system is made from the NFS machine</li>
+                            <li>/work ceph file system is made from disks on each compute node and has a 1.1 PB capacity</li>
                         </ul>
                     </td>
                 </tr>
@@ -84,11 +89,14 @@
                     <td>
                         <ul style="list-style:none; padding: 0">
                             <li>8 interactive nodes</li>
-                            <li>256GB RAM per node 3200MT/s DDR4</li>
-                            <li>Local disk 2x960GB SSD</li>
-                            <li>Dual AMD EPYC 7402 CPU</li>
-                            <li>48 cores and 96 threads</li>
-                            <li>2.8GHz CPU clock speed</li>
+                            <li>Two AMD EPYC 7402 CPUs per node</li>
+                            <li>AMD EPYC 7402 has a 2.8 GHz clock speed</li>
+                            <li>AMD EPYC 7402 has a total of 24 cores and 48 threads</li>
+                            <li>This totals to 48 cores and 96 threads per node</li>
+                            <li>DDR4 SDRAM for system memory on each node</li>
+                            <li>DDR4 SDRAM has a memory capacity of 256GB</li>
+                            <li>DDR4 SDRAM has a transfer rate of 3200 megatransfers per second</li>
+                            <li>Two 960GB SSD for disk storage on each node</li>
                         </ul>
                     </td>
                 </tr>
@@ -96,12 +104,13 @@
                     <th scope="row">GPU</th>
                     <td>
                         <ul style="list-style: none; padding: 0;">
+                            <li>Four NVIDIA HGX A100 GPUs</li>
                             <li>AMD 7543 CPU</li>
-                            <li>2.8 GHz clock speed</li>
-                            <li>32C/64Thread core count</li>
-                            <li>192GB RAM 3200MT/s DDR4</li>
-                            <li>Local disk 2x960GB SSDs</li>
-                            <li>4 x NVIDIA HGX A100 GPUs</li>
+                            <li>AMD 7543 CPU has 2.8 GHz clock speed</li>
+                            <li>AMD 7543 CPU has 32 cores and 64 threads</li>
+                            <li>DDR4 SDRAM</li>
+                            <li>DDR4 SDRAM has 192GB RAM and 3200 megatransfers per second</li>
+                            <li>Two 960GB SSDs for disk storage</li>
                         </ul>
                     </td>
                 </tr>
