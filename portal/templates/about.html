@@ -47,6 +47,88 @@
   </div>
 </section>
 
+<section id="hardware-section" class="bg-light" style='display: none; padding-top: 0px !important'>
+  <div class="container col-lg-12">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h3>Hardware Information</h3><br/>
+            <table class="table table-striped">
+                <!-- <caption style="caption-side: top; text-align: center">Hardware Information</caption> -->
+                <tr>
+                    <th scope="row">Compute</th>
+                    <td>
+                        <ul style="list-style: none; padding: 0">
+                            <li>19 primary compute nodes</li>
+                            <li>Two AMD EPYC 7402 CPUs at 2.8 GHz per node</li>
+                            <li>48 cores and 96 threads per node (24 cores per CPU)</li>
+                            <li>512GB DDR4 SDRAM with a transfer rate of 3200 megatransfers per second on each node</li>
+                            <li>Two 960GB SSD for disk storage on each node<li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Home file system</th>
+                    <td>
+                        <ul style="list-style: none; padding: 0">
+                            <li>/home NFS file system is made from the NFS machine</li>
+                            <li>192GB DDR4 SDRAM with a transfer rate of 3200 megatransfers per second</li>
+                            <li>Twenty-four 3.2 TB NVMe SSDs</li>
+                            <li>Two 240GB m.2 BOSS RAID cards in RAID-1</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Storage</th>
+                    <td>
+                      <ul style="list-style: none; padding: 0">
+                          <li>/work ceph file system is made from disks on each compute node</li>
+                          <li>1.1 PB storage capacity</li>
+                          <li>Twelve 16TB disks on each compute node for Ceph OSDs</li>
+                          <li>One 1TB m.2 SSD on each compute node for metadata</li>
+                          <li>One 1TB m.2 SSD on each compute node used for RocksDB database</li>
+                      </ul>
+                  </td>  
+                </tr>
+                <tr>
+                    <th scope="row">Interactive</th>
+                    <td>
+                        <ul style="list-style:none; padding: 0">
+                            <li>8 interactive nodes</li>
+                            <li>Two AMD EPYC 7402 CPUs at 2.8 GHz per node</li>
+                            <li>48 cores and 96 threads per node (24 cores per CPU)</li>
+                            <li>256GB DDR4 SDRAM with a transfer rate of 3200 megatransfers per second on each node</li>
+                            <li>Two 960GB SSD for disk storage on each node</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">GPU</th>
+                    <td>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>Four NVIDIA HGX A100 GPUs</li>
+                            <li>AMD 7543 CPU has a 2.8 Ghz clock speed, 32 cores and 64 threads</li>
+                            <li>192GB DDR4 SDRAM with 3200 megatransfers per second</li>
+                            <li>Two 960GB SSDs for disk storage</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Network</th>
+                    <td>
+                        <ul style="list-style: none; padding: 0">
+                            <li>Juniper QFX5120 pair</li>
+                            <li>48 10/25GbE SFP28 ports each for 96 total ports</li>
+                            <li>Each switch connected via 1x40Gbps to edge to UC SciDMZ</li>
+                            <li>MC LAG together 2x100GB</li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+  </div>
+</section>
+
 <!-- Page footer -->
 {%include 'footer.html'%}
 
@@ -64,6 +146,26 @@
     document.getElementById("contact-us").style.display = "none";
     document.getElementById("snowmass-about").style.display = "inline";
   };
+  if(String(hostname).includes('af.uchicago.edu')){
+    $('#about-section').css('padding-bottom', '0px');
+    $('#hardware-section').css('display', 'block').css('padding', '0px');
+    $('#about-section div.container').css('padding-bottom', '0px');
+    $('#hardware-section div.container').css('padding-top', '0px');
+  };
+  if(String(hostname).includes('www-test.ci-connect.net')){
+    $('#about-section').css('padding-bottom', '0px');
+    $('#hardware-section').css('display', 'block').css('padding', '0px');
+    $('#about-section div.container').css('padding-bottom', '0px');
+    $('#hardware-section div.container').css('padding-top', '0px');
+  };
+  /*
+  if(String(hostname).includes('localhost')){
+    $('#about-section').css('padding-bottom', '0px');
+    $('#hardware-section').css('display', 'block').css('padding', '0px');
+    $('#about-section div.container').css('padding-bottom', '0px');
+    $('#hardware-section div.container').css('padding-top', '0px');
+  };
+  */
 </script>
 
 {%endblock%}
