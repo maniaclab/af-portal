@@ -85,6 +85,8 @@
         console.log("Currently no contributions")
       }
 
+      var platformDropdown = document.getElementById("platforms-nav-dropdown");
+      platformDropdown.style.display = 'list-item';
     } else if(String(hostname).includes('atlas')){
       // Global site tag (gtag.js) - Google Analytics
       window.dataLayer = window.dataLayer || [];
@@ -195,6 +197,9 @@
       var href = 'https://maniaclab.uchicago.edu/analysis-facility-docs/';
       var id = 'support-dropdown'; 
       addDropdownItem(title, href, id);
+
+      var platformDropdown = document.getElementById("platforms-nav-dropdown");
+      platformDropdown.style.display = 'list-item';
     } else if(String(hostname).includes('www-test.ci-connect.net'))  {
       // Global site tag (gtag.js) - Google Analytics
       window.dataLayer = window.dataLayer || [];
@@ -223,6 +228,9 @@
       var href = 'https://maniaclab.uchicago.edu/analysis-facility-docs/';
       var id = 'support-dropdown'; 
       addDropdownItem(title, href, id);
+
+      var platformDropdown = document.getElementById("platforms-nav-dropdown");
+      platformDropdown.style.display = 'list-item';
     } else if(String(hostname).includes('snowmass21')) {
       // Global site tag (gtag.js) - Google Analytics
       window.dataLayer = window.dataLayer || [];
