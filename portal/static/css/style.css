@@ -149,7 +149,7 @@ ul.powered-by li{
   /* float: left; */
 }
 #af-footer-images a {
-  padding-right: 10px;
+  padding: 10px;
 }
 .powered-by-large {
   max-height: 8ex;
