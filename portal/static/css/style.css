@@ -148,8 +148,11 @@ span.powered-by {
 ul.powered-by li{
   /* float: left; */
 }
+#af-footer-images {
+  margin-top: 20px;
+}
 #af-footer-images a {
-  padding: 10px;
+  padding: 20px;
 }
 .powered-by-large {
   max-height: 8ex;
