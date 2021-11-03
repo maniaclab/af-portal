@@ -148,7 +148,7 @@ span.powered-by {
 ul.powered-by li{
   /* float: left; */
 }
-#af-footer-images {
+#af-footer-images a {
   padding-right: 10px;
 }
 .powered-by-large {
