@@ -13,9 +13,9 @@
       <li class="breadcrumb-item active">Deploy</li>
     </ol>
     <h1>Deploy</h1>
-    <div class="alert alert-warning" role="alert">
+    <!--<div class="alert alert-warning" role="alert">
       <i class="fas fa-exclamation-circle"></i> This feature is a technical preview. Some functionality may be missing or broken.
-    </div>
+    </div>-->
     <hr/>
     <br></br>
     <div class="row">
@@ -28,6 +28,57 @@
               <div class="form-group">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
               </div>
+
+              <table>             
+                <tr>
+                  <td>
+                    <label for="cpu-cores">CPU cores (1000 = 1 CPU core)</label>
+                  </td>
+                  <td>
+                    <input 
+                      type="number"
+                      class="form-control"
+                      id="cpu-cores"
+                      name="cpu-cores"
+                      min=1000
+                      max=10000
+                    >
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <label for="gpu-cores">GPU cores (1 = 1 GPU core)</label>
+                  </td>
+                  <td>
+                    <input 
+                      type="number"
+                      class="form-control"
+                      id="gpu-cores"
+                      name="gpu-cores"
+                      min=1
+                      max=10
+                    >
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>              
+                    <label for="cpu-cores">Memory (megabytes)</label>
+                  </td>
+                  <td>
+                    <input 
+                      type="number"
+                      class="form-control"
+                      id="memory"
+                      name="memory"
+                      min=1000
+                      max=100000
+                    >
+                  </td>
+                </tr>
+
+              </table>
 
               <p>
                 <a type="button" data-toggle="collapse" href="#collapseExample" aria-expanded="false" aria-controls="collapseExample" role="button">
