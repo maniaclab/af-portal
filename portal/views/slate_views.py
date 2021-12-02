@@ -178,9 +178,16 @@ def create_application():
         # Generate base64 encoded random 32-bytes token
         base64_encoded_token = generateToken()
         app_config_yaml["Jupyter"]["Token"] = base64_encoded_token
-        # Set default resource values
-        app_config_yaml["Resources"]["Memory"] = 16000
-        app_config_yaml["Resources"]["CPU"] = 4000
+        
+        # Set resource values    
+        try: 
+            app_config_yaml["Resources"]["Memory"] = request.form["memory"]
+            app_config_yaml["Resources"]["CPU"] = request.form["cpu-cores"]
+            app_config_yaml["Resources"]["GPU"] = request.form["gpu-cores"]
+        except:
+            app_config_yaml["Resources"]["Memory"] = 16000
+            app_config_yaml["Resources"]["CPU"] = 4000
+            app_config_yaml["Resources"]["GPU"] = 1
 
         app_config_yaml["CondorConfig"]["Enabled"] = True
         app_config_yaml["CondorConfig"]["CollectorHost"] = "flock.opensciencegrid.org"
