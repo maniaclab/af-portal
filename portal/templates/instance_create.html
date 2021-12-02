@@ -4,6 +4,12 @@
   Deploy Application
 {%endblock%}
 
+<style>
+#resource-config td {
+  padding: 5px;
+}
+</style>
+
 {%block body%}
 <section id="jupyter-notebook" class="bg-light">
   <div class="container col-lg-12">
@@ -29,7 +35,7 @@
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
               </div>
 
-              <table>             
+              <table id="resource-config">             
                 <tr>
                   <td>
                     <label for="cpu-cores">CPU (unit .001)</label>
