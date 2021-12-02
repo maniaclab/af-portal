@@ -20,7 +20,7 @@
     <br></br>
     <div class="row">
       <div class="col-lg-6 mx-auto">
-        <div class="card" style="width: 18rem;">
+        <div class="card" style="width: 25rem;">
           <img class="card-img-top" src="{{url_for('static', filename='img/jupyter-lab-logo.png')}}" alt="Jupyter Notebook Logo" style="padding: 5px;">
           <div class="card-body">
             <h5 class="card-title">Jupyter Notebook with a condor-submit setup</h5>
@@ -32,7 +32,7 @@
               <table>             
                 <tr>
                   <td>
-                    <label for="cpu-cores">CPU (thousandths)</label>
+                    <label for="cpu-cores">CPU (unit .001)</label>
                   </td>
                   <td>
                     <input 
@@ -48,7 +48,7 @@
 
                 <tr>
                   <td>
-                    <label for="gpu-cores">GPU</label>
+                    <label for="gpu-cores">GPU (unit 1)</label>
                   </td>
                   <td>
                     <input 
@@ -64,7 +64,7 @@
 
                 <tr>
                   <td>              
-                    <label for="cpu-cores">Memory (MiB)</label>
+                    <label for="cpu-cores">Memory (unit 1 MiB)</label>
                   </td>
                   <td>
                     <input 
