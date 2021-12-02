@@ -156,6 +156,7 @@ ul.powered-by li{
 }
 #resource-config {
   border-spacing: 10px;
+  border-collapse: separate;
 }
 .powered-by-large {
   max-height: 8ex;
