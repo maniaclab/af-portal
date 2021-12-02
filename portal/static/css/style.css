@@ -154,9 +154,9 @@ ul.powered-by li{
 #af-footer-images a {
   padding: 20px;
 }
-#resource-config {
-  border-spacing: 10px;
-  border-collapse: separate;
+#resource-config td {
+  padding-right: 20px;
+  padding-bottom: 10px;
 }
 .powered-by-large {
   max-height: 8ex;
