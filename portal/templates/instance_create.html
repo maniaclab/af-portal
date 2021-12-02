@@ -4,12 +4,6 @@
   Deploy Application
 {%endblock%}
 
-<style>
-#resource-config tr, #resource-config td {
-  padding: 5px !important;
-}
-</style>
-
 {%block body%}
 <section id="jupyter-notebook" class="bg-light">
   <div class="container col-lg-12">
@@ -38,7 +32,7 @@
               <table id="resource-config">             
                 <tr>
                   <td>
-                    <label for="cpu-cores">CPU (unit .001)</label>
+                    <label for="cpu-cores">CPU (unit .001 cores)</label>
                   </td>
                   <td>
                     <input 
@@ -54,7 +48,7 @@
 
                 <tr>
                   <td>
-                    <label for="gpu-cores">GPU (unit 1)</label>
+                    <label for="gpu-cores">GPU (unit 1 core)</label>
                   </td>
                   <td>
                     <input 
