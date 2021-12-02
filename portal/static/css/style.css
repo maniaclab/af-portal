@@ -154,6 +154,9 @@ ul.powered-by li{
 #af-footer-images a {
   padding: 20px;
 }
+#resource-config td {
+  padding: 5px;
+}
 .powered-by-large {
   max-height: 8ex;
   margin-top: 3px;
