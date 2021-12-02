@@ -41,7 +41,7 @@
                       id="cpu-cores"
                       name="cpu-cores"
                       min=1
-                      max=10
+                      max=32
                       value=4
                     >
                   </td>
@@ -57,16 +57,16 @@
                       class="form-control"
                       id="gpu-cores"
                       name="gpu-cores"
-                      min=1
-                      max=10
-                      value=1
+                      min=0
+                      max=4
+                      value=0
                     >
                   </td>
                 </tr>
 
                 <tr>
                   <td>              
-                    <label for="cpu-cores">Memory (unit 1 GB)</label>
+                    <label for="cpu-cores">Memory (GB)</label>
                   </td>
                   <td>
                     <input 
@@ -75,7 +75,7 @@
                       id="memory"
                       name="memory"
                       min=1
-                      max=100
+                      max=64
                       value=16
                     >
                   </td>
