@@ -181,8 +181,8 @@ def create_application():
 
         # Set resource values    
         try: 
-            app_config_yaml["Resources"]["Memory"] = int(request.form["memory"])
-            app_config_yaml["Resources"]["CPU"] = int(request.form["cpu-cores"])
+            app_config_yaml["Resources"]["Memory"] = int(request.form["memory"]) * 1000
+            app_config_yaml["Resources"]["CPU"] = int(request.form["cpu-cores"]) * 1000
             app_config_yaml["Resources"]["GPU"] = int(request.form["gpu-cores"])
         except:
             app_config_yaml["Resources"]["Memory"] = 16000
