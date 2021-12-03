@@ -160,11 +160,9 @@ ul.powered-by li{
 }
 .resource-config td input {
   width: initial !important;
-  height: initial !important;
 }
 .resource-config td select {
   width: initial !important;
-  height: initial !important;
 }
 .powered-by-large {
   max-height: 8ex;
