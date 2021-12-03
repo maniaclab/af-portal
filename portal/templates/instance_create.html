@@ -29,13 +29,12 @@
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
               </div>
 
-              <!--
-                <table class="resource-config">             
+              <table class="resource-config">             
                 <tr>
                   <td>
                     <label for="gpu-cores">GPU</label>
                   </td>
-                  <td>
+                  <td class="form-control">
                     <input 
                       type="number"
                       class="form-control"
@@ -51,7 +50,7 @@
                   <td>
                     <label for="docker-image">Image</label>
                   </td>
-                  <td>
+                  <td class="form-control">
                     <select name="docker-image">
                       <option value="ivukotic/ml_platform_auto:latest">ivukotic/ml_platform_auto:latest</option>
                       <option value="ivukotic/ml_platform_auto:conda">ivukotic/ml_platform_auto:conda</option>
@@ -60,23 +59,6 @@
                   </td>
                 </tr>
               </table>
-              -->
-              <label for="gpu-cores">GPU</label>
-              <input 
-                type="number"
-                class="form-control"
-                id="gpu-cores"
-                name="gpu-cores"
-                min=0
-                max=2
-                value=0
-              >
-              <label for="docker-image">Image</label>
-              <select name="docker-image">
-                <option value="ivukotic/ml_platform_auto:latest">ivukotic/ml_platform_auto:latest</option>
-                <option value="ivukotic/ml_platform_auto:conda">ivukotic/ml_platform_auto:conda</option>
-                <option value="slateci/jupyter-condor-centos7:latest">slateci/jupyter-condor-centos7:latest</option>
-              </select>
 
               <p>
                 <a type="button" data-toggle="collapse" href="#collapseExample" aria-expanded="false" aria-controls="collapseExample" role="button">
@@ -89,7 +71,7 @@
                     <td>
                       <label for="cpu-cores">CPU</label>
                     </td>
-                    <td>
+                    <td class="form-control">
                       <input 
                         type="number"
                         class="form-control"
@@ -106,7 +88,7 @@
                     <td>              
                       <label for="cpu-cores">Memory (GB)</label>
                     </td>
-                    <td>
+                    <td class="form-control">
                       <input 
                         type="number"
                         class="form-control"
