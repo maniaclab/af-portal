@@ -161,10 +161,6 @@ ul.powered-by li{
 .resource-config td input[name="gpu-cores"] {
   width: initial !important;
 }
-/*
-.resource-config td select[name="docker-image"] {
-  width: initial !important;
-}*/
 .powered-by-large {
   max-height: 8ex;
   margin-top: 3px;
