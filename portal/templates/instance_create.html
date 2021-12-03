@@ -20,7 +20,7 @@
     <br></br>
     <div class="row">
       <div class="col-lg-6 mx-auto">
-        <div class="card" style="width: 24rem;">
+        <div class="card" style="width: 25rem;">
           <img class="card-img-top" src="{{url_for('static', filename='img/jupyter-lab-logo.png')}}" alt="Jupyter Notebook Logo" style="padding: 5px;">
           <div class="card-body">
             <h5 class="card-title">Jupyter Notebook with a condor-submit setup</h5>
@@ -29,7 +29,8 @@
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
               </div>
 
-              <table class="resource-config">             
+              <!--
+                <table class="resource-config">             
                 <tr>
                   <td>
                     <label for="gpu-cores">GPU</label>
@@ -59,6 +60,23 @@
                   </td>
                 </tr>
               </table>
+              -->
+              <label for="gpu-cores">GPU</label>
+              <input 
+                type="number"
+                class="form-control"
+                id="gpu-cores"
+                name="gpu-cores"
+                min=0
+                max=2
+                value=0
+              >
+              <label for="docker-image">Image</label>
+              <select name="docker-image">
+                <option value="ivukotic/ml_platform_auto:latest">ivukotic/ml_platform_auto:latest</option>
+                <option value="ivukotic/ml_platform_auto:conda">ivukotic/ml_platform_auto:conda</option>
+                <option value="slateci/jupyter-condor-centos7:latest">slateci/jupyter-condor-centos7:latest</option>
+              </select>
 
               <p>
                 <a type="button" data-toggle="collapse" href="#collapseExample" aria-expanded="false" aria-controls="collapseExample" role="button">
