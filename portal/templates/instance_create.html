@@ -156,7 +156,15 @@
           </div>
         </div>
       </div> <!-- Profile Form Container -->
+      <div class="col-lg-6 mx-auto">
+        <div class="card" style="width: 25rem;">
+          <img class="card-img-top" src="{{url_for('static', filename='img/jupyter-lab-logo.png')}}" alt="Jupyter Notebook Logo" style="padding: 5px;">
+          <div class="card-body">
+            <h5 class="card-title">Jupyter Notebook via Coffea Casa</h5>
+          </div>
+      </div>
       {% if not public_key %}
+      <!--
       <div class="col-md-6">
 
         <h2 class="title">
@@ -229,8 +237,8 @@
           </div>
 
         </div><!-- /.accordion-->
-      </div><!-- /.col-md-6 -->
-      {% endif %}
+      <!-- </div><!-- /.col-md-6 -->
+      {% endif %} 
     </div> <!-- row -->
 
   </div>
