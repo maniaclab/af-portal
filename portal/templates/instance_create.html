@@ -19,7 +19,7 @@
     <hr/>
     <br></br>
     <div class="row">
-      <div class="col-lg-6 mx-auto">
+      <div class="col-lg-3 mx-auto">
         <div class="card" style="width: 25rem;">
           <img class="card-img-top" src="{{url_for('static', filename='img/jupyter-lab-logo.png')}}" alt="Jupyter Notebook Logo" style="padding: 5px;">
           <div class="card-body">
@@ -156,11 +156,17 @@
           </div>
         </div>
       </div> <!-- Profile Form Container -->
-      <div class="col-lg-6 mx-auto">
+      <div class="col-lg-3 mx-auto">
         <div class="card" style="width: 25rem;">
           <img class="card-img-top" src="{{url_for('static', filename='img/jupyter-lab-logo.png')}}" alt="Jupyter Notebook Logo" style="padding: 5px;">
           <div class="card-body">
             <h5 class="card-title">Jupyter Notebook via Coffea Casa</h5>
+            <p>
+              The Coffea Casa website has a service for creating Jupyter notebooks
+            </p>
+            <div style="margin-top: 40px">
+              <a class="btn btn-primary btn-box-shadow" href="https://coffea.af.uchicago.edu" target="_blank">Open Coffea Casa</a>
+            </div>
           </div>
       </div>
       {% if not public_key %}
