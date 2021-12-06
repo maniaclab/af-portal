@@ -171,12 +171,6 @@ img-container {
   text-align: center;
 }
 
-.card-container::after {
-  clear: both;
-}
-.card-container .card {
-  float: left;
-}
 .card-header {
   background-color: transparent;
   border-bottom: none;
