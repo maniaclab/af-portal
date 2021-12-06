@@ -20,122 +20,129 @@
     <br></br>
     <div class="row">
       <div class="col-lg-6 mx-auto">
-        <div class="card" style="width: 25rem;">
-          <img class="card-img-top" src="{{url_for('static', filename='img/jupyter-lab-logo.png')}}" alt="Jupyter Notebook Logo" style="padding: 5px;">
-          <div class="card-body">
-            <h5 class="card-title">Jupyter Notebook with a machine learning setup</h5>
-            <form role="form" action="{{url_for('create_application')}}" method="POST">
-              <div class="form-group">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-              </div>
+        <div class="card-container">
+          <div class="card" style="width: 25rem;">
+            <img class="card-img-top" src="{{url_for('static', filename='img/jupyter-lab-logo.png')}}" alt="Jupyter Notebook Logo" style="padding: 5px;">
+            <div class="card-body">
+              <h5 class="card-title">Jupyter Notebook with a machine learning setup</h5>
+              <form role="form" action="{{url_for('create_application')}}" method="POST">
+                <div class="form-group">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                </div>
 
-              <table class="resource-config">             
-                <tr>
-                  <td>
-                    <label for="gpu-cores">GPU</label>
-                  </td>
-                  <td>
-                    <input 
-                      type="number"
-                      class="form-control"
-                      id="gpu-cores"
-                      name="gpu-cores"
-                      min=0
-                      max=2
-                      value=0
-                    >
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <label for="docker-image">Image</label>
-                  </td>
-                  <td>
-                    <select name="docker-image">
-                      <option value="ivukotic/ml_platform_auto:latest">ivukotic/ml_platform_auto:latest</option>
-                      <option value="ivukotic/ml_platform_auto:conda">ivukotic/ml_platform_auto:conda</option>
-                      <option value="slateci/jupyter-condor-centos7:latest">slateci/jupyter-condor-centos7:latest</option>
-                    </select>
-                  </td>
-                </tr>
-              </table>
-
-              <p>
-                <a type="button" data-toggle="collapse" href="#collapseExample" aria-expanded="false" aria-controls="collapseExample" role="button">
-                  Advanced Options
-                </a>
-              </p>
-              <div class="collapse" id="collapseExample">
                 <table class="resource-config">             
                   <tr>
                     <td>
-                      <label for="cpu-cores">CPU</label>
+                      <label for="gpu-cores">GPU</label>
                     </td>
                     <td>
                       <input 
                         type="number"
                         class="form-control"
-                        id="cpu-cores"
-                        name="cpu-cores"
-                        min=1
-                        max=4
-                        value=1
+                        id="gpu-cores"
+                        name="gpu-cores"
+                        min=0
+                        max=2
+                        value=0
                       >
                     </td>
                   </tr>
-    
                   <tr>
-                    <td>              
-                      <label for="cpu-cores">Memory (GB)</label>
+                    <td>
+                      <label for="docker-image">Image</label>
                     </td>
                     <td>
-                      <input 
-                        type="number"
-                        class="form-control"
-                        id="memory"
-                        name="memory"
-                        min=1
-                        max=16
-                        value=8
-                      >
+                      <select name="docker-image">
+                        <option value="ivukotic/ml_platform_auto:latest">ivukotic/ml_platform_auto:latest</option>
+                        <option value="ivukotic/ml_platform_auto:conda">ivukotic/ml_platform_auto:conda</option>
+                        <option value="slateci/jupyter-condor-centos7:latest">slateci/jupyter-condor-centos7:latest</option>
+                      </select>
                     </td>
                   </tr>
-  
                 </table>
-                
-                <div class="form-check" style="display: none">
-                  <input type="checkbox" class="form-check-input" id="extra-ports" name='extra-ports' tabindex="1">
-                  <label class="form-check-label" for="extra-ports">Enable Extra Ports</label>
+
+                <p>
+                  <a type="button" data-toggle="collapse" href="#collapseExample" aria-expanded="false" aria-controls="collapseExample" role="button">
+                    Advanced Options
+                  </a>
+                </p>
+                <div class="collapse" id="collapseExample">
+                  <table class="resource-config">             
+                    <tr>
+                      <td>
+                        <label for="cpu-cores">CPU</label>
+                      </td>
+                      <td>
+                        <input 
+                          type="number"
+                          class="form-control"
+                          id="cpu-cores"
+                          name="cpu-cores"
+                          min=1
+                          max=4
+                          value=1
+                        >
+                      </td>
+                    </tr>    
+                    <tr>
+                      <td>              
+                        <label for="cpu-cores">Memory (GB)</label>
+                      </td>
+                      <td>
+                        <input 
+                          type="number"
+                          class="form-control"
+                          id="memory"
+                          name="memory"
+                          min=1
+                          max=16
+                          value=8
+                        >
+                      </td>
+                    </tr> 
+                  </table>
+                  
+                  <div class="form-check" style="display: none">
+                    <input type="checkbox" class="form-check-input" id="extra-ports" name='extra-ports' tabindex="1">
+                    <label class="form-check-label" for="extra-ports">Enable Extra Ports</label>
+                  </div>
+    
+                  <div class="form-group" style="display: none">
+                    <label for="low-port">Low Port</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="low-port"
+                      name="low-port"
+                      tabindex="2"
+                      min=31000
+                      step=1
+                      value=31000
+                    >
+                  </div>
+    
+                  <div class="form-group" style="display: none">
+                    <label for="high-port">High Port</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="high-port"
+                      name="high-port"
+                      tabindex="3"
+                      min=31001
+                      step=1
+                      value=31001
+                    >
+                  </div>
+                  
                 </div>
-  
-                <div class="form-group" style="display: none">
-                  <label for="low-port">Low Port</label>
-                  <input
-                    type="number"
-                    class="form-control"
-                    id="low-port"
-                    name="low-port"
-                    tabindex="2"
-                    min=31000
-                    step=1
-                    value=31000
-                  >
+
+                <div class="card" style="width: 25rem;">
+                  <img class="card-img-top" src="{{url_for('static', filename='img/jupyter-lab-logo.png')}}" alt="Jupyter Notebook Logo" style="padding: 5px;">
+                  <div class="card-body">
+                    <h5 class="card-title">Jupyter Notebook via Coffea Casa</h5>
+                  </div>
                 </div>
-  
-                <div class="form-group" style="display: none">
-                  <label for="high-port">High Port</label>
-                  <input
-                    type="number"
-                    class="form-control"
-                    id="high-port"
-                    name="high-port"
-                    tabindex="3"
-                    min=31001
-                    step=1
-                    value=31001
-                  >
-                </div>
-                
               </div>
 
               {% if not public_key %}
