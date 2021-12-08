@@ -214,11 +214,11 @@ def create_application():
             res_gpu = min(res_gpu, 4)
             app_config_yaml["Resources"]["Memory"] = res_memory
             app_config_yaml["Resources"]["CPU"] = res_gpu
-            app_config_yaml["Resources"]["GPU"] = res_cpu
+            # app_config_yaml["Resources"]["GPU"] = res_cpu
         except:
             app_config_yaml["Resources"]["Memory"] = 16000
             app_config_yaml["Resources"]["CPU"] = 4000
-            app_config_yaml["Resources"]["GPU"] = 1
+            # app_config_yaml["Resources"]["GPU"] = 1
 
         logger.info("Setting condor values in the YAML file")
         app_config_yaml["CondorConfig"]["Enabled"] = True
