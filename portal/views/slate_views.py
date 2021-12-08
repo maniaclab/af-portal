@@ -155,7 +155,8 @@ def view_delete_instance(instance_id):
 @authenticated
 def create_application():
     """Connect groups"""
-    query = {"token": slate_api_token, "dev": "true"}
+    # query = {"token": slate_api_token, "dev": "true"}
+    query = {"token": slate_api_token}
     if request.method == "GET":
         app_name = "jupyter-notebook"
         profile = get_user_profile(session["unix_name"])
