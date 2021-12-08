@@ -154,7 +154,6 @@ def view_delete_instance(instance_id):
 @app.route("/instances/deploy", methods=["GET", "POST"])
 @authenticated
 def create_application():
-    logger.info("Creating and deploying an application")
     """Connect groups"""
     query = {"token": slate_api_token, "dev": "true"}
     if request.method == "GET":
@@ -169,6 +168,7 @@ def create_application():
             "instance_create.html", name=app_name, public_key=public_key
         )
     elif request.method == "POST":
+        logger.info("Creating and deploying an application")
         app_name = "jupyter-notebook"
 
         logger.info("Getting app configuration")
