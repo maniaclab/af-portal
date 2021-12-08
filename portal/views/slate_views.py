@@ -255,7 +255,7 @@ def create_application():
 
         # Group name: snowmass21-ciconnect
         group = "group_2Q9yPCOLxMg"
-        cluster = "uchicago-river-v2"
+        cluster = "uchicago-af"
         configuration = yaml.dump(app_config_yaml)
 
         logger.info("Creating a JSON for a POST request to the Slate API")
