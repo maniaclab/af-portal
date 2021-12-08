@@ -220,30 +220,30 @@ def create_application():
             app_config_yaml["Resources"]["CPU"] = 4000
             app_config_yaml["Resources"]["GPU"] = 1
 
-        # logger.info("Setting condor values in the YAML file")
-        # app_config_yaml["CondorConfig"]["Enabled"] = True
-        # app_config_yaml["CondorConfig"]["CollectorHost"] = "flock.opensciencegrid.org"
-        # app_config_yaml["CondorConfig"]["CollectorPort"] = 9618
-        # app_config_yaml["CondorConfig"]["IsExternalPool"] = True
-        # app_config_yaml["CondorConfig"]["ExternalCondorPort"] = generateRandomPort()
-        # app_config_yaml["CondorConfig"]["AuthTokenSecret"] = "submit-auth-token"
-        # app_config_yaml["SSH"]["Enabled"] = True
+        logger.info("Setting condor values in the YAML file")
+        app_config_yaml["CondorConfig"]["Enabled"] = True
+        app_config_yaml["CondorConfig"]["CollectorHost"] = "flock.opensciencegrid.org"
+        app_config_yaml["CondorConfig"]["CollectorPort"] = 9618
+        app_config_yaml["CondorConfig"]["IsExternalPool"] = True
+        app_config_yaml["CondorConfig"]["ExternalCondorPort"] = generateRandomPort()
+        app_config_yaml["CondorConfig"]["AuthTokenSecret"] = "submit-auth-token"
+        app_config_yaml["SSH"]["Enabled"] = True
 
-        # logger.info("Setting port values in the YAML file")
-        # try:
-            # extra_ports_enabled = request.form["extra-ports"]
-            # low_port = request.form["low-port"]
-            # high_port = request.form["high-port"]
+        logger.info("Setting port values in the YAML file")
+        try:
+            extra_ports_enabled = request.form["extra-ports"]
+            low_port = request.form["low-port"]
+            high_port = request.form["high-port"]
 
-            # app_config_yaml["ExtraPort"]["Enabled"] = True
-            # app_config_yaml["ExtraPort"]["HighPort"] = low_port
-            # app_config_yaml["ExtraPort"]["LowPort"] = high_port
-            #print(
-            #    "Using App Config with Extra Ports: {} - {}".format(low_port, high_port)
-            # )
-        # except:
-            # extra_ports_enabled = False
-            # print("Using App Config without Extra Ports")
+            app_config_yaml["ExtraPort"]["Enabled"] = True
+            app_config_yaml["ExtraPort"]["HighPort"] = low_port
+            app_config_yaml["ExtraPort"]["LowPort"] = high_port
+            print(
+                "Using App Config with Extra Ports: {} - {}".format(low_port, high_port)
+            )
+        except:
+            extra_ports_enabled = False
+            print("Using App Config without Extra Ports")
 
         logger.info("Setting SSH information in the YAML file")
         try:
