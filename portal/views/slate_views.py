@@ -268,7 +268,6 @@ def create_application():
         }
 
         logger.info("Sending a POST request to the Slate API")
-        logger.info(install_app)
         # Post query to install application config
         app_install = requests.post(
             slate_api_endpoint + "/v1alpha3/apps/" + app_name,
