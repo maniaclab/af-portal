@@ -158,7 +158,7 @@ ul.powered-by li{
   padding-right: 20px;
   padding-bottom: 10px;
 }
-.resource-config td input[name="gpu-cores"] {
+.resource-config td input[type="number"] {
   width: initial !important;
 }
 .powered-by-large {
