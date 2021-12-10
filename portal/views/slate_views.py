@@ -201,23 +201,25 @@ def create_application():
         app_config_yaml["Jupyter"]["Token"] = base64_encoded_token
 
         logger.info("Setting resource values in the YAML file")
+        app_config_yaml["Resources"]["Memory"] = 16000
+        app_config_yaml["Resources"]["CPU"] = 4000
         # Set resource values    
-        try: 
-            res_memory = int(request.form["memory"]) * 1000
-            res_memory = max(res_memory, 1000)
-            res_memory = min(res_memory, 64000)
-            res_cpu = int(request.form["cpu-cores"]) * 1000
-            res_cpu = max(res_cpu, 1)
-            res_cpu = min(res_cpu, 32)
-            res_gpu = int(request.form["gpu-cores"])
-            res_gpu = max(res_gpu, 0)
-            res_gpu = min(res_gpu, 4)
-            app_config_yaml["Resources"]["Memory"] = res_memory
-            app_config_yaml["Resources"]["CPU"] = res_gpu
+        # try: 
+            # res_memory = int(request.form["memory"]) * 1000
+            # res_memory = max(res_memory, 1000)
+            # res_memory = min(res_memory, 64000)
+            # res_cpu = int(request.form["cpu-cores"]) * 1000
+            # res_cpu = max(res_cpu, 1)
+            # res_cpu = min(res_cpu, 32)
+            # res_gpu = int(request.form["gpu-cores"])
+            # res_gpu = max(res_gpu, 0)
+            # res_gpu = min(res_gpu, 4)
+            # app_config_yaml["Resources"]["Memory"] = res_memory
+            # app_config_yaml["Resources"]["CPU"] = res_gpu
             # app_config_yaml["Resources"]["GPU"] = res_cpu
-        except:
-            app_config_yaml["Resources"]["Memory"] = 16000
-            app_config_yaml["Resources"]["CPU"] = 4000
+        # except:
+            # app_config_yaml["Resources"]["Memory"] = 16000
+            # app_config_yaml["Resources"]["CPU"] = 4000
             # app_config_yaml["Resources"]["GPU"] = 1
 
         logger.info("Setting condor values in the YAML file")
