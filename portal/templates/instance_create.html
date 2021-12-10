@@ -33,30 +33,28 @@
               <table class="resource-config">             
                 <tr>
                   <td>
-                    <label for="gpu-cores">GPU</label>
+                    <label for="notebook-name">Name</label>
                   </td>
                   <td>
                     <input 
-                      type="number"
+                      type="text"
                       class="form-control"
-                      id="gpu-cores"
-                      name="gpu-cores"
-                      min=0
-                      max=2
-                      value=0
+                      id="notebook-name"
+                      name="notebook-name"
                     >
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <label for="docker-image">Image</label>
+                    <label for="notebook-password">Password</label>
                   </td>
                   <td>
-                    <select name="docker-image">
-                      <option value="ivukotic/ml_platform_auto:latest">ivukotic/ml_platform_auto:latest</option>
-                      <option value="ivukotic/ml_platform_auto:conda">ivukotic/ml_platform_auto:conda</option>
-                      <option value="slateci/jupyter-condor-centos7:latest">slateci/jupyter-condor-centos7:latest</option>
-                    </select>
+                    <input 
+                      type="password"
+                      class="form-control"
+                      id="notebook-password"
+                      name="notebook-password"
+                    >
                   </td>
                 </tr>
               </table>
@@ -98,6 +96,34 @@
                         max=16
                         value=8
                       >
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <label for="gpu-cores">GPU</label>
+                    </td>
+                    <td>
+                      <input 
+                        type="number"
+                        class="form-control"
+                        id="gpu-cores"
+                        name="gpu-cores"
+                        min=0
+                        max=2
+                        value=0
+                      >
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <label for="docker-image">Image</label>
+                    </td>
+                    <td>
+                      <select name="docker-image">
+                        <option value="ivukotic/ml_platform_auto:latest">ivukotic/ml_platform_auto:latest</option>
+                        <option value="ivukotic/ml_platform_auto:conda">ivukotic/ml_platform_auto:conda</option>
+                        <option value="slateci/jupyter-condor-centos7:latest">slateci/jupyter-condor-centos7:latest</option>
+                      </select>
                     </td>
                   </tr> 
                 </table>
