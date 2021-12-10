@@ -160,7 +160,7 @@ ul.powered-by li{
   min-width: 120px;
 }
 .resource-config td input[type="number"] {
-  width: initial !important;
+  /* width: initial !important; */
 }
 .powered-by-large {
   max-height: 8ex;
