@@ -157,6 +157,7 @@ ul.powered-by li{
 .resource-config td {
   padding-right: 20px;
   padding-bottom: 10px;
+  min-width: 120px;
 }
 .resource-config td input[type="number"] {
   width: initial !important;
