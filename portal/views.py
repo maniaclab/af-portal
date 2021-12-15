@@ -49,6 +49,7 @@ import group_views
 import error_handling
 import users_groups
 import slate_views
+import k8s_views
 
 
 @app.route("/webhooks/github", methods=["GET", "POST"])
