@@ -9,7 +9,7 @@ import k8s_api
 def deploy_jupyter_notebook():
     k8s_api.create_jupyter_notebook()
 
-    return redirect(url_for("view_jupyter"))
+    return redirect(url_for("view_jupyter_notebooks"))
 
 @app.route("/jupyter/view", methods=["GET", "POST"])
 @authenticated
