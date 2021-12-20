@@ -5,7 +5,7 @@ from kubernetes import client, config
 config_loaded = False
 
 if not config_loaded:
-    config.load_incluster_config()
+    config.load_kube_config()
     config_loaded = True
 
 def create_jupyter_notebook():
