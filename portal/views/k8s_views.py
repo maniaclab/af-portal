@@ -3,6 +3,7 @@ import requests
 from portal import app
 from portal.decorators import authenticated
 from portal.k8s_api import create_jupyter_notebook
+from slate_api import view_instances
 
 @app.route("/jupyter/deploy", methods=["GET", "POST"])
 @authenticated
