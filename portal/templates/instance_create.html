@@ -30,7 +30,7 @@
           </table>
           <div class="card-body">
             <h5 class="card-title">Jupyter Notebook with a machine learning setup</h5>
-            <form role="form" action="{{url_for('create_application')}}" method="POST">
+            <form role="form" action="{{url_for('deploy_jupyter_notebook')}}" method="POST">
               <div class="form-group">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
               </div>
