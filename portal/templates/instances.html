@@ -13,11 +13,9 @@
       <li class="breadcrumb-item">Applications</li>
     </ol>
     <h1>Deployed Applications</h1>
-    {% if user_status in ['active', 'admin'] %}
     <div class="btn-group mr-2" role="group" aria-label="first group">
       <a href="{{url_for('create_application')}}" class="btn btn-primary btn-sm btn-box-shadow">Deploy Application</a>
     </div>
-    {% endif %}
     <br></br>
     <div class='row'>
       <div class="col-lg-12 mx-auto">
@@ -27,16 +25,18 @@
             <thead>
               <tr>
                 <th data-field="name" data-sortable="true">Name</th>
+                <th data-field="namespace" data-sortable="true">Namespace</th>
                 <th data-field="cluster" data-sortable="true">Cluster</th>
-                <th data-field="instance-id" data-sortable="true">ID</th>
+                <th data-field="remove-instance">Remove</th>
               </tr>
             </thead>
             <tbody data-link="row" class="rowlink" style="font-size:14px;">
               {% for instance in instances %}
               <tr>
-                <td><a href="{{url_for('view_instance', instance_id=instance['metadata']['id'])}}" onclick="loader()">{{instance['metadata']['name']}}</a></td>
-                <td>{{instance['metadata']['cluster']}}</td>
-                <td>{{instance['metadata']['id']}}</td>
+                <td><a href="{{instance['url']}}" target="_blank">{{instance['name']}}</a></td>
+                <td>{{instance['namespace']}}</td>
+                <td>{{instance['cluster']}}</td>
+                <td><a href="{{url_for('remove_jupyter_notebook', namespace=instance['namespace'], notebook_name=instance['name'])}}"><i class="bi bi-trash"></i></a></td>
               </tr>
               {% endfor %}
             </tbody>
