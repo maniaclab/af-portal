@@ -5,6 +5,8 @@ from notebook.auth.security import passwd
 import pprint
 
 def create_jupyter_notebook(password):
+    config.load_kube_config()
+    
     with open(path.join(path.dirname(__file__), "yaml/deployment.yaml")) as f:
         dep = yaml.safe_load(f)
         password_hash = passwd(password)
@@ -23,7 +25,3 @@ def create_jupyter_notebook(password):
         ingress = yaml.safe_load(f)
         networking_v1_api = client.NetworkingV1Api()
         resp = networking_v1_api.create_namespaced_ingress(namespace="rolyata",body=ingress)
-
-if __name__ == '__main__':
-    config.load_kube_config()
-    create_jupyter_notebook()

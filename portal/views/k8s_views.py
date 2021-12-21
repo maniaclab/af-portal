@@ -8,7 +8,7 @@ from slate_views import view_instances
 @app.route("/jupyter/deploy", methods=["GET", "POST"])
 @authenticated
 def deploy_jupyter_notebook():
-    password = request.form['password']
+    password = request.form['notebook-password']
     create_jupyter_notebook(password)
 
     return redirect(url_for("view_instances"))
