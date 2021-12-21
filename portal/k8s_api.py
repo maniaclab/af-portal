@@ -1,31 +1,29 @@
 from os import path
 import yaml
 from kubernetes import client, config
+from notebook.auth.security import passwd
+import pprint
 
-config_loaded = False
-
-if not config_loaded:
-    config.load_kube_config()
-    config_loaded = True
-
-def create_jupyter_notebook():
-    create_deployment()
-    create_ingress()
-
-def create_deployment():
+def create_jupyter_notebook(password):
     with open(path.join(path.dirname(__file__), "yaml/deployment.yaml")) as f:
         dep = yaml.safe_load(f)
+        password_hash = passwd(password)
+        dep['spec']['template']['spec']['containers'][0]['args']= ["start-notebook.sh", f"--NotebookApp.password='{password_hash}'"]
         k8s_apps_v1 = client.AppsV1Api()
-        resp = k8s_apps_v1.create_namespaced_deployment(
-            body=dep, namespace="default")
+        resp = k8s_apps_v1.create_namespaced_deployment(body=dep, namespace="rolyata")
+        pprint.pprint(dep)
         print("Deployment created. status='%s'" % resp.metadata.name)
 
-def create_ingress():
+    with open(path.join(path.dirname(__file__), "yaml/service.yaml")) as f:
+        service = yaml.safe_load(f)
+        core_v1_api = client.CoreV1Api()
+        resp = core_v1_api.create_namespaced_service(namespace="rolyata", body=service)
+
     with open(path.join(path.dirname(__file__), "yaml/ingress.yaml")) as f:
         ingress = yaml.safe_load(f)
-        # session["unix_name"] or session["primary_identity"] can help set the host and namespace
         networking_v1_api = client.NetworkingV1Api()
-        resp = networking_v1_api.create_namespaced_ingress(
-            namespace="default",
-            body=ingress
-        )
+        resp = networking_v1_api.create_namespaced_ingress(namespace="rolyata",body=ingress)
+
+if __name__ == '__main__':
+    config.load_kube_config()
+    create_jupyter_notebook()
