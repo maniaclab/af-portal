@@ -16,7 +16,14 @@ spec:
     spec:
       containers:
       - name: {{notebook_name}}
-        image: jupyter/minimal-notebook:latest
+        image: {{image}}
         ports:
         - containerPort: 8888
+        resources:
+          requests:
+            memory: {{memory}}
+            cpu: {{cpu}}
+          limits:
+            memory: {{memory}}
+            cpu: {{cpu}}
         args: ["start-notebook.sh", "--NotebookApp.password='{{password_hash}}'"]

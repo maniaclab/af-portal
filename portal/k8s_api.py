@@ -18,13 +18,13 @@ fh.setFormatter(formatter)
 logger.addHandler(ch)
 logger.addHandler(fh)
 
-def create_jupyter_notebook(notebook_name, namespace, password):
+def create_jupyter_notebook(notebook_name, namespace, password, cpu, memory, image):
     config.load_kube_config()
     env = Environment(loader=FileSystemLoader("portal/yaml"), autoescape=select_autoescape())
 
     template = env.get_template("deployment.yaml")
     password_hash = passwd(password)
-    dep = yaml.safe_load(template.render(notebook_name=notebook_name, password_hash=password_hash))
+    dep = yaml.safe_load(template.render(notebook_name=notebook_name, password_hash=password_hash, cpu=cpu, memory=memory, image=image))
     k8s_apps_v1 = client.AppsV1Api()
     resp = k8s_apps_v1.create_namespaced_deployment(body=dep, namespace=namespace)
     pprint.pprint(dep)

@@ -79,8 +79,8 @@
                       <input 
                         type="number"
                         class="form-control"
-                        id="cpu-cores"
-                        name="cpu-cores"
+                        id="cpu"
+                        name="cpu"
                         min=1
                         max=4
                         value=1
@@ -111,8 +111,8 @@
                       <input 
                         type="number"
                         class="form-control"
-                        id="gpu-cores"
-                        name="gpu-cores"
+                        id="gpu"
+                        name="gpu"
                         min=0
                         max=2
                         value=0
@@ -137,13 +137,13 @@
                   </tr>
                   <tr>
                     <td>
-                      <label for="docker-image">Image</label>
+                      <label for="image">Image</label>
                     </td>
                     <td>
-                      <select name="docker-image">
+                      <select name="image">
+                        <option value="slateci/jupyter-condor-centos7:latest">jupyter/minimal-notebook:latest</option>
                         <option value="ivukotic/ml_platform_auto:latest">ivukotic/ml_platform_auto:latest</option>
                         <option value="ivukotic/ml_platform_auto:conda">ivukotic/ml_platform_auto:conda</option>
-                        <option value="slateci/jupyter-condor-centos7:latest">slateci/jupyter-condor-centos7:latest</option>
                       </select>
                     </td>
                   </tr> 
