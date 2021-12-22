@@ -5,21 +5,21 @@ metadata:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     certmanager.k8s.io/cluster-issuer: letsencrypt-prod
     kubernetes.io/ingress.class: slate
-  name: minimal-ingress
-  namespace: rolyata
+  name: {{notebook_name}}
+  namespace: {{namespace}}
 spec:
   rules:
-  - host: rolyata-notebook.uchicago-river-v2.slateci.net
+  - host: {{notebook_name}}.uchicago-river-v2.slateci.net
     http:
       paths:
       - backend:
           service:
-            name: minimal-notebook
+            name: {{notebook_name}}
             port:
               number: 8888
         path: /
         pathType: ImplementationSpecific
   tls:
   - hosts:
-    - rolyata-notebook.uchicago-river-v2.slateci.net
-    secretName: rolyata-notebook-tls
+    - {{notebook_name}}.uchicago-river-v2.slateci.net
+    secretName: {{notebook_name}}-tls

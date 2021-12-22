@@ -1,21 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: minimal-notebook
+  name: {{notebook_name}}
   labels:
-    app: minimal-notebook
+    app: {{notebook_name}}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: minimal-notebook
+      app: {{notebook_name}}
   template:
     metadata:
       labels:
-        app: minimal-notebook
+        app: {{notebook_name}}
     spec:
       containers:
-      - name: minimal-notebook
+      - name: {{notebook_name}}
         image: jupyter/minimal-notebook:latest
         ports:
         - containerPort: 8888
+        args: ["start-notebook.sh", "--NotebookApp.password='{{password_hash}}'"]

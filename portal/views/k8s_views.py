@@ -8,8 +8,11 @@ from portal.connect_api import get_user_profile, get_user_connect_status
 @app.route("/jupyter/deploy", methods=["GET", "POST"])
 @authenticated
 def deploy_jupyter_notebook():
+    notebook_name = request.form['notebook-name']
     password = request.form['notebook-password']
-    k8s_api.create_jupyter_notebook(password)
+    username = session['unix_name']
+
+    k8s_api.create_jupyter_notebook(notebook_name, username, password)
 
     return redirect(url_for("view_jupyter_notebooks"))
 
