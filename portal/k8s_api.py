@@ -42,20 +42,16 @@ def create_jupyter_notebook(notebook_name, namespace, password, cpu, memory, ima
 
 def get_jupyter_notebooks(namespace):
     config.load_kube_config()
-    core_v1_api = client.CoreV1Api()
-    services = core_v1_api.list_namespaced_service(namespace)
-    logger.info('Services:\n' + str(services))
     networking_v1_api = client.NetworkingV1Api()
     ingresses = networking_v1_api.list_namespaced_ingress(namespace)
-    logger.info('Ingresses:\n' + str(ingresses))
     notebooks = []
     try:
-        for service in services.items:
+        for ingress in ingresses.items:
             notebooks.append(
-                {'name': service.metadata.name, 
-                'namespace': service.metadata.namespace, 
+                {'name': ingress.metadata.name, 
+                'namespace': ingress.metadata.namespace, 
                 'cluster':'uchicago-river', 
-                'url': 'https://' + ingresses.items[0].spec.rules[0].host}
+                'url': 'https://' + ingress.spec.rules[0].host}
             )
     except:
         logger.info('Error accessing ingress file')

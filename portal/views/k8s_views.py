@@ -11,10 +11,10 @@ def deploy_jupyter_notebook():
     notebook_name = request.form['notebook-name']
     password = request.form['notebook-password']
     username = session['unix_name']
-    cpu = request.form['cpu']
-    memory = request.form['memory']
+    cpu = int(request.form['cpu']) * 1000
+    memory = int(request.form['memory']) * 1000
     image = request.form['image']
-    k8s_api.create_jupyter_notebook(notebook_name, username, password, cpu, memory, image)
+    k8s_api.create_jupyter_notebook(notebook_name, username, password, f"{cpu}m", f"{memory}Mi", image)
     return redirect(url_for("view_jupyter_notebooks"))
 
 @app.route("/jupyter/view", methods=["GET"])
