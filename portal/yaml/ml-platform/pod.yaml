@@ -18,7 +18,7 @@ spec:
     # - repo
     image: {{image}}
     imagePullPolicy: Always
-    name: {{notebook_name}}
+    name: privatejupyter
     ports:
     - containerPort: 9999
     resources:
