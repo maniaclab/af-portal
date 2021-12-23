@@ -39,7 +39,7 @@ def create_jupyter_notebook(notebook_name, namespace, password, cpu, memory, ima
         template = env.get_template("ingress.yaml")
         ingress = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
         networking_v1_api.create_namespaced_ingress(namespace=namespace,body=ingress)
-    elif image === 'jupyter/minimal-notebook:latest':
+    elif image == 'jupyter/minimal-notebook:latest':
         env = Environment(loader=FileSystemLoader("portal/yaml/minimal-notebook"), autoescape=select_autoescape())
         password_hash = passwd(password)
 
