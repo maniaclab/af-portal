@@ -6,8 +6,8 @@ metadata:
     k8s-app: privatejupyter
     owner: {{namespace}}
     # repo: xxx
-    time2delete: ttl-1000
-  name: privatejupyter
+    time2delete: ttl-{{days}}
+  name: {{notebook_name}}
   namespace: {{namespace}}
 spec:
   containers:
@@ -18,7 +18,7 @@ spec:
     # - repo
     image: {{image}}
     imagePullPolicy: Always
-    name: privatejupyter
+    name: {{notebook_name}}
     ports:
     - containerPort: 9999
     resources:
