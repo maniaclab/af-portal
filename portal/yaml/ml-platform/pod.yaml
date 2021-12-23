@@ -7,7 +7,7 @@ metadata:
     owner: {{namespace}}
     # repo: xxx
     time2delete: ttl-1000
-  name: {{notebook_name}}
+  name: privatejupyter
   namespace: {{namespace}}
 spec:
   containers:
