@@ -3,7 +3,7 @@ kind: Pod
 metadata:
   labels:
     instance: {{notebook_name}}
-    k8s-app: {{notebook_name}}
+    k8s-app: privatejupyter
     owner: {{namespace}}
     # repo: xxx
     time2delete: ttl-1000
