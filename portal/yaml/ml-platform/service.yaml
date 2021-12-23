@@ -3,7 +3,7 @@ kind: Service
 metadata:
   labels:
     instance: {{notebook_name}}
-    k8s-app: privatejupyter
+    k8s-app: {{notebook_name}}
   name: {{notebook_name}}
   namespace: {{namespace}}
 spec:

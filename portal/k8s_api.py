@@ -23,25 +23,39 @@ def create_jupyter_notebook(notebook_name, namespace, password, cpu, memory, ima
     core_v1_api = client.CoreV1Api()
     networking_v1_api = client.NetworkingV1Api()
 
-    ml_setup = True if image in ['ivukotic/ml_platform_auto:latest', 'ivukotic/ml_platform_auto:conda'] else False
-    yaml_dir = "portal/yaml/ml-platform" if ml_setup else "portal/yaml/minimal-notebook"
-    password = password if ml_setup else passwd(password) 
+    if image in ['ivukotic/ml_platform_auto:latest', 'ivukotic/ml_platform_auto:conda']:
+        env = Environment(loader=FileSystemLoader("portal/yaml/ml-platform"), autoescape=select_autoescape())
 
-    env = Environment(loader=FileSystemLoader(yaml_dir), autoescape=select_autoescape())
+        template = env.get_template("pod.yaml")
+        pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, password=password, cpu=cpu, memory=memory, image=image))
+        resp = core_v1_api.create_namespaced_pod(body=pod, namespace=namespace)
+        pprint.pprint(resp)
+        print("Pod created. status='%s'" % resp.metadata.name)
 
-    template = env.get_template("pod.yaml")
-    pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, password=password, cpu=cpu, memory=memory, image=image))
-    resp = core_v1_api.create_namespaced_pod(body=pod, namespace=namespace)
-    pprint.pprint(resp)
-    print("Pod created. status='%s'" % resp.metadata.name)
+        template = env.get_template("service.yaml")
+        service = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
+        core_v1_api.create_namespaced_service(namespace=namespace, body=service)
 
-    template = env.get_template("service.yaml")
-    service = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
-    core_v1_api.create_namespaced_service(namespace=namespace, body=service)
+        template = env.get_template("ingress.yaml")
+        ingress = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
+        networking_v1_api.create_namespaced_ingress(namespace=namespace,body=ingress)
+    elif image === 'jupyter/minimal-notebook:latest':
+        env = Environment(loader=FileSystemLoader("portal/yaml/minimal-notebook"), autoescape=select_autoescape())
+        password_hash = passwd(password)
 
-    template = env.get_template("ingress.yaml")
-    ingress = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
-    networking_v1_api.create_namespaced_ingress(namespace=namespace,body=ingress)
+        template = env.get_template("pod.yaml")
+        pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, password=password_hash, cpu=cpu, memory=memory, image=image))
+        resp = core_v1_api.create_namespaced_pod(body=pod, namespace=namespace)
+        pprint.pprint(resp)
+        print("Pod created. status='%s'" % resp.metadata.name)
+
+        template = env.get_template("service.yaml")
+        service = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
+        core_v1_api.create_namespaced_service(namespace=namespace, body=service)
+
+        template = env.get_template("ingress.yaml")
+        ingress = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
+        networking_v1_api.create_namespaced_ingress(namespace=namespace,body=ingress)
 
 def get_jupyter_notebooks(namespace):
     config.load_kube_config()

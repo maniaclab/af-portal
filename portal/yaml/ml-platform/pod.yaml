@@ -3,11 +3,11 @@ kind: Pod
 metadata:
   labels:
     instance: {{notebook_name}}
-    k8s-app: privatejupyter
+    k8s-app: {{notebook_name}}
     owner: {{namespace}}
     # repo: xxx
     time2delete: ttl-1000
-  name: privatejupyter
+  name: {{notebook_name}}
   namespace: {{namespace}}
 spec:
   containers:
@@ -18,7 +18,7 @@ spec:
     # - repo
     image: {{image}}
     imagePullPolicy: Always
-    name: privatejupyter
+    name: {{notebook_name}}
     ports:
     - containerPort: 9999
     resources:
