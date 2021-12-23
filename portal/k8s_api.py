@@ -20,25 +20,28 @@ logger.addHandler(fh)
 
 def create_jupyter_notebook(notebook_name, namespace, password, cpu, memory, image):
     config.load_kube_config()
-    env = Environment(loader=FileSystemLoader("portal/yaml"), autoescape=select_autoescape())
+    core_v1_api = client.CoreV1Api()
+    networking_v1_api = client.NetworkingV1Api()
 
-    template = env.get_template("deployment.yaml")
-    password_hash = passwd(password)
-    dep = yaml.safe_load(template.render(notebook_name=notebook_name, password_hash=password_hash, cpu=cpu, memory=memory, image=image))
-    k8s_apps_v1 = client.AppsV1Api()
-    resp = k8s_apps_v1.create_namespaced_deployment(body=dep, namespace=namespace)
-    pprint.pprint(dep)
-    print("Deployment created. status='%s'" % resp.metadata.name)
+    ml_setup = True if image in ['ivukotic/ml_platform_auto:latest', 'ivukotic/ml_platform_auto:conda'] else False
+    yaml_dir = "portal/yaml/ml-platform" if ml_setup else "portal/yaml/minimal-notebook"
+    password = password if ml_setup else passwd(password) 
+
+    env = Environment(loader=FileSystemLoader(yaml_dir), autoescape=select_autoescape())
+
+    template = env.get_template("pod.yaml")
+    pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, password=password, cpu=cpu, memory=memory, image=image))
+    resp = core_v1_api.create_namespaced_pod(body=pod, namespace=namespace)
+    pprint.pprint(resp)
+    print("Pod created. status='%s'" % resp.metadata.name)
 
     template = env.get_template("service.yaml")
-    service = yaml.safe_load(template.render(notebook_name=notebook_name))
-    core_v1_api = client.CoreV1Api()
-    resp = core_v1_api.create_namespaced_service(namespace=namespace, body=service)
+    service = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
+    core_v1_api.create_namespaced_service(namespace=namespace, body=service)
 
     template = env.get_template("ingress.yaml")
     ingress = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
-    networking_v1_api = client.NetworkingV1Api()
-    resp = networking_v1_api.create_namespaced_ingress(namespace=namespace,body=ingress)
+    networking_v1_api.create_namespaced_ingress(namespace=namespace,body=ingress)
 
 def get_jupyter_notebooks(namespace):
     config.load_kube_config()

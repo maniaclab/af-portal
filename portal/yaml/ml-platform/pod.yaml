@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    instance: {{notebook_name}}
+    k8s-app: privatejupyter
+    owner: {{namespace}}
+    # repo: xxx
+    time2delete: ttl-1000
+  name: privatejupyter
+  namespace: {{namespace}}
+spec:
+  containers:
+  - args:
+    - /.run
+    - /ML_platform_tests/SetupPrivateJupyterLab.sh
+    - {{password}}
+    # - repo
+    image: {{image}}
+    imagePullPolicy: Always
+    name: privatejupyter
+    ports:
+    - containerPort: 9999
+    resources:
+      limits:
+        cpu: {{cpu}}
+        memory: {{memory}}
+        # nvidia.com/gpu: 1
+      requests:
+        cpu: {{cpu}}
+        memory: {{memory}}
+        # nvidia.com/gpu: 1
+    volumeMounts:
+    - mountPath: /data
+      name: local-scratch
+      readOnly: false
+  # nodeSelector:
+    # mlnode: 'true'
+  restartPolicy: Always
+  # serviceAccountName: xxx
+  volumes:
+  - hostPath:
+      path: /data
+    name: local-scratch
