@@ -3,6 +3,8 @@ import yaml
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from kubernetes import client, config
 from notebook.auth.security import passwd
+import datetime
+import re
 import pprint
 import logging
 
@@ -58,35 +60,63 @@ def create_jupyter_notebook(notebook_name, namespace, password, cpu, memory, ima
         ingress = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
         networking_v1_api.create_namespaced_ingress(namespace=namespace,body=ingress)
 
+def get_creation_date(pod):
+    try:
+        return pod.metadata.creation_timestamp.strftime('%B %d %Y %I:%M:%S %p %Z')
+    except:
+        return 'Unknown'
+
+def get_expiry_date(pod):
+    try:
+        if hasattr(pod.metadata, 'labels') and 'time2delete' in pod.metadata.labels:
+            cr_ts = pod.metadata.creation_timestamp
+            td_str = pod.metadata.labels['time2delete']
+            valid = re.compile(r"ttl-\d+")
+            if valid.match(td_str):
+                td = int(td_str.split("-")[1])
+                expiry_date = cr_ts + datetime.timedelta(td)
+                return expiry_date.strftime('%B %d %Y %I:%M:%S %p %Z')
+    except:
+        logger.info('Error getting expiry date')
+    return 'Never' 
+
 def get_jupyter_notebooks(namespace):
     config.load_kube_config()
+    core_v1_api = client.CoreV1Api()
     networking_v1_api = client.NetworkingV1Api()
-    ingresses = networking_v1_api.list_namespaced_ingress(namespace)
+
     notebooks = []
     try:
-        for ingress in ingresses.items:
+        pods = core_v1_api.list_namespaced_pod(namespace)
+        for pod in pods.items:
+            name = pod.metadata.name
+            ingress = networking_v1_api.read_namespaced_ingress(name, namespace)
+            url = 'https://' + ingress.spec.rules[0].host
+            creation_date = get_creation_date(pod)
+            expiry_date = get_expiry_date(pod)
             notebooks.append(
-                {'name': ingress.metadata.name, 
-                'namespace': ingress.metadata.namespace, 
+                {'name': name, 
+                'namespace': namespace, 
                 'cluster':'uchicago-river', 
-                'url': 'https://' + ingress.spec.rules[0].host}
+                'url': url,
+                'creation_date': creation_date,
+                'expiry_date': expiry_date}
             )
     except:
-        logger.info('Error accessing ingress file')
+        logger.info('Error getting Jupyter notebooks')
 
     logger.info(notebooks)
-
     return notebooks
 
 def remove_jupyter_notebook(namespace, notebook_name):
     config.load_kube_config()
+    core_v1_api = client.CoreV1Api()
+    networking_v1_api = client.NetworkingV1Api()
     try:
-        k8s_apps_v1 = client.AppsV1Api()
-        k8s_apps_v1.delete_namespaced_deployment(namespace=namespace, name=notebook_name)
-        core_v1_api = client.CoreV1Api()
-        core_v1_api.delete_namespaced_service(namespace=namespace, name=notebook_name)
-        networking_v1_api = client.NetworkingV1Api()
-        networking_v1_api.delete_namespaced_ingress(namespace=namespace, name=notebook_name)
+        core_v1_api.delete_namespaced_pod(notebook_name, namespace)
+        core_v1_api.delete_namespaced_service(notebook_name, namespace)
+        networking_v1_api.delete_namespaced_ingress(notebook_name, namespace)
         return True
     except:
+        logger.info(f"Error deleting pod {notebook_name} in namespace {namespace}")
         return False
