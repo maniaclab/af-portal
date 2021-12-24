@@ -30,7 +30,7 @@
           </table>
           <div class="card-body">
             <h5 class="card-title">Jupyter Notebook with a machine learning setup</h5>
-            <form role="form" action="{{url_for('deploy_jupyter_notebook')}}" method="POST">
+            <form role="form" action="{{url_for('deploy_jupyter_notebook')}}" method="POST" style="margin-top: 40px !important">
               <div class="form-group">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
               </div>
@@ -38,7 +38,7 @@
               <table class="resource-config">             
                 <tr>
                   <td>
-                    <label for="notebook-name">Name</label>
+                    <label for="notebook-name">Name *</label>
                   </td>
                   <td>
                     <input 
@@ -46,12 +46,13 @@
                       class="form-control"
                       id="notebook-name"
                       name="notebook-name"
+                      required
                     >
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <label for="notebook-password">Password</label>
+                    <label for="notebook-password">Password *</label>
                   </td>
                   <td>
                     <input 
@@ -59,11 +60,89 @@
                       class="form-control"
                       id="notebook-password"
                       name="notebook-password"
+                      required
                     >
                   </td>
                 </tr>
+                <tr>
+                  <td>
+                    <label for="cpu-cores">CPU cores</label>
+                  </td>
+                  <td>
+                    <input 
+                      type="number"
+                      class="form-control"
+                      id="cpu"
+                      name="cpu"
+                      min=1
+                      max=4
+                      value=1
+                    >
+                  </td>
+                </tr>    
+                <tr>
+                  <td>              
+                    <label for="cpu-cores">Memory (GB)</label>
+                  </td>
+                  <td>
+                    <input 
+                      type="number"
+                      class="form-control"
+                      id="memory"
+                      name="memory"
+                      min=1
+                      max=16
+                      value=8
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="gpu-cores">GPU</label>
+                  </td>
+                  <td>
+                    <input 
+                      type="number"
+                      class="form-control"
+                      id="gpu"
+                      name="gpu"
+                      min=0
+                      max=2
+                      value=0
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="time-duration">Time to live (days)</label>
+                  </td>
+                  <td>
+                    <input 
+                      type="number"
+                      class="form-control"
+                      id="time-duration"
+                      name="time-duration"
+                      min=1
+                      max=100
+                      value=10
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="image">Image</label>
+                  </td>
+                  <td>
+                    <select name="image">
+                      <option value="jupyter/minimal-notebook:latest">jupyter/minimal-notebook:latest</option>
+                      <option value="ivukotic/ml_platform_auto:latest">ivukotic/ml_platform_auto:latest</option>
+                      <option value="ivukotic/ml_platform_auto:conda">ivukotic/ml_platform_auto:conda</option>
+                    </select>
+                  </td>
+                </tr>
               </table>
-
+              <!--<div style="margin-top: 10px; margin-bottom: 20px">[*] fields with an asterisk are required</div>-->
+              <!--
               <p>
                 <a type="button" data-toggle="collapse" href="#collapseExample" aria-expanded="false" aria-controls="collapseExample" role="button">
                   Advanced Options
@@ -159,7 +238,7 @@
                         name="repo"
                       >
                     </td>
-                  </tr>-->  
+                  </tr> 
                 </table>
                 
                 <div class="form-check" style="display: none">
@@ -195,7 +274,8 @@
                   >
                 </div>
                 
-              </div>
+                
+              </div>-->
 
               {% if not public_key %}
               <div class="form-group">
@@ -211,7 +291,7 @@
               {% endif %}
   
               <div class="form-group">
-                <button type="submit" class="btn btn-primary btn-box-shadow" onclick="loader()">Deploy</button>
+                <button type="submit" class="btn btn-primary btn-box-shadow" onclick="loader()" disabled>Deploy</button>
               </div>
             </form>
           </div>
@@ -315,4 +395,19 @@
 
   </div>
 </section>
+<script type="text/javascript">
+$(document).ready(function() {
+  $("input:required").on('keyup change', function () {
+    console.log('logging a change to a required input');
+    var valid = true;
+    
+    $.each($("input:required"), function (index, value) {
+      if(!$(value).val())
+        valid = false;
+    });
+
+    $('button[type="submit"]').attr("disabled", !valid);
+  });
+});
+</script>
 {%endblock%}
