@@ -13,240 +13,34 @@
       <li class="breadcrumb-item active">Deploy</li>
     </ol>
     <h1>Deploy</h1>
-    <!--<div class="alert alert-warning" role="alert">
+    <div class="alert alert-warning" role="alert">
       <i class="fas fa-exclamation-circle"></i> This feature is a technical preview. Some functionality may be missing or broken.
-    </div>-->
+    </div>
     <hr/>
     <br></br>
     <div class="row">
-      <div class="col-lg-1"></div>
-      <div class="col-lg-5">
-        <div class="card h-100" style="width: 32rem;">
-          <table>
-            <tr>
-              <td><img class="card-img-top" src="{{url_for('static', filename='img/jupyter-lab-logo.png')}}" alt="Jupyter Notebook Logo" style="padding: 5px; width: 250px"></td>
-              <td><img class="card-img-top" src="{{url_for('static', filename='img/machine-learning-logo.png')}}" alt="Machine Learning Logo" style="padding: 5px; width: 130px"></td>
-            </tr>
-          </table>
+      <div class="col-lg-6 mx-auto">
+        <div class="card" style="width: 18rem;">
+          <img class="card-img-top" src="{{url_for('static', filename='img/jupyter-lab-logo.png')}}" alt="Jupyter Notebook Logo" style="padding: 5px;">
           <div class="card-body">
-            <h5 class="card-title">Jupyter Notebook with a machine learning setup</h5>
-            <form role="form" action="{{url_for('deploy_jupyter_notebook')}}" method="POST" style="margin-top: 40px !important">
+            <h5 class="card-title">Jupyter Notebook with a condor-submit setup</h5>
+            <form role="form" action="{{url_for('create_application')}}" method="POST">
               <div class="form-group">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
               </div>
 
-              <table class="resource-config">             
-                <tr>
-                  <td>
-                    <label for="notebook-name">Name *</label>
-                  </td>
-                  <td>
-                    <input 
-                      type="text"
-                      class="form-control"
-                      id="notebook-name"
-                      name="notebook-name"
-                      required
-                    >
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <label for="notebook-password">Password *</label>
-                  </td>
-                  <td>
-                    <input 
-                      type="password"
-                      class="form-control"
-                      id="notebook-password"
-                      name="notebook-password"
-                      required
-                    >
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <label for="cpu-cores">CPU cores</label>
-                  </td>
-                  <td>
-                    <input 
-                      type="number"
-                      class="form-control"
-                      id="cpu"
-                      name="cpu"
-                      min=1
-                      max=4
-                      value=1
-                    >
-                  </td>
-                </tr>    
-                <tr>
-                  <td>              
-                    <label for="cpu-cores">Memory (GB)</label>
-                  </td>
-                  <td>
-                    <input 
-                      type="number"
-                      class="form-control"
-                      id="memory"
-                      name="memory"
-                      min=1
-                      max=16
-                      value=8
-                    >
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <label for="gpu-cores">GPU</label>
-                  </td>
-                  <td>
-                    <input 
-                      type="number"
-                      class="form-control"
-                      id="gpu"
-                      name="gpu"
-                      min=0
-                      max=2
-                      value=0
-                    >
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <label for="time-duration">Time to live (days)</label>
-                  </td>
-                  <td>
-                    <input 
-                      type="number"
-                      class="form-control"
-                      id="time-duration"
-                      name="time-duration"
-                      min=1
-                      max=100
-                      value=10
-                    >
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <label for="image">Image</label>
-                  </td>
-                  <td>
-                    <select name="image">
-                      <option value="jupyter/minimal-notebook:latest">jupyter/minimal-notebook:latest</option>
-                      <option value="ivukotic/ml_platform_auto:latest">ivukotic/ml_platform_auto:latest</option>
-                      <option value="ivukotic/ml_platform_auto:conda">ivukotic/ml_platform_auto:conda</option>
-                    </select>
-                  </td>
-                </tr>
-              </table>
-              <!--<div style="margin-top: 10px; margin-bottom: 20px">[*] fields with an asterisk are required</div>-->
-              <!--
               <p>
                 <a type="button" data-toggle="collapse" href="#collapseExample" aria-expanded="false" aria-controls="collapseExample" role="button">
                   Advanced Options
                 </a>
               </p>
               <div class="collapse" id="collapseExample">
-                <table class="resource-config">             
-                  <tr>
-                    <td>
-                      <label for="cpu-cores">CPU cores</label>
-                    </td>
-                    <td>
-                      <input 
-                        type="number"
-                        class="form-control"
-                        id="cpu"
-                        name="cpu"
-                        min=1
-                        max=4
-                        value=1
-                      >
-                    </td>
-                  </tr>    
-                  <tr>
-                    <td>              
-                      <label for="cpu-cores">Memory (GB)</label>
-                    </td>
-                    <td>
-                      <input 
-                        type="number"
-                        class="form-control"
-                        id="memory"
-                        name="memory"
-                        min=1
-                        max=16
-                        value=8
-                      >
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <label for="gpu-cores">GPU</label>
-                    </td>
-                    <td>
-                      <input 
-                        type="number"
-                        class="form-control"
-                        id="gpu"
-                        name="gpu"
-                        min=0
-                        max=2
-                        value=0
-                      >
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <label for="time-duration">Time to live (days)</label>
-                    </td>
-                    <td>
-                      <input 
-                        type="number"
-                        class="form-control"
-                        id="time-duration"
-                        name="time-duration"
-                        min=1
-                        max=100
-                        value=10
-                      >
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <label for="image">Image</label>
-                    </td>
-                    <td>
-                      <select name="image">
-                        <option value="jupyter/minimal-notebook:latest">jupyter/minimal-notebook:latest</option>
-                        <option value="ivukotic/ml_platform_auto:latest">ivukotic/ml_platform_auto:latest</option>
-                        <option value="ivukotic/ml_platform_auto:conda">ivukotic/ml_platform_auto:conda</option>
-                      </select>
-                    </td>
-                  </tr>
-                  <!--<tr>
-                    <td>
-                      <label for="repo">Github repository</label>
-                    </td>
-                    <td>
-                      <input 
-                        type="text"
-                        class="form-control"
-                        id="repo"
-                        name="repo"
-                      >
-                    </td>
-                  </tr> 
-                </table>
-                
-                <div class="form-check" style="display: none">
+                <div class="form-check">
                   <input type="checkbox" class="form-check-input" id="extra-ports" name='extra-ports' tabindex="1">
                   <label class="form-check-label" for="extra-ports">Enable Extra Ports</label>
                 </div>
   
-                <div class="form-group" style="display: none">
+                <div class="form-group">
                   <label for="low-port">Low Port</label>
                   <input
                     type="number"
@@ -260,7 +54,7 @@
                   >
                 </div>
   
-                <div class="form-group" style="display: none">
+                <div class="form-group">
                   <label for="high-port">High Port</label>
                   <input
                     type="number"
@@ -273,9 +67,7 @@
                     value=31001
                   >
                 </div>
-                
-                
-              </div>-->
+              </div>
 
               {% if not public_key %}
               <div class="form-group">
@@ -291,32 +83,13 @@
               {% endif %}
   
               <div class="form-group">
-                <button type="submit" class="btn btn-primary btn-box-shadow" onclick="loader()" disabled>Deploy notebook</button>
+                <button type="submit" class="btn btn-primary btn-box-shadow" onclick="loader()">Deploy</button>
               </div>
             </form>
           </div>
         </div>
       </div> <!-- Profile Form Container -->
-      <div class="col-lg-5">
-        <div class="card h-100" style="width: 32rem;">
-          <table>
-            <tr>
-              <td><img class="card-img-top" src="{{url_for('static', filename='img/jupyter-lab-logo.png')}}" alt="Jupyter Notebook Logo" style="padding: 5px; width: 250px"></td>
-              <td><img class="card-img-top" src="{{url_for('static', filename='img/coffea-casa.png')}}" alt="Coffea Casa logo" style="padding: 5px; width: 150px"></td>
-            </tr>
-          </table>
-          <div class="card-body">
-            <h5 class="card-title">Jupyter Notebook via Coffea Casa</h5>
-            <p>
-              Launch Jupyter notebooks through Coffea Casa for low latency columnar analysis workloads
-            </p>
-            <div>
-              <a class="btn btn-primary btn-box-shadow" href="https://coffea.af.uchicago.edu" target="_blank" style="position: absolute; bottom: 35px; left: 20px;">Open Coffea Casa</a>
-            </div>
-          </div>
-      </div>
       {% if not public_key %}
-      <!--
       <div class="col-md-6">
 
         <h2 class="title">
@@ -389,25 +162,10 @@
           </div>
 
         </div><!-- /.accordion-->
-      <!-- </div><!-- /.col-md-6 -->
-      {% endif %} 
+      </div><!-- /.col-md-6 -->
+      {% endif %}
     </div> <!-- row -->
 
   </div>
 </section>
-<script type="text/javascript">
-$(document).ready(function() {
-  $("input:required").on('keyup change', function () {
-    console.log('logging a change to a required input');
-    var valid = true;
-    
-    $.each($("input:required"), function (index, value) {
-      if(!$(value).val())
-        valid = false;
-    });
-
-    $('button[type="submit"]').attr("disabled", !valid);
-  });
-});
-</script>
 {%endblock%}

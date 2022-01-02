@@ -7,18 +7,9 @@ import datetime
 import re
 import pprint
 import logging
+from portal import log_api
 
-logger = logging.getLogger("ciconnect-portal")
-logger.setLevel(logging.INFO)
-ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
-fh = logging.FileHandler('ciconnect-portal.log')
-fh.setLevel(logging.INFO)
-formatter = logging.Formatter("%(asctime)s;%(levelname)s;%(message)s")
-ch.setFormatter(formatter)
-fh.setFormatter(formatter)
-logger.addHandler(ch)
-logger.addHandler(fh)
+logger = log_api.get_logger()
 
 def create_jupyter_notebook(notebook_name, namespace, password, cpu, memory, image, time_duration):
     config.load_kube_config()
