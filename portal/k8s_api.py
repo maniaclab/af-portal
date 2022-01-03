@@ -96,7 +96,9 @@ def get_jupyter_notebooks(namespace):
     except:
         logger.info('Error getting Jupyter notebooks')
 
-    logger.info(notebooks)
+    if notebooks:
+        logger.info(notebooks)
+        
     return notebooks
 
 def remove_jupyter_notebook(namespace, notebook_name):
