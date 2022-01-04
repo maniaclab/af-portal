@@ -5,7 +5,7 @@ metadata:
   namespace: {{namespace}}
 spec:
   selector:
-    app: {{notebook_name}}
+    instance: {{notebook_name}}
   ports:
   - protocol: "TCP"
     port: 8888
