@@ -22,8 +22,7 @@ def create_jupyter_notebook():
 def deploy_jupyter_notebook():
     notebook_name = request.form['notebook-name']
     password = request.form['notebook-password']
-    username = session['unix_name']
-    namespace = 'atlas-af-test'
+    namespace = session['unix_name']
     cpu = int(request.form['cpu']) 
     memory = int(request.form['memory']) 
     image = request.form['image']
@@ -34,8 +33,7 @@ def deploy_jupyter_notebook():
 @app.route("/jupyter/view", methods=["GET"])
 @authenticated
 def view_jupyter_notebooks():
-    username = session['unix_name']
-    namespace = 'atlas-af-test'
+    namespace = session['unix_name']
     notebooks = k8s_api.get_jupyter_notebooks(namespace)
     
     profile = get_user_profile(session["unix_name"])

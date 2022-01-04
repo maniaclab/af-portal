@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rolyata-notebook33
+  namespace: rolyata
+  labels:
+    instance: rolyata-notebook33
+spec:
+  containers:
+  - name: rolyata-notebook33
+    image: jupyter/minimal-notebook:latest
+    ports:
+    - containerPort: 8888
+    args: ["start-notebook.sh", "--NotebookApp.password='argon2:$argon2id$v=19$m=10240,t=10,p=8$DS56v+EsEllmTcHxbnd2ug$hrEKWKeZP8O7tvDglaY8cYju/eAIXsBGkJwr1OfoMtc'"]
