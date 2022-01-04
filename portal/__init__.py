@@ -46,7 +46,3 @@ md.__init__(
 )
 
 import portal.views
-
-from portal import log_api
-logger = log_api.init_logger()
-logger.info("Initiated logger")
