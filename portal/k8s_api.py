@@ -11,7 +11,7 @@ from portal import log_api
 
 logger = log_api.get_logger()
 
-def create_jupyter_notebook(notebook_name, namespace, password, cpu, memory, image, time_duration):
+def create_jupyter_notebook(notebook_name, namespace, username, password, cpu, memory, image, time_duration):
     config.load_kube_config()
     core_v1_api = client.CoreV1Api()
     networking_v1_api = client.NetworkingV1Api()
@@ -20,7 +20,7 @@ def create_jupyter_notebook(notebook_name, namespace, password, cpu, memory, ima
         env = Environment(loader=FileSystemLoader("portal/yaml/ml-platform"), autoescape=select_autoescape())
         
         template = env.get_template("pod.yaml")
-        pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, password=password, cpu=cpu, memory=memory, image=image, days=time_duration))
+        pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, password=password, cpu=cpu, memory=memory, image=image, days=time_duration))
         resp = core_v1_api.create_namespaced_pod(body=pod, namespace=namespace)
         pprint.pprint(resp)
         print("Pod created. status='%s'" % resp.metadata.name)
@@ -38,7 +38,7 @@ def create_jupyter_notebook(notebook_name, namespace, password, cpu, memory, ima
         password_hash = passwd(password)
 
         template = env.get_template("pod.yaml")
-        pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, password=password_hash, cpu=cpu, memory=memory, image=image))
+        pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, password=password_hash, cpu=cpu, memory=memory, image=image))
         resp = core_v1_api.create_namespaced_pod(body=pod, namespace=namespace)
         pprint.pprint(resp)
         print("Pod created. status='%s'" % resp.metadata.name)
@@ -71,7 +71,7 @@ def get_expiry_date(pod):
         logger.info('Error getting expiry date')
     return 'Never' 
 
-def get_jupyter_notebooks(namespace):
+def get_jupyter_notebooks(namespace, username):
     config.load_kube_config()
     core_v1_api = client.CoreV1Api()
     networking_v1_api = client.NetworkingV1Api()
@@ -80,19 +80,20 @@ def get_jupyter_notebooks(namespace):
     try:
         pods = core_v1_api.list_namespaced_pod(namespace)
         for pod in pods.items:
-            name = pod.metadata.name
-            ingress = networking_v1_api.read_namespaced_ingress(name, namespace)
-            url = 'https://' + ingress.spec.rules[0].host
-            creation_date = get_creation_date(pod)
-            expiry_date = get_expiry_date(pod)
-            notebooks.append(
-                {'name': name, 
-                'namespace': namespace, 
-                'cluster':'uchicago-river', 
-                'url': url,
-                'creation_date': creation_date,
-                'expiry_date': expiry_date}
-            )
+            if pod.metadata.labels['owner'] == username:
+                name = pod.metadata.name
+                ingress = networking_v1_api.read_namespaced_ingress(name, namespace)
+                url = 'https://' + ingress.spec.rules[0].host
+                creation_date = get_creation_date(pod)
+                expiry_date = get_expiry_date(pod)
+                notebooks.append(
+                    {'name': name, 
+                    'namespace': namespace, 
+                    'cluster':'uchicago-river', 
+                    'url': url,
+                    'creation_date': creation_date,
+                    'expiry_date': expiry_date}
+                )
     except:
         logger.info('Error getting Jupyter notebooks')
 

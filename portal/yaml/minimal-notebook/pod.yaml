@@ -5,6 +5,7 @@ metadata:
   namespace: {{namespace}}
   labels:
     instance: {{notebook_name}}
+    owner: {{username}}
 spec:
   containers:
   - name: {{notebook_name}}

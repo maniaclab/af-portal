@@ -4,7 +4,7 @@ metadata:
   labels:
     instance: {{notebook_name}}
     k8s-app: privatejupyter
-    owner: {{namespace}}
+    owner: {{username}}
     # repo: xxx
     time2delete: ttl-{{days}}
   name: {{notebook_name}}
