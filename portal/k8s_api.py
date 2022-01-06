@@ -8,11 +8,20 @@ import re
 import pprint
 import logging
 from portal import log_api
+from portal import app
 
 logger = log_api.get_logger()
 
+def load_kube_config():
+    if app.config['KUBECONFIG']:
+        filename = app.config['KUBECONFIG']
+        logger.info("Loading kubeconfig from file %s" % filename)
+        config.load_kube_config(config_file = filename)
+    else:
+        logger.info("Loading default kubeconfig file")
+        config.load_kube_config()
+
 def create_jupyter_notebook(notebook_name, namespace, username, password, cpu, memory, image, time_duration):
-    config.load_kube_config()
     core_v1_api = client.CoreV1Api()
     networking_v1_api = client.NetworkingV1Api()
 
@@ -22,8 +31,8 @@ def create_jupyter_notebook(notebook_name, namespace, username, password, cpu, m
         template = env.get_template("pod.yaml")
         pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, password=password, cpu=cpu, memory=memory, image=image, days=time_duration))
         resp = core_v1_api.create_namespaced_pod(body=pod, namespace=namespace)
-        pprint.pprint(resp)
-        print("Pod created. status='%s'" % resp.metadata.name)
+        logger.info(resp)
+        logger.info("Pod created. status='%s'" % resp.metadata.name)
 
         template = env.get_template("service.yaml")
         service = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
@@ -40,8 +49,8 @@ def create_jupyter_notebook(notebook_name, namespace, username, password, cpu, m
         template = env.get_template("pod.yaml")
         pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, password=password_hash, cpu=cpu, memory=memory, image=image))
         resp = core_v1_api.create_namespaced_pod(body=pod, namespace=namespace)
-        pprint.pprint(resp)
-        print("Pod created. status='%s'" % resp.metadata.name)
+        logger.info(resp)
+        logger.info("Pod created. status='%s'" % resp.metadata.name)
 
         template = env.get_template("service.yaml")
         service = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
@@ -72,7 +81,6 @@ def get_expiry_date(pod):
     return 'Never' 
 
 def get_jupyter_notebooks(namespace, username):
-    config.load_kube_config()
     core_v1_api = client.CoreV1Api()
     networking_v1_api = client.NetworkingV1Api()
 
@@ -103,7 +111,6 @@ def get_jupyter_notebooks(namespace, username):
     return notebooks
 
 def remove_jupyter_notebook(namespace, notebook_name):
-    config.load_kube_config()
     core_v1_api = client.CoreV1Api()
     networking_v1_api = client.NetworkingV1Api()
     try:
