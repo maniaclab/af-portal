@@ -58,5 +58,6 @@ def view_jupyter_notebooks():
 @app.route("/jupyter/remove/<namespace>/<notebook_name>", methods=["GET"])
 @authenticated
 def remove_jupyter_notebook(namespace, notebook_name):
-    k8s_api.remove_jupyter_notebook(namespace, notebook_name)
+    username = session['unix_name']
+    k8s_api.remove_jupyter_notebook(namespace, notebook_name, username)
     return redirect(url_for("view_jupyter_notebooks"))

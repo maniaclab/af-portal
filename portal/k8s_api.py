@@ -3,6 +3,7 @@ import yaml
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from kubernetes import client, config
 from notebook.auth.security import passwd
+import time
 import datetime
 import re
 import pprint
@@ -80,6 +81,20 @@ def get_expiry_date(pod):
         logger.info('Error getting expiry date')
     return 'Never' 
 
+def get_status(namespace, pod):
+    core_v1_api = client.CoreV1Api()
+    # crt = pod.metadata.creation_timestamp
+    # now = datetime.datetime.now(datetime.timezone.utc)
+    # duration_seconds = (now-crt).total_seconds()
+    log = core_v1_api.read_namespaced_pod_log(pod.metadata.name, namespace=namespace)
+    running = re.search("Jupyter Notebook.*is running at.*", log)
+    if pod.status.phase == 'Running' and running is not None:
+        return 'Running'
+    elif pod.status.phase == 'Running' and running is None:
+        return 'Loading'
+    else:
+        return pod.status.phase
+
 def get_jupyter_notebooks(namespace, username):
     core_v1_api = client.CoreV1Api()
     networking_v1_api = client.NetworkingV1Api()
@@ -88,37 +103,49 @@ def get_jupyter_notebooks(namespace, username):
     try:
         pods = core_v1_api.list_namespaced_pod(namespace)
         for pod in pods.items:
-            if pod.metadata.labels['owner'] == username:
-                name = pod.metadata.name
-                ingress = networking_v1_api.read_namespaced_ingress(name, namespace)
-                url = 'https://' + ingress.spec.rules[0].host
-                creation_date = get_creation_date(pod)
-                expiry_date = get_expiry_date(pod)
-                notebooks.append(
-                    {'name': name, 
-                    'namespace': namespace, 
-                    'username': username,
-                    'cluster':'uchicago-river', 
-                    'url': url,
-                    'creation_date': creation_date,
-                    'expiry_date': expiry_date}
-                )
+            try: 
+                if pod.metadata.labels['owner'] == username:
+                    name = pod.metadata.name
+                    logger.info("Read name for pod %s" %name)
+                    ingress = networking_v1_api.read_namespaced_ingress(name, namespace)
+                    logger.info("Read ingress for pod %s" %name)
+                    url = 'https://' + ingress.spec.rules[0].host
+                    creation_date = get_creation_date(pod)
+                    logger.info("Read creation date for pod %s" %name)
+                    expiry_date = get_expiry_date(pod)
+                    logger.info("Read expiration date for pod %s" %name)
+                    status = get_status(namespace, pod)
+                    logger.info("Read status for pod %s" %name)
+                    notebooks.append(
+                        {'name': name, 
+                        'namespace': namespace, 
+                        'username': username,
+                        'cluster':'uchicago-river', 
+                        'url': url,
+                        'status': status,
+                        'creation_date': creation_date,
+                        'expiry_date': expiry_date}
+                    )
+            except:
+                logger.info('Error processing Jupyter notebook %s' %pod.metadata.name)
     except:
         logger.info('Error getting Jupyter notebooks')
 
-    if notebooks:
-        logger.info(notebooks)
+    # if notebooks:
+        # logger.info(notebooks)
         
     return notebooks
 
-def remove_jupyter_notebook(namespace, notebook_name):
+def remove_jupyter_notebook(namespace, notebook_name, username):
     core_v1_api = client.CoreV1Api()
     networking_v1_api = client.NetworkingV1Api()
     try:
-        core_v1_api.delete_namespaced_pod(notebook_name, namespace)
-        core_v1_api.delete_namespaced_service(notebook_name, namespace)
-        networking_v1_api.delete_namespaced_ingress(notebook_name, namespace)
-        return True
+        pod = core_v1_api.read_namespaced_pod(notebook_name, namespace)
+        if pod.metadata.labels['owner'] == username:
+            core_v1_api.delete_namespaced_pod(notebook_name, namespace)
+            core_v1_api.delete_namespaced_service(notebook_name, namespace)
+            networking_v1_api.delete_namespaced_ingress(notebook_name, namespace)
+            return True
     except:
         logger.info(f"Error deleting pod {notebook_name} in namespace {namespace}")
         return False
