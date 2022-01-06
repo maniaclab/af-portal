@@ -101,6 +101,7 @@ def get_jupyter_notebooks(namespace, username):
 
     notebooks = []
     try:
+        logger.info("Reading pods from namespace %s" %namespace)
         pods = core_v1_api.list_namespaced_pod(namespace)
         logger.info("Read %d pods from namespace %s" %(len(pods.items), namespace))
         for pod in pods.items:
