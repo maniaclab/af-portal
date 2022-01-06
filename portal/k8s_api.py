@@ -14,8 +14,8 @@ from portal import app
 logger = log_api.get_logger()
 
 def load_kube_config():
-    if app.config['KUBECONFIG']:
-        filename = app.config['KUBECONFIG']
+    filename = app.config.get('KUBECONFIG')
+    if filename:
         logger.info("Loading kubeconfig from file %s" % filename)
         config.load_kube_config(config_file = filename)
     else:
