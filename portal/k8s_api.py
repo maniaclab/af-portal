@@ -97,6 +97,7 @@ def get_jupyter_notebooks(namespace, username):
                 notebooks.append(
                     {'name': name, 
                     'namespace': namespace, 
+                    'username': username,
                     'cluster':'uchicago-river', 
                     'url': url,
                     'creation_date': creation_date,
