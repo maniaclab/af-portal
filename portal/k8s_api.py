@@ -63,6 +63,8 @@ def create_jupyter_notebook(notebook_name, namespace, username, password, cpu, m
         template = env.get_template("ingress.yaml")
         ingress = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
         networking_v1_api.create_namespaced_ingress(namespace=namespace,body=ingress)
+    
+    time.sleep(2)
 
 def get_creation_date(pod):
     try:
