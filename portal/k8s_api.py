@@ -26,6 +26,7 @@ def load_kube_config():
         logger.info('Error reading kube config')
 
 def create_jupyter_notebook(notebook_name, namespace, username, password, cpu, memory, image, time_duration):
+    config.load_kube_config()
     core_v1_api = client.CoreV1Api()
     networking_v1_api = client.NetworkingV1Api()
 
