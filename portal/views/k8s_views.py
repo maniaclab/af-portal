@@ -37,7 +37,7 @@ def deploy_jupyter_notebook():
         flash(resp['message'], resp['status'])
     except:
         logger.info('Error creating Jupyter notebook')
-        flash('Error creating Jupyter notebook %s in namespace %s' %(notebook_name, namespace), 'error')
+        flash('Error creating Jupyter notebook %s in namespace %s' %(notebook_name, namespace), 'warning')
     return redirect(url_for("view_jupyter_notebooks"))
 
 @app.route("/jupyter/view", methods=["GET"])
