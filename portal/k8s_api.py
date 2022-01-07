@@ -87,18 +87,18 @@ def get_expiry_date(pod):
     return 'Never' 
 
 def get_status(namespace, pod):
-    core_v1_api = client.CoreV1Api()
-    # crt = pod.metadata.creation_timestamp
-    # now = datetime.datetime.now(datetime.timezone.utc)
-    # duration_seconds = (now-crt).total_seconds()
-    log = core_v1_api.read_namespaced_pod_log(pod.metadata.name, namespace=namespace)
-    running = re.search("Jupyter Notebook.*is running at.*", log)
-    if pod.status.phase == 'Running' and running is not None:
-        return 'Running'
-    elif pod.status.phase == 'Running' and running is None:
-        return 'Loading'
-    else:
-        return pod.status.phase
+    if pod.status.phase == 'Running':
+        core_v1_api = client.CoreV1Api()
+        try: 
+            log = core_v1_api.read_namespaced_pod_log(pod.metadata.name, namespace=namespace)
+            loaded = re.search("Jupyter Notebook.*is running at.*", log)
+            if loaded:
+                return 'Running'
+            else:
+                return 'Loading'
+        except:
+            logger.info('Error reading log for pod %s' %pod.metadata.name)
+    return pod.status.phase
 
 def get_jupyter_notebooks(namespace, username):
     config.load_kube_config() # temporary until bug with load_kube_config is fixed
@@ -107,7 +107,7 @@ def get_jupyter_notebooks(namespace, username):
 
     notebooks = []
     try:
-        logger.info("Reading pods from namespace %s" %namespace)
+        # logger.info("Reading pods from namespace %s" %namespace)
         pods = core_v1_api.list_namespaced_pod(namespace)
         logger.info("Read %d pods from namespace %s" %(len(pods.items), namespace))
         for pod in pods.items:
@@ -115,15 +115,19 @@ def get_jupyter_notebooks(namespace, username):
                 if pod.metadata.labels['owner'] == username:
                     name = pod.metadata.name
                     logger.info("Read name for pod %s" %name)
-                    ingress = networking_v1_api.read_namespaced_ingress(name, namespace)
-                    logger.info("Read ingress for pod %s" %name)
-                    url = 'https://' + ingress.spec.rules[0].host
+                    try: 
+                        ingress = networking_v1_api.read_namespaced_ingress(name, namespace)
+                        # logger.info("Read ingress for pod %s" %name)
+                        url = 'https://' + ingress.spec.rules[0].host
+                    except:
+                        logger.info('Error reading ingress for pod %s' %name)
+                        continue
                     creation_date = get_creation_date(pod)
-                    logger.info("Read creation date for pod %s" %name)
+                    # logger.info("Read creation date for pod %s" %name)
                     expiry_date = get_expiry_date(pod)
-                    logger.info("Read expiration date for pod %s" %name)
+                    # logger.info("Read expiration date for pod %s" %name)
                     status = get_status(namespace, pod)
-                    logger.info("Read status for pod %s" %name)
+                    # logger.info("Read status for pod %s" %name)
                     notebooks.append(
                         {'name': name, 
                         'namespace': namespace, 
