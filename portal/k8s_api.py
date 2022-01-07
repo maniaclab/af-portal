@@ -101,6 +101,7 @@ def get_status(namespace, pod):
         return pod.status.phase
 
 def get_jupyter_notebooks(namespace, username):
+    config.load_kube_config() # temporary until bug with load_kube_config is fixed
     core_v1_api = client.CoreV1Api()
     networking_v1_api = client.NetworkingV1Api()
 
