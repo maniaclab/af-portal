@@ -153,6 +153,7 @@ def remove_jupyter_notebook(namespace, notebook_name, username):
             core_v1_api.delete_namespaced_pod(notebook_name, namespace)
             core_v1_api.delete_namespaced_service(notebook_name, namespace)
             networking_v1_api.delete_namespaced_ingress(notebook_name, namespace)
+            time.sleep(2)
             return True
     except:
         logger.info(f"Error deleting pod {notebook_name} in namespace {namespace}")
