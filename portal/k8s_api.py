@@ -27,42 +27,56 @@ def create_jupyter_notebook(notebook_name, namespace, username, password, cpu, m
     core_v1_api = client.CoreV1Api()
     networking_v1_api = client.NetworkingV1Api()
 
+    pods = core_v1_api.list_namespaced_pod(namespace, label_selector="instance=" + notebook_name)
+    if pods and len(pods.items) > 0:
+        return {'status': 'warning', 'message': 'The name %s is already taken in namespace %s' %(notebook_name, namespace)}
+
     if image in ['ivukotic/ml_platform_auto:latest', 'ivukotic/ml_platform_auto:conda']:
-        env = Environment(loader=FileSystemLoader("portal/yaml/ml-platform"), autoescape=select_autoescape())
-        
-        template = env.get_template("pod.yaml")
-        pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, password=password, cpu=cpu, memory=memory, image=image, days=time_duration))
-        resp = core_v1_api.create_namespaced_pod(body=pod, namespace=namespace)
-        logger.info(resp)
-        logger.info("Pod created. status='%s'" % resp.metadata.name)
+        try:
+            env = Environment(loader=FileSystemLoader("portal/yaml/ml-platform"), autoescape=select_autoescape())
+            
+            template = env.get_template("pod.yaml")
+            pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, password=password, cpu=cpu, memory=memory, image=image, days=time_duration))
+            resp = core_v1_api.create_namespaced_pod(body=pod, namespace=namespace)
+            logger.info(resp)
+            logger.info("Pod created. status='%s'" % resp.metadata.name)
 
-        template = env.get_template("service.yaml")
-        service = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
-        core_v1_api.create_namespaced_service(namespace=namespace, body=service)
+            template = env.get_template("service.yaml")
+            service = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
+            core_v1_api.create_namespaced_service(namespace=namespace, body=service)
 
-        template = env.get_template("ingress.yaml")
-        ingress = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
-        networking_v1_api.create_namespaced_ingress(namespace=namespace,body=ingress)
+            template = env.get_template("ingress.yaml")
+            ingress = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
+            networking_v1_api.create_namespaced_ingress(namespace=namespace,body=ingress)
+
+            return {'status': 'success', 'message': 'Successfully created notebook %s in namespace %s' %(notebook_name, namespace)}
+        except:
+            return {'status': 'warning', 'message': 'Error creating notebook %s in namespace %s' %(notebook_name, namespace)}
 
     elif image == 'jupyter/minimal-notebook:latest':
-        env = Environment(loader=FileSystemLoader("portal/yaml/minimal-notebook"), autoescape=select_autoescape())
-        password_hash = passwd(password)
+        try: 
+            env = Environment(loader=FileSystemLoader("portal/yaml/minimal-notebook"), autoescape=select_autoescape())
+            password_hash = passwd(password)
 
-        template = env.get_template("pod.yaml")
-        pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, password=password_hash, cpu=cpu, memory=memory, image=image))
-        resp = core_v1_api.create_namespaced_pod(body=pod, namespace=namespace)
-        logger.info(resp)
-        logger.info("Pod created. status='%s'" % resp.metadata.name)
+            template = env.get_template("pod.yaml")
+            pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, password=password_hash, cpu=cpu, memory=memory, image=image))
+            resp = core_v1_api.create_namespaced_pod(body=pod, namespace=namespace)
+            logger.info(resp)
+            logger.info("Pod created. status='%s'" % resp.metadata.name)
 
-        template = env.get_template("service.yaml")
-        service = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
-        core_v1_api.create_namespaced_service(namespace=namespace, body=service)
+            template = env.get_template("service.yaml")
+            service = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
+            core_v1_api.create_namespaced_service(namespace=namespace, body=service)
 
-        template = env.get_template("ingress.yaml")
-        ingress = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
-        networking_v1_api.create_namespaced_ingress(namespace=namespace,body=ingress)
-    
-    time.sleep(2)
+            template = env.get_template("ingress.yaml")
+            ingress = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
+            networking_v1_api.create_namespaced_ingress(namespace=namespace,body=ingress)
+
+            return {'status': 'success', 'message': 'Successfully created notebook %s in namespace %s' %(notebook_name, namespace)}
+        except:
+            return {'status': 'warning', 'message': 'Error creating notebook %s in namespace %s' %(notebook_name, namespace)}
+    else: 
+        return {'status': 'warning', 'message': 'Docker image %s is not supported' %image}
 
 def get_creation_date(pod):
     try:
@@ -152,8 +166,9 @@ def remove_jupyter_notebook(namespace, notebook_name, username):
             core_v1_api.delete_namespaced_pod(notebook_name, namespace)
             core_v1_api.delete_namespaced_service(notebook_name, namespace)
             networking_v1_api.delete_namespaced_ingress(notebook_name, namespace)
-            time.sleep(2)
-            return True
+            return {'status': 'success', 'message': 'Successfully removed notebook %s in namespace %s' %(notebook_name, namespace)}
+        else:
+            return {'status': 'warning', 'message': 'Notebook %s in namespace %s does not belong to user %s' %(notebook_name, namespace, username)}
     except:
         logger.info(f"Error deleting pod {notebook_name} in namespace {namespace}")
-        return False
+        return {'status': 'warning', 'message': 'Error removing notebook %s in namespace %s' %(notebook_name, namespace)}

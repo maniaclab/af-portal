@@ -31,9 +31,13 @@ def deploy_jupyter_notebook():
     image = request.form['image']
     time_duration = int(request.form['time-duration'])
     try:
-        k8s_api.create_jupyter_notebook(notebook_name, namespace, username, password, f"{cpu}", f"{memory}Gi", image, f"{time_duration}")
+        resp = k8s_api.create_jupyter_notebook(notebook_name, namespace, username, password, f"{cpu}", f"{memory}Gi", image, f"{time_duration}")
+        logger.info("resp=k8s_api.create_jupyter_notebook(...)")
+        logger.info(resp)
+        flash(resp['message'], resp['status'])
     except:
         logger.info('Error creating Jupyter notebook')
+        flash('Error creating Jupyter notebook %s in namespace %s' %(notebook_name, namespace), 'error')
     return redirect(url_for("view_jupyter_notebooks"))
 
 @app.route("/jupyter/view", methods=["GET"])
@@ -60,7 +64,9 @@ def view_jupyter_notebooks():
 def remove_jupyter_notebook(namespace, notebook_name):
     username = session['unix_name']
     try:
-        k8s_api.remove_jupyter_notebook(namespace, notebook_name, username)
+        resp = k8s_api.remove_jupyter_notebook(namespace, notebook_name, username)
+        flash(resp['message'], resp['status'])
     except:
         logger.info('Error removing Jupyter notebook')
+        flash('Error removing notebook %s in namespace %s' %(notebook_name, namespace), 'warning')
     return redirect(url_for("view_jupyter_notebooks"))
