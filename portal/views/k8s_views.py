@@ -2,8 +2,8 @@ from flask import session, request, render_template, jsonify, redirect, url_for,
 import requests
 from portal import app
 from portal.decorators import authenticated
-from portal import k8s_api
 from portal.connect_api import get_user_profile, get_user_connect_status
+from portal import k8s_api
 from portal import log_api
 
 logger = log_api.get_logger()

@@ -1,4 +1,3 @@
-from os import path
 import yaml
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from kubernetes import client, config
@@ -6,8 +5,6 @@ from notebook.auth.security import passwd
 import time
 import datetime
 import re
-import pprint
-import logging
 from portal import log_api
 from portal import app
 
@@ -108,7 +105,6 @@ def get_jupyter_notebooks(namespace, username):
 
     notebooks = []
     try:
-        # logger.info("Reading pods from namespace %s" %namespace)
         pods = core_v1_api.list_namespaced_pod(namespace)
         logger.info("Read %d pods from namespace %s" %(len(pods.items), namespace))
         for pod in pods.items:
@@ -143,9 +139,6 @@ def get_jupyter_notebooks(namespace, username):
                 logger.info('Error processing Jupyter notebook %s' %pod.metadata.name)
     except:
         logger.info('Error getting Jupyter notebooks')
-
-    # if notebooks:
-        # logger.info(notebooks)
         
     return notebooks
 
