@@ -32,7 +32,6 @@ def deploy_jupyter_notebook():
     time_duration = int(request.form['time-duration'])
     try:
         resp = k8s_api.create_jupyter_notebook(notebook_name, namespace, username, password, f"{cpu}", f"{memory}Gi", image, f"{time_duration}")
-        logger.info("resp=k8s_api.create_jupyter_notebook(...)")
         logger.info(resp)
         flash(resp['message'], resp['status'])
     except:
@@ -65,6 +64,7 @@ def remove_jupyter_notebook(namespace, notebook_name):
     username = session['unix_name']
     try:
         resp = k8s_api.remove_jupyter_notebook(namespace, notebook_name, username)
+        logger.info(resp)
         flash(resp['message'], resp['status'])
     except:
         logger.info('Error removing Jupyter notebook')
