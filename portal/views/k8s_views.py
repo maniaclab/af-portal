@@ -51,7 +51,7 @@ def view_jupyter_notebooks():
         logger.info('Error getting Jupyter notebooks')
 
     for notebook in notebooks:
-        if notebook['status'] != 'Running':
+        if not notebook['finished_loading']: 
             refresh = True
             break
 

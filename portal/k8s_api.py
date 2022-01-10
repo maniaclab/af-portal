@@ -98,19 +98,16 @@ def get_expiry_date(pod):
         logger.info('Error getting expiry date')
     return 'Never' 
 
-def get_status(namespace, pod):
+def has_notebook_loaded(namespace, pod):
     if pod.status.phase == 'Running':
-        core_v1_api = client.CoreV1Api()
         try: 
+            core_v1_api = client.CoreV1Api()
             log = core_v1_api.read_namespaced_pod_log(pod.metadata.name, namespace=namespace)
-            loaded = re.search("Jupyter Notebook.*is running at.*", log)
-            if loaded:
-                return 'Running'
-            else:
-                return 'Loading'
+            if re.search("Jupyter Notebook.*is running at.*", log):
+                return True
         except:
             logger.info('Error reading log for pod %s' %pod.metadata.name)
-    return pod.status.phase
+    return False
 
 def get_jupyter_notebooks(namespace, username):
     config.load_kube_config() # temporary until bug with load_kube_config is fixed
@@ -137,8 +134,9 @@ def get_jupyter_notebooks(namespace, username):
                     # logger.info("Read creation date for pod %s" %name)
                     expiry_date = get_expiry_date(pod)
                     # logger.info("Read expiration date for pod %s" %name)
-                    status = get_status(namespace, pod)
+                    status = pod.status.phase
                     # logger.info("Read status for pod %s" %name)
+                    finished_loading = has_notebook_loaded(namespace, pod)
                     notebooks.append(
                         {'name': name, 
                         'namespace': namespace, 
@@ -146,6 +144,7 @@ def get_jupyter_notebooks(namespace, username):
                         'cluster':'uchicago-river', 
                         'url': url,
                         'status': status,
+                        'finished_loading': finished_loading,
                         'creation_date': creation_date,
                         'expiry_date': expiry_date}
                     )

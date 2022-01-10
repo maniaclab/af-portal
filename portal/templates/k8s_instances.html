@@ -9,9 +9,9 @@
 <section id="instances">
   <div class="container col-lg-12 mx-auto">
     {%include 'messages.html' %}
-    <!--<ol class="breadcrumb">
+    <ol class="breadcrumb">
       <li class="breadcrumb-item">Applications</li>
-    </ol>-->
+    </ol>
     <!--<h1>Deployed Applications</h1>-->
     <div class="btn-group mr-2" role="group" aria-label="first group">
       <a href="{{url_for('create_jupyter_notebook')}}" class="btn btn-primary btn-sm btn-box-shadow">Deploy Application</a>
@@ -27,8 +27,9 @@
                 <th data-field="name" data-sortable="true">Name</th>
                 <!--<th data-field="namespace" data-sortable="true">Namespace</th>-->
                 <!--<th data-field="cluster" data-sortable="true">Cluster</th>-->
-                <th data-field="status" data-sortable="true">Status</th>
-                <th data-field="expiry-date" data-sortable="true">Created on</th>
+                <!--<th data-field="status" data-sortable="true">Status</th>-->
+                <th data-field="status" data-sortable="true">Ready</th>
+                <th data-field="creation-date" data-sortable="true">Created on</th>
                 <th data-field="expiry-date" data-sortable="true">Expires on</th>
                 <th data-field="remove-instance">Remove</th>
               </tr>
@@ -36,10 +37,19 @@
             <tbody data-link="row" class="rowlink" style="font-size:14px;">
               {% for instance in instances %}
               <tr>
+                {% if instance['finished_loading'] %}
                 <td><a href="{{instance['url']}}" target="_blank">{{instance['name']}}</a></td>
+                {% else %}
+                <td>{{instance['name']}}</td>
+                {% endif %}
                 <!--<td>{{instance['namespace']}}</td>-->
                 <!--<td>{{instance['cluster']}}</td>-->
-                <td>{{instance['status']}}</td>
+                <!--<td>{{instance['status']}}</td>-->
+                {% if instance['finished_loading'] %}
+                <td>Yes</td>
+                {% else %}
+                <td>No</td>
+                {% endif %}
                 <td>{{instance['creation_date']}}</td>
                 <td>{{instance['expiry_date']}}</td>
                 <td><a href="{{url_for('remove_jupyter_notebook', namespace=instance['namespace'], notebook_name=instance['name'])}}"><i class="bi bi-trash"></i></a></td>
@@ -60,7 +70,7 @@ $('#instance-table').DataTable({"columns": [{'width': '25%'}, {width: '15%'}, {'
 {% if refresh %}
 window.setTimeout(function () {
   window.location.reload();
-}, 20000);
+}, 30000);
 {% endif %}
 </script>
 {%endblock%}
