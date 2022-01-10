@@ -49,9 +49,9 @@ def create_jupyter_notebook(notebook_name, namespace, username, password, cpu, m
             ingress = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
             networking_v1_api.create_namespaced_ingress(namespace=namespace,body=ingress)
 
-            return {'status': 'success', 'message': 'Successfully created notebook %s in namespace %s' %(notebook_name, namespace)}
+            return {'status': 'success', 'message': 'Successfully created notebook %s' %notebook_name}
         except:
-            return {'status': 'warning', 'message': 'Error creating notebook %s in namespace %s' %(notebook_name, namespace)}
+            return {'status': 'warning', 'message': 'Error creating notebook %s' %notebook_name}
 
     elif image == 'jupyter/minimal-notebook:latest':
         try: 
@@ -72,9 +72,9 @@ def create_jupyter_notebook(notebook_name, namespace, username, password, cpu, m
             ingress = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
             networking_v1_api.create_namespaced_ingress(namespace=namespace,body=ingress)
 
-            return {'status': 'success', 'message': 'Successfully created notebook %s in namespace %s' %(notebook_name, namespace)}
+            return {'status': 'success', 'message': 'Successfully created notebook %s' %notebook_name}
         except:
-            return {'status': 'warning', 'message': 'Error creating notebook %s in namespace %s' %(notebook_name, namespace)}
+            return {'status': 'warning', 'message': 'Error creating notebook %s' %notebook_name}
     else: 
         return {'status': 'warning', 'message': 'Docker image %s is not supported' %image}
 
@@ -165,9 +165,9 @@ def remove_jupyter_notebook(namespace, notebook_name, username):
             core_v1_api.delete_namespaced_pod(notebook_name, namespace)
             core_v1_api.delete_namespaced_service(notebook_name, namespace)
             networking_v1_api.delete_namespaced_ingress(notebook_name, namespace)
-            return {'status': 'success', 'message': 'Successfully removed notebook %s in namespace %s' %(notebook_name, namespace)}
+            return {'status': 'success', 'message': 'Successfully removed notebook %s' %notebook_name}
         else:
-            return {'status': 'warning', 'message': 'Notebook %s in namespace %s does not belong to user %s' %(notebook_name, namespace, username)}
+            return {'status': 'warning', 'message': 'Notebook %s does not belong to user %s' %(notebook_name, username)}
     except:
         logger.info(f"Error deleting pod {notebook_name} in namespace {namespace}")
-        return {'status': 'warning', 'message': 'Error removing notebook %s in namespace %s' %(notebook_name, namespace)}
+        return {'status': 'warning', 'message': 'Error removing notebook %s' %notebook_name}
