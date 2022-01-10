@@ -99,14 +99,14 @@ def get_expiry_date(pod):
     return 'Never' 
 
 def has_notebook_loaded(namespace, pod):
-    if pod.status.phase == 'Running':
-        try: 
+    try: 
+        if pod.status.phase == 'Running':
             core_v1_api = client.CoreV1Api()
             log = core_v1_api.read_namespaced_pod_log(pod.metadata.name, namespace=namespace)
             if re.search("Jupyter Notebook.*is running at.*", log):
                 return True
-        except:
-            logger.info('Error reading log for pod %s' %pod.metadata.name)
+    except:
+        logger.info('Error reading log for pod %s' %pod.metadata.name)
     return False
 
 def get_jupyter_notebooks(namespace, username):
