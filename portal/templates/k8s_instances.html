@@ -27,8 +27,8 @@
                 <th data-field="name" data-sortable="true">Name</th>
                 <!--<th data-field="namespace" data-sortable="true">Namespace</th>-->
                 <!--<th data-field="cluster" data-sortable="true">Cluster</th>-->
-                <!--<th data-field="status" data-sortable="true">Status</th>-->
-                <th data-field="status" data-sortable="true">Ready</th>
+                <th data-field="ready" data-sortable="true">Ready</th>
+                <th data-field="status" data-sortable="true">Status</th>
                 <th data-field="creation-date" data-sortable="true">Created on</th>
                 <th data-field="expiry-date" data-sortable="true">Expires on</th>
                 <th data-field="remove-instance">Remove</th>
@@ -44,14 +44,14 @@
                 {% endif %}
                 <!--<td>{{instance['namespace']}}</td>-->
                 <!--<td>{{instance['cluster']}}</td>-->
-                <!--<td>{{instance['status']}}</td>-->
                 {% if instance['finished_loading'] %}
                 <td>Yes</td>
                 {% else %}
                 <td>No</td>
                 {% endif %}
+                <td>{{instance['status']}}</td>
                 <td>{{instance['creation_date']}}</td>
-                <td>{{instance['expiry_date']}}</td>
+                <td>{{instance['expiration_date']}}</td>
                 <td><a href="{{url_for('remove_jupyter_notebook', namespace=instance['namespace'], notebook_name=instance['name'])}}"><i class="bi bi-trash"></i></a></td>
               </tr>
               {% endfor %}
@@ -66,7 +66,7 @@
   </div> <!-- container -->
 </section>
 <script type="text/javascript">
-$('#instance-table').DataTable({"columns": [{'width': '25%'}, {width: '15%'}, {'width': '25%'}, {'width': '25%'}, {'width': '10%'}]});
+$('#instance-table').DataTable({"columns": [{'width': '20%'}, {width: '10%'}, {width: '10%'}, {'width': '25%'}, {'width': '25%'}, {'width': '10%'}]});
 {% if refresh %}
 window.setTimeout(function () {
   window.location.reload();

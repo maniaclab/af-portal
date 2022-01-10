@@ -1,6 +1,7 @@
 import yaml
 import time
 import datetime
+from datetime import timezone
 import re
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from kubernetes import client, config
@@ -80,23 +81,40 @@ def create_jupyter_notebook(notebook_name, namespace, username, password, cpu, m
 
 def get_creation_date(pod):
     try:
-        return pod.metadata.creation_timestamp.strftime('%B %d %Y %I:%M:%S %p %Z')
+        return pod.metadata.creation_timestamp
     except:
+        return None
+
+def get_creation_datestr(pod):
+    creation_date = get_creation_date(pod)
+    if creation_date:
+        return creation_date.strftime('%B %d %Y %I:%M:%S %p %Z')
+    else:
         return 'Unknown'
 
-def get_expiry_date(pod):
+def get_expiration_date(pod):
     try:
         if hasattr(pod.metadata, 'labels') and 'time2delete' in pod.metadata.labels:
             cr_ts = pod.metadata.creation_timestamp
             td_str = pod.metadata.labels['time2delete']
-            valid = re.compile(r"ttl-\d+")
-            if valid.match(td_str):
+            pattern = re.compile(r"ttl-\d+")
+            if pattern.match(td_str):
                 td = int(td_str.split("-")[1])
-                expiry_date = cr_ts + datetime.timedelta(td)
-                return expiry_date.strftime('%B %d %Y %I:%M:%S %p %Z')
+                expiration_date = cr_ts + datetime.timedelta(td)
+                return expiration_date
     except:
-        logger.info('Error getting expiry date')
-    return 'Never' 
+        logger.info('Error getting expiration date')
+    return None
+
+def get_expiration_datestr(pod):
+    expiration_date = get_expiration_date(pod)
+    if expiration_date:
+        return expiration_date.strftime('%B %d %Y %I:%M:%S %p %Z')
+    else:
+        return 'Never'
+
+def has_notebook_expired(pod):
+    return datetime.datetime.now(timezone.utc) > get_expiration_date(pod)
 
 def has_notebook_loaded(namespace, pod):
     try: 
@@ -113,45 +131,53 @@ def get_jupyter_notebooks(namespace, username):
     config.load_kube_config() # temporary until bug with load_kube_config is fixed
     core_v1_api = client.CoreV1Api()
     networking_v1_api = client.NetworkingV1Api()
-
-    notebooks = []
+    
+    user_pods = []
     try:
         pods = core_v1_api.list_namespaced_pod(namespace)
         logger.info("Read %d pods from namespace %s" %(len(pods.items), namespace))
         for pod in pods.items:
             try: 
-                if pod.metadata.labels['owner'] == username:
-                    name = pod.metadata.name
-                    logger.info("Read name for pod %s" %name)
-                    try: 
-                        ingress = networking_v1_api.read_namespaced_ingress(name, namespace)
-                        # logger.info("Read ingress for pod %s" %name)
-                        url = 'https://' + ingress.spec.rules[0].host
-                    except:
-                        logger.info('Error reading ingress for pod %s' %name)
-                        continue
-                    creation_date = get_creation_date(pod)
-                    # logger.info("Read creation date for pod %s" %name)
-                    expiry_date = get_expiry_date(pod)
-                    # logger.info("Read expiration date for pod %s" %name)
-                    status = pod.status.phase
-                    # logger.info("Read status for pod %s" %name)
-                    finished_loading = has_notebook_loaded(namespace, pod)
-                    notebooks.append(
-                        {'name': name, 
-                        'namespace': namespace, 
-                        'username': username,
-                        'cluster':'uchicago-river', 
-                        'url': url,
-                        'status': status,
-                        'finished_loading': finished_loading,
-                        'creation_date': creation_date,
-                        'expiry_date': expiry_date}
-                    )
+                name = pod.metadata.name
+                if pod.metadata.labels['owner'] != username: 
+                    continue
+                elif has_notebook_expired(pod):
+                    remove_jupyter_notebook(namespace, name, username)    
+                else:       
+                    user_pods.append(pod)
             except:
-                logger.info('Error processing Jupyter notebook %s' %pod.metadata.name)
+                logger.info('Error processing pod %s' %pod.metadata.name)
     except:
-        logger.info('Error getting Jupyter notebooks')
+        logger.info('Error getting pods')
+
+    notebooks = []
+    for pod in user_pods:
+        try: 
+            name = pod.metadata.name
+            logger.info("Read name for pod %s" %name)
+            try: 
+                ingress = networking_v1_api.read_namespaced_ingress(name, namespace)
+                url = 'https://' + ingress.spec.rules[0].host
+            except:
+                logger.info('Error reading ingress for pod %s' %name)
+                continue
+            creation_date = get_creation_datestr(pod)
+            expiration_date = get_expiration_datestr(pod)
+            status = pod.status.phase
+            finished_loading = has_notebook_loaded(namespace, pod)
+            notebooks.append(
+                {'name': name, 
+                'namespace': namespace, 
+                'username': username,
+                'cluster': 'uchicago-river', 
+                'url': url,
+                'status': status,
+                'finished_loading': finished_loading,
+                'creation_date': creation_date,
+                'expiration_date': expiration_date}
+            )
+        except:
+            logger.info('Error processing Jupyter notebook %s' %pod.metadata.name)
         
     return notebooks
 
