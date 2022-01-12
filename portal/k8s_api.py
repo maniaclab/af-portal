@@ -12,16 +12,18 @@ from portal import app
 logger = log_api.get_logger()
 
 def load_kube_config():
-    try:
-        filename = app.config.get('KUBECONFIG')
-        if filename:
-            logger.info("Loading kubeconfig from file %s" % filename)
-            config.load_kube_config(config_file = filename)
-        else:
-            logger.info("Loading default kubeconfig file")
-            config.load_kube_config()
-    except:
-        logger.info('Error reading kube config')
+    config.load_kube_config()
+    # try:
+        # logger.info("KUBECONFIG = " app.config.get("KUBECONFIG"))
+        # filename = app.config.get("KUBECONFIG")
+        # if filename:
+            # logger.info("Loading kubeconfig from file %s" % filename)
+            # config.load_kube_config(config_file = filename)
+        # else:
+            # logger.info("Loading default kubeconfig file")
+            # config.load_kube_config()
+    # except:
+        # logger.info("Error loading kubeconfig")
 
 def create_jupyter_notebook(notebook_name, namespace, username, password, cpu, memory, image, time_duration):
     core_v1_api = client.CoreV1Api()
