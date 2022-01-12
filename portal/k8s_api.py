@@ -116,7 +116,7 @@ def has_notebook_expired(pod):
         return datetime.datetime.now(timezone.utc) > exp_date
     return False
 
-def has_notebook_loaded(namespace, pod):
+def get_notebook_status(namespace, pod):
     try: 
         notebook_name = pod.metadata.name
         if pod.status.phase == 'Running':
@@ -196,7 +196,7 @@ def get_jupyter_notebooks(namespace, username):
             pod_status = pod.status.phase
             cert_status = get_certificate_status(namespace, name)
             logger.info("Read certificate status for notebook %s" %name)
-            notebook_status = has_notebook_loaded(namespace, pod)
+            notebook_status = get_notebook_status(namespace, pod)
             notebooks.append(
                 {'name': name, 
                 'namespace': namespace, 
