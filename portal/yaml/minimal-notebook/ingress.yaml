@@ -22,4 +22,4 @@ spec:
   tls:
   - hosts:
     - {{notebook_name}}.uchicago-river-v2.slateci.net
-    secretName: {{username}}-notebook-tls
+    secretName: {{notebook_name}}-tls

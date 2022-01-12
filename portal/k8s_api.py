@@ -165,6 +165,7 @@ def get_url(namespace, notebook_name):
         return ''
 
 def get_pods(namespace, username):
+    config.load_kube_config()
     core_v1_api = client.CoreV1Api()
     user_pods = []
     try:
@@ -185,6 +186,7 @@ def get_pods(namespace, username):
     return user_pods
 
 def get_jupyter_notebooks(namespace, username):
+    config.load_kube_config()
     user_pods = get_pods(namespace, username)
     notebooks = []
     for pod in user_pods:
