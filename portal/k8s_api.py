@@ -147,7 +147,7 @@ def get_certificate_status(namespace, notebook_name):
         )   
         for condition in cert['status']['conditions']:
             if condition['type'] == 'Ready':    
-                return 'Ready' if condition['status'] else 'Not ready'
+                return 'Ready' if condition['status'] == 'True' else 'Not ready'
     except:
         logger.info("Error getting certificate status for notebook %s" %name)
     return 'Unknown'
