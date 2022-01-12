@@ -220,6 +220,7 @@ def get_jupyter_notebooks(namespace, username):
     return notebooks
 
 def remove_jupyter_notebook(namespace, notebook_name, username):
+    config.load_kube_config()
     core_v1_api = client.CoreV1Api()
     networking_v1_api = client.NetworkingV1Api()
     try:
