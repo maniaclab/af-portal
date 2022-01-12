@@ -24,7 +24,6 @@ def load_kube_config():
         logger.info('Error reading kube config')
 
 def create_jupyter_notebook(notebook_name, namespace, username, password, cpu, memory, image, time_duration):
-    config.load_kube_config()
     core_v1_api = client.CoreV1Api()
     networking_v1_api = client.NetworkingV1Api()
 
@@ -39,7 +38,6 @@ def create_jupyter_notebook(notebook_name, namespace, username, password, cpu, m
             template = env.get_template("pod.yaml")
             pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, password=password, cpu=cpu, memory=memory, image=image, days=time_duration))
             resp = core_v1_api.create_namespaced_pod(body=pod, namespace=namespace)
-            logger.info(resp)
             logger.info("Pod created. status='%s'" % resp.metadata.name)
 
             template = env.get_template("service.yaml")
@@ -47,7 +45,7 @@ def create_jupyter_notebook(notebook_name, namespace, username, password, cpu, m
             core_v1_api.create_namespaced_service(namespace=namespace, body=service)
 
             template = env.get_template("ingress.yaml")
-            ingress = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
+            ingress = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username))
             networking_v1_api.create_namespaced_ingress(namespace=namespace,body=ingress)
 
             return {'status': 'success', 'message': 'Successfully created notebook %s' %notebook_name}
@@ -62,7 +60,6 @@ def create_jupyter_notebook(notebook_name, namespace, username, password, cpu, m
             template = env.get_template("pod.yaml")
             pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, password=password_hash, cpu=cpu, memory=memory, image=image))
             resp = core_v1_api.create_namespaced_pod(body=pod, namespace=namespace)
-            logger.info(resp)
             logger.info("Pod created. status='%s'" % resp.metadata.name)
 
             template = env.get_template("service.yaml")
@@ -70,7 +67,7 @@ def create_jupyter_notebook(notebook_name, namespace, username, password, cpu, m
             core_v1_api.create_namespaced_service(namespace=namespace, body=service)
 
             template = env.get_template("ingress.yaml")
-            ingress = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
+            ingress = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username))
             networking_v1_api.create_namespaced_ingress(namespace=namespace,body=ingress)
 
             return {'status': 'success', 'message': 'Successfully created notebook %s' %notebook_name}
@@ -114,24 +111,59 @@ def get_expiration_datestr(pod):
         return 'Never'
 
 def has_notebook_expired(pod):
-    return datetime.datetime.now(timezone.utc) > get_expiration_date(pod)
+    exp_date = get_expiration_date(pod)
+    if exp_date:
+        return datetime.datetime.now(timezone.utc) > exp_date
+    return False
 
 def has_notebook_loaded(namespace, pod):
     try: 
+        notebook_name = pod.metadata.name
         if pod.status.phase == 'Running':
             core_v1_api = client.CoreV1Api()
-            log = core_v1_api.read_namespaced_pod_log(pod.metadata.name, namespace=namespace)
+            log = core_v1_api.read_namespaced_pod_log(notebook_name, namespace=namespace)
             if re.search("Jupyter Notebook.*is running at.*", log):
-                return True
+                return 'Ready'
+            else:
+                return 'Loading'
     except:
-        logger.info('Error reading log for pod %s' %pod.metadata.name)
-    return False
+        logger.info('Error getting status for notebook %s' %notebook_name)
+    return 'Not ready'
 
-def get_jupyter_notebooks(namespace, username):
-    config.load_kube_config() # temporary until bug with load_kube_config is fixed
+def get_certificate_status(namespace, notebook_name):
+    try:
+        net = client.NetworkingV1Api()
+        ingress = net.read_namespaced_ingress(notebook_name, namespace)
+        secretName = ingress.spec.tls[0].secret_name
+        objs = client.CustomObjectsApi()
+        cert = objs.get_namespaced_custom_object(
+            group = "cert-manager.io",
+            version = "v1",
+            name = secretName,
+            namespace = namespace,
+            plural = "certificates"
+        )   
+        for condition in cert['status']['conditions']:
+            if condition['type'] == 'Ready':    
+                return 'Ready' if condition['status'] else 'Not ready'
+    except:
+        logger.info("Error getting certificate status for notebook %s" %name)
+    return 'Unknown'
+
+def get_url(namespace, notebook_name):
+    try: 
+        api = client.NetworkingV1Api()
+        ingress = api.read_namespaced_ingress(notebook_name, namespace)
+        logger.info("Read ingress for pod %s" %notebook_name)
+        url = 'https://' + ingress.spec.rules[0].host
+        logger.info('URL for pod %s: %s' %(notebook_name, url))
+        return url
+    except:
+        logger.info('Error reading ingress for pod %s' %name)
+        return ''
+
+def get_pods(namespace, username):
     core_v1_api = client.CoreV1Api()
-    networking_v1_api = client.NetworkingV1Api()
-    
     user_pods = []
     try:
         pods = core_v1_api.list_namespaced_pod(namespace)
@@ -139,40 +171,41 @@ def get_jupyter_notebooks(namespace, username):
         for pod in pods.items:
             try: 
                 name = pod.metadata.name
-                if pod.metadata.labels['owner'] != username: 
-                    continue
-                elif has_notebook_expired(pod):
-                    remove_jupyter_notebook(namespace, name, username)    
-                else:       
-                    user_pods.append(pod)
+                if pod.metadata.labels['owner'] == username: 
+                    if has_notebook_expired(pod):
+                        remove_jupyter_notebook(namespace, name, username)    
+                    else:       
+                        user_pods.append(pod)
             except:
                 logger.info('Error processing pod %s' %pod.metadata.name)
     except:
         logger.info('Error getting pods')
+    return user_pods
 
+def get_jupyter_notebooks(namespace, username):
+    user_pods = get_pods(namespace, username)
     notebooks = []
     for pod in user_pods:
         try: 
             name = pod.metadata.name
-            logger.info("Read name for pod %s" %name)
-            try: 
-                ingress = networking_v1_api.read_namespaced_ingress(name, namespace)
-                url = 'https://' + ingress.spec.rules[0].host
-            except:
-                logger.info('Error reading ingress for pod %s' %name)
-                continue
+            logger.info("Read name for pod %s in namespace %s" %(name, namespace))
+            url = get_url(namespace, name)
+            logger.info("Read URL for notebook %s" %name)
             creation_date = get_creation_datestr(pod)
             expiration_date = get_expiration_datestr(pod)
-            status = pod.status.phase
-            finished_loading = has_notebook_loaded(namespace, pod)
+            pod_status = pod.status.phase
+            cert_status = get_certificate_status(namespace, name)
+            logger.info("Read certificate status for notebook %s" %name)
+            notebook_status = has_notebook_loaded(namespace, pod)
             notebooks.append(
                 {'name': name, 
                 'namespace': namespace, 
                 'username': username,
                 'cluster': 'uchicago-river', 
                 'url': url,
-                'status': status,
-                'finished_loading': finished_loading,
+                'pod_status': pod_status,
+                'cert_status': cert_status,
+                'notebook_status': notebook_status,
                 'creation_date': creation_date,
                 'expiration_date': expiration_date}
             )
@@ -182,7 +215,6 @@ def get_jupyter_notebooks(namespace, username):
     return notebooks
 
 def remove_jupyter_notebook(namespace, notebook_name, username):
-    config.load_kube_config()
     core_v1_api = client.CoreV1Api()
     networking_v1_api = client.NetworkingV1Api()
     try:
