@@ -197,6 +197,7 @@ def get_jupyter_notebooks(namespace, username):
             cert_status = get_certificate_status(namespace, name)
             logger.info("Read certificate status for notebook %s" %name)
             notebook_status = get_notebook_status(namespace, pod)
+            logger.info("Read notebook status for notebook %s" %name)
             notebooks.append(
                 {'name': name, 
                 'namespace': namespace, 
