@@ -29,7 +29,7 @@ def deploy_jupyter_notebook():
     image = request.form['image']
     time_duration = int(request.form['time-duration'])
     try:
-        resp = k8s_api.create_jupyter_notebook(notebook_name, namespace, username, password, f"{cpu}", f"{memory}Gi", image, f"{time_duration}")
+        resp = k8s_api.create_notebook(notebook_name, namespace, username, password, f"{cpu}", f"{memory}Gi", image, f"{time_duration}")
         flash(resp['message'], resp['status'])
     except:
         logger.info('Error creating Jupyter notebook')
@@ -43,7 +43,7 @@ def view_jupyter_notebooks():
     namespace = 'atlas-af-test'
     username = session['unix_name']
     try:
-        notebooks = k8s_api.get_jupyter_notebooks(namespace, username)
+        notebooks = k8s_api.get_notebooks(namespace, username)
     except:
         logger.info('Error getting Jupyter notebooks')
 
@@ -60,7 +60,7 @@ def view_jupyter_notebooks():
 def remove_jupyter_notebook(namespace, notebook_name):
     username = session['unix_name']
     try:
-        resp = k8s_api.remove_jupyter_notebook(namespace, notebook_name, username)
+        resp = k8s_api.remove_user_notebook(namespace, notebook_name, username)
         flash(resp['message'], resp['status'])
     except:
         logger.info('Error removing Jupyter notebook')

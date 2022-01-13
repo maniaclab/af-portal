@@ -1,6 +1,7 @@
 import yaml
 import time
 import datetime
+import threading
 from datetime import timezone
 import re
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -23,7 +24,27 @@ def load_kube_config():
         logger.info("Error loading kubeconfig")
         config.load_kube_config()
 
-def create_jupyter_notebook(notebook_name, namespace, username, password, cpu, memory, image, time_duration):
+def start_notebook_manager(namespace):
+    t = threading.Thread(target=manage_notebooks, args=(namespace,))
+    t.start()
+    logger.info("Started notebook manager thread")
+
+def manage_notebooks(namespace):
+    while True:
+        pods = get_pods(namespace)
+        count = 0
+        for pod in pods:
+            notebook_name = pod.metadata.name
+            if has_notebook_expired(pod):
+                logger.info("Notebook %s in namespace %s has expired" %(notebook_name, namespace))
+                status = remove_notebook(namespace, notebook_name)
+                if status:
+                    count += 1
+        logger.info("Removed %d notebooks during management cycle (1 cycle per hour)" %count)
+        time.sleep(3600)
+
+
+def create_notebook(notebook_name, namespace, username, password, cpu, memory, image, time_duration):
     core_v1_api = client.CoreV1Api()
     networking_v1_api = client.NetworkingV1Api()
 
@@ -162,28 +183,33 @@ def get_url(namespace, notebook_name):
         logger.info('Error reading ingress for pod %s' %name)
         return ''
 
-def get_pods(namespace, username):
-    core_v1_api = client.CoreV1Api()
-    user_pods = []
+def get_pods(namespace):
     try:
+        core_v1_api = client.CoreV1Api()
         pods = core_v1_api.list_namespaced_pod(namespace)
         logger.info("Read %d pods from namespace %s" %(len(pods.items), namespace))
+        return pods.items
+    except:
+        return None
+
+def get_user_pods(namespace, username):
+    user_pods = []
+    try:
+        core_v1_api = client.CoreV1Api()
+        pods = core_v1_api.list_namespaced_pod(namespace)
         for pod in pods.items:
             try: 
-                name = pod.metadata.name
-                if pod.metadata.labels['owner'] == username: 
-                    if has_notebook_expired(pod):
-                        remove_jupyter_notebook(namespace, name, username)    
-                    else:       
-                        user_pods.append(pod)
+                if pod.metadata.labels['owner'] == username:     
+                    user_pods.append(pod)
             except:
                 logger.info('Error processing pod %s' %pod.metadata.name)
     except:
         logger.info('Error getting pods')
+    logger.info("Read %d pods from namespace %s for user %s" %(len(user_pods), namespace, username))
     return user_pods
 
-def get_jupyter_notebooks(namespace, username):
-    user_pods = get_pods(namespace, username)
+def get_notebooks(namespace, username):
+    user_pods = get_user_pods(namespace, username)
     notebooks = []
     for pod in user_pods:
         try: 
@@ -215,10 +241,24 @@ def get_jupyter_notebooks(namespace, username):
         
     return notebooks
 
-def remove_jupyter_notebook(namespace, notebook_name, username):
-    core_v1_api = client.CoreV1Api()
-    networking_v1_api = client.NetworkingV1Api()
+def remove_notebook(namespace, notebook_name):
     try:
+        core_v1_api = client.CoreV1Api()
+        networking_v1_api = client.NetworkingV1Api()
+        resp = core_v1_api.delete_namespaced_pod(notebook_name, namespace)
+        logger.info(resp)
+        core_v1_api.delete_namespaced_service(notebook_name, namespace)
+        networking_v1_api.delete_namespaced_ingress(notebook_name, namespace)
+        logger.info("Removed notebook %s in namespace %s" %(notebook_name, namespace))
+        return True
+    except:
+        logger.info("Error removing notebook %s in namespace %s" %(notebook_name, namespace))
+        return False
+
+def remove_user_notebook(namespace, notebook_name, username):
+    try:
+        core_v1_api = client.CoreV1Api()
+        networking_v1_api = client.NetworkingV1Api()
         pod = core_v1_api.read_namespaced_pod(notebook_name, namespace)
         if pod.metadata.labels['owner'] == username:
             core_v1_api.delete_namespaced_pod(notebook_name, namespace)

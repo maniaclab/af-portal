@@ -42,6 +42,10 @@ logger.info("Loading kube config")
 k8s_api.load_kube_config()
 logger.info("Loaded kube config")
 
+logger.info("Starting k8s notebook manager")
+k8s_api.start_notebook_manager('atlas-af-test')
+logger.info("Started k8s notebook manager")
+
 app.url_map.strict_slashes = False
 app.permanent_session_lifetime = timedelta(minutes=1440)
 app.config.update(
