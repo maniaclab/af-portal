@@ -8,6 +8,7 @@ import logging.handlers
 import sys
 
 from portal import log_api
+from portal import k8s_api
 
 __author__ = "MANIAC Lab <gardnergroup@lists.uchicago.edu>"
 
@@ -37,6 +38,10 @@ if kubeconfig:
     logger.info("kubeconfig file is " + kubeconfig)
 else:
     logger.info("kubeconfig file is the default file")
+
+logger.info("Loading kube config")
+k8s_api.load_kube_config()
+logger.info("Loaded kube config")
 
 app.url_map.strict_slashes = False
 app.permanent_session_lifetime = timedelta(minutes=1440)
