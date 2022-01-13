@@ -1,12 +1,10 @@
 from flask import session, request, render_template, jsonify, redirect, url_for, flash
 import requests
-from portal import app
 from portal.decorators import authenticated
 from portal.connect_api import get_user_profile, get_user_connect_status
+from portal import logger
+from portal import app
 from portal import k8s_api
-from portal import log_api
-
-logger = log_api.get_logger()
 
 @app.route("/jupyter/create", methods=["GET"])
 @authenticated

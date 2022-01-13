@@ -6,24 +6,22 @@ import re
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from kubernetes import client, config
 from notebook.auth.security import passwd
-from portal import log_api
+from portal import logger
 from portal import app
 
-logger = log_api.get_logger()
-
 def load_kube_config():
-    config.load_kube_config()
-    # try:
-        # logger.info("KUBECONFIG = " app.config.get("KUBECONFIG"))
-        # filename = app.config.get("KUBECONFIG")
-        # if filename:
-            # logger.info("Loading kubeconfig from file %s" % filename)
-            # config.load_kube_config(config_file = filename)
-        # else:
-            # logger.info("Loading default kubeconfig file")
-            # config.load_kube_config()
-    # except:
-        # logger.info("Error loading kubeconfig")
+    logger.info("Loading kubeconfig file")
+    try:
+        filename = app.config.get("KUBECONFIG")
+        if filename:
+            logger.info("Loading kubeconfig from file %s" % filename)
+            config.load_kube_config(config_file = filename)
+        else:
+            logger.info("Loading default kubeconfig file")
+            config.load_kube_config()
+    except:
+        logger.info("Error loading kubeconfig")
+        config.load_kube_config()
 
 def create_jupyter_notebook(notebook_name, namespace, username, password, cpu, memory, image, time_duration):
     core_v1_api = client.CoreV1Api()
@@ -165,7 +163,6 @@ def get_url(namespace, notebook_name):
         return ''
 
 def get_pods(namespace, username):
-    config.load_kube_config()
     core_v1_api = client.CoreV1Api()
     user_pods = []
     try:
@@ -186,7 +183,6 @@ def get_pods(namespace, username):
     return user_pods
 
 def get_jupyter_notebooks(namespace, username):
-    config.load_kube_config()
     user_pods = get_pods(namespace, username)
     notebooks = []
     for pod in user_pods:
@@ -220,7 +216,6 @@ def get_jupyter_notebooks(namespace, username):
     return notebooks
 
 def remove_jupyter_notebook(namespace, notebook_name, username):
-    config.load_kube_config()
     core_v1_api = client.CoreV1Api()
     networking_v1_api = client.NetworkingV1Api()
     try:
