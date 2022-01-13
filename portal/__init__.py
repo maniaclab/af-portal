@@ -8,11 +8,9 @@ import logging.handlers
 import sys
 
 from portal import log_api
-from portal import k8s_api
+logger = log_api.init_logger()
 
 __author__ = "MANIAC Lab <gardnergroup@lists.uchicago.edu>"
-
-logger = log_api.init_logger()
 
 app = Flask(__name__)
 # Enable CSRF protection globally for Flask app
@@ -33,6 +31,7 @@ else:
     app.config.from_pyfile("portal.conf")
     logger.info("Read config file from local directory")
 
+from portal import k8s_api
 kubeconfig = app.config.get("KUBECONFIG")
 if kubeconfig:
     logger.info("kubeconfig file is " + kubeconfig)
