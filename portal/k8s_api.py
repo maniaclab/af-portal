@@ -218,9 +218,9 @@ def get_notebooks(namespace, username):
             url = get_url(namespace, name)
             logger.info("Read URL for notebook %s" %name)
             creation_date = get_creation_date(pod).timestamp()
-            logger.info("Notebook creation date: %d" %creation_date)
+            logger.info("Notebook creation date timestamp: %d" %creation_date)
             expiration_date = get_expiration_date(pod).timestamp()
-            logger.info("Notebook expiration date: %d" %expiration_date)
+            logger.info("Notebook expiration date timestamp: %d" %expiration_date)
             pod_status = pod.status.phase
             cert_status = get_certificate_status(namespace, name)
             logger.info("Read certificate status for notebook %s" %name)
