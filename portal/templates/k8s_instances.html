@@ -44,8 +44,8 @@
                 <td>{{instance['notebook_status']}}</td>
                 <td>{{instance['pod_status']}}</td>
                 <td>{{instance['cert_status']}}</td>
-                <td id="{{instance['name']}}_creation_date">{{instance['creation_date']}}</td>
-                <td id="{{instance['name']}}_expiration_date">{{instance['expiration_date']}}</td>
+                <td id="{{instance['name']}}_creation_date"></td>
+                <td id="{{instance['name']}}_expiration_date"></td>
                 <td><a href="{{url_for('remove_jupyter_notebook', namespace=instance['namespace'], notebook_name=instance['name'])}}"><i class="bi bi-trash"></i></a></td>
               </tr>
               {% endfor %}
@@ -72,18 +72,6 @@ $(document).ready(function() {
     var expirationDate = moment({{instance['expiration_date']}} * 1000).format("dddd MMMM D YYYY h:mm a");
     $("#{{instance['name']}}_creation_date").html(creationDate);
     $("#{{instance['name']}}_expiration_date").html(expirationDate);
-    // var creationDate = new Date({{instance['creation_date']}} * 1000);
-    // var expirationDate = new Date({{instance['expiration_date']}} * 1000);
-    // var options = { year: 'numeric', 
-    //                 month: 'long', 
-    //                 day: 'numeric', 
-    //                 hour: 'numeric', 
-    //                 minute: 'numeric',
-    //                 second: 'numeric'};
-    // var td1 = $("#{{instance['name']}}_creation_date");
-    // td1.html(creationDate.toLocaleString("en-US", options));
-    // var td2 = $("#{{instance['name']}}_expiration_date");
-    // td2.html(expirationDate.toLocaleString("en-US", options));
   {% endfor %}
 });
 </script>
