@@ -20,31 +20,19 @@ csrf.init_app(app)
 if len(sys.argv) > 1:
     try:
         # Try to read config location from .ini file
-        logger.info("Reading config file from sys.argv[1]")
         config_file = sys.argv[1]
         app.config.from_pyfile(config_file)
         logger.info("Read config file from sys.argv[1]")
     except:
-        logger.info("Could not read config location from {}".format(sys.argv[1]))
+        logger.error("Could not read config location from {}".format(sys.argv[1]))
 else:
-    logger.info("Reading config file from local directory")
     app.config.from_pyfile("portal.conf")
-    logger.info("Read config file from local directory")
+    logger.info("Read config file from portal.conf")
 
 from portal import k8s_api
-kubeconfig = app.config.get("KUBECONFIG")
-if kubeconfig:
-    logger.info("kubeconfig file is " + kubeconfig)
-else:
-    logger.info("kubeconfig file is the default file")
-
-logger.info("Loading kube config")
 k8s_api.load_kube_config()
-logger.info("Loaded kube config")
 
-logger.info("Starting k8s notebook manager")
-k8s_api.start_notebook_manager('atlas-af-test')
-logger.info("Started k8s notebook manager")
+k8s_api.start_notebook_manager(app.config['NAMESPACE'])
 
 app.url_map.strict_slashes = False
 app.permanent_session_lifetime = timedelta(minutes=1440)

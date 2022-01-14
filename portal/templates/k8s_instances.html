@@ -68,10 +68,25 @@ $(document).ready(function() {
   }, 30000);
   {% endif %}
   {% for instance in instances %}
+    var creation_date = {{instance['creation_date']}};
+    var expiration_date = {{instance['expiration_date']}};
+
+    if (isNaN(creation_date) || creation_date < 0) 
+      $("#{{instance['name']}}_creation_date").html('Unknown');
+    else 
+      $("#{{instance['name']}}_creation_date").html(moment(creation_date * 1000).format("dddd MMMM D YYYY h:mm a"));
+
+    if (isNaN(expiration_date) || expiration_date < 0) 
+      $("#{{instance['name']}}_expiration_date").html('Never');
+    else 
+      $("#{{instance['name']}}_expiration_date").html(moment(expiration_date * 1000).format("dddd MMMM D YYYY h:mm a"));
+
+    /*
     var creationDate = moment({{instance['creation_date']}} * 1000).format("dddd MMMM D YYYY h:mm a");
     var expirationDate = moment({{instance['expiration_date']}} * 1000).format("dddd MMMM D YYYY h:mm a");
     $("#{{instance['name']}}_creation_date").html(creationDate);
     $("#{{instance['name']}}_expiration_date").html(expirationDate);
+    */
   {% endfor %}
 });
 </script>

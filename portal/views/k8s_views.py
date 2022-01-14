@@ -20,19 +20,19 @@ def create_jupyter_notebook():
 @app.route("/jupyter/deploy", methods=["GET", "POST"])
 @authenticated
 def deploy_jupyter_notebook():
-    notebook_name = request.form['notebook-name']
-    password = request.form['notebook-password']
-    namespace = 'atlas-af-test'
-    username = session['unix_name']
-    cpu = int(request.form['cpu']) 
-    memory = int(request.form['memory']) 
-    image = request.form['image']
-    time_duration = int(request.form['time-duration'])
     try:
+        notebook_name = request.form['notebook-name']
+        password = request.form['notebook-password']
+        namespace = app.config['NAMESPACE']
+        username = session['unix_name']
+        cpu = int(request.form['cpu']) 
+        memory = int(request.form['memory']) 
+        image = request.form['image']
+        time_duration = int(request.form['time-duration'])
         resp = k8s_api.create_notebook(notebook_name, namespace, username, password, f"{cpu}", f"{memory}Gi", image, f"{time_duration}")
         flash(resp['message'], resp['status'])
     except:
-        logger.info('Error creating Jupyter notebook')
+        logger.error('Error creating Jupyter notebook')
         flash('Error creating Jupyter notebook %s in namespace %s' %(notebook_name, namespace), 'warning')
     return redirect(url_for("view_jupyter_notebooks"))
 
@@ -40,17 +40,16 @@ def deploy_jupyter_notebook():
 @authenticated
 def view_jupyter_notebooks():
     refresh = False
-    namespace = 'atlas-af-test'
-    username = session['unix_name']
     try:
+        namespace = app.config['NAMESPACE']
+        username = session['unix_name']
         notebooks = k8s_api.get_notebooks(namespace, username)
+        for notebook in notebooks:
+            if notebook['notebook_status'] != 'Ready': 
+                refresh = True
+                break
     except:
-        logger.info('Error getting Jupyter notebooks')
-
-    for notebook in notebooks:
-        if notebook['notebook_status'] != 'Ready': 
-            refresh = True
-            break
+        logger.error('Error getting Jupyter notebooks')
 
     logger.info('Rendering template k8s_instance.html with refresh=%s' %refresh)
     return render_template("k8s_instances.html", instances=notebooks, refresh=refresh)
@@ -58,11 +57,12 @@ def view_jupyter_notebooks():
 @app.route("/jupyter/remove/<namespace>/<notebook_name>", methods=["GET"])
 @authenticated
 def remove_jupyter_notebook(namespace, notebook_name):
-    username = session['unix_name']
     try:
+        username = session['unix_name']
         resp = k8s_api.remove_user_notebook(namespace, notebook_name, username)
         flash(resp['message'], resp['status'])
     except:
-        logger.info('Error removing Jupyter notebook')
+        logger.error('Error removing Jupyter notebook')
         flash('Error removing notebook %s in namespace %s' %(notebook_name, namespace), 'warning')
+
     return redirect(url_for("view_jupyter_notebooks"))

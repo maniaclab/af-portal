@@ -1,5 +1,6 @@
 from flask import session, request, render_template, jsonify, redirect, url_for, flash
 import requests
+from portal import logger
 from portal import app
 from portal.decorators import authenticated
 from portal.slate_api import (
@@ -16,27 +17,10 @@ import json
 import yaml
 from base64 import b64encode
 import random
-import logging
 
 slate_api_token = app.config["SLATE_API_TOKEN"]
 slate_api_endpoint = app.config["SLATE_API_ENDPOINT"]
 query = {"token": slate_api_token}
-
-logger = logging.getLogger("ciconnect-portal")
-logger.setLevel(logging.INFO)
-
-ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
-fh = logging.FileHandler('ciconnect-portal.log')
-fh.setLevel(logging.INFO)
-
-formatter = logging.Formatter("%(asctime)s;%(levelname)s;%(message)s")
-
-ch.setFormatter(formatter)
-fh.setFormatter(formatter)
-
-logger.addHandler(ch)
-logger.addHandler(fh)
 
 def generateToken():
     token_bytes = os.urandom(32)
