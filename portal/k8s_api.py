@@ -103,13 +103,6 @@ def get_creation_date(pod):
     except:
         return None
 
-def get_creation_datestr(pod):
-    creation_date = get_creation_date(pod)
-    if creation_date:
-        return creation_date.strftime('%B %d %Y %I:%M:%S %p %Z')
-    else:
-        return 'Unknown'
-
 def get_expiration_date(pod):
     try:
         if hasattr(pod.metadata, 'labels') and 'time2delete' in pod.metadata.labels:
@@ -123,14 +116,7 @@ def get_expiration_date(pod):
     except:
         logger.info('Error getting expiration date')
     return None
-
-def get_expiration_datestr(pod):
-    expiration_date = get_expiration_date(pod)
-    if expiration_date:
-        return expiration_date.strftime('%B %d %Y %I:%M:%S %p %Z')
-    else:
-        return 'Never'
-
+    
 def has_notebook_expired(pod):
     exp_date = get_expiration_date(pod)
     if exp_date:
