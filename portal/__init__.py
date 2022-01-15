@@ -7,8 +7,8 @@ from flask_misaka import Misaka
 import logging.handlers
 import sys
 
-from portal import application_logging
-logger = application_logging.init_logger()
+from portal import app_logging
+logger = app_logging.init_logger()
 
 __author__ = "MANIAC Lab <gardnergroup@lists.uchicago.edu>"
 
