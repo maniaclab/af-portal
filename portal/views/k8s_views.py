@@ -45,7 +45,7 @@ def view_jupyter_notebooks():
         username = session['unix_name']
         notebooks = k8s_api.get_notebooks(namespace, username)
         for notebook in notebooks:
-            if notebook['notebook_status'] != 'Ready': 
+            if notebook['notebook_status'] != 'Ready' or notebook['pod_status'] != 'Running' or notebook['cert_status'] != 'Ready': 
                 refresh = True
                 break
     except:

@@ -16,10 +16,12 @@ def load_kube_config():
         namespace = app.config.get("NAMESPACE")
         if filename:
             config.load_kube_config(config_file = filename)
-            logger.info("Loaded kubeconfig from file %s Using namespace %s" %(filename, namespace))
+            logger.info("Loaded kubeconfig from file %s" %filename)
+            logger.info("Using namespace %s" %namespace)
         else:
             config.load_kube_config()
-            logger.info("Loaded default kubeconfig file Using namespace %s" %namespace)
+            logger.info("Loaded default kubeconfig file")
+            logger.info("Using namespace %s" %namespace)
     except:
         logger.error("Error loading kubeconfig")
         config.load_kube_config()
@@ -234,7 +236,6 @@ def get_notebooks(namespace, username):
                 {'name': name, 
                 'namespace': namespace, 
                 'username': username,
-                'cluster': 'uchicago-river', 
                 'url': url,
                 'pod_status': pod_status,
                 'cert_status': cert_status,

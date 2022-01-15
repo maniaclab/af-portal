@@ -36,7 +36,7 @@
             <tbody data-link="row" class="rowlink" style="font-size:14px;">
               {% for instance in instances %}
               <tr>
-                {% if instance['notebook_status'] == 'Ready' %}
+                {% if instance['notebook_status'] == 'Ready' and instance['pod_status'] == 'Running' and instance['cert_status'] == 'Ready' %}
                 <td><a href="{{instance['url']}}" target="_blank">{{instance['name']}}</a></td>
                 {% else %}
                 <td>{{instance['name']}}</td>
