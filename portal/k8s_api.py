@@ -46,7 +46,6 @@ def manage_notebooks(namespace):
         logger.info("Removed %d notebooks during management cycle (1 cycle per hour)" %count)
         time.sleep(3600)
 
-
 def create_notebook(notebook_name, namespace, username, password, cpu, memory, image, time_duration):
     core_v1_api = client.CoreV1Api()
     networking_v1_api = client.NetworkingV1Api()
