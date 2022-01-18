@@ -133,7 +133,7 @@
                     <label for="image">Image</label>
                   </td>
                   <td>
-                    <select name="image">
+                    <select name="image" id="notebook-image">
                       <option value="jupyter/minimal-notebook:latest">jupyter/minimal-notebook:latest</option>
                       <option value="ivukotic/ml_platform_auto:latest">ivukotic/ml_platform_auto:latest</option>
                       <option value="ivukotic/ml_platform_auto:conda">ivukotic/ml_platform_auto:conda</option>
@@ -397,8 +397,7 @@
 </section>
 <script type="text/javascript">
 $(document).ready(function() {
-  $("input:required").on('keyup change', function () {
-    console.log('logging a change to a required input');
+  var validate = function() {
     var valid = true;
     
     $.each($("input:required"), function (index, value) {
@@ -407,7 +406,22 @@ $(document).ready(function() {
     });
 
     $('button[type="submit"]').attr("disabled", !valid);
+  };
+
+  $("input:required").on('keyup change', validate);
+
+  $('#notebook-image').on('change', function() {
+    if ($(this).val() == 'ivukotic/ml_platform_auto:latest' || $(this).val() == 'ivukotic/ml_platform_auto:conda') {
+      $('#notebook-password').attr('required', true);
+      $('label[for="notebook-password"]').html('Password *');
+    }
+    else {
+      $('#notebook-password').attr('required', false);
+      $('label[for="notebook-password"]').html('Password');
+    }
+    validate();
   });
+  $('#notebook-image').change();
 });
 </script>
 {%endblock%}

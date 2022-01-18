@@ -17,12 +17,17 @@ def create_jupyter_notebook():
 
     return render_template("k8s_instance_create.html", public_key=public_key)
 
+def strip(str):
+    if str:
+        return str.strip()
+    return str
+
 @app.route("/jupyter/deploy", methods=["GET", "POST"])
 @authenticated
 def deploy_jupyter_notebook():
     try:
-        notebook_name = request.form['notebook-name']
-        password = request.form['notebook-password']
+        notebook_name = strip(request.form['notebook-name'])
+        password = strip(request.form['notebook-password'])
         namespace = app.config['NAMESPACE']
         username = session['unix_name']
         cpu = int(request.form['cpu']) 

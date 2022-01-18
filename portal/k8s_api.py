@@ -2,8 +2,11 @@ import yaml
 import time
 import datetime
 import threading
-from datetime import timezone
+import os
 import re
+import urllib
+from base64 import b64encode
+from datetime import timezone
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from kubernetes import client, config
 from notebook.auth.security import passwd
@@ -61,6 +64,11 @@ def name_available(namespace, notebook_name):
         logger.error('Error checking whether notebook name %s is available' %notebook_name)
     return False
 
+def generate_token():
+    token_bytes = os.urandom(32)
+    b64_encoded = b64encode(token_bytes).decode()
+    return b64_encoded
+
 def create_notebook(notebook_name, namespace, username, password, cpu, memory, image, time_duration):
     if not supports_image(image):
         logger.warning('Docker image %s is not suppported' %image)
@@ -73,20 +81,31 @@ def create_notebook(notebook_name, namespace, username, password, cpu, memory, i
     try:
         core_v1_api = client.CoreV1Api()
         networking_v1_api = client.NetworkingV1Api()
-        ph = passwd(password)
+        logger.info("Using password based authentication") if password else logger.info("Using token based authentication")
+        ph = passwd(password) if password else None
+        token = None if password else generate_token()
         env = Environment(loader=FileSystemLoader("portal/yaml"), autoescape=select_autoescape())
         
         template = env.get_template("pod.yaml")
-        pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, password=password, password_hash=ph, cpu=cpu, memory=memory, image=image, days=time_duration))
+        pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, password=password, password_hash=ph, token=token, cpu=cpu, memory=memory, image=image, days=time_duration))
         core_v1_api.create_namespaced_pod(namespace=namespace, body=pod)
+        logger.info("Created pod %s" %notebook_name)
 
         template = env.get_template("service.yaml")
         service = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, image=image))
         core_v1_api.create_namespaced_service(namespace=namespace, body=service)
+        logger.info("Created service %s" %notebook_name)
 
         template = env.get_template("ingress.yaml")
         ingress = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, image=image))
         networking_v1_api.create_namespaced_ingress(namespace=namespace,body=ingress)
+        logger.info("Created ingress %s" %notebook_name)
+
+        if token:
+            template = env.get_template("secret.yaml")
+            sec = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, token=token))
+            core_v1_api.create_namespaced_secret(namespace=namespace, body=sec)
+            logger.info("Created a secret to store token %s" %token)
 
         logger.info('Successfully created notebook %s' %notebook_name)
         return {'status': 'success', 'message': 'Successfully created notebook %s' %notebook_name}
@@ -167,17 +186,44 @@ def get_certificate_status(namespace, notebook_name):
         logger.error("Error getting certificate status for notebook %s" %notebook_name)
     return 'Unknown'
 
+def has_token(namespace, notebook_name):
+    try:
+        api = client.CoreV1Api()
+        secs = api.list_namespaced_secret(namespace)
+        for sec in secs.items:
+            if sec.metadata.name == notebook_name and 'token' in sec.data:
+                return True
+        return False
+    except:
+        logger.error("Error getting secret for notebook %s" %notebook_name)
+        return False
+
+def get_token(namespace, notebook_name):
+    try:
+        api = client.CoreV1Api()
+        sec = api.read_namespaced_secret(notebook_name, namespace)
+        logger.info("Got secret for notebook %s" %notebook_name)
+        return sec.data['token']
+    except:
+        logger.error("Error getting secret for notebook %s" %notebook_name)
+        return None
+
 def get_url(namespace, notebook_name):
     try: 
-        api = client.NetworkingV1Api()
-        ingress = api.read_namespaced_ingress(notebook_name, namespace)
-        # logger.info("Read ingress for pod %s" %notebook_name)
+        net = client.NetworkingV1Api()
+        ingress = net.read_namespaced_ingress(notebook_name, namespace)
+        # logger.info("Read ingress for notebook %s" %notebook_name)
         url = 'https://' + ingress.spec.rules[0].host
-        # logger.info('URL for pod %s: %s' %(notebook_name, url))
+        # logger.info("URL for notebook %s is %s" %(notebook_name, url))
+        if has_token(namespace, notebook_name):
+            token = get_token(namespace, notebook_name)
+            url += "?"
+            url += urllib.parse.urlencode({'token': token})
+        logger.info("URL for notebook %s is %s" %(notebook_name, url))
         return url
     except:
-        logger.error('Error reading ingress for pod %s' %name)
-        return ''
+        logger.error('Error reading ingress for pod %s' %notebook_name)
+        return None
 
 def get_pods(namespace):
     try:

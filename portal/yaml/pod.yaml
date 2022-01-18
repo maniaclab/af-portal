@@ -52,6 +52,7 @@ metadata:
   labels:
     instance: {{notebook_name}}
     owner: {{username}}
+    time2delete: ttl-{{days}}
 spec:
   containers:
   - name: {{notebook_name}}
@@ -65,5 +66,9 @@ spec:
       limits:
         memory: {{memory}}
         cpu: {{cpu}}
+    {% if password_hash %}
     args: ["start-notebook.sh", "--NotebookApp.password='{{password_hash}}'"]
+    {% elif token %}
+    args: ["start-notebook.sh", "--NotebookApp.token='{{token}}'"]
+    {% endif %}
 {% endif %}
