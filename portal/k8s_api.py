@@ -81,9 +81,12 @@ def create_notebook(notebook_name, namespace, username, password, cpu, memory, i
     try:
         core_v1_api = client.CoreV1Api()
         networking_v1_api = client.NetworkingV1Api()
+
         logger.info("Using password based authentication") if password else logger.info("Using token based authentication")
+        
         ph = passwd(password) if password else None
         token = None if password else generate_token()
+        
         env = Environment(loader=FileSystemLoader("portal/yaml"), autoescape=select_autoescape())
         
         template = env.get_template("pod.yaml")
