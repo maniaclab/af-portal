@@ -1,0 +1,69 @@
+{% if image == 'ivukotic/ml_platform_auto:latest' or image == 'ivukotic/ml_platform_auto:conda' %}
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    instance: {{notebook_name}}
+    k8s-app: privatejupyter
+    owner: {{username}}
+    # repo: xxx
+    time2delete: ttl-{{days}}
+  name: {{notebook_name}}
+  namespace: {{namespace}}
+spec:
+  containers:
+  - args:
+    - /.run
+    - /ML_platform_tests/SetupPrivateJupyterLab.sh
+    - {{password}}
+    # - repo
+    image: {{image}}
+    imagePullPolicy: Always
+    name: {{notebook_name}}
+    ports:
+    - containerPort: 9999
+    resources:
+      limits:
+        cpu: {{cpu}}
+        memory: {{memory}}
+        # nvidia.com/gpu: 1
+      requests:
+        cpu: {{cpu}}
+        memory: {{memory}}
+        # nvidia.com/gpu: 1
+    volumeMounts:
+    - mountPath: /data
+      name: local-scratch
+      readOnly: false
+  # nodeSelector:
+    # mlnode: 'true'
+  restartPolicy: Always
+  # serviceAccountName: xxx
+  volumes:
+  - hostPath:
+      path: /data
+    name: local-scratch
+{% elif image == 'jupyter/minimal-notebook:latest' %}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{notebook_name}}
+  namespace: {{namespace}}
+  labels:
+    instance: {{notebook_name}}
+    owner: {{username}}
+spec:
+  containers:
+  - name: {{notebook_name}}
+    image: {{image}}
+    ports:
+    - containerPort: 8888
+    resources:
+      requests:
+        memory: {{memory}}
+        cpu: {{cpu}}
+      limits:
+        memory: {{memory}}
+        cpu: {{cpu}}
+    args: ["start-notebook.sh", "--NotebookApp.password='{{password_hash}}'"]
+{% endif %}

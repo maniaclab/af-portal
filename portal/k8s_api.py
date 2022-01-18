@@ -46,61 +46,53 @@ def manage_notebooks(namespace):
         logger.info("Removed %d notebooks during management cycle (1 cycle per hour)" %count)
         time.sleep(3600)
 
-def create_notebook(notebook_name, namespace, username, password, cpu, memory, image, time_duration):
-    core_v1_api = client.CoreV1Api()
-    networking_v1_api = client.NetworkingV1Api()
-    pods = core_v1_api.list_namespaced_pod(namespace, label_selector="instance=" + notebook_name)
+def supports_image(image):
+    images = ['ivukotic/ml_platform_auto:latest', 'ivukotic/ml_platform_auto:conda', 'jupyter/minimal-notebook:latest']
+    return image in images
 
-    if pods and len(pods.items) > 0:
+def name_available(namespace, notebook_name):
+    try: 
+        core_v1_api = client.CoreV1Api()
+        pods = core_v1_api.list_namespaced_pod(namespace, label_selector="instance=" + notebook_name)
+
+        if not pods or len(pods.items) == 0:
+            return True
+    except:
+        logger.error('Error checking whether notebook name %s is available' %notebook_name)
+    return False
+
+def create_notebook(notebook_name, namespace, username, password, cpu, memory, image, time_duration):
+    if not supports_image(image):
+        logger.warning('Docker image %s is not suppported' %image)
+        return {'status': 'warning', 'message': 'Docker image %s is not supported' %image}
+
+    if not name_available(namespace, notebook_name):
         logger.warning('The name %s is already taken in namespace %s' %(notebook_name, namespace))
         return {'status': 'warning', 'message': 'The name %s is already taken in namespace %s' %(notebook_name, namespace)}
 
-    if image in ['ivukotic/ml_platform_auto:latest', 'ivukotic/ml_platform_auto:conda']:
-        try:
-            env = Environment(loader=FileSystemLoader("portal/yaml/ml-platform"), autoescape=select_autoescape())
-            
-            template = env.get_template("pod.yaml")
-            pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, password=password, cpu=cpu, memory=memory, image=image, days=time_duration))
-            resp = core_v1_api.create_namespaced_pod(body=pod, namespace=namespace)
+    try:
+        core_v1_api = client.CoreV1Api()
+        networking_v1_api = client.NetworkingV1Api()
+        ph = passwd(password)
+        env = Environment(loader=FileSystemLoader("portal/yaml"), autoescape=select_autoescape())
+        
+        template = env.get_template("pod.yaml")
+        pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, password=password, password_hash=ph, cpu=cpu, memory=memory, image=image, days=time_duration))
+        core_v1_api.create_namespaced_pod(namespace=namespace, body=pod)
 
-            template = env.get_template("service.yaml")
-            service = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
-            core_v1_api.create_namespaced_service(namespace=namespace, body=service)
+        template = env.get_template("service.yaml")
+        service = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, image=image))
+        core_v1_api.create_namespaced_service(namespace=namespace, body=service)
 
-            template = env.get_template("ingress.yaml")
-            ingress = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username))
-            networking_v1_api.create_namespaced_ingress(namespace=namespace,body=ingress)
+        template = env.get_template("ingress.yaml")
+        ingress = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, image=image))
+        networking_v1_api.create_namespaced_ingress(namespace=namespace,body=ingress)
 
-            logger.info('Successfully created notebook %s' %notebook_name)
-            return {'status': 'success', 'message': 'Successfully created notebook %s' %notebook_name}
-        except:
-            logger.error('Error creating notebook %s' %notebook_name)
-            return {'status': 'warning', 'message': 'Error creating notebook %s' %notebook_name}
-
-    elif image == 'jupyter/minimal-notebook:latest':
-        try: 
-            env = Environment(loader=FileSystemLoader("portal/yaml/minimal-notebook"), autoescape=select_autoescape())
-            password_hash = passwd(password)
-
-            template = env.get_template("pod.yaml")
-            pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, password=password_hash, cpu=cpu, memory=memory, image=image))
-            resp = core_v1_api.create_namespaced_pod(body=pod, namespace=namespace)
-
-            template = env.get_template("service.yaml")
-            service = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name))
-            core_v1_api.create_namespaced_service(namespace=namespace, body=service)
-
-            template = env.get_template("ingress.yaml")
-            ingress = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username))
-            networking_v1_api.create_namespaced_ingress(namespace=namespace,body=ingress)
-
-            logger.info('Successfully created notebook %s' %notebook_name)
-            return {'status': 'success', 'message': 'Successfully created notebook %s' %notebook_name}
-        except:
-            logger.error('Error creating notebook %s' %notebook_name)
-            return {'status': 'warning', 'message': 'Error creating notebook %s' %notebook_name}
-    else: 
-        return {'status': 'warning', 'message': 'Docker image %s is not supported' %image}
+        logger.info('Successfully created notebook %s' %notebook_name)
+        return {'status': 'success', 'message': 'Successfully created notebook %s' %notebook_name}
+    except:
+        logger.error('Error creating notebook %s' %notebook_name)
+        return {'status': 'warning', 'message': 'Error creating notebook %s' %notebook_name}
 
 def get_creation_date(namespace, pod):
     try:

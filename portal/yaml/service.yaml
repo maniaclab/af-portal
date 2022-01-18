@@ -1,0 +1,30 @@
+{% if image == 'ivukotic/ml_platform_auto:latest' or image == 'ivukotic/ml_platform_auto:conda' %}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    instance: {{notebook_name}}
+    k8s-app: privatejupyter
+  name: {{notebook_name}}
+  namespace: {{namespace}}
+spec:
+  ports:
+  - port: 80
+    targetPort: 9999
+  selector:
+    instance: {{notebook_name}}
+  type: NodePort
+{% elif image == 'jupyter/minimal-notebook:latest' %}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{notebook_name}}
+  namespace: {{namespace}}
+spec:
+  selector:
+    instance: {{notebook_name}}
+  ports:
+  - protocol: "TCP"
+    port: 8888
+    targetPort: 8888
+{% endif %}
