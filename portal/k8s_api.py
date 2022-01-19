@@ -174,9 +174,11 @@ def has_notebook_expired(namespace, pod):
     return False
 
 def get_notebook_status(namespace, pod):
+    if pod.metadata.deletion_timestamp:
+        return '--'
     try: 
         notebook_name = pod.metadata.name
-        if pod.status.phase == 'Running':
+        if get_pod_status(namespace, pod) == 'Running':
             core_v1_api = client.CoreV1Api()
             log = core_v1_api.read_namespaced_pod_log(notebook_name, namespace=namespace)
             if re.search("Jupyter Notebook.*is running at.*", log):
@@ -187,9 +189,17 @@ def get_notebook_status(namespace, pod):
         logger.error('Error getting status for notebook %s' %notebook_name)
     return 'Not ready'
 
-def get_certificate_status(namespace, notebook_name):
+def get_pod_status(namespace, pod):
+    if pod.metadata.deletion_timestamp:
+        return 'Removing'
+    return pod.status.phase
+
+def get_certificate_status(namespace, pod):
+    if pod.metadata.deletion_timestamp:
+        return '--'
     try:
         net = client.NetworkingV1Api()
+        notebook_name = pod.metadata.name
         ingress = net.read_namespaced_ingress(notebook_name, namespace)
         secretName = ingress.spec.tls[0].secret_name
         objs = client.CustomObjectsApi()
@@ -229,9 +239,12 @@ def get_token(namespace, notebook_name):
         logger.error("Error getting secret for notebook %s" %notebook_name)
         return None
 
-def get_url(namespace, notebook_name):
+def get_url(namespace, pod):
+    if pod.metadata.deletion_timestamp:
+        return None
     try: 
         net = client.NetworkingV1Api()
+        notebook_name = pod.metadata.name
         ingress = net.read_namespaced_ingress(notebook_name, namespace)
         # logger.info("Read ingress for notebook %s" %notebook_name)
         url = 'https://' + ingress.spec.rules[0].host
@@ -243,7 +256,7 @@ def get_url(namespace, notebook_name):
         logger.info("URL for notebook %s is %s" %(notebook_name, url))
         return url
     except:
-        logger.error('Error reading ingress for pod %s' %notebook_name)
+        logger.error('Error getting URL for pod %s' %notebook_name)
         return None
 
 def get_pods(namespace):
@@ -262,7 +275,7 @@ def get_user_pods(namespace, username):
         pods = core_v1_api.list_namespaced_pod(namespace)
         for pod in pods.items:
             try: 
-                if pod.metadata.labels['owner'] == username:     
+                if pod.metadata.labels['owner'] == username:   
                     user_pods.append(pod)
             except:
                 logger.info('Error processing pod %s' %pod.metadata.name)
@@ -276,17 +289,18 @@ def get_notebooks(namespace, username):
     notebooks = []
     for pod in user_pods:
         try: 
+            # logger.info(pod)
             name = pod.metadata.name
             # logger.info("Read name for pod %s in namespace %s" %(name, namespace))
-            url = get_url(namespace, name)
+            url = get_url(namespace, pod)
             # logger.info("Read URL for notebook %s" %name)
             creation_date = get_creation_timestamp(namespace, pod)
             # logger.info("Creation timestamp for notebook %s: %d" %(name, creation_date))
             expiration_date = get_expiration_timestamp(namespace, pod)
             # logger.info("Expiration timestamp for notebook %s: %d" %(name, expiration_date))
-            pod_status = pod.status.phase
+            pod_status = get_pod_status(namespace, pod)
             # logger.info("Pod status for notebook %s: %s" %(name, pod_status))
-            cert_status = get_certificate_status(namespace, name)
+            cert_status = get_certificate_status(namespace, pod)
             # logger.info("Certificate status for notebook %s: %s" %(name, cert_status))
             notebook_status = get_notebook_status(namespace, pod)
             # logger.info("Notebook status for notebook %s: %s" %(name, notebook_status))
@@ -315,7 +329,9 @@ def remove_notebook(namespace, notebook_name):
         logger.info(resp)
         core_v1_api.delete_namespaced_service(notebook_name, namespace)
         networking_v1_api.delete_namespaced_ingress(notebook_name, namespace)
-        logger.info("Removed notebook %s in namespace %s" %(notebook_name, namespace))
+        if has_token(namespace, notebook_name):
+            core_v1_api.delete_namespaced_secret(notebook_name, namespace)
+        logger.info("Removing notebook %s in namespace %s" %(notebook_name, namespace))
         return True
     except:
         logger.error("Error removing notebook %s in namespace %s" %(notebook_name, namespace))
@@ -332,8 +348,8 @@ def remove_user_notebook(namespace, notebook_name, username):
             networking_v1_api.delete_namespaced_ingress(notebook_name, namespace)
             if has_token(namespace, notebook_name):
                 core_v1_api.delete_namespaced_secret(notebook_name, namespace)
-            logger.info('Successfully removed notebook %s' %notebook_name)
-            return status_msg('success', 'Successfully removed notebook %s' %notebook_name)
+            logger.info('Removing notebook %s' %notebook_name)
+            return status_msg('success', 'Removing notebook %s' %notebook_name)
         else:
             logger.warning('Notebook %s does not belong to user %s' %(notebook_name, username))
             return status_msg('warning', 'Notebook %s does not belong to user %s' %(notebook_name, username))
