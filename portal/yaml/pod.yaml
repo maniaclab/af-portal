@@ -18,9 +18,11 @@ spec:
     - /ML_platform_tests/SetupPrivateJupyterLab.sh
     - {{password}}
     # - repo
+    {% if token and not password %}
     env:
     - name: "JUPYTER_TOKEN"
       value: {{token}}
+    {% endif %}
     image: {{image}}
     imagePullPolicy: Always
     ports:
