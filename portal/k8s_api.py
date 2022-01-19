@@ -69,14 +69,17 @@ def generate_token():
     b64_encoded = b64encode(token_bytes).decode()
     return b64_encoded
 
+def status_msg(status, message):
+    return {'status': status, 'message': message}
+
 def create_notebook(notebook_name, namespace, username, password, cpu, memory, image, time_duration):
     if not supports_image(image):
         logger.warning('Docker image %s is not suppported' %image)
-        return {'status': 'warning', 'message': 'Docker image %s is not supported' %image}
+        return status_msg('warning', 'Docker image %s is not supported' %image)
 
     if not name_available(namespace, notebook_name):
         logger.warning('The name %s is already taken in namespace %s' %(notebook_name, namespace))
-        return {'status': 'warning', 'message': 'The name %s is already taken in namespace %s' %(notebook_name, namespace)}
+        return status_msg('warning', 'The name %s is already taken in namespace %s' %(notebook_name, namespace))
 
     try:
         core_v1_api = client.CoreV1Api()
@@ -111,10 +114,10 @@ def create_notebook(notebook_name, namespace, username, password, cpu, memory, i
             logger.info("Created a secret to store token %s" %token)
 
         logger.info('Successfully created notebook %s' %notebook_name)
-        return {'status': 'success', 'message': 'Successfully created notebook %s' %notebook_name}
+        return status_msg('success', 'Successfully created notebook %s' %notebook_name)
     except:
         logger.error('Error creating notebook %s' %notebook_name)
-        return {'status': 'warning', 'message': 'Error creating notebook %s' %notebook_name}
+        return status_msg('warning', 'Error creating notebook %s' %notebook_name)
 
 def get_creation_date(namespace, pod):
     try:
@@ -313,10 +316,10 @@ def remove_user_notebook(namespace, notebook_name, username):
             core_v1_api.delete_namespaced_service(notebook_name, namespace)
             networking_v1_api.delete_namespaced_ingress(notebook_name, namespace)
             logger.info('Successfully removed notebook %s' %notebook_name)
-            return {'status': 'success', 'message': 'Successfully removed notebook %s' %notebook_name}
+            return status_msg('success', 'Successfully removed notebook %s' %notebook_name)
         else:
             logger.warning('Notebook %s does not belong to user %s' %(notebook_name, username))
-            return {'status': 'warning', 'message': 'Notebook %s does not belong to user %s' %(notebook_name, username)}
+            return status_msg('warning', 'Notebook %s does not belong to user %s' %(notebook_name, username))
     except:
         logger.error(f"Error deleting pod {notebook_name} in namespace {namespace}")
-        return {'status': 'warning', 'message': 'Error removing notebook %s' %notebook_name}
+        return status_msg('warning', 'Error removing notebook %s' %notebook_name)
