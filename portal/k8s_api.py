@@ -85,10 +85,10 @@ def create_notebook(notebook_name, namespace, username, password, cpu, memory, i
         core_v1_api = client.CoreV1Api()
         networking_v1_api = client.NetworkingV1Api()
         env = Environment(loader=FileSystemLoader("portal/yaml"), autoescape=select_autoescape())
-
-        logger.info("Using password based authentication") if password else logger.info("Using token based authentication")       
+      
         ph = passwd(password) if password else None
         token = None if password else generate_token()
+        logger.info("Using password based authentication") if password else logger.info("Using token based authentication")
             
         template = env.get_template("pod.yaml")
         pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, password=password, password_hash=ph, token=token, cpu=cpu, memory=memory, image=image, days=time_duration))
