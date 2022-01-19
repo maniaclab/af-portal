@@ -14,10 +14,10 @@ from portal import logger
 from portal import app
 
 templates = Environment(loader=FileSystemLoader("portal/yaml"), autoescape=select_autoescape())
+namespace = app.config.get("NAMESPACE")
 
 def load_kube_config():
     filename = app.config.get("KUBECONFIG")
-    namespace = app.config.get("NAMESPACE")
     try:
         if filename:
             config.load_kube_config(config_file = filename)
@@ -31,21 +31,21 @@ def load_kube_config():
         logger.error("Error loading kubeconfig")
         config.load_kube_config()
 
-def start_notebook_manager(namespace):
-    t = threading.Thread(target=manage_notebooks, args=(namespace,))
+def start_notebook_manager():
+    t = threading.Thread(target=manage_notebooks)
     t.start()
     logger.info("Started k8s notebook manager")
 
-def manage_notebooks(namespace):
+def manage_notebooks():
     time.sleep(60)
     while True:
-        pods = get_pods(namespace)
+        pods = get_pods()
         count = 0
         for pod in pods:
             notebook_name = pod.metadata.name
-            if has_notebook_expired(namespace, pod):
+            if has_notebook_expired(pod):
                 logger.info("Notebook %s in namespace %s has expired" %(notebook_name, namespace))
-                status = remove_notebook(namespace, notebook_name)
+                status = remove_notebook(notebook_name)
                 if status:
                     count += 1
         logger.info("Removed %d notebooks during management cycle (1 cycle per hour)" %count)
@@ -55,7 +55,7 @@ def supports_image(image):
     images = ['ivukotic/ml_platform_auto:latest', 'ivukotic/ml_platform_auto:conda', 'jupyter/minimal-notebook:latest']
     return image in images
 
-def name_available(namespace, notebook_name):
+def name_available(notebook_name):
     try: 
         core_v1_api = client.CoreV1Api()
         pods = core_v1_api.list_namespaced_pod(namespace, label_selector="instance=" + notebook_name)
@@ -74,21 +74,21 @@ def generate_token():
 def status_msg(status, message):
     return {'status': status, 'message': message}
 
-def create_pod(notebook_name, namespace, username, password, cpu, memory, image, time_duration, password_hash=None, token=None):
+def create_pod(notebook_name, username, password, cpu, memory, image, time_duration, password_hash=None, token=None):
     api = client.CoreV1Api()
     template = templates.get_template("pod.yaml")
     pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, password=password, password_hash=password_hash, token=token, cpu=cpu, memory=memory, image=image, days=time_duration))
     api.create_namespaced_pod(namespace=namespace, body=pod)
     logger.info("Created pod %s" %notebook_name)
 
-def create_service(namespace, notebook_name, image):
+def create_service(notebook_name, image):
     api = client.CoreV1Api()
     template = templates.get_template("service.yaml")
     service = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, image=image))
     api.create_namespaced_service(namespace=namespace, body=service)
     logger.info("Created service %s" %notebook_name)
 
-def create_ingress(namespace, notebook_name, username, image):
+def create_ingress(notebook_name, username, image):
     api = client.NetworkingV1Api()
     domain_name = app.config['DOMAIN_NAME']
     logger.info("Creating subdomain %s on domain %s" %(notebook_name, domain_name))
@@ -99,19 +99,19 @@ def create_ingress(namespace, notebook_name, username, image):
     api.create_namespaced_ingress(namespace=namespace,body=ingress)
     logger.info("Created ingress %s" %notebook_name)
 
-def create_secret(namespace, notebook_name, username, token):
+def create_secret(notebook_name, username, token):
     api = client.CoreV1Api()
     template = templates.get_template("secret.yaml")
     sec = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, token=token))
     api.create_namespaced_secret(namespace=namespace, body=sec)
     logger.info("Created secret %s to store token %s" %(notebook_name, token))
 
-def create_notebook(notebook_name, namespace, username, password, cpu, memory, image, time_duration):
+def create_notebook(notebook_name, username, password, cpu, memory, image, time_duration):
     if not supports_image(image):
         logger.warning('Docker image %s is not suppported' %image)
         return status_msg('warning', 'Docker image %s is not supported' %image)
 
-    if not name_available(namespace, notebook_name):
+    if not name_available(notebook_name):
         logger.warning('The name %s is already taken in namespace %s' %(notebook_name, namespace))
         return status_msg('warning', 'The name %s is already taken in namespace %s' %(notebook_name, namespace))
 
@@ -125,12 +125,12 @@ def create_notebook(notebook_name, namespace, username, password, cpu, memory, i
         logger.info("Using token based authentication for notebook %s" %notebook_name)
 
     try:            
-        create_pod(notebook_name, namespace, username, password, cpu, memory, image, time_duration, password_hash, token)
-        create_service(namespace, notebook_name, image)
-        create_ingress(namespace, notebook_name, username, image)
+        create_pod(notebook_name, username, password, cpu, memory, image, time_duration, password_hash, token)
+        create_service(notebook_name, image)
+        create_ingress(notebook_name, username, image)
 
         if token:
-            create_secret(namespace, notebook_name, username, token)
+            create_secret(notebook_name, username, token)
 
         logger.info('Successfully created notebook %s' %notebook_name)
         return status_msg('success', 'Successfully created notebook %s' %notebook_name)
@@ -138,20 +138,20 @@ def create_notebook(notebook_name, namespace, username, password, cpu, memory, i
         logger.error('Error creating notebook %s' %notebook_name)
         return status_msg('warning', 'Error creating notebook %s' %notebook_name)
 
-def get_creation_date(namespace, pod):
+def get_creation_date(pod):
     try:
         return pod.metadata.creation_timestamp
     except:
         logger.error('Error getting creation date for notebook %s in namespace %s' %(pod.metadata.name, namespace))
         return None
 
-def get_creation_timestamp(namespace, pod):
-    creation_date = get_creation_date(namespace, pod)
+def get_creation_timestamp(pod):
+    creation_date = get_creation_date(pod)
     if creation_date:
         return creation_date.timestamp()
     return -1
 
-def get_expiration_date(namespace, pod):
+def get_expiration_date(pod):
     try:
         if hasattr(pod.metadata, 'labels') and 'time2delete' in pod.metadata.labels:
             cr_ts = pod.metadata.creation_timestamp
@@ -165,24 +165,24 @@ def get_expiration_date(namespace, pod):
         logger.error('Error getting expiration date for notebook %s in namespace %s' %(pod.metadata.name, namespace))
     return None
 
-def get_expiration_timestamp(namespace, pod):
-    expiration_date = get_expiration_date(namespace, pod)
+def get_expiration_timestamp(pod):
+    expiration_date = get_expiration_date(pod)
     if expiration_date:
         return expiration_date.timestamp()
     return -1
 
-def has_notebook_expired(namespace, pod):
-    exp_date = get_expiration_date(namespace, pod)
+def has_notebook_expired(pod):
+    exp_date = get_expiration_date(pod)
     if exp_date:
         return datetime.datetime.now(timezone.utc) > exp_date
     return False
 
-def get_notebook_status(namespace, pod):
+def get_notebook_status(pod):
     if pod.metadata.deletion_timestamp:
         return '--'
     try: 
         notebook_name = pod.metadata.name
-        if get_pod_status(namespace, pod) == 'Running':
+        if get_pod_status(pod) == 'Running':
             core_v1_api = client.CoreV1Api()
             log = core_v1_api.read_namespaced_pod_log(notebook_name, namespace=namespace)
             if re.search("Jupyter Notebook.*is running at.*", log):
@@ -193,12 +193,12 @@ def get_notebook_status(namespace, pod):
         logger.error('Error getting status for notebook %s' %notebook_name)
     return 'Not ready'
 
-def get_pod_status(namespace, pod):
+def get_pod_status(pod):
     if pod.metadata.deletion_timestamp:
         return 'Removing'
     return pod.status.phase
 
-def get_certificate_status(namespace, pod):
+def get_certificate_status(pod):
     if pod.metadata.deletion_timestamp:
         return '--'
     try:
@@ -221,7 +221,7 @@ def get_certificate_status(namespace, pod):
         logger.error("Error getting certificate status for notebook %s" %notebook_name)
     return 'Unknown'
 
-def has_token(namespace, notebook_name):
+def has_token(notebook_name):
     try:
         api = client.CoreV1Api()
         secs = api.list_namespaced_secret(namespace)
@@ -233,7 +233,7 @@ def has_token(namespace, notebook_name):
         logger.error("Error getting secret for notebook %s" %notebook_name)
         return False
 
-def get_token(namespace, notebook_name):
+def get_token(notebook_name):
     try:
         api = client.CoreV1Api()
         sec = api.read_namespaced_secret(notebook_name, namespace)
@@ -243,7 +243,7 @@ def get_token(namespace, notebook_name):
         logger.error("Error getting secret for notebook %s" %notebook_name)
         return None
 
-def get_url(namespace, pod):
+def get_url(pod):
     if pod.metadata.deletion_timestamp:
         return None
     try: 
@@ -253,8 +253,8 @@ def get_url(namespace, pod):
         # logger.info("Read ingress for notebook %s" %notebook_name)
         url = 'https://' + ingress.spec.rules[0].host
         # logger.info("URL for notebook %s is %s" %(notebook_name, url))
-        if has_token(namespace, notebook_name):
-            token = get_token(namespace, notebook_name)
+        if has_token(notebook_name):
+            token = get_token(notebook_name)
             url += "?"
             url += urllib.parse.urlencode({'token': token})
         logger.info("URL for notebook %s is %s" %(notebook_name, url))
@@ -263,7 +263,7 @@ def get_url(namespace, pod):
         logger.error('Error getting URL for pod %s' %notebook_name)
         return None
 
-def get_pods(namespace):
+def get_pods():
     try:
         core_v1_api = client.CoreV1Api()
         pods = core_v1_api.list_namespaced_pod(namespace)
@@ -272,7 +272,7 @@ def get_pods(namespace):
     except:
         return None
 
-def get_user_pods(namespace, username):
+def get_user_pods(username):
     user_pods = []
     try:
         core_v1_api = client.CoreV1Api()
@@ -288,25 +288,25 @@ def get_user_pods(namespace, username):
     logger.info("Read %d pods from namespace %s for user %s" %(len(user_pods), namespace, username))
     return user_pods
 
-def get_notebooks(namespace, username):
-    user_pods = get_user_pods(namespace, username)
+def get_notebooks(username):
+    user_pods = get_user_pods(username)
     notebooks = []
     for pod in user_pods:
         try: 
             # logger.info(pod)
             name = pod.metadata.name
             # logger.info("Read name for pod %s in namespace %s" %(name, namespace))
-            url = get_url(namespace, pod)
+            url = get_url(pod)
             # logger.info("Read URL for notebook %s" %name)
-            creation_date = get_creation_timestamp(namespace, pod)
+            creation_date = get_creation_timestamp(pod)
             # logger.info("Creation timestamp for notebook %s: %d" %(name, creation_date))
-            expiration_date = get_expiration_timestamp(namespace, pod)
+            expiration_date = get_expiration_timestamp(pod)
             # logger.info("Expiration timestamp for notebook %s: %d" %(name, expiration_date))
-            pod_status = get_pod_status(namespace, pod)
+            pod_status = get_pod_status(pod)
             # logger.info("Pod status for notebook %s: %s" %(name, pod_status))
-            cert_status = get_certificate_status(namespace, pod)
+            cert_status = get_certificate_status(pod)
             # logger.info("Certificate status for notebook %s: %s" %(name, cert_status))
-            notebook_status = get_notebook_status(namespace, pod)
+            notebook_status = get_notebook_status(pod)
             # logger.info("Notebook status for notebook %s: %s" %(name, notebook_status))
             notebooks.append(
                 {'name': name, 
@@ -325,7 +325,7 @@ def get_notebooks(namespace, username):
         
     return notebooks
 
-def remove_notebook(namespace, notebook_name):
+def remove_notebook(notebook_name):
     try:
         core_v1_api = client.CoreV1Api()
         networking_v1_api = client.NetworkingV1Api()
@@ -333,7 +333,7 @@ def remove_notebook(namespace, notebook_name):
         logger.info(resp)
         core_v1_api.delete_namespaced_service(notebook_name, namespace)
         networking_v1_api.delete_namespaced_ingress(notebook_name, namespace)
-        if has_token(namespace, notebook_name):
+        if has_token(notebook_name):
             core_v1_api.delete_namespaced_secret(notebook_name, namespace)
         logger.info("Removing notebook %s in namespace %s" %(notebook_name, namespace))
         return True
@@ -341,7 +341,7 @@ def remove_notebook(namespace, notebook_name):
         logger.error("Error removing notebook %s in namespace %s" %(notebook_name, namespace))
         return False
 
-def remove_user_notebook(namespace, notebook_name, username):
+def remove_user_notebook(notebook_name, username):
     try:
         core_v1_api = client.CoreV1Api()
         networking_v1_api = client.NetworkingV1Api()
@@ -350,7 +350,7 @@ def remove_user_notebook(namespace, notebook_name, username):
             core_v1_api.delete_namespaced_pod(notebook_name, namespace)
             core_v1_api.delete_namespaced_service(notebook_name, namespace)
             networking_v1_api.delete_namespaced_ingress(notebook_name, namespace)
-            if has_token(namespace, notebook_name):
+            if has_token(notebook_name):
                 core_v1_api.delete_namespaced_secret(notebook_name, namespace)
             logger.info('Removing notebook %s' %notebook_name)
             return status_msg('success', 'Removing notebook %s' %notebook_name)

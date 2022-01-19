@@ -28,13 +28,12 @@ def deploy_jupyter_notebook():
     try:
         notebook_name = strip(request.form['notebook-name'])
         password = strip(request.form['notebook-password'])
-        namespace = app.config['NAMESPACE']
         username = session['unix_name']
         cpu = int(request.form['cpu']) 
         memory = int(request.form['memory']) 
         image = request.form['image']
         time_duration = int(request.form['time-duration'])
-        resp = k8s_api.create_notebook(notebook_name, namespace, username, password, f"{cpu}", f"{memory}Gi", image, f"{time_duration}")
+        resp = k8s_api.create_notebook(notebook_name, username, password, f"{cpu}", f"{memory}Gi", image, f"{time_duration}")
         flash(resp['message'], resp['status'])
     except:
         logger.error('Error creating Jupyter notebook')
@@ -46,9 +45,8 @@ def deploy_jupyter_notebook():
 def view_jupyter_notebooks():
     refresh = False
     try:
-        namespace = app.config['NAMESPACE']
         username = session['unix_name']
-        notebooks = k8s_api.get_notebooks(namespace, username)
+        notebooks = k8s_api.get_notebooks(username)
         for notebook in notebooks:
             if notebook['notebook_status'] != 'Ready' or notebook['pod_status'] != 'Running' or notebook['cert_status'] != 'Ready': 
                 refresh = True
@@ -59,15 +57,15 @@ def view_jupyter_notebooks():
     logger.info('Rendering template k8s_instance.html with refresh=%s' %refresh)
     return render_template("k8s_instances.html", instances=notebooks, refresh=refresh)
 
-@app.route("/jupyter/remove/<namespace>/<notebook_name>", methods=["GET"])
+@app.route("/jupyter/remove/<notebook_name>", methods=["GET"])
 @authenticated
-def remove_jupyter_notebook(namespace, notebook_name):
+def remove_jupyter_notebook(notebook_name):
     try:
         username = session['unix_name']
-        resp = k8s_api.remove_user_notebook(namespace, notebook_name, username)
+        resp = k8s_api.remove_user_notebook(notebook_name, username)
         flash(resp['message'], resp['status'])
     except:
         logger.error('Error removing Jupyter notebook')
-        flash('Error removing notebook %s in namespace %s' %(notebook_name, namespace), 'warning')
+        flash('Error removing notebook %s' %notebook_name, 'warning')
 
     return redirect(url_for("view_jupyter_notebooks"))
