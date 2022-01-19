@@ -129,10 +129,11 @@ def create_notebook(notebook_name, username, password, cpu, gpu, memory, image, 
     token = None
     if password:
         password_hash = passwd(password)
-        # logger.info("Using password based authentication for notebook %s" %notebook_name)
+        logger.info("Using password based authentication for notebook %s" %notebook_name)
     else:
         token = generate_token()
-        # logger.info("Using token based authentication for notebook %s" %notebook_name)
+        logger.info("Using token based authentication for notebook %s" %notebook_name)
+        logger.info("The token for %s is %s" %(notebook_name, token))
 
     try:            
         create_pod(notebook_name, username, password, cpu, memory, gpu, image, time_duration, password_hash, token)
@@ -142,8 +143,8 @@ def create_notebook(notebook_name, username, password, cpu, gpu, memory, image, 
         if token:
             create_secret(notebook_name, username, token)
 
-        logger.info('Successfully created notebook %s' %notebook_name)
-        return status_msg('success', 'Successfully created notebook %s' %notebook_name)
+        logger.info('Created notebook %s' %notebook_name)
+        return status_msg('success', 'Created notebook %s' %notebook_name)
     except:
         logger.error('Error creating notebook %s' %notebook_name)
         return status_msg('warning', 'Error creating notebook %s' %notebook_name)
