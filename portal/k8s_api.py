@@ -80,7 +80,6 @@ def create_pod(notebook_name, namespace, username, password, cpu, memory, image,
     pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, password=password, password_hash=password_hash, token=token, cpu=cpu, memory=memory, image=image, days=time_duration))
     api.create_namespaced_pod(namespace=namespace, body=pod)
     logger.info("Created pod %s" %notebook_name)
-    return token
 
 def create_service(namespace, notebook_name, image):
     api = client.CoreV1Api()
