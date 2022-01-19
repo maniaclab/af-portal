@@ -13,6 +13,8 @@ from notebook.auth.security import passwd
 from portal import logger
 from portal import app
 
+templates = Environment(loader=FileSystemLoader("portal/yaml"), autoescape=select_autoescape())
+
 def load_kube_config():
     try:
         filename = app.config.get("KUBECONFIG")
@@ -72,6 +74,35 @@ def generate_token():
 def status_msg(status, message):
     return {'status': status, 'message': message}
 
+def create_pod(notebook_name, namespace, username, password, cpu, memory, image, time_duration, password_hash=None, token=None):
+    api = client.CoreV1Api()
+    template = templates.get_template("pod.yaml")
+    pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, password=password, password_hash=password_hash, token=token, cpu=cpu, memory=memory, image=image, days=time_duration))
+    api.create_namespaced_pod(namespace=namespace, body=pod)
+    logger.info("Created pod %s" %notebook_name)
+    return token
+
+def create_service(namespace, notebook_name, image):
+    api = client.CoreV1Api()
+    template = templates.get_template("service.yaml")
+    service = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, image=image))
+    api.create_namespaced_service(namespace=namespace, body=service)
+    logger.info("Created service %s" %notebook_name)
+
+def create_ingress(namespace, notebook_name, username, image):
+    api = client.NetworkingV1Api()
+    template = templates.get_template("ingress.yaml")
+    ingress = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, image=image))
+    api.create_namespaced_ingress(namespace=namespace,body=ingress)
+    logger.info("Created ingress %s" %notebook_name)
+
+def create_secret(namespace, notebook_name, username, token):
+    api = client.CoreV1Api()
+    template = templates.get_template("secret.yaml")
+    sec = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, token=token))
+    api.create_namespaced_secret(namespace=namespace, body=sec)
+    logger.info("Created secret %s to store token %s" %(notebook_name, token))
+
 def create_notebook(notebook_name, namespace, username, password, cpu, memory, image, time_duration):
     if not supports_image(image):
         logger.warning('Docker image %s is not suppported' %image)
@@ -81,35 +112,22 @@ def create_notebook(notebook_name, namespace, username, password, cpu, memory, i
         logger.warning('The name %s is already taken in namespace %s' %(notebook_name, namespace))
         return status_msg('warning', 'The name %s is already taken in namespace %s' %(notebook_name, namespace))
 
-    try:
-        core_v1_api = client.CoreV1Api()
-        networking_v1_api = client.NetworkingV1Api()
-        env = Environment(loader=FileSystemLoader("portal/yaml"), autoescape=select_autoescape())
-      
-        ph = passwd(password) if password else None
-        token = None if password else generate_token()
-        logger.info("Using password based authentication") if password else logger.info("Using token based authentication")
-            
-        template = env.get_template("pod.yaml")
-        pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, password=password, password_hash=ph, token=token, cpu=cpu, memory=memory, image=image, days=time_duration))
-        core_v1_api.create_namespaced_pod(namespace=namespace, body=pod)
-        logger.info("Created pod %s" %notebook_name)
+    password_hash = None
+    token = None
+    if password:
+        password_hash = passwd(password)
+        logger.info("Using password based authentication for notebook %s" %notebook_name)
+    else:
+        token = generate_token()
+        logger.info("Using token based authentication for notebook %s" %notebook_name)
 
-        template = env.get_template("service.yaml")
-        service = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, image=image))
-        core_v1_api.create_namespaced_service(namespace=namespace, body=service)
-        logger.info("Created service %s" %notebook_name)
-
-        template = env.get_template("ingress.yaml")
-        ingress = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, image=image))
-        networking_v1_api.create_namespaced_ingress(namespace=namespace,body=ingress)
-        logger.info("Created ingress %s" %notebook_name)
+    try:            
+        create_pod(notebook_name, namespace, username, password, cpu, memory, image, time_duration, password_hash, token)
+        create_service(namespace, notebook_name, image)
+        create_ingress(namespace, notebook_name, username, image)
 
         if token:
-            template = env.get_template("secret.yaml")
-            sec = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, token=token))
-            core_v1_api.create_namespaced_secret(namespace=namespace, body=sec)
-            logger.info("Created a secret to store token %s" %token)
+            create_secret(namespace, notebook_name, username, token)
 
         logger.info('Successfully created notebook %s' %notebook_name)
         return status_msg('success', 'Successfully created notebook %s' %notebook_name)
@@ -313,6 +331,8 @@ def remove_user_notebook(namespace, notebook_name, username):
             core_v1_api.delete_namespaced_pod(notebook_name, namespace)
             core_v1_api.delete_namespaced_service(notebook_name, namespace)
             networking_v1_api.delete_namespaced_ingress(notebook_name, namespace)
+            if has_token(namespace, notebook_name):
+                core_v1_api.delete_namespaced_secret(notebook_name, namespace)
             logger.info('Successfully removed notebook %s' %notebook_name)
             return status_msg('success', 'Successfully removed notebook %s' %notebook_name)
         else:
