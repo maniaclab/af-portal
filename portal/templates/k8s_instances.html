@@ -46,7 +46,7 @@
                 <td>{{instance['cert_status']}}</td>
                 <td id="{{instance['name']}}_creation_date"></td>
                 <td id="{{instance['name']}}_expiration_date"></td>
-                {% if instance['pod_status'] != 'Removing' %}
+                {% if instance['notebook_status'] != 'Removing' %}
                 <td><a href="{{url_for('remove_jupyter_notebook', notebook_name=instance['name'])}}" onclick="loader()"><i class="bi bi-trash"></i></a></td>
                 {% else %}
                 <td><i class="bi bi-trash"></i></td>

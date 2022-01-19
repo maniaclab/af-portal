@@ -187,11 +187,16 @@ def has_notebook_expired(pod):
         return datetime.datetime.now(timezone.utc) > exp_date
     return False
 
-def get_notebook_status(pod):
+def is_notebook_closing(pod):
     if pod.metadata.deletion_timestamp:
-        return '--'
+        return True
+    return False
+
+def get_notebook_status(pod):
+    notebook_name = pod.metadata.name
     try: 
-        notebook_name = pod.metadata.name
+        if is_notebook_closing(pod):
+            return 'Removing'
         if get_pod_status(pod) == 'Running':
             core_v1_api = client.CoreV1Api()
             log = core_v1_api.read_namespaced_pod_log(notebook_name, namespace=namespace)
@@ -204,12 +209,12 @@ def get_notebook_status(pod):
     return 'Not ready'
 
 def get_pod_status(pod):
-    if pod.metadata.deletion_timestamp:
-        return 'Removing'
+    if is_notebook_closing(pod):
+        return '--'
     return pod.status.phase
 
 def get_certificate_status(pod):
-    if pod.metadata.deletion_timestamp:
+    if is_notebook_closing(pod):
         return '--'
     try:
         net = client.NetworkingV1Api()
@@ -253,7 +258,7 @@ def get_token(notebook_name):
         return None
 
 def get_url(pod):
-    if pod.metadata.deletion_timestamp:
+    if is_notebook_closing(pod):
         return None
     try: 
         net = client.NetworkingV1Api()
