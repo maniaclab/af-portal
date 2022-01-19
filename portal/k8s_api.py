@@ -16,9 +16,9 @@ from portal import app
 templates = Environment(loader=FileSystemLoader("portal/yaml"), autoescape=select_autoescape())
 
 def load_kube_config():
+    filename = app.config.get("KUBECONFIG")
+    namespace = app.config.get("NAMESPACE")
     try:
-        filename = app.config.get("KUBECONFIG")
-        namespace = app.config.get("NAMESPACE")
         if filename:
             config.load_kube_config(config_file = filename)
             logger.info("Loaded kubeconfig from file %s" %filename)
@@ -90,8 +90,12 @@ def create_service(namespace, notebook_name, image):
 
 def create_ingress(namespace, notebook_name, username, image):
     api = client.NetworkingV1Api()
+    domain_name = app.config['DOMAIN_NAME']
+    logger.info("Creating subdomain %s on domain %s" %(notebook_name, domain_name))
+    ingress_class = app.config['INGRESS_CLASS']
+    logger.info("INGRESS_CLASS = %s" %ingress_class)
     template = templates.get_template("ingress.yaml")
-    ingress = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, image=image))
+    ingress = yaml.safe_load(template.render(domain_name=domain_name, ingress_class=ingress_class, namespace=namespace, notebook_name=notebook_name, username=username, image=image))
     api.create_namespaced_ingress(namespace=namespace,body=ingress)
     logger.info("Created ingress %s" %notebook_name)
 

@@ -5,7 +5,7 @@ metadata:
   annotations: 
     cert-manager.io/cluster-issuer: letsencrypt-prod
     certmanager.k8s.io/cluster-issuer: letsencrypt-prod
-    kubernetes.io/ingress.class: slate
+    kubernetes.io/ingress.class: {{ingress_class}}
   labels:
     instance: {{notebook_name}}
     k8s-app: privatejupyter
@@ -13,7 +13,7 @@ metadata:
   namespace: {{namespace}}
 spec:
   rules:
-  - host: {{notebook_name}}.uchicago-river-v2.slateci.net
+  - host: {{notebook_name}}.{{domain_name}}
     http:
       paths:
       - backend:
@@ -25,7 +25,7 @@ spec:
         pathType: Prefix
   tls:
   - hosts:
-    - {{notebook_name}}.uchicago-river-v2.slateci.net
+    - {{notebook_name}}.{{domain_name}}
     secretName: {{notebook_name}}-tls
 {% elif image == 'jupyter/minimal-notebook:latest' %}
 apiVersion: networking.k8s.io/v1
@@ -34,12 +34,12 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     certmanager.k8s.io/cluster-issuer: letsencrypt-prod
-    kubernetes.io/ingress.class: slate
+    kubernetes.io/ingress.class: {{ingress_class}}
   name: {{notebook_name}}
   namespace: {{namespace}}
 spec:
   rules:
-  - host: {{notebook_name}}.uchicago-river-v2.slateci.net
+  - host: {{notebook_name}}.{{domain_name}}
     http:
       paths:
       - backend:
@@ -51,6 +51,6 @@ spec:
         pathType: ImplementationSpecific
   tls:
   - hosts:
-    - {{notebook_name}}.uchicago-river-v2.slateci.net
+    - {{notebook_name}}.{{domain_name}}
     secretName: {{notebook_name}}-tls
 {% endif %}

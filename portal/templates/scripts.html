@@ -65,28 +65,60 @@
 
     // Local
     if(String(hostname).includes('local')){
+      // Global site tag (gtag.js) - Google Analytics
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-178331567-5');
 
-      connect_brand.src="{{url_for('static', filename='img/snowmass-connect-logo.png')}}";
-      nav_overview.href="https://snowmass21.org/montecarlo/energy";
-      nav_overview.innerText = "Energy Frontier"
-      nav_emailto.href="mailto:help@opensciencegrid.org";
+      connect_brand.src="{{url_for('static', filename='img/atlas-af-logo.png')}}";
+      nav_overview.href="https://usatlas.readthedocs.io/projects/af-docs/en/latest/";
+      nav_emailto.href="mailto:atlas-us-chicago-tier3-admins@cern.ch";
+      nav_overview.innerText = "External Docs";
+      // nav_overview.parentNode.removeChild(nav_overview);
+      // nav_emailto.parentNode.removeChild(nav_emailto);
+      if (document.getElementById("login-node-nav"))
+        document.getElementById("login-node-nav").style.display = "inline";
+      // Set the title
+      var title_login = "Login Nodes"
+      // Set the href property
+      var href_login = 'https://grafana.mwt2.org/d/m3teM9W7k/af-servers?orgId=1';
+      addDropdownItem(title_login, href_login);
+
+      var nav_link = document.getElementById("login-node-nav-link");
+      if (nav_link)
+        nav_link.innerText = 'Monitoring';
       var title = 'User Docs';
-      var href = 'https://maniaclab.uchicago.edu/snowmass-connect-docs/';
+      var href = 'https://maniaclab.uchicago.edu/analysis-facility-docs/';
       var id = 'support-dropdown'; 
       addDropdownItem(title, href, id);
-      try {
-        document.getElementById("instances-nav").style.display = "inline";
-      } catch(err) {
-        console.log("User is currently not logged in")
-      }
-      try {
-        document.getElementById("contributions").style.display = "inline";
-      } catch(err) {
-        console.log("Currently no contributions")
-      }
 
       var platformDropdown = document.getElementById("platforms-nav-dropdown");
       platformDropdown.style.display = 'list-item';
+
+      $('#footer-img').hide();
+      $('#af-footer-images').show();
+      // connect_brand.src="{{url_for('static', filename='img/snowmass-connect-logo.png')}}";
+      // nav_overview.href="https://snowmass21.org/montecarlo/energy";
+      // nav_overview.innerText = "Energy Frontier"
+      // nav_emailto.href="mailto:help@opensciencegrid.org";
+      // var title = 'User Docs';
+      // var href = 'https://maniaclab.uchicago.edu/snowmass-connect-docs/';
+      // var id = 'support-dropdown'; 
+      // addDropdownItem(title, href, id);
+      // try {
+      //   document.getElementById("instances-nav").style.display = "inline";
+      // } catch(err) {
+      //   console.log("User is currently not logged in")
+      // }
+      // try {
+      //   document.getElementById("contributions").style.display = "inline";
+      // } catch(err) {
+      //   console.log("Currently no contributions")
+      // }
+
+      // var platformDropdown = document.getElementById("platforms-nav-dropdown");
+      // platformDropdown.style.display = 'list-item';
     } else if(String(hostname).includes('atlas')){
       // Global site tag (gtag.js) - Google Analytics
       window.dataLayer = window.dataLayer || [];
