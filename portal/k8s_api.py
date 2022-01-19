@@ -15,18 +15,23 @@ from portal import app
 
 templates = Environment(loader=FileSystemLoader("portal/yaml"), autoescape=select_autoescape())
 namespace = app.config.get("NAMESPACE")
+gpu_available = app.config.get("GPU_AVAILABLE")
 
 def load_kube_config():
-    filename = app.config.get("KUBECONFIG")
     try:
+        filename = app.config.get("KUBECONFIG")
+        ingress_class = app.config.get("INGRESS_CLASS")
+        domain_name = app.config.get("DOMAIN_NAME")
         if filename:
             config.load_kube_config(config_file = filename)
             logger.info("Loaded kubeconfig from file %s" %filename)
-            logger.info("Using namespace %s" %namespace)
         else:
             config.load_kube_config()
             logger.info("Loaded default kubeconfig file")
-            logger.info("Using namespace %s" %namespace)
+        logger.info("Using namespace %s" %namespace)
+        logger.info("Using domain name %s" %domain_name)
+        logger.info("GPU is available as a resource" if gpu_available == 'True' else "GPU is not available as a resource")
+        logger.info("Using kubernetes.io/ingress.class %s" %ingress_class)
     except:
         logger.error("Error loading kubeconfig")
         config.load_kube_config()
@@ -52,7 +57,13 @@ def manage_notebooks():
         time.sleep(3600)
 
 def supports_image(image):
-    images = ['ivukotic/ml_platform_auto:latest', 'ivukotic/ml_platform_auto:conda', 'jupyter/minimal-notebook:latest']
+    images = [
+        'ivukotic/ml_platform:latest', 
+        'ivukotic/ml_platform:conda', 
+        'ivukotic/ml_platform_auto:latest', 
+        'ivukotic/ml_platform_auto:conda', 
+        'jupyter/minimal-notebook:latest'
+    ]
     return image in images
 
 def name_available(notebook_name):
@@ -74,39 +85,38 @@ def generate_token():
 def status_msg(status, message):
     return {'status': status, 'message': message}
 
-def create_pod(notebook_name, username, password, cpu, memory, image, time_duration, password_hash=None, token=None):
+def create_pod(notebook_name, username, password, cpu, memory, gpu, image, time_duration, password_hash=None, token=None):
     api = client.CoreV1Api()
     template = templates.get_template("pod.yaml")
-    pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, password=password, password_hash=password_hash, token=token, cpu=cpu, memory=memory, image=image, days=time_duration))
+    pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, password=password, password_hash=password_hash, token=token, cpu=cpu, memory=memory, gpu=gpu, gpu_available=gpu_available, image=image, days=time_duration))
     api.create_namespaced_pod(namespace=namespace, body=pod)
-    logger.info("Created pod %s" %notebook_name)
+    # logger.info("Created pod %s" %notebook_name)
 
 def create_service(notebook_name, image):
     api = client.CoreV1Api()
     template = templates.get_template("service.yaml")
     service = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, image=image))
     api.create_namespaced_service(namespace=namespace, body=service)
-    logger.info("Created service %s" %notebook_name)
+    # logger.info("Created service %s" %notebook_name)
 
 def create_ingress(notebook_name, username, image):
     api = client.NetworkingV1Api()
     domain_name = app.config['DOMAIN_NAME']
-    logger.info("Creating subdomain %s on domain %s" %(notebook_name, domain_name))
+    # logger.info("Creating subdomain %s on domain %s" %(notebook_name, domain_name))
     ingress_class = app.config['INGRESS_CLASS']
-    logger.info("INGRESS_CLASS = %s" %ingress_class)
     template = templates.get_template("ingress.yaml")
     ingress = yaml.safe_load(template.render(domain_name=domain_name, ingress_class=ingress_class, namespace=namespace, notebook_name=notebook_name, username=username, image=image))
     api.create_namespaced_ingress(namespace=namespace,body=ingress)
-    logger.info("Created ingress %s" %notebook_name)
+    # logger.info("Created ingress %s" %notebook_name)
 
 def create_secret(notebook_name, username, token):
     api = client.CoreV1Api()
     template = templates.get_template("secret.yaml")
     sec = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, token=token))
     api.create_namespaced_secret(namespace=namespace, body=sec)
-    logger.info("Created secret %s to store token %s" %(notebook_name, token))
+    # logger.info("Created secret %s to store token %s" %(notebook_name, token))
 
-def create_notebook(notebook_name, username, password, cpu, memory, image, time_duration):
+def create_notebook(notebook_name, username, password, cpu, gpu, memory, image, time_duration):
     if not supports_image(image):
         logger.warning('Docker image %s is not suppported' %image)
         return status_msg('warning', 'Docker image %s is not supported' %image)
@@ -119,13 +129,13 @@ def create_notebook(notebook_name, username, password, cpu, memory, image, time_
     token = None
     if password:
         password_hash = passwd(password)
-        logger.info("Using password based authentication for notebook %s" %notebook_name)
+        # logger.info("Using password based authentication for notebook %s" %notebook_name)
     else:
         token = generate_token()
-        logger.info("Using token based authentication for notebook %s" %notebook_name)
+        # logger.info("Using token based authentication for notebook %s" %notebook_name)
 
     try:            
-        create_pod(notebook_name, username, password, cpu, memory, image, time_duration, password_hash, token)
+        create_pod(notebook_name, username, password, cpu, memory, gpu, image, time_duration, password_hash, token)
         create_service(notebook_name, image)
         create_ingress(notebook_name, username, image)
 
@@ -185,7 +195,7 @@ def get_notebook_status(pod):
         if get_pod_status(pod) == 'Running':
             core_v1_api = client.CoreV1Api()
             log = core_v1_api.read_namespaced_pod_log(notebook_name, namespace=namespace)
-            if re.search("Jupyter Notebook.*is running at.*", log):
+            if re.search("Jupyter Notebook.*is running at.*", log) or re.search("Jupyter Server.*is running at.*", log):
                 return 'Ready'
             else:
                 return 'Loading'
@@ -237,7 +247,6 @@ def get_token(notebook_name):
     try:
         api = client.CoreV1Api()
         sec = api.read_namespaced_secret(notebook_name, namespace)
-        logger.info("Got secret for notebook %s" %notebook_name)
         return sec.data['token']
     except:
         logger.error("Error getting secret for notebook %s" %notebook_name)
@@ -250,14 +259,12 @@ def get_url(pod):
         net = client.NetworkingV1Api()
         notebook_name = pod.metadata.name
         ingress = net.read_namespaced_ingress(notebook_name, namespace)
-        # logger.info("Read ingress for notebook %s" %notebook_name)
         url = 'https://' + ingress.spec.rules[0].host
-        # logger.info("URL for notebook %s is %s" %(notebook_name, url))
         if has_token(notebook_name):
             token = get_token(notebook_name)
             url += "?"
             url += urllib.parse.urlencode({'token': token})
-        logger.info("URL for notebook %s is %s" %(notebook_name, url))
+        # logger.info("URL for notebook %s is %s" %(notebook_name, url))
         return url
     except:
         logger.error('Error getting URL for pod %s' %notebook_name)
@@ -267,7 +274,7 @@ def get_pods():
     try:
         core_v1_api = client.CoreV1Api()
         pods = core_v1_api.list_namespaced_pod(namespace)
-        logger.info("Read %d pods from namespace %s" %(len(pods.items), namespace))
+        # logger.info("Read %d pods from namespace %s" %(len(pods.items), namespace))
         return pods.items
     except:
         return None
@@ -285,7 +292,7 @@ def get_user_pods(username):
                 logger.info('Error processing pod %s' %pod.metadata.name)
     except:
         logger.error('Error getting pods')
-    logger.info("Read %d pods from namespace %s for user %s" %(len(user_pods), namespace, username))
+    # logger.info("Read %d pods from namespace %s for user %s" %(len(user_pods), namespace, username))
     return user_pods
 
 def get_notebooks(username):
@@ -319,7 +326,7 @@ def get_notebooks(username):
                 'creation_date': creation_date,
                 'expiration_date': expiration_date}
             )
-            logger.info("Retrieved notebook %s in namespace %s" %(name, namespace))
+            # logger.info("Retrieved notebook %s in namespace %s" %(name, namespace))
         except:
             logger.error('Error processing Jupyter notebook %s' %pod.metadata.name)
         
@@ -329,8 +336,7 @@ def remove_notebook(notebook_name):
     try:
         core_v1_api = client.CoreV1Api()
         networking_v1_api = client.NetworkingV1Api()
-        resp = core_v1_api.delete_namespaced_pod(notebook_name, namespace)
-        logger.info(resp)
+        core_v1_api.delete_namespaced_pod(notebook_name, namespace)
         core_v1_api.delete_namespaced_service(notebook_name, namespace)
         networking_v1_api.delete_namespaced_ingress(notebook_name, namespace)
         if has_token(notebook_name):

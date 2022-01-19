@@ -1,4 +1,4 @@
-{% if image == 'ivukotic/ml_platform_auto:latest' or image == 'ivukotic/ml_platform_auto:conda' %}
+{% if image == 'ivukotic/ml_platform:latest' or image == 'ivukotic/ml_platform:conda' %}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:

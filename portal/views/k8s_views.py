@@ -31,13 +31,14 @@ def deploy_jupyter_notebook():
         username = session['unix_name']
         cpu = int(request.form['cpu']) 
         memory = int(request.form['memory']) 
+        gpu = int(request.form['gpu'])
         image = request.form['image']
         time_duration = int(request.form['time-duration'])
-        resp = k8s_api.create_notebook(notebook_name, username, password, f"{cpu}", f"{memory}Gi", image, f"{time_duration}")
+        resp = k8s_api.create_notebook(notebook_name, username, password, f"{cpu}", f"{memory}Gi", f"{gpu}", image, f"{time_duration}")
         flash(resp['message'], resp['status'])
     except:
         logger.error('Error creating Jupyter notebook')
-        flash('Error creating Jupyter notebook %s in namespace %s' %(notebook_name, namespace), 'warning')
+        flash('Error creating Jupyter notebook %s' %notebook_name, 'warning')
     return redirect(url_for("view_jupyter_notebooks"))
 
 @app.route("/jupyter/view", methods=["GET"])
