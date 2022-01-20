@@ -281,7 +281,9 @@ def get_pods():
         core_v1_api = client.CoreV1Api()
         pods = core_v1_api.list_namespaced_pod(namespace)
         # logger.info("Read %d pods from namespace %s" %(len(pods.items), namespace))
-        return pods.items
+        if pods.items:
+            return pods.items
+        return []
     except:
         return None
 
