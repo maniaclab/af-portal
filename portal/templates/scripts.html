@@ -79,24 +79,7 @@ $(document).ready(function() {
     } catch(err) {
       console.log("Currently no contributions")
     }
-  } else if(String(hostname).includes('psd')) {
-    // Global site tag (gtag.js) - Google Analytics
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'UA-178331567-8');
-
-    connect_brand.src="{{url_for('static', filename='img/psd-connect-logo.png')}}";
-    nav_overview.href="https://physicalsciences.uchicago.edu/";
-    nav_emailto.href="mailto:support@ci-connect.uchicago.edu";
-    // nav_bar.classList.add("psd-uchicago");
-    document.getElementById("login-node-nav").style.display = "inline";
-    // Set the title
-    var title = "UChicago CI Connect"
-    // Set the href property
-    var href = 'https://gracc.opensciencegrid.org/dashboard/db/osg-connect-summary-uchicago-ci?orgId=1';
-    addDropdownItem(title, href);
-  }
+  } 
 
   var openAtlasPortal = function() {
     document.title = 'Atlas ' + document.title;
