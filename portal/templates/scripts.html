@@ -1,337 +1,255 @@
 <script type="text/javascript">
 
-  function addDropdownItem(title, href, id=null) {
-    if(id === null){
-      var dropdown = document.getElementById("login-node-dropdown");
-    } else {
-      var dropdown = document.getElementById(id);
-    }
-    // var dropdown = document.getElementById("login-node-dropdown");
-    // Create anchor element
+$(document).ready(function() {
+  const pathname = window.location.pathname;
+  const pathsplit = pathname.split('/')
+  const hostname = window.location.hostname
+  const connect_name = hostname.split('.')[0];
+
+  const connect_brand = document.getElementById("connect-brand");
+  const nav_overview = document.getElementById("nav-overview");
+  const nav_emailto = document.getElementById("nav-email");
+  const nav_handbook = document.getElementById("nav-handbook");
+  const nav_bar = document.getElementById("nav-main");
+
+  var addDropdownItem = function(title, href, id=null) {
+    var dropdown = null;
+    if (id === null) 
+      dropdown = document.getElementById("login-node-dropdown");
+    else 
+      dropdown = document.getElementById(id);
+
     var a = document.createElement('a');
-    // Create the text node for achor element
     var link = document.createTextNode(title);
-    // Append the text node to anchor element.
     a.appendChild(link);
-    // Set the title
     a.title = title;
-    // Set the href property
     a.href = href;
     a.className = 'dropdown-item';
     a.target = '_blank';
-    // Append the anchor element to the body
     if (dropdown)
         dropdown.prepend(a);
   };
 
-  $(document).ready(function() {
-    // get current URL path and assign 'active' class
-    const pathname = window.location.pathname;
-    const pathsplit = pathname.split('/')
-    const hostname = window.location.hostname
-    const connect_name = hostname.split('.')[0];
+  var openAfPortal = function() {
+    document.title = 'ATLAS Analysis Facility at UChicago';
+    // Global site tag (gtag.js) - Google Analytics
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-178331567-5');
+    connect_brand.src="{{url_for('static', filename='img/atlas-af-logo.png')}}";
+    $('#login-node-nav').css('display', 'inline');
+    $('#login-node-nav-link').html('Monitoring');
+    $('#platforms-nav-dropdown').css('display', 'list-item');
+    $('#nav-user-docs').show();
+    $('#nav-external-docs').show();
+    $('#nav-email').attr('href', 'mailto:atlas-us-chicago-tier3-admins@cern.ch')
+    $('#nav-overview').hide();
+    $('#nav-handbook').hide();
+    var title_login = "Login Nodes"
+    var href_login = 'https://grafana.mwt2.org/d/m3teM9W7k/af-servers?orgId=1';
+    addDropdownItem(title_login, href_login);
+    $('#footer-img').hide();
+    $('#af-footer-images').show();
+  };
 
-    const connect_brand = document.getElementById("connect-brand");
-    const nav_overview = document.getElementById("nav-overview");
-    const nav_emailto = document.getElementById("nav-email");
-    const nav_handbook = document.getElementById("nav-handbook");
-    const nav_bar = document.getElementById("nav-main");
-
-    if(connect_name === 'www') {
-      document.title = 'CI-' + document.title;
-    } else if(String(hostname).includes('connect.uchicago.edu')) {
-      document.title = 'PSD ' + document.title;
-    } else if(String(hostname).includes('connect.usatlas')){
-      document.title = 'Atlas ' + document.title;
-    } else if(String(hostname).includes('af.uchicago')){
-      document.title = 'ATLAS Analysis Facility at UChicago';
-    } else if(String(hostname).includes('www-test.ci-connect.net')){
-      document.title = 'ATLAS Analysis Facility at UChicago';
-    } else if(String(hostname).includes('connect.uscms')) {
-      document.title = 'Cms ' + document.title;
-    } else if(String(hostname).includes('connect.snowmass21.io')) {
-      document.title = 'Snowmass21 ' + document.title;
-    } else {
-      document.title = connect_name.charAt(0).toUpperCase() + connect_name.slice(1) + ' ' + document.title;
-    };
-
-    if(pathsplit.length > 1){
-      var parentpath = pathsplit[1];
-      $('nav > ul > li > a[href="/'+parentpath+'"]').parent().addClass('active');
-    } else {
-      // look to update the full a[href=''] uri below
-      $('nav > ul > li > a[href="'+pathname+'"]').parent().addClass('active');
+  var openSnowmassPortal = function() {
+    document.title = 'Snowmass21 ' + document.title;
+    // Global site tag (gtag.js) - Google Analytics
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-178331567-1');
+    
+    connect_brand.src="{{url_for('static', filename='img/snowmass-connect-logo.png')}}";
+    nav_overview.href="https://snowmass21.org/montecarlo/energy";
+    nav_overview.innerText = "Energy Frontier"
+    nav_emailto.href="mailto:help@opensciencegrid.org";
+    var title = 'User Docs';
+    var href = 'https://maniaclab.uchicago.edu/snowmass-connect-docs/';
+    var id = 'support-dropdown'; 
+    addDropdownItem(title, href, id);
+    try {
+      document.getElementById("instances-nav").style.display = "inline";
+    } catch(err) {
+      console.log("User is currently not logged in")
     }
+    try {
+      document.getElementById("contributions").style.display = "inline";
+    } catch(err) {
+      console.log("Currently no contributions")
+    }
+  } else if(String(hostname).includes('psd')) {
+    // Global site tag (gtag.js) - Google Analytics
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-178331567-8');
 
-    // Local
-    if(String(hostname).includes('local')){
-      // Global site tag (gtag.js) - Google Analytics
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-178331567-5');
+    connect_brand.src="{{url_for('static', filename='img/psd-connect-logo.png')}}";
+    nav_overview.href="https://physicalsciences.uchicago.edu/";
+    nav_emailto.href="mailto:support@ci-connect.uchicago.edu";
+    // nav_bar.classList.add("psd-uchicago");
+    document.getElementById("login-node-nav").style.display = "inline";
+    // Set the title
+    var title = "UChicago CI Connect"
+    // Set the href property
+    var href = 'https://gracc.opensciencegrid.org/dashboard/db/osg-connect-summary-uchicago-ci?orgId=1';
+    addDropdownItem(title, href);
+  }
 
-      connect_brand.src="{{url_for('static', filename='img/atlas-af-logo.png')}}";
-      nav_overview.href="https://usatlas.readthedocs.io/projects/af-docs/en/latest/";
-      nav_emailto.href="mailto:atlas-us-chicago-tier3-admins@cern.ch";
-      nav_overview.innerText = "External Docs";
-      // nav_overview.parentNode.removeChild(nav_overview);
-      // nav_emailto.parentNode.removeChild(nav_emailto);
-      if (document.getElementById("login-node-nav"))
-        document.getElementById("login-node-nav").style.display = "inline";
-      // Set the title
-      var title_login = "Login Nodes"
-      // Set the href property
-      var href_login = 'https://grafana.mwt2.org/d/m3teM9W7k/af-servers?orgId=1';
-      addDropdownItem(title_login, href_login);
+  var openAtlasPortal = function() {
+    document.title = 'Atlas ' + document.title;
+    // Global site tag (gtag.js) - Google Analytics
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-178331567-5');
 
-      var nav_link = document.getElementById("login-node-nav-link");
-      if (nav_link)
-        nav_link.innerText = 'Monitoring';
-      var title = 'User Docs';
-      var href = 'https://maniaclab.uchicago.edu/analysis-facility-docs/';
-      var id = 'support-dropdown'; 
-      addDropdownItem(title, href, id);
+    connect_brand.src="{{url_for('static', filename='img/atlas-connect-logo.png')}}";
+    nav_overview.href="https://ci-connect.atlassian.net/wiki/spaces/AC/overview";
+    nav_handbook.href="https://ci-connect.atlassian.net/wiki/spaces/AC/pages/1114129/ATLAS+Connect+Quickstart";
+    nav_emailto.href="mailto:atlas-connect-l@lists.bnl.gov";
+    document.getElementById("login-node-nav").style.display = "inline";
+    // Set the title and href property
+    var title = 'login.usatlas.org'
+    var href = 'https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=login_usatlas_org'
+    // Call method to create dropdown menu item
+    addDropdownItem(title, href);
+  }
 
-      var platformDropdown = document.getElementById("platforms-nav-dropdown");
-      platformDropdown.style.display = 'list-item';
+  var openCmsPortal = function() {
+    document.title = 'Cms ' + document.title;
+    // Global site tag (gtag.js) - Google Analytics
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-178331567-4');
 
-      $('#footer-img').hide();
-      $('#af-footer-images').show();
-      // connect_brand.src="{{url_for('static', filename='img/snowmass-connect-logo.png')}}";
-      // nav_overview.href="https://snowmass21.org/montecarlo/energy";
-      // nav_overview.innerText = "Energy Frontier"
-      // nav_emailto.href="mailto:help@opensciencegrid.org";
-      // var title = 'User Docs';
-      // var href = 'https://maniaclab.uchicago.edu/snowmass-connect-docs/';
-      // var id = 'support-dropdown'; 
-      // addDropdownItem(title, href, id);
-      // try {
-      //   document.getElementById("instances-nav").style.display = "inline";
-      // } catch(err) {
-      //   console.log("User is currently not logged in")
-      // }
-      // try {
-      //   document.getElementById("contributions").style.display = "inline";
-      // } catch(err) {
-      //   console.log("Currently no contributions")
-      // }
+    connect_brand.src="{{url_for('static', filename='img/cms-connect-logo.png')}}";
+    nav_overview.href="https://ci-connect.atlassian.net/wiki/spaces/CMS/overview";
+    nav_emailto.href="mailto:cms-connect-support@cern.ch";
+    document.getElementById("login-node-nav").style.display = "inline";
+    // Set the title and href property
+    var title = 'login.uscms.org';
+    var href = 'https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=login_uscms_org';
+    // Call method to create dropdown menu item
+    addDropdownItem(title, href);
 
-      // var platformDropdown = document.getElementById("platforms-nav-dropdown");
-      // platformDropdown.style.display = 'list-item';
-    } else if(String(hostname).includes('atlas')){
-      // Global site tag (gtag.js) - Google Analytics
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-178331567-5');
+    document.getElementById("nav-handbook").style.display = "inline";
+    document.getElementById("nav-handbook").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/pages/22609980/Introduction+to+CMS+Connect";
+  }
 
-      connect_brand.src="{{url_for('static', filename='img/atlas-connect-logo.png')}}";
-      nav_overview.href="https://ci-connect.atlassian.net/wiki/spaces/AC/overview";
-      nav_handbook.href="https://ci-connect.atlassian.net/wiki/spaces/AC/pages/1114129/ATLAS+Connect+Quickstart";
-      nav_emailto.href="mailto:atlas-connect-l@lists.bnl.gov";
-      document.getElementById("login-node-nav").style.display = "inline";
-      // Set the title and href property
-      var title = 'login.usatlas.org'
-      var href = 'https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=login_usatlas_org'
-      // Call method to create dropdown menu item
-      addDropdownItem(title, href);
+  var openPsdPortal = function() {
+    document.title = 'PSD ' + document.title;
+    // Global site tag (gtag.js) - Google Analytics
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-178331567-8');
 
-    } else if(String(hostname).includes('cms')){
-      // Global site tag (gtag.js) - Google Analytics
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-178331567-4');
+    connect_brand.src="{{url_for('static', filename='img/psd-connect-logo.png')}}";
+    nav_overview.href="https://physicalsciences.uchicago.edu/";
+    nav_emailto.href="mailto:support@ci-connect.uchicago.edu";
+    // nav_bar.classList.add("psd-uchicago");
+    document.getElementById("login-node-nav").style.display = "inline";
+    // Set the title
+    var title = "UChicago CI Connect"
+    // Set the href property
+    var href = 'https://gracc.opensciencegrid.org/dashboard/db/osg-connect-summary-uchicago-ci?orgId=1';
+    addDropdownItem(title, href);
+  }
 
-      connect_brand.src="{{url_for('static', filename='img/cms-connect-logo.png')}}";
-      nav_overview.href="https://ci-connect.atlassian.net/wiki/spaces/CMS/overview";
-      nav_emailto.href="mailto:cms-connect-support@cern.ch";
-      document.getElementById("login-node-nav").style.display = "inline";
-      // Set the title and href property
-      var title = 'login.uscms.org';
-      var href = 'https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=login_uscms_org';
-      // Call method to create dropdown menu item
-      addDropdownItem(title, href);
+  var openDukePortal = function() {
+    // Global site tag (gtag.js) - Google Analytics
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-178331567-7');
 
-      document.getElementById("nav-handbook").style.display = "inline";
-      document.getElementById("nav-handbook").href="https://ci-connect.atlassian.net/wiki/spaces/CMS/pages/22609980/Introduction+to+CMS+Connect";
+    connect_brand.src="{{url_for('static', filename='img/duke-connect-logo.png')}}";
+    nav_overview.href="https://rc.duke.edu/national-computing-labs/duke-ci-connect-quick-start/";
+    nav_emailto.href="mailto:scsc@duke.edu";
+    document.getElementById("login-node-nav").style.display = "inline";
+    // Set the title and href property
+    var title = 'login.duke.ci-connect.net'
+    var href = 'https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=login_duke_ci-connect_net'
+    // Call method to create dropdown menu item
+    addDropdownItem(title, href);
+  }
 
-    } else if(String(hostname).includes('duke')) {
-      // Global site tag (gtag.js) - Google Analytics
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-178331567-7');
+  var openSptPortal = function() {
+    // Global site tag (gtag.js) - Google Analytics
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-178331567-6');
 
-      connect_brand.src="{{url_for('static', filename='img/duke-connect-logo.png')}}";
-      nav_overview.href="https://rc.duke.edu/national-computing-labs/duke-ci-connect-quick-start/";
-      nav_emailto.href="mailto:scsc@duke.edu";
-      document.getElementById("login-node-nav").style.display = "inline";
-      // Set the title and href property
-      var title = 'login.duke.ci-connect.net'
-      var href = 'https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=login_duke_ci-connect_net'
-      // Call method to create dropdown menu item
-      addDropdownItem(title, href);
+    connect_brand.src="{{url_for('static', filename='img/spt-connect-logo.png')}}";
+    nav_overview.href="https://pole.uchicago.edu/index.php";
+    nav_emailto.href="mailto:jlstephen@uchicago.edu";
+    // nav_overview.parentNode.removeChild(nav_overview);
+    // nav_emailto.parentNode.removeChild(nav_emailto);
+    document.getElementById("login-node-nav").style.display = "inline";
+    // Set the title
+    var title = "amundsen.grid.uchicago.edu"
+    var title_scott = 'scott.grid.uchicago.edu'
+    var title_spt = 'SPT Storage'
+    // Set the href property
+    var href_amundsen = 'https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=amundsen_grid_uchicago_edu';
+    var href_scott = 'https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=scott_grid_uchicago_edu';
+    var href_spt = 'https://grafana.mwt2.org/d/0HbLiB_Wk/spt-storage?orgId=1&refresh=5m'
+    addDropdownItem(title, href_amundsen);
+    addDropdownItem(title_scott, href_scott);
+    addDropdownItem(title_spt, href_spt);
 
-    } else if(String(hostname).includes('spt'))  {
-      // Global site tag (gtag.js) - Google Analytics
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-178331567-6');
+    var nav_link = document.getElementById("login-node-nav-link");
+    nav_link.innerText = 'Monitoring';
+  }
 
-      connect_brand.src="{{url_for('static', filename='img/spt-connect-logo.png')}}";
-      nav_overview.href="https://pole.uchicago.edu/index.php";
-      nav_emailto.href="mailto:jlstephen@uchicago.edu";
-      // nav_overview.parentNode.removeChild(nav_overview);
-      // nav_emailto.parentNode.removeChild(nav_emailto);
-      document.getElementById("login-node-nav").style.display = "inline";
-      // Set the title
-      var title = "amundsen.grid.uchicago.edu"
-      var title_scott = 'scott.grid.uchicago.edu'
-      var title_spt = 'SPT Storage'
-      // Set the href property
-      var href_amundsen = 'https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=amundsen_grid_uchicago_edu';
-      var href_scott = 'https://grafana.mwt2.org/d/JiH0SAoZk/connect-servers?orgId=1&var-Server=scott_grid_uchicago_edu';
-      var href_spt = 'https://grafana.mwt2.org/d/0HbLiB_Wk/spt-storage?orgId=1&refresh=5m'
-      addDropdownItem(title, href_amundsen);
-      addDropdownItem(title_scott, href_scott);
-      addDropdownItem(title_spt, href_spt);
+  var openDefaultPortal = function() {
+    document.title = connect_name.charAt(0).toUpperCase() + connect_name.slice(1) + ' ' + document.title;
+    // Global site tag (gtag.js) - Google Analytics
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-178331567-3');
+    connect_brand.src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
+    nav_overview.parentNode.removeChild(nav_overview);
+    nav_emailto.parentNode.removeChild(nav_emailto);
+    document.getElementById("about").style.display = "inline";
+    // Remove footer for CI Connect
+    var footer_element = document.getElementById("footer-container");
+    footer_element.parentNode.removeChild(footer_element);
+  }
 
-      var nav_link = document.getElementById("login-node-nav-link");
-      nav_link.innerText = 'Monitoring';
-    } else if(String(hostname).includes('af.uchicago'))  {
-      // Global site tag (gtag.js) - Google Analytics
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-178331567-5');
+  if (String(hostname).includes('connect.uchicago.edu')) {
+    openPsdPortal();
+  } else if (String(hostname).includes('connect.usatlas')) {
+    openAtlasPortal();
+  } else if (String(hostname).includes('local')) {
+    openAfPortal();
+  } else if (String(hostname).includes('af.uchicago')){
+    openAfPortal();
+  } else if (String(hostname).includes('www-test.ci-connect.net')) {
+    openAfPortal();
+  } else if (String(hostname).includes('connect.uscms')) {
+    openCmsPortal();
+  } else if (String(hostname).includes('connect.snowmass21.io')) {
+    openSnowmassPortal();
+  } else {
+    openDefaultPortal();
+  };
 
-      connect_brand.src="{{url_for('static', filename='img/atlas-af-logo.png')}}";
-      nav_overview.href="https://usatlas.readthedocs.io/projects/af-docs/en/latest/";
-      nav_emailto.href="mailto:atlas-us-chicago-tier3-admins@cern.ch";
-      nav_overview.innerText = "External Docs";
-      // nav_overview.parentNode.removeChild(nav_overview);
-      // nav_emailto.parentNode.removeChild(nav_emailto);
-      if (document.getElementById("login-node-nav"))
-        document.getElementById("login-node-nav").style.display = "inline";
-      // Set the title
-      var title_login = "Login Nodes"
-      // Set the href property
-      var href_login = 'https://grafana.mwt2.org/d/m3teM9W7k/af-servers?orgId=1';
-      addDropdownItem(title_login, href_login);
+  if(pathsplit.length > 1){
+    var parentpath = pathsplit[1];
+    $('nav > ul > li > a[href="/'+parentpath+'"]').parent().addClass('active');
+  } else {
+    // look to update the full a[href=''] uri below
+    $('nav > ul > li > a[href="'+pathname+'"]').parent().addClass('active');
+  }
 
-      var nav_link = document.getElementById("login-node-nav-link");
-      if (nav_link)
-        nav_link.innerText = 'Monitoring';
-      var title = 'User Docs';
-      var href = 'https://maniaclab.uchicago.edu/analysis-facility-docs/';
-      var id = 'support-dropdown'; 
-      addDropdownItem(title, href, id);
+  $('[data-toggle="popover"]').popover()
+});
 
-      var platformDropdown = document.getElementById("platforms-nav-dropdown");
-      platformDropdown.style.display = 'list-item';
-
-      $('#footer-img').hide();
-      $('#af-footer-images').show();
-    } else if(String(hostname).includes('www-test.ci-connect.net'))  {
-      // Global site tag (gtag.js) - Google Analytics
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-178331567-5');
-
-      connect_brand.src="{{url_for('static', filename='img/atlas-af-logo.png')}}";
-      nav_overview.href="https://usatlas.readthedocs.io/projects/af-docs/en/latest/";
-      nav_emailto.href="mailto:atlas-us-chicago-tier3-admins@cern.ch";
-      nav_overview.innerText = "External Docs";
-      // nav_overview.parentNode.removeChild(nav_overview);
-      // nav_emailto.parentNode.removeChild(nav_emailto);
-      if (document.getElementById("login-node-nav"))
-        document.getElementById("login-node-nav").style.display = "inline";
-      // Set the title
-      var title_login = "Login Nodes"
-      // Set the href property
-      var href_login = 'https://grafana.mwt2.org/d/m3teM9W7k/af-servers?orgId=1';
-      addDropdownItem(title_login, href_login);
-
-      var nav_link = document.getElementById("login-node-nav-link");
-      if (nav_link)
-        nav_link.innerText = 'Monitoring';
-      var title = 'User Docs';
-      var href = 'https://maniaclab.uchicago.edu/analysis-facility-docs/';
-      var id = 'support-dropdown'; 
-      addDropdownItem(title, href, id);
-
-      var platformDropdown = document.getElementById("platforms-nav-dropdown");
-      platformDropdown.style.display = 'list-item';
-
-      $('#footer-img').hide();
-      $('#af-footer-images').show();
-    } else if(String(hostname).includes('snowmass21')) {
-      // Global site tag (gtag.js) - Google Analytics
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-178331567-1');
-      
-      connect_brand.src="{{url_for('static', filename='img/snowmass-connect-logo.png')}}";
-      nav_overview.href="https://snowmass21.org/montecarlo/energy";
-      nav_overview.innerText = "Energy Frontier"
-      nav_emailto.href="mailto:help@opensciencegrid.org";
-      var title = 'User Docs';
-      var href = 'https://maniaclab.uchicago.edu/snowmass-connect-docs/';
-      var id = 'support-dropdown'; 
-      addDropdownItem(title, href, id);
-      try {
-        document.getElementById("instances-nav").style.display = "inline";
-      } catch(err) {
-        console.log("User is currently not logged in")
-      }
-      try {
-        document.getElementById("contributions").style.display = "inline";
-      } catch(err) {
-        console.log("Currently no contributions")
-      }
-    } else if(String(hostname).includes('psd')) {
-      // Global site tag (gtag.js) - Google Analytics
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-178331567-8');
-
-      connect_brand.src="{{url_for('static', filename='img/psd-connect-logo.png')}}";
-      nav_overview.href="https://physicalsciences.uchicago.edu/";
-      nav_emailto.href="mailto:support@ci-connect.uchicago.edu";
-      // nav_bar.classList.add("psd-uchicago");
-      document.getElementById("login-node-nav").style.display = "inline";
-      // Set the title
-      var title = "UChicago CI Connect"
-      // Set the href property
-      var href = 'https://gracc.opensciencegrid.org/dashboard/db/osg-connect-summary-uchicago-ci?orgId=1';
-      addDropdownItem(title, href);
-
-    } else {
-      // Global site tag (gtag.js) - Google Analytics
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-178331567-3');
-
-      connect_brand.src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
-      nav_overview.parentNode.removeChild(nav_overview);
-      nav_emailto.parentNode.removeChild(nav_emailto);
-      document.getElementById("about").style.display = "inline";
-      // Remove footer for CI Connect
-      var footer_element = document.getElementById("footer-container");
-      footer_element.parentNode.removeChild(footer_element);
-    };
-
-  });
-
-  $(function () {
-    $('[data-toggle="popover"]').popover()
-  })
-
-  </script>
+</script>

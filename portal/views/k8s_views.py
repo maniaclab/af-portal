@@ -27,14 +27,14 @@ def strip(str):
 def deploy_jupyter_notebook():
     try:
         notebook_name = strip(request.form['notebook-name'])
-        password = strip(request.form['notebook-password'])
+        # password = strip(request.form['notebook-password'])
         username = session['unix_name']
         cpu = int(request.form['cpu']) 
         memory = int(request.form['memory']) 
         gpu = int(request.form['gpu'])
         image = request.form['image']
         time_duration = int(request.form['time-duration'])
-        resp = k8s_api.create_notebook(notebook_name, username, password, f"{cpu}", f"{memory}Gi", f"{gpu}", image, f"{time_duration}")
+        resp = k8s_api.create_notebook(notebook_name, username, None, cpu, memory, gpu, image, time_duration)
         flash(resp['message'], resp['status'])
     except:
         logger.error('Error creating Jupyter notebook')

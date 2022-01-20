@@ -30,7 +30,7 @@ def load_kube_config():
             logger.info("Loaded default kubeconfig file")
         logger.info("Using namespace %s" %namespace)
         logger.info("Using domain name %s" %domain_name)
-        logger.info("GPU is available as a resource" if gpu_available == 'True' else "GPU is not available as a resource")
+        logger.info("GPU is available as a resource" if gpu_available == 'Available' else "GPU is not available as a resource")
         logger.info("Using kubernetes.io/ingress.class %s" %ingress_class)
     except:
         logger.error("Error loading kubeconfig")
@@ -88,7 +88,23 @@ def status_msg(status, message):
 def create_pod(notebook_name, username, password, cpu, memory, gpu, image, time_duration, password_hash=None, token=None):
     api = client.CoreV1Api()
     template = templates.get_template("pod.yaml")
-    pod = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, password=password, password_hash=password_hash, token=token, cpu=cpu, memory=memory, gpu=gpu, gpu_available=gpu_available, image=image, days=time_duration))
+    cpu_limit = cpu * 2
+    memory_limit = memory * 2
+    pod = yaml.safe_load(template.render(namespace=namespace, 
+                                            notebook_name=notebook_name, 
+                                            username=username, 
+                                            password=password, 
+                                            password_hash=password_hash, 
+                                            token=token, 
+                                            cpu_request=cpu, 
+                                            memory_request=f"{memory}Gi", 
+                                            gpu_request=gpu,
+                                            cpu_limit=cpu_limit,
+                                            memory_limit=f"{memory_limit}Gi",
+                                            gpu_limit=gpu,
+                                            gpu_available=gpu_available, 
+                                            image=image, 
+                                            days=time_duration))
     api.create_namespaced_pod(namespace=namespace, body=pod)
     # logger.info("Created pod %s" %notebook_name)
 
@@ -116,7 +132,7 @@ def create_secret(notebook_name, username, token):
     api.create_namespaced_secret(namespace=namespace, body=sec)
     # logger.info("Created secret %s to store token %s" %(notebook_name, token))
 
-def create_notebook(notebook_name, username, password, cpu, gpu, memory, image, time_duration):
+def create_notebook(notebook_name, username, password, cpu, memory, gpu, image, time_duration):
     if not supports_image(image):
         logger.warning('Docker image %s is not suppported' %image)
         return status_msg('warning', 'Docker image %s is not supported' %image)
