@@ -138,19 +138,20 @@
               <li class="nav-item">
                 <a class="nav-link" href="{{url_for('groups')}}">Groups</a>
               </li>
+              <!--
               <li class="nav-item dropdown" id="apps-nav-dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="apps-dropdown-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Apps
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="apps-dropdown-menu" id="apps-dropdown">
                   <a class="dropdown-item" href="{{url_for('view_jupyter_notebooks')}}" onclick="loader()">Jupyter notebooks</a>
-                  <!--<a class="dropdown-item" href="{{url_for('view_instances')}}" onclick="loader()">Slate interface</a>-->
+                  <a class="dropdown-item" href="{{url_for('view_instances')}}" onclick="loader()">Slate interface</a> 
                 </div>
               </li>
-              <!--
+              -->
               <li class="nav-item" id="instances-nav">
                 <a class="nav-link" href="{{url_for('view_jupyter_notebooks')}}">Apps</a>
-              </li>-->
+              </li>
               <li class="nav-item dropdown" id="login-node-nav" style="display: none;">
                 <a class="nav-link dropdown-toggle" href="#" id="login-node-nav-link" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Login Nodes</a>
                 <div class="dropdown-menu dropdown-menu-right" id="login-node-dropdown" aria-labelledby="support-dropdown-menu">
@@ -188,7 +189,7 @@
                   <a class="dropdown-item" id="nav-handbook" href="" target="_blank" style="display: none;">Handbook</a>
                   <a class="dropdown-item" id="nav-aup" href="{{url_for('aup')}}">Acceptable Use Policy</a>
                   <h6 class="dropdown-header" id="nav-support">Direct Support</h6>
-                  <a class="dropdown-item" id="nav-discourse" href="https://atlas-talk.web.cern.ch/c/us-tier-3-user-support/11" target="_blank">Discourse (User Support)</a>
+                  <a class="dropdown-item" id="nav-discourse" href="https://atlas-talk.sdcc.bnl.gov/" target="_blank">Discourse (User Support)</a>
                   <a class="dropdown-item" id="nav-email" href="" target="_blank">System or Login Problems</a>
                 </div>
               </li>
