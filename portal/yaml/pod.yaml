@@ -69,12 +69,18 @@ spec:
     ports:
     - containerPort: 8888
     resources:
-      requests:
-        memory: {{memory}}
-        cpu: {{cpu}}
       limits:
-        memory: {{memory}}
-        cpu: {{cpu}}
+        memory: {{memory_limit}}
+        cpu: {{cpu_limit}}
+        {% if gpu_available %}
+        nvidia.com/gpu: {{gpu_limit}}
+        {% endif %}
+      requests:
+        memory: {{memory_request}}
+        cpu: {{cpu_request}}
+        {% if gpu_available %}
+        nvidia.com/gpu: {{gpu_request}}
+        {% endif %}
     {% if password_hash %}
     args: ["start-notebook.sh", "--NotebookApp.password='{{password_hash}}'"]
     {% elif token %}
