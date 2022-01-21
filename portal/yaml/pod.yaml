@@ -27,25 +27,19 @@ spec:
     imagePullPolicy: Always
     ports:
     - containerPort: 9999
-    {% if gpu_available == 'Available' %}
     resources:
       limits:
         cpu: {{cpu_limit}}
         memory: {{memory_limit}}
+        {% if gpu_available %}
         nvidia.com/gpu: {{gpu_limit}}
+        {% endif %}
       requests:
         cpu: {{cpu_request}}
         memory: {{memory_request}}
+        {% if gpu_available %}
         nvidia.com/gpu: {{gpu_request}}
-    {% else %}
-     resources:
-      limits:
-        cpu: {{cpu_limit}}
-        memory: {{memory_limit}}
-      requests:
-        cpu: {{cpu_request}}
-        memory: {{memory_request}}
-    {% endif %}
+        {% endif %}
     volumeMounts:
     - mountPath: /data
       name: local-scratch

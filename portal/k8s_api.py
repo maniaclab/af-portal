@@ -104,7 +104,7 @@ def create_pod(notebook_name, username, password, cpu, memory, gpu, image, time_
                                             gpu_limit=gpu,
                                             gpu_available=gpu_available, 
                                             image=image, 
-                                            days=time_duration))
+                                            days=time_duration))                           
     api.create_namespaced_pod(namespace=namespace, body=pod)
     # logger.info("Created pod %s" %notebook_name)
 
@@ -132,7 +132,22 @@ def create_secret(notebook_name, username, token):
     api.create_namespaced_secret(namespace=namespace, body=sec)
     # logger.info("Created secret %s to store token %s" %(notebook_name, token))
 
-def create_notebook(notebook_name, username, password, cpu, memory, gpu, image, time_duration):
+def cpu_request_valid(cpu):
+    if cpu >=1 and cpu <= 4:
+        return True
+    return False
+
+def memory_request_valid(memory):
+    if memory >=1 and memory <= 16:
+        return True
+    return False
+
+def gpu_request_valid(gpu):
+    if gpu >=0 and gpu <= 2:
+        return True
+    return False
+
+def validate(notebook_name, username, password, cpu, memory, gpu, image, time_duration):
     if not supports_image(image):
         logger.warning('Docker image %s is not suppported' %image)
         return status_msg('warning', 'Docker image %s is not supported' %image)
@@ -141,17 +156,36 @@ def create_notebook(notebook_name, username, password, cpu, memory, gpu, image, 
         logger.warning('The name %s is already taken in namespace %s' %(notebook_name, namespace))
         return status_msg('warning', 'The name %s is already taken in namespace %s' %(notebook_name, namespace))
 
+    if not cpu_request_valid(cpu):
+        logger.warning('The CPU request %d is out of bounds' %cpu)
+        return status_msg('warning', 'The CPU request %d is out of bounds' %cpu)
+
+    if not memory_request_valid(memory):
+        logger.warning('The memory request %d is out of bounds' %memory)
+        return status_msg('warning', 'The memory request %d is out of bounds' %memory)
+
+    if not gpu_request_valid(gpu):
+        logger.warning('The GPU request %d is out of bounds' %gpu)
+        return status_msg('warning', 'The GPU request %d is out of bounds' %gpu)
+
+    return status_msg('success', 'Valid')
+
+def create_notebook(notebook_name, username, password, cpu, memory, gpu, image, time_duration):
+    status = validate(notebook_name, username, password, cpu, memory, gpu, image, time_duration)
+    if status['status'] != 'success':
+        return status
+
     password_hash = None
     token = None
     if password:
         password_hash = passwd(password)
-        logger.info("Using password based authentication for notebook %s" %notebook_name)
+        # logger.info("Using password based authentication for notebook %s" %notebook_name)
     else:
         token = generate_token()
-        logger.info("Using token based authentication for notebook %s" %notebook_name)
+        # logger.info("Using token based authentication for notebook %s" %notebook_name)
         logger.info("The token for %s is %s" %(notebook_name, token))
 
-    try:            
+    try:           
         create_pod(notebook_name, username, password, cpu, memory, gpu, image, time_duration, password_hash, token)
         create_service(notebook_name, image)
         create_ingress(notebook_name, username, image)
