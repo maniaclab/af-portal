@@ -111,7 +111,7 @@
       //Change delimiters to avoid collision with Flask templates
       Vue.options.delimiters = ['{[{','}]}'];
     </script>
-    <script>
+    <script type="text/javascript">
     function loader() {
       var loader = document.getElementById("loader");
       loader.style.display = 'inline';
@@ -150,7 +150,7 @@
               </li>
               -->
               <li class="nav-item" id="instances-nav">
-                <a class="nav-link" href="{{url_for('view_jupyter_notebooks')}}">Apps</a>
+                <a class="nav-link" href="{{url_for('view_jupyter_notebooks')}}" onclick="loader()">Apps</a>
               </li>
               <li class="nav-item dropdown" id="login-node-nav" style="display: none;">
                 <a class="nav-link dropdown-toggle" href="#" id="login-node-nav-link" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Login Nodes</a>
@@ -186,10 +186,10 @@
                   <!-- <h6 class="dropdown-header" id="nav-documentation">Documentation</h6> -->
                   <!-- <a class="dropdown-item" href="{{url_for('about')}}">About</a> -->
                   <h6 class="dropdown-header" id="nav-docs">Documentation</h6>
-                  <a class="dropdown-item" id="nav-overview" href="" target="_blank">Overview</a>                  
+                  <a class="dropdown-item" id="nav-overview" href="" target="_blank" style="display: none">Overview</a>                  
                   <a class="dropdown-item" id="nav-handbook" href="" target="_blank" style="display: none;">Handbook</a>
-                  <a class="dropdown-item" id="nav-user-docs" href="https://maniaclab.uchicago.edu/analysis-facility-docs/" target="_blank" style="display: none">User Docs</a>
-                  <a class="dropdown-item" id="nav-external-docs" href="https://usatlas.readthedocs.io/projects/af-docs/en/latest/" target="_blank" style="display: none">External Docs</a>
+                  <a class="dropdown-item" id="nav-user-docs" href="" target="_blank" style="display: none">User Docs</a>
+                  <a class="dropdown-item" id="nav-external-docs" href="" target="_blank" style="display: none">External Docs</a>
                   <a class="dropdown-item" id="nav-aup" href="{{url_for('aup')}}">Acceptable Use Policy</a>
                   <h6 class="dropdown-header" id="nav-support">Direct Support</h6>
                   <a class="dropdown-item" id="nav-discourse" href="https://atlas-talk.sdcc.bnl.gov/" target="_blank">Discourse (User Support)</a>

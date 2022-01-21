@@ -103,7 +103,8 @@ var collaborations = {{collaborations|tojson}};
 for(collab of collaborations) {
   let description = md.render(collab['description']);
   $('#'+collab['name']).html(description);
-  document.getElementById(collab['name']).querySelector("h2").style.display = 'none';
+  if (document.getElementById(collab['name']).querySelector("h2"))
+    document.getElementById(collab['name']).querySelector("h2").style.display = 'none';
 }
 
 </script>
