@@ -164,23 +164,23 @@ def gpu_request_valid(gpu):
 def validate(notebook_name, username, password, cpu, memory, gpu, image, time_duration):
     if not supports_image(image):
         logger.warning('Docker image %s is not suppported' %image)
-        raise ValueError('Docker image %s is not supported' %image)
+        raise k8sException('Docker image %s is not supported' %image)
 
     if not name_available(notebook_name):
-        logger.warning('The name %s is already taken' %(notebook_name, namespace))
-        raise NameError('The name %s is already taken' %(notebook_name, namespace))
+        logger.warning('The name %s is already taken' %notebook_name)
+        raise k8sException('The name %s is already taken' %notebook_name)
 
     if not cpu_request_valid(cpu):
         logger.warning('The request of %d CPUs is outside the bounds [1, 4]' %cpu)
-        raise ValueError('The request of %d CPUs is outside the bounds [1, 4]' %cpu)
+        raise k8sException('The request of %d CPUs is outside the bounds [1, 4]' %cpu)
 
     if not memory_request_valid(memory):
         logger.warning('The request of %d GB is outside the bounds [1, 16]' %memory)
-        return ValueError('The request of %d GB is outside the bounds [1, 16]' %memory)
+        return k8sException('The request of %d GB is outside the bounds [1, 16]' %memory)
 
     if not gpu_request_valid(gpu):
         logger.warning('The request of %d GPUs is outside the bounds [1, 2]' %gpu)
-        raise ValueError('The request of %d GPUs is outside the bounds [1, 2]' %gpu)
+        raise k8sException('The request of %d GPUs is outside the bounds [1, 2]' %gpu)
 
 def create_notebook(notebook_name, username, password, cpu, memory, gpu, image, time_duration):
     validate(notebook_name, username, password, cpu, memory, gpu, image, time_duration)
