@@ -14,20 +14,21 @@ from portal import logger
 from portal import app
 
 templates = Environment(loader=FileSystemLoader("portal/yaml"), autoescape=select_autoescape())
+
 namespace = app.config.get("NAMESPACE")
+domain_name = app.config.get('DOMAIN_NAME')
+ingress_class = app.config.get('INGRESS_CLASS')
 gpu_available = app.config.get("GPU_AVAILABLE")
+config_file = app.config.get("KUBECONFIG")
 
 class k8sException(Exception):
     pass
 
 def load_kube_config():
     try:
-        filename = app.config.get("KUBECONFIG")
-        ingress_class = app.config.get("INGRESS_CLASS")
-        domain_name = app.config.get("DOMAIN_NAME")
-        if filename:
-            config.load_kube_config(config_file = filename)
-            logger.info("Loaded kubeconfig from file %s" %filename)
+        if config_file:
+            config.load_kube_config(config_file = config_file)
+            logger.info("Loaded kubeconfig from file %s" %config_file)
         else:
             config.load_kube_config()
             logger.info("Loaded default kubeconfig file")
@@ -124,9 +125,6 @@ def create_service(notebook_name, image):
 def create_ingress(notebook_name, username, image):
     try: 
         api = client.NetworkingV1Api()
-        domain_name = app.config['DOMAIN_NAME']
-        # logger.info("Creating subdomain %s on domain %s" %(notebook_name, domain_name))
-        ingress_class = app.config['INGRESS_CLASS']
         template = templates.get_template("ingress.yaml")
         ingress = yaml.safe_load(template.render(domain_name=domain_name, ingress_class=ingress_class, namespace=namespace, notebook_name=notebook_name, username=username, image=image))
         api.create_namespaced_ingress(namespace=namespace,body=ingress)
