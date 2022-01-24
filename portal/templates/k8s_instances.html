@@ -60,7 +60,13 @@
 
       </div>
     </div>
-
+    {% if refresh %}
+    <p class="h6">
+      <small>
+        Page will refresh every 30 seconds until every status is ready
+      </small>
+    </p>
+    {% endif %}
   </div> <!-- container -->
 </section>
 <script type="text/javascript">
@@ -84,13 +90,6 @@ $(document).ready(function() {
       $("#{{instance['name']}}_expiration_date").html('Never');
     else 
       $("#{{instance['name']}}_expiration_date").html(moment(expiration_date * 1000).format("dddd MMMM D YYYY h:mm a"));
-
-    /*
-    var creationDate = moment({{instance['creation_date']}} * 1000).format("dddd MMMM D YYYY h:mm a");
-    var expirationDate = moment({{instance['expiration_date']}} * 1000).format("dddd MMMM D YYYY h:mm a");
-    $("#{{instance['name']}}_creation_date").html(creationDate);
-    $("#{{instance['name']}}_expiration_date").html(expirationDate);
-    */
   {% endfor %}
 });
 </script>

@@ -30,7 +30,6 @@ def deploy_jupyter_notebook():
         image = request.form['image']
         time_duration = int(request.form['time-duration'])
         k8s_api.create_notebook(notebook_name, username, None, cpu, memory, gpu, image, time_duration)
-        flash('Created notebook %s' %notebook_name, 'success')
     except k8sException as e:
         flash(str(e), 'warning')
     except:
@@ -66,7 +65,6 @@ def remove_jupyter_notebook(notebook_name):
     try:
         username = session['unix_name']
         k8s_api.remove_user_notebook(notebook_name, username)
-        flash('Removed notebook %s' %notebook_name, 'success')
     except k8sException as e:
         flash(str(e), 'warning')
     except:
