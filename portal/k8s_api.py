@@ -155,7 +155,7 @@ def memory_request_valid(memory):
     return False
 
 def gpu_request_valid(gpu):
-    if gpu >=0 and gpu <= 2:
+    if gpu >=1 and gpu <= 2:
         return True
     return False
 

@@ -48,7 +48,6 @@ def view_jupyter_notebooks():
     try:
         username = session['unix_name']
         notebooks = k8s_api.get_notebooks(username)
-        logger.info(notebooks)
         refresh = needs_refresh(notebooks)
         logger.info("refresh = %s" %refresh)
         return render_template("k8s_instances.html", instances=notebooks, refresh=refresh)

@@ -30,7 +30,7 @@
           </table>
           <div class="card-body">
             <h5 class="card-title">Jupyter Notebook with a machine learning setup</h5>
-            <form role="form" action="{{url_for('deploy_jupyter_notebook')}}" method="POST" style="margin-top: 40px !important">
+            <form role="form" id="deploy-form" action="{{url_for('deploy_jupyter_notebook')}}" method="POST" style="margin-top: 40px !important">
               <div class="form-group">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
               </div>
@@ -38,7 +38,7 @@
               <table class="resource-config">             
                 <tr>
                   <td>
-                    <label for="notebook-name">Name *</label>
+                    <label for="notebook-name">Name</label>
                   </td>
                   <td>
                     <input 
@@ -79,6 +79,7 @@
                       min=1
                       max=4
                       value=1
+                      required
                     >
                   </td>
                 </tr>    
@@ -95,6 +96,7 @@
                       min=1
                       max=16
                       value=8
+                      required
                     >
                   </td>
                 </tr>
@@ -111,6 +113,7 @@
                       min=1
                       max=2
                       value=1
+                      required
                     >
                   </td>
                 </tr>
@@ -127,6 +130,7 @@
                       min=1
                       max=100
                       value=10
+                      required
                     >
                   </td>
                 </tr>
@@ -399,31 +403,20 @@
 </section>
 <script type="text/javascript">
 $(document).ready(function() {
-  var validate = function() {
-    var valid = true;
+  // var validate = function() {
+    // var valid = true;
     
-    $.each($("input:required"), function (index, value) {
-      if(!$(value).val())
-        valid = false;
-    });
+    // $.each($("input:required"), function (index, value) {
+    //   if(!$(value).val())
+    //     valid = false;
+    // });
+  // };
 
+  $("#deploy-form").on('keyup change', function() {
+    $('#deploy-form').validate();
+    var valid = $('#deploy-form').valid();
     $('button[type="submit"]').attr("disabled", !valid);
-  };
-
-  $("input:required").on('keyup change', validate);
-
-  $('#notebook-image').on('change', function() {
-    if ($(this).val() == 'ivukotic/ml_platform_auto:latest' || $(this).val() == 'ivukotic/ml_platform_auto:conda') {
-      $('#notebook-password').attr('required', true);
-      $('label[for="notebook-password"]').html('Password *');
-    }
-    else {
-      $('#notebook-password').attr('required', false);
-      $('label[for="notebook-password"]').html('Password');
-    }
-    validate();
   });
-  $('#notebook-image').change();
 });
 </script>
 {%endblock%}
