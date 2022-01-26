@@ -72,6 +72,11 @@ spec:
     image: {{image}}
     ports:
     - containerPort: 8888
+    {% if gpu_request == 0 and gpu_available %} 
+    env:
+    - name: NVIDIA_VISIBLE_DEVICES
+      value: none
+    {% endif %}
     resources:
       limits:
         memory: {{memory_limit}}
