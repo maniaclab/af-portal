@@ -18,10 +18,14 @@ spec:
     - /ML_platform_tests/SetupPrivateJupyterLab.sh
     - {{password}}
     # - repo
-    {% if token and not password %}
     env:
+    {% if token and not password %}
     - name: "JUPYTER_TOKEN"
       value: {{token}}
+    {% endif %}
+    {% if gpu_request == 0 and gpu_available %} 
+    - name: NVIDIA_VISIBLE_DEVICES
+      value: none
     {% endif %}
     image: {{image}}
     imagePullPolicy: Always

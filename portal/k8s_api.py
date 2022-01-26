@@ -34,7 +34,7 @@ def load_kube_config():
             logger.info("Loaded default kubeconfig file")
         logger.info("Using namespace %s" %namespace)
         logger.info("Using domain name %s" %domain_name)
-        logger.info("GPU is available as a resource" if gpu_available == 'Available' else "GPU is not available as a resource")
+        logger.info("GPU is available as a resource" if gpu_available else "GPU is not available as a resource")
         logger.info("Using kubernetes.io/ingress.class %s" %ingress_class)
     except:
         logger.error("Error loading kubeconfig")
@@ -345,8 +345,6 @@ def get_user_pods(username):
 
 def get_notebooks(username):
     user_pods = get_user_pods(username)
-    logger.info("user_pods")
-    logger.info(user_pods)
     notebooks = []
     for pod in user_pods:
         try: 
