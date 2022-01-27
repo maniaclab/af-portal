@@ -265,17 +265,6 @@ def get_certificate_status(pod):
         logger.error("Error getting certificate status for notebook %s" %notebook_name)
     return 'Unknown'
 
-def has_token(notebook_name):
-    try:
-        api = client.CoreV1Api()
-        secs = api.list_namespaced_secret(namespace)
-        for sec in secs.items:
-            if sec.metadata.name == notebook_name and 'token' in sec.data:
-                return True
-    except:
-        logger.error("Error checking secret for notebook %s" %notebook_name)
-    return False
-
 def get_token(notebook_name):
     try:
         api = client.CoreV1Api()
@@ -289,14 +278,11 @@ def get_url(pod):
     try: 
         if notebook_closing(pod):
             return None
-        net = client.NetworkingV1Api()
+        api = client.NetworkingV1Api()
         notebook_name = pod.metadata.name
-        ingress = net.read_namespaced_ingress(notebook_name, namespace)
-        url = 'https://' + ingress.spec.rules[0].host
-        if has_token(notebook_name):
-            token = get_token(notebook_name)
-            url += "?"
-            url += urllib.parse.urlencode({'token': token})
+        ingress = api.read_namespaced_ingress(notebook_name, namespace)
+        token = get_token(notebook_name)
+        url = 'https://' + ingress.spec.rules[0].host + '?' + urllib.parse.urlencode({'token': token})
         return url
     except:
         logger.error('Error getting URL for pod %s' %notebook_name)
@@ -360,8 +346,7 @@ def remove_notebook(notebook_name):
     core_v1_api.delete_namespaced_service(notebook_name, namespace)
     networking_v1_api = client.NetworkingV1Api()
     networking_v1_api.delete_namespaced_ingress(notebook_name, namespace)
-    if has_token(notebook_name):
-        core_v1_api.delete_namespaced_secret(notebook_name, namespace)
+    core_v1_api.delete_namespaced_secret(notebook_name, namespace)
     logger.info("Removing notebook %s in namespace %s" %(notebook_name, namespace))
 
 def remove_user_notebook(notebook_name, username):
@@ -373,8 +358,7 @@ def remove_user_notebook(notebook_name, username):
             core_v1_api.delete_namespaced_pod(notebook_name, namespace)
             core_v1_api.delete_namespaced_service(notebook_name, namespace)
             networking_v1_api.delete_namespaced_ingress(notebook_name, namespace)
-            if has_token(notebook_name):
-                core_v1_api.delete_namespaced_secret(notebook_name, namespace)
+            core_v1_api.delete_namespaced_secret(notebook_name, namespace)
             logger.info('Removing notebook %s' %notebook_name)
         else:
             logger.warning('Notebook %s does not belong to user %s' %(notebook_name, username))
