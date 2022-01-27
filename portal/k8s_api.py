@@ -57,27 +57,6 @@ def manage_notebooks():
                     logger.info('Error removing notebook %s during management cycle' %pod.metadata.name)
         time.sleep(3600)
 
-def supports_image(image):
-    images = [
-        'ivukotic/ml_platform:latest', 
-        'ivukotic/ml_platform:conda', 
-        'ivukotic/ml_platform_auto:latest', 
-        'ivukotic/ml_platform_auto:conda', 
-        'jupyter/minimal-notebook:latest'
-    ]
-    return image in images
-
-def name_available(notebook_name):
-    try: 
-        core_v1_api = client.CoreV1Api()
-        pods = core_v1_api.list_namespaced_pod(namespace, label_selector="instance=" + notebook_name)
-
-        if not pods or len(pods.items) == 0:
-            return True
-    except:
-        logger.error('Error checking whether notebook name %s is available' %notebook_name)
-        raise k8sException('Error checking whether notebook name %s is available' %notebook_name)
-
 def generate_token():
     token_bytes = os.urandom(32)
     b64_encoded = b64encode(token_bytes).decode()
@@ -136,6 +115,27 @@ def create_secret(notebook_name, username, token):
     except:
         logger.error('Error creating secret %s' %notebook_name)
         raise k8sException('Error creating secret %s' %notebook_name)
+
+def supports_image(image):
+    images = [
+        'ivukotic/ml_platform:latest', 
+        'ivukotic/ml_platform:conda', 
+        'ivukotic/ml_platform_auto:latest', 
+        'ivukotic/ml_platform_auto:conda', 
+        'jupyter/minimal-notebook:latest'
+    ]
+    return image in images
+
+def name_available(notebook_name):
+    try: 
+        core_v1_api = client.CoreV1Api()
+        pods = core_v1_api.list_namespaced_pod(namespace, label_selector="instance=" + notebook_name)
+
+        if not pods or len(pods.items) == 0:
+            return True
+    except:
+        logger.error('Error checking whether notebook name %s is available' %notebook_name)
+        raise k8sException('Error checking whether notebook name %s is available' %notebook_name)
 
 def cpu_request_valid(cpu):
     if cpu >=1 and cpu <= 4:
