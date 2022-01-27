@@ -16,14 +16,10 @@ spec:
     args:
     - /.run
     - /ML_platform_tests/SetupPrivateJupyterLab.sh
-    - {{password}}
-    # - repo
     env:
-    {% if token and not password %}
     - name: "JUPYTER_TOKEN"
       value: {{token}}
-    {% endif %}
-    {% if gpu_request == 0 and gpu_available %} 
+    {% if gpu_available and gpu_request == 0 %} 
     - name: NVIDIA_VISIBLE_DEVICES
       value: none
     {% endif %}
@@ -48,10 +44,7 @@ spec:
     - mountPath: /data
       name: local-scratch
       readOnly: false
-  # nodeSelector:
-    # mlnode: 'true'
   restartPolicy: Always
-  # serviceAccountName: xxx
   volumes:
   - hostPath:
       path: /data
@@ -72,7 +65,7 @@ spec:
     image: {{image}}
     ports:
     - containerPort: 8888
-    {% if gpu_request == 0 and gpu_available %} 
+    {% if gpu_available and gpu_request == 0 %} 
     env:
     - name: NVIDIA_VISIBLE_DEVICES
       value: none
@@ -90,9 +83,5 @@ spec:
         {% if gpu_available %}
         nvidia.com/gpu: {{gpu_request}}
         {% endif %}
-    {% if password_hash %}
-    args: ["start-notebook.sh", "--NotebookApp.password='{{password_hash}}'"]
-    {% elif token %}
     args: ["start-notebook.sh", "--NotebookApp.token='{{token}}'"]
-    {% endif %}
 {% endif %}

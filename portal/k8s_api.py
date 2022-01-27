@@ -9,7 +9,6 @@ from base64 import b64encode
 from datetime import timezone
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from kubernetes import client, config
-from notebook.auth.security import passwd
 from portal import logger
 from portal import app
 
@@ -84,7 +83,7 @@ def generate_token():
     b64_encoded = b64encode(token_bytes).decode()
     return b64_encoded
 
-def create_pod(notebook_name, username, password, cpu, memory, gpu, image, time_duration, password_hash=None, token=None):
+def create_pod(notebook_name, username, cpu, memory, gpu, image, time_duration, token):
     try: 
         api = client.CoreV1Api()
         template = templates.get_template("pod.yaml")
@@ -93,20 +92,17 @@ def create_pod(notebook_name, username, password, cpu, memory, gpu, image, time_
         pod = yaml.safe_load(template.render(namespace=namespace, 
                                                 notebook_name=notebook_name, 
                                                 username=username, 
-                                                password=password, 
-                                                password_hash=password_hash, 
                                                 token=token, 
-                                                cpu_request=cpu, 
-                                                memory_request=f"{memory}Gi", 
+                                                cpu_request=cpu,
+                                                cpu_limit=cpu_limit, 
+                                                memory_request=f"{memory}Gi",
+                                                memory_limit=f"{memory_limit}Gi", 
                                                 gpu_request=gpu,
-                                                cpu_limit=cpu_limit,
-                                                memory_limit=f"{memory_limit}Gi",
                                                 gpu_limit=gpu,
                                                 gpu_available=gpu_available, 
                                                 image=image, 
                                                 days=time_duration))                           
         api.create_namespaced_pod(namespace=namespace, body=pod)
-        # logger.info("Created pod %s" %notebook_name)
     except:
         logger.error('Error creating pod %s' %notebook_name)
         raise k8sException('Error creating pod %s' %notebook_name)
@@ -117,7 +113,6 @@ def create_service(notebook_name, image):
         template = templates.get_template("service.yaml")
         service = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, image=image))
         api.create_namespaced_service(namespace=namespace, body=service)
-        # logger.info("Created service %s" %notebook_name)
     except:
         logger.error('Error creating service %s' %notebook_name)
         raise k8sException('Error creating service %s' %notebook_name)
@@ -128,7 +123,6 @@ def create_ingress(notebook_name, username, image):
         template = templates.get_template("ingress.yaml")
         ingress = yaml.safe_load(template.render(domain_name=domain_name, ingress_class=ingress_class, namespace=namespace, notebook_name=notebook_name, username=username, image=image))
         api.create_namespaced_ingress(namespace=namespace,body=ingress)
-        # logger.info("Created ingress %s" %notebook_name)
     except:
         logger.error('Error creating ingress %s' %notebook_name)
         raise k8sException('Error creating ingres %s' %notebook_name)
@@ -139,7 +133,6 @@ def create_secret(notebook_name, username, token):
         template = templates.get_template("secret.yaml")
         sec = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, token=token))
         api.create_namespaced_secret(namespace=namespace, body=sec)
-        # logger.info("Created secret %s to store token %s" %(notebook_name, token))
     except:
         logger.error('Error creating secret %s' %notebook_name)
         raise k8sException('Error creating secret %s' %notebook_name)
@@ -159,7 +152,7 @@ def gpu_request_valid(gpu):
         return True
     return False
 
-def validate(notebook_name, username, password, cpu, memory, gpu, image, time_duration):
+def validate(notebook_name, username, cpu, memory, gpu, image, time_duration):
     if not supports_image(image):
         logger.warning('Docker image %s is not suppported' %image)
         raise k8sException('Docker image %s is not supported' %image)
@@ -180,25 +173,16 @@ def validate(notebook_name, username, password, cpu, memory, gpu, image, time_du
         logger.warning('The request of %d GPUs is outside the bounds [1, 2]' %gpu)
         raise k8sException('The request of %d GPUs is outside the bounds [1, 2]' %gpu)
 
-def create_notebook(notebook_name, username, password, cpu, memory, gpu, image, time_duration):
-    validate(notebook_name, username, password, cpu, memory, gpu, image, time_duration)
+def create_notebook(notebook_name, username, cpu, memory, gpu, image, time_duration):
+    validate(notebook_name, username, cpu, memory, gpu, image, time_duration)
 
-    password_hash = None
-    token = None
-    if password:
-        password_hash = passwd(password)
-        # logger.info("Using password based authentication for notebook %s" %notebook_name)
-    else:
-        token = generate_token()
-        # logger.info("Using token based authentication for notebook %s" %notebook_name)
-        logger.info("The token for %s is %s" %(notebook_name, token))
+    token = generate_token()
+    logger.info("The token for %s is %s" %(notebook_name, token))
       
-    create_pod(notebook_name, username, password, cpu, memory, gpu, image, time_duration, password_hash, token)
+    create_pod(notebook_name, username, cpu, memory, gpu, image, time_duration, token)
     create_service(notebook_name, image)
     create_ingress(notebook_name, username, image)
-
-    if token:
-        create_secret(notebook_name, username, token)
+    create_secret(notebook_name, username, token)
 
     logger.info('Created notebook %s' %notebook_name)
 
