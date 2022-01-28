@@ -6,7 +6,6 @@ metadata:
     instance: {{notebook_name}}
     k8s-app: privatejupyter
     owner: {{username}}
-    # repo: xxx
     time2delete: ttl-{{days}}
   name: {{notebook_name}}
   namespace: {{namespace}}
