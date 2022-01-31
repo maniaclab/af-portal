@@ -70,7 +70,8 @@ $(document).ready(function() {
 var hostname = window.location.hostname
 
 if(String(hostname).includes('local')){
-  document.getElementById("home-brand").src="{{url_for('static', filename='img/snowmass-connect-logo.png')}}";
+  document.getElementById("home-brand").src="{{url_for('static', filename='img/atlas-af-logo.png')}}";
+  // document.getElementById("home-brand").src="{{url_for('static', filename='img/snowmass-connect-logo.png')}}";
 } else if(String(hostname).includes('atlas')){
   document.getElementById("home-brand").src="{{url_for('static', filename='img/atlas-connect-logo.png')}}";
 } else if(String(hostname).includes('cms')){
@@ -102,7 +103,8 @@ var collaborations = {{collaborations|tojson}};
 for(collab of collaborations) {
   let description = md.render(collab['description']);
   $('#'+collab['name']).html(description);
-  document.getElementById(collab['name']).querySelector("h2").style.display = 'none';
+  if (document.getElementById(collab['name']).querySelector("h2"))
+    document.getElementById(collab['name']).querySelector("h2").style.display = 'none';
 }
 
 </script>

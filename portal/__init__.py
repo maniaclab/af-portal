@@ -7,6 +7,9 @@ from flask_misaka import Misaka
 import logging.handlers
 import sys
 
+from portal import app_logging
+logger = app_logging.init_logger()
+
 __author__ = "MANIAC Lab <gardnergroup@lists.uchicago.edu>"
 
 app = Flask(__name__)
@@ -19,11 +22,16 @@ if len(sys.argv) > 1:
         # Try to read config location from .ini file
         config_file = sys.argv[1]
         app.config.from_pyfile(config_file)
+        logger.info("Read config file from sys.argv[1]")
     except:
-        print("Could not read config location from {}".format(sys.argv[1]))
+        logger.error("Could not read config location from {}".format(sys.argv[1]))
 else:
-    print("Reading config file from local directory")
     app.config.from_pyfile("portal.conf")
+    logger.info("Read config file from portal.conf")
+
+from portal import k8s_api
+k8s_api.load_kube_config()
+k8s_api.start_notebook_manager()
 
 app.url_map.strict_slashes = False
 app.permanent_session_lifetime = timedelta(minutes=1440)

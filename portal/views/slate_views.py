@@ -1,5 +1,6 @@
 from flask import session, request, render_template, jsonify, redirect, url_for, flash
 import requests
+from portal import logger
 from portal import app
 from portal.decorators import authenticated
 from portal.slate_api import (
@@ -20,7 +21,6 @@ import random
 slate_api_token = app.config["SLATE_API_TOKEN"]
 slate_api_endpoint = app.config["SLATE_API_ENDPOINT"]
 query = {"token": slate_api_token}
-
 
 def generateToken():
     token_bytes = os.urandom(32)
@@ -152,12 +152,15 @@ def create_application():
             "instance_create.html", name=app_name, public_key=public_key
         )
     elif request.method == "POST":
+        logger.info("Creating and deploying an application")
         app_name = "jupyter-notebook"
 
+        logger.info("Getting app configuration")
         app_config = get_app_config(app_name)
         app_config = app_config.json()["spec"]["body"]
         # The FullLoader parameter handles the conversion from YAML
         # scalar values to Python the dictionary format
+        logger.info("Loading the YAML file into a dictionary")
         app_config_yaml = yaml.load(app_config, Loader=yaml.FullLoader)
         # Extract connect group name and replace dot notation with dash for app name format compatibility
         connect_group_name = session["url_host"]["unix_name"].replace(".", "-")
@@ -171,17 +174,39 @@ def create_application():
         app_config_yaml["Jupyter"]["NB_USER"] = session["unix_name"]
 
         # Get user unix ID
+        logger.info("Getting user profile")
         user_profile = get_user_profile(session["unix_name"])
         user_unix_id = user_profile["metadata"]["unix_id"]
         app_config_yaml["Jupyter"]["NB_UID"] = user_unix_id
 
         # Generate base64 encoded random 32-bytes token
+        logger.info("Generating a token")
         base64_encoded_token = generateToken()
         app_config_yaml["Jupyter"]["Token"] = base64_encoded_token
-        # Set default resource values
+
+        logger.info("Setting resource values in the YAML file")
         app_config_yaml["Resources"]["Memory"] = 16000
         app_config_yaml["Resources"]["CPU"] = 4000
+        # Set resource values    
+        # try: 
+            # res_memory = int(request.form["memory"]) * 1000
+            # res_memory = max(res_memory, 1000)
+            # res_memory = min(res_memory, 64000)
+            # res_cpu = int(request.form["cpu-cores"]) * 1000
+            # res_cpu = max(res_cpu, 1)
+            # res_cpu = min(res_cpu, 32)
+            # res_gpu = int(request.form["gpu-cores"])
+            # res_gpu = max(res_gpu, 0)
+            # res_gpu = min(res_gpu, 4)
+            # app_config_yaml["Resources"]["Memory"] = res_memory
+            # app_config_yaml["Resources"]["CPU"] = res_gpu
+            # app_config_yaml["Resources"]["GPU"] = res_cpu
+        # except:
+            # app_config_yaml["Resources"]["Memory"] = 16000
+            # app_config_yaml["Resources"]["CPU"] = 4000
+            # app_config_yaml["Resources"]["GPU"] = 1
 
+        logger.info("Setting condor values in the YAML file")
         app_config_yaml["CondorConfig"]["Enabled"] = True
         app_config_yaml["CondorConfig"]["CollectorHost"] = "flock.opensciencegrid.org"
         app_config_yaml["CondorConfig"]["CollectorPort"] = 9618
@@ -190,6 +215,7 @@ def create_application():
         app_config_yaml["CondorConfig"]["AuthTokenSecret"] = "submit-auth-token"
         app_config_yaml["SSH"]["Enabled"] = True
 
+        logger.info("Setting port values in the YAML file")
         try:
             extra_ports_enabled = request.form["extra-ports"]
             low_port = request.form["low-port"]
@@ -205,16 +231,20 @@ def create_application():
             extra_ports_enabled = False
             print("Using App Config without Extra Ports")
 
+        logger.info("Setting SSH information in the YAML file")
         try:
             app_config_yaml["SSH"]["SSH_Public_Key"] = request.form["sshpubstring"]
         except:
             profile = get_user_profile(session["unix_name"])
             public_key = profile["metadata"]["public_key"]
             app_config_yaml["SSH"]["SSH_Public_Key"] = public_key
+
         # Group name: snowmass21-ciconnect
         group = "group_2Q9yPCOLxMg"
         cluster = "uchicago-river-v2"
         configuration = yaml.dump(app_config_yaml)
+
+        logger.info("Creating a JSON for a POST request to the Slate API")
         # SLATE API: slate app install jupyter-notebook --dev --group <your-group> --cluster <a-cluster> --conf jupyter.conf
         install_app = {
             "apiVersion": "v1alpha3",
@@ -223,6 +253,7 @@ def create_application():
             "configuration": configuration,
         }
 
+        logger.info("Sending a POST request to the Slate API")
         # Post query to install application config
         app_install = requests.post(
             slate_api_endpoint + "/v1alpha3/apps/" + app_name,
@@ -233,9 +264,11 @@ def create_application():
         # print(app_install.json())
 
         if app_install.status_code == requests.codes.ok:
+            logger.info("Response to POST request: Status OK")
             flash("Your application has been deployed.", "success")
             return redirect(url_for("view_instances"))
         elif app_install.status_code == 400:
+            logger.info("Response to POST request: Status 400")
             err_message = app_install.json()["message"]
             flash(
                 "Unable to deploy application: You already have a launched instance of this application",
@@ -243,12 +276,14 @@ def create_application():
             )
             return redirect(url_for("create_application"))
         else:
+            logger.info("Response to POST request: Error")
             err_message = app_install.json()["message"]
             if "port is not in the valid range" in err_message:
                 print("Port was invalid, retrying with new external condor port")
                 # Flask code 307 preserve the POST request to retry method
                 return redirect(url_for("create_application"), code=307)
 
+        logger.info("Redirecting to the view instance page")
         return redirect(url_for("view_instances"))
 
 

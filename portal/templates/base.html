@@ -27,6 +27,7 @@
 
     {# CSS files #}
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" rel="stylesheet">
     <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css"> -->
@@ -65,6 +66,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.7.4/remarkable.js"></script>
     <!-- Slick Slider JS CDN -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+
+    <!-- Moment.js for date and time formatting -->
+    <script type="text/javascript" src="{{url_for('static', filename='js/moment.js')}}"></script>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
 
     <!-- Google Analytics for multi-brands -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-178331567-1"></script>
@@ -107,7 +113,7 @@
       //Change delimiters to avoid collision with Flask templates
       Vue.options.delimiters = ['{[{','}]}'];
     </script>
-    <script>
+    <script type="text/javascript">
     function loader() {
       var loader = document.getElementById("loader");
       loader.style.display = 'inline';
@@ -134,8 +140,19 @@
               <li class="nav-item">
                 <a class="nav-link" href="{{url_for('groups')}}">Groups</a>
               </li>
-              <li class="nav-item" id="instances-nav" style="display: none;">
-                <a class="nav-link" href="{{url_for('view_instances')}}">Apps</a>
+              <!--
+              <li class="nav-item dropdown" id="apps-nav-dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="apps-dropdown-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Apps
+                </a>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="apps-dropdown-menu" id="apps-dropdown">
+                  <a class="dropdown-item" href="{{url_for('view_jupyter_notebooks')}}" onclick="loader()">Jupyter notebooks</a>
+                  <a class="dropdown-item" href="{{url_for('view_instances')}}" onclick="loader()">Slate interface</a> 
+                </div>
+              </li>
+              -->
+              <li class="nav-item" id="instances-nav">
+                <a class="nav-link" href="{{url_for('view_jupyter_notebooks')}}" onclick="loader()">Apps</a>
               </li>
               <li class="nav-item dropdown" id="login-node-nav" style="display: none;">
                 <a class="nav-link dropdown-toggle" href="#" id="login-node-nav-link" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Login Nodes</a>
@@ -170,8 +187,11 @@
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="support-dropdown-menu" id="support-dropdown">
                   <!-- <h6 class="dropdown-header" id="nav-documentation">Documentation</h6> -->
                   <!-- <a class="dropdown-item" href="{{url_for('about')}}">About</a> -->
-                  <a class="dropdown-item" id="nav-overview" href="" target="_blank">Overview</a>
+                  <h6 class="dropdown-header" id="nav-docs">Documentation</h6>
+                  <a class="dropdown-item" id="nav-overview" href="" target="_blank" style="display: none">Overview</a>                  
                   <a class="dropdown-item" id="nav-handbook" href="" target="_blank" style="display: none;">Handbook</a>
+                  <a class="dropdown-item" id="nav-user-docs" href="" target="_blank" style="display: none">User Docs</a>
+                  <a class="dropdown-item" id="nav-external-docs" href="" target="_blank" style="display: none">US ATLAS Analysis Facilities</a>
                   <a class="dropdown-item" id="nav-aup" href="{{url_for('aup')}}">Acceptable Use Policy</a>
                   <h6 class="dropdown-header" id="nav-support">Direct Support</h6>
                   <a class="dropdown-item" id="nav-discourse" href="https://atlas-talk.sdcc.bnl.gov/c/uchicago-tier-3-analysis-facility" target="_blank">Discourse (User Support)</a>

@@ -1,0 +1,86 @@
+{% if image == 'ivukotic/ml_platform:latest' or image == 'ivukotic/ml_platform:conda' %}
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    instance: {{notebook_name}}
+    k8s-app: privatejupyter
+    owner: {{username}}
+    time2delete: ttl-{{days}}
+  name: {{notebook_name}}
+  namespace: {{namespace}}
+spec:
+  containers:
+  - name: {{notebook_name}}
+    args:
+    - /.run
+    - /ML_platform_tests/SetupPrivateJupyterLab.sh
+    env:
+    - name: "JUPYTER_TOKEN"
+      value: {{token}}
+    {% if gpu_available and gpu_request == 0 %} 
+    - name: NVIDIA_VISIBLE_DEVICES
+      value: none
+    {% endif %}
+    image: {{image}}
+    imagePullPolicy: Always
+    ports:
+    - containerPort: 9999
+    resources:
+      limits:
+        cpu: {{cpu_limit}}
+        memory: {{memory_limit}}
+        {% if gpu_available %}
+        nvidia.com/gpu: {{gpu_limit}}
+        {% endif %}
+      requests:
+        cpu: {{cpu_request}}
+        memory: {{memory_request}}
+        {% if gpu_available %}
+        nvidia.com/gpu: {{gpu_request}}
+        {% endif %}
+    volumeMounts:
+    - mountPath: /data
+      name: local-scratch
+      readOnly: false
+  restartPolicy: Always
+  volumes:
+  - hostPath:
+      path: /data
+    name: local-scratch
+{% elif image == 'jupyter/minimal-notebook:latest' %}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{notebook_name}}
+  namespace: {{namespace}}
+  labels:
+    instance: {{notebook_name}}
+    owner: {{username}}
+    time2delete: ttl-{{days}}
+spec:
+  containers:
+  - name: {{notebook_name}}
+    image: {{image}}
+    ports:
+    - containerPort: 8888
+    {% if gpu_available and gpu_request == 0 %} 
+    env:
+    - name: NVIDIA_VISIBLE_DEVICES
+      value: none
+    {% endif %}
+    resources:
+      limits:
+        memory: {{memory_limit}}
+        cpu: {{cpu_limit}}
+        {% if gpu_available %}
+        nvidia.com/gpu: {{gpu_limit}}
+        {% endif %}
+      requests:
+        memory: {{memory_request}}
+        cpu: {{cpu_request}}
+        {% if gpu_available %}
+        nvidia.com/gpu: {{gpu_request}}
+        {% endif %}
+    args: ["start-notebook.sh", "--NotebookApp.token='{{token}}'", "--ServerApp.allow_password_change=False"]
+{% endif %}
