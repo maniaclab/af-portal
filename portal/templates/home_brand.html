@@ -1,5 +1,7 @@
 {% if 'af.uchicago.edu' in request.host %}
 <img src="{{url_for('static', filename='img/atlas-af-logo.png')}}" style="width:30%;">
+{% elif 'www-test.ci-connect.net' in request.host %}
+<img src="{{url_for('static', filename='img/atlas-af-logo.png')}}" style="width:30%;">
 {% elif 'snowmass21.ci-connect.net' in request.host %}
 <img src="{{url_for('static', filename='img/snowmass-connect-logo.png')}}" style="width:30%;">
 {% elif 'atlas.ci-connect.net' in request.host %}
