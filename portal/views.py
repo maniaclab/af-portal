@@ -630,6 +630,9 @@ def aup():
         aup_md = file.read()
     return render_template("AUP.html", aup_md=aup_md)
 
+@app.route("/hardware", methods=["GET"])
+def hardware_information():
+    return render_template("hardware.html")
 
 @app.route("/about", methods=["GET"])
 def about():
