@@ -1,5 +1,5 @@
 <ul class="navbar-nav ml-auto">
-{% if 'af.uchicago.edu' in request.host or 'localhost' in request.host %}
+{% if 'af.uchicago.edu' in request.host or 'localhost' in request.host or 'www-test.ci-connect.net' in request.host %}
     {% if session.get('is_authenticated') and session.get('unix_name') %}
         {% if session.get('admin') == 'admin' %}
     <li class="nav-item">
