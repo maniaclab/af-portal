@@ -153,6 +153,14 @@ def gpu_request_valid(gpu):
     return False
 
 def validate(notebook_name, username, cpu, memory, gpu, image, time_duration):
+    if " " in notebook_name:
+        logger.warning('The name %s has whitespace' %notebook_name)
+        raise k8sException('The notebook name cannot have any whitespace')
+
+    if len(notebook_name) > 20:
+        logger.warning('The name %s has more than 20 characters' %notebook_name)
+        raise k8sException('The notebook name cannot exceed 20 characters')
+
     if not supports_image(image):
         logger.warning('Docker image %s is not suppported' %image)
         raise k8sException('Docker image %s is not supported' %image)
