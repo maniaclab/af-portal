@@ -4,6 +4,7 @@ import datetime
 import threading
 import os
 import re
+import string
 import urllib
 from base64 import b64encode
 from datetime import timezone
@@ -19,6 +20,8 @@ domain_name = app.config.get('DOMAIN_NAME')
 ingress_class = app.config.get('INGRESS_CLASS')
 gpu_available = app.config.get("GPU_AVAILABLE")
 config_file = app.config.get("KUBECONFIG")
+
+k8s_charset = set(string.ascii_lowercase + string.ascii_uppercase + string.digits + '_' + '-' + '.')
 
 class k8sException(Exception):
     pass
@@ -160,6 +163,10 @@ def validate(notebook_name, username, cpu, memory, gpu, image, time_duration):
     if len(notebook_name) > 20:
         logger.warning('The name %s has more than 20 characters' %notebook_name)
         raise k8sException('The notebook name cannot exceed 20 characters')
+
+    if not set(notebook_name) <= k8s_charset:
+        logger.warning('The name %s has invalid characters' %notebook_name)
+        raise k8sException('Valid characters are a-zA-Z0-9 and ._-')
 
     if not supports_image(image):
         logger.warning('Docker image %s is not suppported' %image)
