@@ -65,59 +65,78 @@ def generate_token():
     b64_encoded = b64encode(token_bytes).decode()
     return b64_encoded
 
-def create_pod(notebook_name, username, cpu, memory, gpu, image, time_duration, token):
+def create_pod(notebook_id, display_name, username, cpu, memory, gpu, image, time_duration, token):
     try: 
         api = client.CoreV1Api()
         template = templates.get_template("pod.yaml")
         cpu_limit = cpu * 2
         memory_limit = memory * 2
-        pod = yaml.safe_load(template.render(namespace=namespace, 
-                                                notebook_name=notebook_name, 
-                                                username=username, 
-                                                token=token, 
-                                                cpu_request=cpu,
-                                                cpu_limit=cpu_limit, 
-                                                memory_request=f"{memory}Gi",
-                                                memory_limit=f"{memory_limit}Gi", 
-                                                gpu_request=gpu,
-                                                gpu_limit=gpu,
-                                                gpu_available=gpu_available, 
-                                                image=image, 
-                                                days=time_duration))                           
+        pod = yaml.safe_load(
+            template.render(
+                namespace=namespace, 
+                notebook_id=notebook_id, 
+                display_name=display_name,
+                username=username, 
+                token=token, 
+                cpu_request=cpu,
+                cpu_limit=cpu_limit, 
+                memory_request=f"{memory}Gi",
+                memory_limit=f"{memory_limit}Gi", 
+                gpu_request=gpu,
+                gpu_limit=gpu,
+                gpu_available=gpu_available, 
+                image=image, 
+                days=time_duration))                           
         api.create_namespaced_pod(namespace=namespace, body=pod)
     except:
-        logger.error('Error creating pod %s' %notebook_name)
-        raise k8sException('Error creating pod %s' %notebook_name)
+        logger.error('Error creating pod %s' %notebook_id)
+        raise k8sException('Error creating pod %s' %notebook_id)
 
-def create_service(notebook_name, image):
+def create_service(notebook_id, image):
     try: 
         api = client.CoreV1Api()
         template = templates.get_template("service.yaml")
-        service = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, image=image))
+        service = yaml.safe_load(
+            template.render(
+                namespace=namespace, 
+                notebook_id=notebook_id,
+                image=image))
         api.create_namespaced_service(namespace=namespace, body=service)
     except:
-        logger.error('Error creating service %s' %notebook_name)
-        raise k8sException('Error creating service %s' %notebook_name)
+        logger.error('Error creating service %s' %notebook_id)
+        raise k8sException('Error creating service %s' %notebook_id)
 
-def create_ingress(notebook_name, username, image):
+def create_ingress(notebook_id, username, image):
     try: 
         api = client.NetworkingV1Api()
         template = templates.get_template("ingress.yaml")
-        ingress = yaml.safe_load(template.render(domain_name=domain_name, ingress_class=ingress_class, namespace=namespace, notebook_name=notebook_name, username=username, image=image))
+        ingress = yaml.safe_load(
+            template.render(
+                domain_name=domain_name, 
+                ingress_class=ingress_class, 
+                namespace=namespace, 
+                notebook_id=notebook_id,
+                username=username, 
+                image=image))
         api.create_namespaced_ingress(namespace=namespace,body=ingress)
     except:
-        logger.error('Error creating ingress %s' %notebook_name)
-        raise k8sException('Error creating ingres %s' %notebook_name)
+        logger.error('Error creating ingress %s' %notebook_id)
+        raise k8sException('Error creating ingres %s' %notebook_id)
 
-def create_secret(notebook_name, username, token):
+def create_secret(notebook_id, username, token):
     try: 
         api = client.CoreV1Api()
         template = templates.get_template("secret.yaml")
-        sec = yaml.safe_load(template.render(namespace=namespace, notebook_name=notebook_name, username=username, token=token))
+        sec = yaml.safe_load(
+            template.render(
+                namespace=namespace, 
+                notebook_id=notebook_id, 
+                username=username, 
+                token=token))
         api.create_namespaced_secret(namespace=namespace, body=sec)
     except:
-        logger.error('Error creating secret %s' %notebook_name)
-        raise k8sException('Error creating secret %s' %notebook_name)
+        logger.error('Error creating secret %s' %notebook_id)
+        raise k8sException('Error creating secret %s' %notebook_id)
 
 def supports_image(image):
     images = [
@@ -130,16 +149,16 @@ def supports_image(image):
     ]
     return image in images
 
-def name_available(notebook_name):
+def notebook_id_available(notebook_id):
     try: 
         core_v1_api = client.CoreV1Api()
-        pods = core_v1_api.list_namespaced_pod(namespace, label_selector="instance={0}".format(notebook_name))
+        pods = core_v1_api.list_namespaced_pod(namespace, label_selector="instance={0}".format(notebook_id))
 
         if not pods or len(pods.items) == 0:
             return True
     except:
-        logger.error('Error checking whether notebook name %s is available' %notebook_name)
-        raise k8sException('Error checking whether notebook name %s is available' %notebook_name)
+        logger.error('Error checking whether notebook name %s is available' %notebook_id)
+        raise k8sException('Error checking whether notebook name %s is available' %notebook_id)
 
 def cpu_request_valid(cpu):
     if cpu >=1 and cpu <= 4:
@@ -156,14 +175,14 @@ def gpu_request_valid(gpu):
         return True
     return False
 
-def validate(notebook_name, username, cpu, memory, gpu, image, time_duration):
+def validate(notebook_name, notebook_id, username, cpu, memory, gpu, image, time_duration):
     if " " in notebook_name:
         logger.warning('The name %s has whitespace' %notebook_name)
         raise k8sException('The notebook name cannot have any whitespace')
 
-    if len(notebook_name) > 20:
-        logger.warning('The name %s has more than 20 characters' %notebook_name)
-        raise k8sException('The notebook name cannot exceed 20 characters')
+    if len(notebook_name) > 30:
+        logger.warning('The name %s has more than 30 characters' %notebook_name)
+        raise k8sException('The notebook name cannot exceed 30 characters')
 
     if not set(notebook_name) <= k8s_charset:
         logger.warning('The name %s has invalid characters' %notebook_name)
@@ -173,7 +192,7 @@ def validate(notebook_name, username, cpu, memory, gpu, image, time_duration):
         logger.warning('Docker image %s is not suppported' %image)
         raise k8sException('Docker image %s is not supported' %image)
 
-    if not name_available(notebook_name):
+    if not notebook_id_available(notebook_id):
         logger.warning('The name %s is already taken' %notebook_name)
         raise k8sException('The name %s is already taken' %notebook_name)
 
@@ -190,15 +209,17 @@ def validate(notebook_name, username, cpu, memory, gpu, image, time_duration):
         raise k8sException('The request of %d GPUs is outside the bounds [1, 2]' %gpu)
 
 def create_notebook(notebook_name, username, cpu, memory, gpu, image, time_duration):
-    validate(notebook_name, username, cpu, memory, gpu, image, time_duration)
+    notebook_id = notebook_name.lower()
+
+    validate(notebook_name, notebook_id, username, cpu, memory, gpu, image, time_duration)
 
     token = generate_token()
     logger.info("The token for %s is %s" %(notebook_name, token))
       
-    create_pod(notebook_name, username, cpu, memory, gpu, image, time_duration, token)
-    create_service(notebook_name, image)
-    create_ingress(notebook_name, username, image)
-    create_secret(notebook_name, username, token)
+    create_pod(notebook_id, notebook_name, username, cpu, memory, gpu, image, time_duration, token)
+    create_service(notebook_id, image)
+    create_ingress(notebook_id, username, image)
+    create_secret(notebook_id, username, token)
 
     logger.info('Created notebook %s' %notebook_name)
 
@@ -290,6 +311,11 @@ def get_token(notebook_name):
         logger.error("Error getting secret for notebook %s" %notebook_name)
         return None
 
+def get_notebook_name(pod):
+    if hasattr(pod.metadata, 'labels') and 'display-name' in pod.metadata.labels:
+        return pod.metadata.labels['display-name']
+    return pod.metadata.name
+
 def get_url(pod):
     try: 
         if notebook_closing(pod):
@@ -334,7 +360,7 @@ def get_notebooks(username):
     notebooks = []
     for pod in user_pods:
         try: 
-            name = pod.metadata.name
+            name = get_notebook_name(pod)
             url = get_url(pod)
             creation_date = get_creation_timestamp(pod)
             expiration_date = get_expiration_timestamp(pod)
@@ -356,29 +382,30 @@ def get_notebooks(username):
             logger.error('Error processing Jupyter notebook %s' %pod.metadata.name)   
     return notebooks
 
-def remove_notebook(notebook_name):
+def remove_notebook(notebook_id):
     core_v1_api = client.CoreV1Api()
-    core_v1_api.delete_namespaced_pod(notebook_name, namespace)
-    core_v1_api.delete_namespaced_service(notebook_name, namespace)
+    core_v1_api.delete_namespaced_pod(notebook_id, namespace)
+    core_v1_api.delete_namespaced_service(notebook_id, namespace)
     networking_v1_api = client.NetworkingV1Api()
-    networking_v1_api.delete_namespaced_ingress(notebook_name, namespace)
-    core_v1_api.delete_namespaced_secret(notebook_name, namespace)
-    logger.info("Removing notebook %s in namespace %s" %(notebook_name, namespace))
+    networking_v1_api.delete_namespaced_ingress(notebook_id, namespace)
+    core_v1_api.delete_namespaced_secret(notebook_id, namespace)
+    logger.info("Removing notebook %s in namespace %s" %(notebook_id, namespace))
 
 def remove_user_notebook(notebook_name, username):
     try:
+        notebook_id = notebook_name.lower()
         core_v1_api = client.CoreV1Api()
         networking_v1_api = client.NetworkingV1Api()
-        pod = core_v1_api.read_namespaced_pod(notebook_name, namespace)
+        pod = core_v1_api.read_namespaced_pod(notebook_id, namespace)
         if pod.metadata.labels['owner'] == username:
-            core_v1_api.delete_namespaced_pod(notebook_name, namespace)
-            core_v1_api.delete_namespaced_service(notebook_name, namespace)
-            networking_v1_api.delete_namespaced_ingress(notebook_name, namespace)
-            core_v1_api.delete_namespaced_secret(notebook_name, namespace)
-            logger.info('Removing notebook %s' %notebook_name)
+            core_v1_api.delete_namespaced_pod(notebook_id, namespace)
+            core_v1_api.delete_namespaced_service(notebook_id, namespace)
+            networking_v1_api.delete_namespaced_ingress(notebook_id, namespace)
+            core_v1_api.delete_namespaced_secret(notebook_id, namespace)
+            logger.info('Removing notebook %s' %notebook_id)
         else:
-            logger.warning('Notebook %s does not belong to user %s' %(notebook_name, username))
-            raise k8sException('Notebook %s does not belong to user %s' %(notebook_name, username))
+            logger.warning('Notebook %s does not belong to user %s' %(notebook_id, username))
+            raise k8sException('Notebook %s does not belong to user %s' %(notebook_id, username))
     except:
-        logger.error(f"Error removing pod {notebook_name} in namespace {namespace}")
-        raise k8sException('Error removing notebook %s' %notebook_name)
+        logger.error(f"Error removing pod {notebook_id} in namespace {namespace}")
+        raise k8sException('Error removing notebook %s' %notebook_id)
