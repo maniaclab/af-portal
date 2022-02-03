@@ -13,32 +13,30 @@
       <li class="breadcrumb-item active">Deploy</li>
     </ol>
     <h1>Deploy</h1>
-    <!--<div class="alert alert-warning" role="alert">
-      <i class="fas fa-exclamation-circle"></i> This feature is a technical preview. Some functionality may be missing or broken.
-    </div>-->
     <hr/>
     <br></br>
     <div class="row">
-      <div class="col-lg-1"></div>
-      <div class="col-lg-5">
-        <div class="card h-100" style="width: 32rem;">
+      <!-- <div class="col-lg-1"></div> -->
+      <div class="col-lg-6 mx-auto">
+        <div class="card h-100">
+        <!-- <div class="card h-100" style="width: 32rem;"> -->
+          <!-- <img class="card-img-top" src="{{url_for('static', filename='img/jupyter-lab-logo.png')}}" alt="Jupyter Notebook Logo" style="padding: 5px; width: 250px"> -->
           <table>
             <tr>
               <td><img class="card-img-top" src="{{url_for('static', filename='img/jupyter-lab-logo.png')}}" alt="Jupyter Notebook Logo" style="padding: 5px; width: 250px"></td>
-              <td><img class="card-img-top" src="{{url_for('static', filename='img/machine-learning-logo.png')}}" alt="Machine Learning Logo" style="padding: 5px; width: 130px"></td>
+              <!-- <td><img class="card-img-top" src="{{url_for('static', filename='img/machine-learning-logo.png')}}" alt="Machine Learning Logo" style="padding: 5px; width: 130px"></td> -->
             </tr>
           </table>
           <div class="card-body">
-            <h5 class="card-title">Jupyter Notebook with a machine learning setup</h5>
-            <form role="form" id="deploy-form" action="{{url_for('deploy_jupyter_notebook')}}" method="POST" style="margin-top: 40px !important">
+            <h5 class="card-title">Create a Jupyter notebook with a machine learning setup</h5>
+            <form role="form" id="deploy-form" action="{{url_for('deploy_jupyter_notebook')}}" method="POST" style="margin-top: 50px !important">
               <div class="form-group">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
               </div>
-
-              <table class="resource-config">             
+              <table id="deploy-table">             
                 <tr>
                   <td>
-                    <label for="notebook-name">Name</label>
+                    <label for="notebook-name">Notebook name</label>
                   </td>
                   <td>
                     <input 
@@ -50,22 +48,6 @@
                     >
                   </td>
                 </tr>
-                <!--
-                <tr>
-                  <td>
-                    <label for="notebook-password">Password *</label>
-                  </td>
-                  <td>
-                    <input 
-                      type="password"
-                      class="form-control"
-                      id="notebook-password"
-                      name="notebook-password"
-                      required
-                    >
-                  </td>
-                </tr>
-                -->
                 <tr>
                   <td>
                     <label for="cpu-cores">CPU cores</label>
@@ -102,7 +84,7 @@
                 </tr>
                 <tr>
                   <td>
-                    <label for="gpu-cores">GPU</label>
+                    <label for="gpu-cores">GPU cores</label>
                   </td>
                   <td>
                     <input 
@@ -136,18 +118,18 @@
                 </tr>
                 <tr>
                   <td>
-                    <label for="image">Image</label>
+                    <label for="image">Docker image</label>
                   </td>
                   <td>
-                    <select name="image" id="notebook-image">
-                      <!-- <option value="jupyter/minimal-notebook:latest">jupyter/minimal-notebook:latest</option> -->
+                    <select name="image" id="notebook-image" style="width: 100%">
+                      <!--<option value="jupyter/minimal-notebook:latest">jupyter/minimal-notebook:latest</option>-->
                       <option value="ivukotic/ml_platform:latest">ivukotic/ml_platform:latest</option>
                       <option value="ivukotic/ml_platform:conda">ivukotic/ml_platform:conda</option>
                     </select>
                   </td>
                 </tr>
-              </table>
-              
+              </table>      
+  
               {% if not public_key %}
               <div class="form-group">
                 <label for="sshpubstring">SSH Public Key</label>
@@ -160,15 +142,15 @@
                   ></textarea>
               </div>
               {% endif %}
-  
+
               <div class="form-group">
-                <button type="submit" class="btn btn-primary btn-box-shadow" onclick="loader()" style="margin-top: 20px" disabled>Deploy notebook</button>
+                <button type="submit" class="btn btn-primary btn-box-shadow" onclick="loader()" style="margin-top: 30px" disabled>Deploy notebook</button>
               </div>
             </form>
           </div>
         </div>
-      </div> <!-- Profile Form Container -->
-      <div class="col-lg-5">
+      </div> 
+      <!-- <div class="col-lg-5">
         <div class="card h-100" style="width: 32rem;">
           <table>
             <tr>
@@ -185,17 +167,15 @@
               <a class="btn btn-primary btn-box-shadow" href="https://coffea.af.uchicago.edu" target="_blank" style="position: absolute; bottom: 35px; left: 20px;">Open Coffea Casa</a>
             </div>
           </div>
-      </div>
+      </div> -->
       {% if not public_key %}
       <!--
       <div class="col-md-6">
-
         <h2 class="title">
           <small>Adding or generating your SSH public key:</small>
         </h2>
         <hr/>
         <div id="accordion" role="tablist" aria-multiselectable="true">
-
           <div class="card panel panel-info resource-profile" style="margin: 1em;">
             <div class="card-header panel-title" role="tab" id="headingTwo">
               <h6 class="mb-0">
@@ -218,7 +198,6 @@
               </div>
             </div>
           </div>
-
           <div class="card panel panel-info resource-profile" style="margin: 1em;">
             <div class="card-header panel-title" role="tab" id="headingThree">
               <h6 class="mb-0">
@@ -258,7 +237,6 @@
               </div>
             </div>
           </div>
-
         </div><!-- /.accordion-->
       <!-- </div><!-- /.col-md-6 -->
       {% endif %} 
@@ -268,15 +246,6 @@
 </section>
 <script type="text/javascript">
 $(document).ready(function() {
-  // var validate = function() {
-    // var valid = true;
-    
-    // $.each($("input:required"), function (index, value) {
-    //   if(!$(value).val())
-    //     valid = false;
-    // });
-  // };
-
   $("#deploy-form").on('keyup change', function() {
     $('#deploy-form').validate();
     var valid = $('#deploy-form').valid();
