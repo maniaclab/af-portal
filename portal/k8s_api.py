@@ -125,7 +125,8 @@ def supports_image(image):
         'ivukotic/ml_platform:conda', 
         'ivukotic/ml_platform_auto:latest', 
         'ivukotic/ml_platform_auto:conda', 
-        'jupyter/minimal-notebook:latest'
+        'hub.opensciencegrid.org/usatlas/ml-platform:latest',
+        'hub.opensciencegrid.org/usatlas/ml-platform:conda'
     ]
     return image in images
 
