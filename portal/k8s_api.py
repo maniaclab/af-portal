@@ -129,7 +129,7 @@ def supports_image(image):
 def name_available(notebook_name):
     try: 
         core_v1_api = client.CoreV1Api()
-        pods = core_v1_api.list_namespaced_pod(namespace, label_selector="instance=" + notebook_name)
+        pods = core_v1_api.list_namespaced_pod(namespace, label_selector="instance={0}".format(notebook_name))
 
         if not pods or len(pods.items) == 0:
             return True
