@@ -3,8 +3,6 @@
 {%block title%}About{%endblock%}
 
 {%block body%}
-
-{% if 'af.uchicago.edu' in request.host %}
 <section id="about-section">
   <div class="container col-lg-12">
     {%include 'messages.html'%}
@@ -15,50 +13,6 @@
     </div>
   </div>
 </section>
-{% elif 'snowmass21' in request.host %}
-<section id="snowmass-about" class="bg-light wow animate fadeInUp" style='display: none;'>
-  <div class="container col-lg-12" id="about-vc3-scroll">
-    <div class="row">
-      <div class="content col-lg-8 mx-auto">
-        <p class="section-description">
-          Snowmass21 Connect provides hosted job submission services for
-          distributed, high-throughput computing through collaborative efforts with the following organizations
-        </p>
-      <div class="section-title-divider"></div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="content col-lg-8 mx-auto">
-        {% for collab in organizations %}
-        <div class="row wow animate fadeInRight">
-          <div class="col-xs-12 col-md-4">
-            <a href="{{collab['href']}}" target="_blank">
-              <img style='width: 50%' class="img-responsive" src="{{url_for('static', filename=collab['img'])}}">
-            </a>
-          </div>
-          <div class="col-xs-12 col-md-8 section-description">
-            <p>{{collab['description']}}</p>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
-</section>
-{% else %}
-<section id="about-section">
-  <div class="container col-lg-12">
-    {%include 'messages.html'%}
-    <div class="row">
-      <div class="col-lg-8 mx-auto">
-        <p class="leadl" id="about_content"></p>
-      </div>
-    </div>
-  </div>
-</section>
-{% endif %}
-
-<!-- Page footer -->
 {%include 'footer.html'%}
 
 <script type="text/javascript">
@@ -69,5 +23,4 @@ $(document).ready(function() {
   $('#about_content').html(about_rendered);
 });
 </script>
-
 {%endblock%}
