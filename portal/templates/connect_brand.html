@@ -2,7 +2,7 @@
 <img src="{{url_for('static', filename='img/atlas-af-logo.png')}}" height="35" class="d-inline-block align-top" alt="">
 {% elif 'www-test.ci-connect.net' in request.host %}
 <img src="{{url_for('static', filename='img/atlas-af-logo.png')}}" height="35" class="d-inline-block align-top" alt="">
-{% elif 'snowmass21.ci-connect.net' in request.host %}
+{% elif 'snowmass21.ci-connect.net' in request.host or 'snowmass21.io' in request.host %}
 <img src="{{url_for('static', filename='img/snowmass-connect-logo.png')}}" height="35" class="d-inline-block align-top" alt="">
 {% elif 'atlas.ci-connect.net' in request.host %}
 <img src="{{url_for('static', filename='img/atlas-connect-logo.png')}}" height="35" class="d-inline-block align-top" alt="">

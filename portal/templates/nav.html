@@ -74,7 +74,7 @@
         <a class="nav-link" href="{{url_for('signup')}}">Sign Up</a>
     </li>
     {% endif %}
-{% elif 'snowmass21.ci-connect.net' in request.host %}
+{% elif 'snowmass21.ci-connect.net' in request.host or 'snowmass21.io' in request.host %}
     {% if session.get('is_authenticated') and session.get('unix_name') %}
     <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
