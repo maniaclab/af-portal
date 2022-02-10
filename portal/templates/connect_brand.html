@@ -16,6 +16,8 @@
 <img src="{{url_for('static', filename='img/psd-connect-logo.png')}}" height="35" class="d-inline-block align-top" alt="">
 {% elif 'ci-connect.net' in request.host %}
 <img src="{{url_for('static', filename='img/CIConnect_Logo.png')}}" height="35" class="d-inline-block align-top" alt="">
+{% elif 'uscms.org' in request.host %}
+<img src="{{url_for('static', filename='img/cms-connect-logo.png')}}" height="35" class="d-inline-block align-top" alt="">
 {% else %}
 <img src="{{url_for('static', filename='img/atlas-af-logo.png')}}" height="35" class="d-inline-block align-top" alt="">
 {% endif %}
