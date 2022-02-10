@@ -25,7 +25,7 @@
               <div class="card-body">
                 <!-- <h5 class="card-title" style="text-align: center">User Information</h5> -->
                 <div class="row">
-                  <div class="col-sm-6">
+                  <div class="col-sm-12">
                     <ul class="list-unstyled">
                       <li><strong>Name:</strong> {{profile['name']}}</li>
                       <li><strong>Email:</strong> {{profile['email']}}</li>
@@ -35,10 +35,11 @@
                       {% if profile['X.509_DN'] %}
                       <li><strong>X.509 DN:</strong> {{profile['X.509_DN']}}</li>
                       {% endif %}
-                      <br>
+                      <!--<br>-->
                       <li><strong>Joined:</strong> {{profile['join_date'][:11]}}</li>
-                      <li><strong>Last Active:</strong> {{profile['last_use_time'][:11]}}</li>
+                      <!--<li><strong>Last Active:</strong> {{profile['last_use_time'][:11]}}</li>-->
                     </ul>
+                    <br>
                     <a href="{{url_for('edit_profile', unix_name=profile['unix_name'])}}" class="btn btn-primary btn-sm btn-box-shadow">Edit Profile</a>
                     <br>
                   </div>
