@@ -756,7 +756,7 @@ def create_profile():
             public_key=public_key,
         )
 
-    elif request.method == "POST":
+    if request.method == "POST":
         name = request.form["name"]
         unix_name = request.form["unix_name"]
         email = request.form["email"]
@@ -767,7 +767,6 @@ def create_profile():
         superuser = False
         service_account = False
 
-        # Schema and query for adding users to CI Connect DB
         if public_key:
             post_user = {
                 "apiVersion": "v1alpha1",
@@ -797,43 +796,43 @@ def create_profile():
                     "service_account": service_account,
                 },
             }
-        r = requests.post(
-            ciconnect_api_endpoint + "/v1alpha1/users", params=query, json=post_user
-        )
-        # print("REQUEST RESPONSE: {}".format(r))
-        # print("REQUEST URL: {}".format(r.url))
-        if r.status_code == requests.codes.ok:
-            r = r.json()["metadata"]
-            session["name"] = r["name"]
-            session["email"] = r["email"]
-            session["phone"] = r["phone"]
-            session["institution"] = r["institution"]
-            session["unix_name"] = r["unix_name"]
+        try:
+            r = requests.post(ciconnect_api_endpoint + "/v1alpha1/users", params=query, json=post_user)
+            if r.status_code == requests.codes.ok:
+                r = r.json()["metadata"]
+                session["name"] = r["name"]
+                session["email"] = r["email"]
+                session["phone"] = r["phone"]
+                session["institution"] = r["institution"]
+                session["unix_name"] = r["unix_name"]
 
-            # Auto generate group membership into connect group
-            # put_query = {"apiVersion": 'v1alpha1',
-            #              'group_membership': {'state': 'pending'}}
-            # user_status = requests.put(
-            #     ciconnect_api_endpoint +
-            #     '/v1alpha1/groups/' +
-            #     session['url_host']['unix_name'] + '/members/' + unix_name,
-            #     params=query, json=put_query)
-            group_name = session["url_host"]["unix_name"]
-            status = "pending"
-            update_user_group_status(group_name, unix_name, status, session)
+                group_name = session["url_host"]["unix_name"]
+                status = "pending"
+                update_user_group_status(group_name, unix_name, status, session)
 
-            flash_message = flash_message_parser("create_profile")
-            flash(flash_message, "success")
+                flash_message = flash_message_parser("create_profile")
+                flash(flash_message, "success")
 
-            if "next" in session:
-                redirect_to = session["next"]
-                session.pop("next")
+                if "next" in session:
+                    redirect_to = session["next"]
+                    session.pop("next")
+                else:
+                    redirect_to = url_for("profile")
+                return redirect(url_for("profile"))
             else:
-                redirect_to = url_for("profile")
-            return redirect(url_for("profile"))
-        else:
-            error_msg = r.json()["message"]
-            flash("Failed to create your account: {}".format(error_msg), "warning")
+                error_msg = r.json()["message"]
+                flash("Failed to create your account: {}".format(error_msg), "warning")
+                return render_template(
+                    "profile_create.html",
+                    name=name,
+                    unix_name=unix_name,
+                    email=email,
+                    phone=phone,
+                    institution=institution,
+                    public_key=public_key,
+                )
+        except:
+            flash("Error calling connect-api", "warning")
             return render_template(
                 "profile_create.html",
                 name=name,
@@ -841,8 +840,9 @@ def create_profile():
                 email=email,
                 phone=phone,
                 institution=institution,
-                public_key=public_key,
+                public_key=public_key
             )
+
 
 
 @app.route("/profile/edit/<unix_name>", methods=["GET", "POST"])
