@@ -27,17 +27,9 @@
 {% else %}
 <footer>
   <div class="img-container"> 
-      <div id="af-footer-images">
-        <a href="https://www.uchicago.edu" target="_blank">
-          <img src="{{url_for('static', filename='img/footer/uc-logo.png')}}" class="powered-by-large">
-        </a>
-        <a href="https://efi.uchicago.edu" target="_blank">
-          <img src="{{url_for('static', filename='img/footer/efi-logo.png')}}" class="powered-by-large">
-        </a>
-        <a href="https://iris-hep.org" target="_blank">
-          <img src="{{url_for('static', filename='img/footer/iris-hep-logo.png')}}" class="powered-by-large">
-        </a>
-      </div>
+      <a href="http://ci-connect.net/" target="_blank">
+        <img src="{{url_for('static', filename='img/footer/powered-by-ciconnect.png')}}" class="powered-by-large" alt="CI Connect" id="footer-img">
+      </a>
   </div>
   <br></br>
 </footer>
