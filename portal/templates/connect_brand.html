@@ -12,7 +12,7 @@
 <img src="{{url_for('static', filename='img/duke-connect-logo.png')}}" height="35" class="d-inline-block align-top" alt="">
 {% elif 'spt.ci-connect.net' in request.host %}
 <img src="{{url_for('static', filename='img/spt-connect-logo.png')}}" height="35" class="d-inline-block align-top" alt="">
-{% elif 'psd.ci-connect.net' in request.host %}
+{% elif 'psd.ci-connect.net' in request.host or 'psd-connect.uchicago.edu' in request.host %}
 <img src="{{url_for('static', filename='img/psd-connect-logo.png')}}" height="35" class="d-inline-block align-top" alt="">
 {% elif 'ci-connect.net' in request.host %}
 <img src="{{url_for('static', filename='img/CIConnect_Logo.png')}}" height="35" class="d-inline-block align-top" alt="">
