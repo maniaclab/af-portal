@@ -22,7 +22,8 @@
   </div>
 </header>
 
-<section id="about" class="container wow animate fadeInUp" style="display: none">
+{% if 'www.ci-connect.net' in request.host %}
+<section id="about" class="container wow animate fadeInUp">
   <div class="container" id="about-vc3-scroll">
     <div class="content container col-xs-12">
       <h2 class="section-title">
@@ -53,6 +54,7 @@
 
   </div>
 </section>
+{% endif %}
 
 {%include 'contributions.html'%}
 {%include 'footer.html'%}
