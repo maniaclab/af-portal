@@ -105,7 +105,7 @@ def home():
 
     collaborations = [
         {
-            "name": "ATLAS Analysis Facility",
+            "name": "ATLAS_Analysis_Facility",
             "href": "https://af.uchicago.edu",
             "img": "img/atlas-af-logo.png",
             "description": get_about_markdown("af.uchicago.edu"),
