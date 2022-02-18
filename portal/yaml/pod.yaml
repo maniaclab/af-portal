@@ -6,6 +6,7 @@ metadata:
     display-name: {{display_name}}
     k8s-app: privatejupyter
     owner: {{username}}
+    globus-id: {{globus_id}}
     time2delete: ttl-{{days}}
   name: {{notebook_id}}
   namespace: {{namespace}}

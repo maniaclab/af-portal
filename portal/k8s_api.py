@@ -65,7 +65,7 @@ def generate_token():
     b64_encoded = b64encode(token_bytes).decode()
     return b64_encoded
 
-def create_pod(notebook_id, display_name, username, cpu, memory, gpu, image, time_duration, token):
+def create_pod(notebook_id, display_name, username, globus_id, cpu, memory, gpu, image, time_duration, token):
     try: 
         api = client.CoreV1Api()
         template = templates.get_template("pod.yaml")
@@ -76,7 +76,8 @@ def create_pod(notebook_id, display_name, username, cpu, memory, gpu, image, tim
                 namespace=namespace, 
                 notebook_id=notebook_id, 
                 display_name=display_name,
-                username=username, 
+                username=username,
+                globus_id=globus_id, 
                 token=token, 
                 cpu_request=cpu,
                 cpu_limit=cpu_limit, 
@@ -208,7 +209,7 @@ def validate(notebook_name, notebook_id, username, cpu, memory, gpu, image, time
         logger.warning('The request of %d GPUs is outside the bounds [1, 2]' %gpu)
         raise k8sException('The request of %d GPUs is outside the bounds [1, 2]' %gpu)
 
-def create_notebook(notebook_name, username, cpu, memory, gpu, image, time_duration):
+def create_notebook(notebook_name, username, globus_id, cpu, memory, gpu, image, time_duration):
     notebook_id = notebook_name.lower()
 
     validate(notebook_name, notebook_id, username, cpu, memory, gpu, image, time_duration)
@@ -216,7 +217,7 @@ def create_notebook(notebook_name, username, cpu, memory, gpu, image, time_durat
     token = generate_token()
     logger.info("The token for %s is %s" %(notebook_name, token))
       
-    create_pod(notebook_id, notebook_name, username, cpu, memory, gpu, image, time_duration, token)
+    create_pod(notebook_id, notebook_name, username, globus_id, cpu, memory, gpu, image, time_duration, token)
     create_service(notebook_id, image)
     create_ingress(notebook_id, username, image)
     create_secret(notebook_id, username, token)

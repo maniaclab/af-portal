@@ -21,6 +21,7 @@ def create_jupyter_notebook():
 @authenticated
 def deploy_jupyter_notebook():
     try:
+        globus_id = session['primary_identity']
         notebook_name = request.form['notebook-name'].strip()
         username = session['unix_name']
         cpu = int(request.form['cpu']) 
@@ -28,7 +29,7 @@ def deploy_jupyter_notebook():
         gpu = int(request.form['gpu'])
         image = request.form['image']
         time_duration = int(request.form['time-duration'])
-        k8s_api.create_notebook(notebook_name, username, cpu, memory, gpu, image, time_duration)
+        k8s_api.create_notebook(notebook_name, username, globus_id, cpu, memory, gpu, image, time_duration)
     except k8sException as e:
         flash(str(e), 'warning')
     except:
