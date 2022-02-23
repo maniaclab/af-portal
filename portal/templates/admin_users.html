@@ -1,0 +1,42 @@
+{%extends "base.html"%}
+
+{%block title%}
+  Admin - Users
+{%endblock%}
+
+{%block body%}
+<section>
+    <div class="container col-lg-12">
+        {%include 'messages.html' %}
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">Admin</li>
+            <li class="breadcrumb-item">Users</li>
+        </ol>
+        <h5>User Information</h5>
+        <div id="spreadsheet"></div>
+    </div>
+</section>
+<script type="text/javascript">
+$(document).ready(function() {
+    $.ajaxSetup({headers: { 'X-CSRF-TOKEN': "{{ csrf_token() }}" }});
+
+    var changed = function(instance, cell, x, y, value) {
+        row = spreadsheet.getRowData(y);
+        $.post("{{url_for('admin_update_user_institution')}}", {'username': row[0], 'institution': row[3]});
+    }
+    
+    spreadsheet = jspreadsheet(document.getElementById('spreadsheet'), {
+        url: "{{url_for('admin_get_user_profiles')}}",
+        columns:[
+            { title:'Username', name:'username', width:200, type: 'text', readOnly: true },
+            { title:'Email', name:'email', width: 200, type: 'text', readOnly: true },
+            { title:'Join date', name:'join_date', width: 200, type: 'calendar', options: { format:'MM/DD/YYYY' }, readOnly: true },
+            { title:'Institution', name:'institution', type: 'text', width: 400 }
+        ],
+        onchange: changed,
+        loadingSpin: true,
+        columnSorting: true
+    });
+});
+</script>
+{%endblock%}

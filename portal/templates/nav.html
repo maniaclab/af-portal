@@ -1,7 +1,16 @@
 <ul class="navbar-nav ml-auto">
 {% if 'af.uchicago.edu' in request.host or 'localhost' in request.host or 'www-test.ci-connect.net' in request.host %}
     {% if session.get('is_authenticated') and session.get('unix_name') %}
-        {% if session.get('admin') == 'admin' %}
+        {% if session.get('admin') == 'admin' %} 
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Admin
+        </a>
+        <div class="dropdown-menu dropdown-menu-right">
+            <a class="dropdown-item" href="{{url_for('admin_email')}}">Email Users</a>
+            <a class="dropdown-item" href="{{url_for('admin_users')}}">Correct User Info</a>
+        </div>
+    </li>
     <li class="nav-item">
         <a class="nav-link" href="{{url_for('view_group', group_name='root.atlas-af')}}">
             Groups
@@ -12,7 +21,7 @@
             Monitoring
         </a>
         <div class="dropdown-menu dropdown-menu-right">
-            <a class="nav-link" href="https://grafana.mwt2.org/d/m3teM9W7k/af-servers?orgId=1" target="_blank">
+            <a class="dropdown-item" href="https://grafana.mwt2.org/d/m3teM9W7k/af-servers?orgId=1" target="_blank">
                 Login Nodes
             </a>
         </div>
