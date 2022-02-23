@@ -61,7 +61,7 @@ def update_user_institution(username, institution):
         logger.error("Error updating institution for user %s." %username)
         return False
     
-def email__users(sender, recipients, subject, body):
+def email_users(sender, recipients, subject, body):
     try: 
         resp = requests.post("https://api.mailgun.net/v3/api.ci-connect.net/messages",
             auth=("api", mailgun_api_token),

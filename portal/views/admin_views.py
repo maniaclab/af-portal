@@ -36,11 +36,17 @@ def admin_update_user_institution():
 @authenticated
 def admin_email_users():
     sender = 'noreply@ci-connect.net'
-    recipients = admin.get_email_list('root.atlas-af')
+    # recipients = admin.get_email_list('root.atlas-af')
+    recipients = ["rolyata@uchicago.edu"]
     subject = request.form['subject']
     body = request.form['body']
     print("Sender: " + sender)
     print("Recipients: " + str(recipients))
     print("Subject: " + subject)
     print("Body: " + body)
-    return jsonify(success=True)
+    resp = admin.email_users(sender, recipients, subject, body)
+    if resp and resp.status_code == 200:
+        flash('Sent email successfully', 'success')
+    else:
+        flash('Error sending email', 'warning')
+    return redirect(url_for('admin_email'))
