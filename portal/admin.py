@@ -1,5 +1,8 @@
 import requests
 import json
+from matplotlib.figure import Figure
+from io import BytesIO
+import base64
 from flask import session
 from dateutil.parser import parse
 from datetime import datetime 
@@ -86,3 +89,32 @@ def email_users(sender, recipients, subject, body):
         except:
             logger.error("Error sending email to all users")
 
+def plot_users_by_join_date(users):
+    if authorized():
+        try:
+            xvalues_format = "%m-%Y" 
+            xvalues_set = set()
+            for user in users:
+                join_date = datetime.strptime(user['join_date'], '%Y-%m-%d')
+                user['jd'] = join_date
+                xvalue = datetime(join_date.year, join_date.month, 1).strftime(xvalues_format)
+                xvalues_set.add(xvalue)
+            xvalues = list(xvalues_set)
+            xvalues.sort(key=lambda x:datetime.strptime(x, xvalues_format))
+            yvalues = [0] * len(xvalues)
+            for i in range(len(xvalues)):
+                xvalue = datetime.strptime(xvalues[i], xvalues_format)
+                L = list(filter(lambda u : ((xvalue.year - u['jd'].year) * 12) + (xvalue.month - u['jd'].month) >= 0, users))
+                yvalues[i] = len(L)
+            fig = Figure(figsize=(16, 8), dpi=80)
+            ax = fig.subplots()
+            ax.plot(xvalues, yvalues)
+            ax.set_xlabel('Month')
+            ax.set_ylabel('Number of users')
+            ax.set_title('Number of users by month')
+            buf = BytesIO()
+            fig.savefig(buf, format='png')
+            data = base64.b64encode(buf.getbuffer()).decode("ascii")
+            return data
+        except:
+            logger.error('Error generating user by join date plot')
