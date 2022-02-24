@@ -82,8 +82,6 @@ def email_users(sender, recipients, subject, body):
                     "text": body
                 }
             )
-            logger.info("Response status: " + resp.status_code)
-            logger.info("Response text: " + resp.text)
             return resp
         except:
             logger.error("Error sending email to all users")

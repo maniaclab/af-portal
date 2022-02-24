@@ -45,10 +45,6 @@ def admin_email_users():
         recipients = []
         subject = request.form['subject']
         body = request.form['body']
-        print("Sender: " + sender)
-        print("Recipients: " + str(recipients))
-        print("Subject: " + subject)
-        print("Body: " + body)
         resp = admin.email_users(sender, recipients, subject, body)
         if resp and resp.status_code == 200:
             flash('Sent email successfully', 'success')
