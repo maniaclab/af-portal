@@ -33,8 +33,8 @@ def admin_update_user_institution():
     if authorized():
         username = request.form['username']
         institution = request.form['institution']
-        status = admin.update_user_institution(username, institution)
-        return jsonify(success=status)
+        resp = admin.update_user_institution(username, institution)
+        return jsonify(success = True if resp and resp.status_code == 200 else False)
 
 @app.route("/admin/email_users", methods=["POST"])
 @authenticated
@@ -42,7 +42,7 @@ def admin_email_users():
     if authorized():
         sender = 'noreply@ci-connect.net'
         # recipients = admin.get_email_list('root.atlas-af')
-        recipients = [""]
+        recipients = []
         subject = request.form['subject']
         body = request.form['body']
         print("Sender: " + sender)
