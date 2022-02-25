@@ -6,6 +6,13 @@
 
 {%block body%}
 <section>
-    <img src="data:image/png;base64,{{ base64_encoded_image }}">
+      <div class="container col-lg-12">
+        {%include 'messages.html' %}
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">Admin</li>
+          <li class="breadcrumb-item">Plot users by join date</li>
+        </ol>
+        <img src="data:image/png;base64,{{ base64_encoded_image }}">
+      </div>
 </section>
 {%endblock%}

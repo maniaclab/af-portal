@@ -6,7 +6,7 @@
 
 {%block body%}
 <style>
-    *, *::before, *::after {
+    #spreadsheet *, #spreadsheet *::before, #spreadsheet *::after {
         box-sizing: content-box !important;
     }
 </style>
@@ -17,7 +17,7 @@
             <li class="breadcrumb-item">Admin</li>
             <li class="breadcrumb-item">Users</li>
         </ol>
-        <h5>User Information</h5>
+        <h5>Read or update user information</h5>
         <div id="spreadsheet"></div>
     </div>
 </section>
@@ -33,10 +33,10 @@ $(document).ready(function() {
     spreadsheet = jspreadsheet(document.getElementById('spreadsheet'), {
         url: "{{url_for('admin_get_user_profiles')}}",
         columns:[
-            { title:'Username', name:'username', width:200, type: 'text', readOnly: true },
-            { title:'Email', name:'email', width: 300, type: 'text', readOnly: true },
+            { title:'Username', name:'username', width: 250, type: 'text', readOnly: true },
+            { title:'Email', name:'email', width: 350, type: 'text', readOnly: true },
             { title:'Join date', name:'join_date', width: 200, type: 'calendar', options: { format:'MM/DD/YYYY' }, readOnly: true },
-            { title:'Institution', name:'institution', type: 'text', width: 400 }
+            { title:'Institution', name:'institution', type: 'text', width: 450 }
         ],
         onchange: changed,
         loadingSpin: true,
