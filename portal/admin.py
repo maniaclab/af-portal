@@ -112,6 +112,7 @@ def plot_users_by_join_date(users):
             logger.info(yvalues)
             logger.info("Creating matplotlib figure...")
             fig = Figure(figsize=(12, 8), dpi=100, layout='tight')
+            logger.info("Created matplotlib figure")
             ax = fig.subplots()
             logger.info("Plotting xvalues and yvalues...")
             ax.plot(xvalues, yvalues)
