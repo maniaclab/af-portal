@@ -15,10 +15,9 @@ Admin - Email
         {% include 'messages.html' %}
         <ol class="breadcrumb">
             <li class="breadcrumb-item">Admin</li>
-            <li class="breadcrumb-item">Email</li>
+            <li class="breadcrumb-item">Send an email to all users</li>
         </ol>
         <form role="form" action="{{url_for('admin_email_users')}}" method="POST">
-            <h5>Compose an email (sent to all users)</h5>
             <div class="form-group">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
             </div>

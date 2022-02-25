@@ -106,7 +106,7 @@ def plot_users_by_join_date(users):
                 xvalue = datetime.strptime(xvalues[i], xvalues_format)
                 L = list(filter(lambda u : ((xvalue.year - u['jd'].year) * 12) + (xvalue.month - u['jd'].month) >= 0, users))
                 yvalues[i] = len(L)
-            fig = Figure(figsize=(16, 8), dpi=80)
+            fig = Figure(figsize=(12, 8), dpi=100, layout='tight')
             ax = fig.subplots()
             ax.plot(xvalues, yvalues)
             ax.set_xlabel('Month')
