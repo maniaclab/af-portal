@@ -101,11 +101,15 @@ def plot_users_by_join_date(users):
                 xvalues_set.add(xvalue)
             xvalues = list(xvalues_set)
             xvalues.sort(key=lambda x:datetime.strptime(x, xvalues_format))
+            logger.info("X values")
+            logger.info(xvalues)
             yvalues = [0] * len(xvalues)
             for i in range(len(xvalues)):
                 xvalue = datetime.strptime(xvalues[i], xvalues_format)
                 L = list(filter(lambda u : ((xvalue.year - u['jd'].year) * 12) + (xvalue.month - u['jd'].month) >= 0, users))
                 yvalues[i] = len(L)
+            logger.info("Y values")
+            logger.info(yvalues)
             fig = Figure(figsize=(12, 8), dpi=100, layout='tight')
             ax = fig.subplots()
             ax.plot(xvalues, yvalues)
@@ -115,6 +119,8 @@ def plot_users_by_join_date(users):
             buf = BytesIO()
             fig.savefig(buf, format='png')
             data = base64.b64encode(buf.getbuffer()).decode("ascii")
+            logger.info("Base64 image encoding")
+            logger.info(data)
             return data
         except:
             logger.error('Error generating user by join date plot')
