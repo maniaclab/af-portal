@@ -110,7 +110,7 @@ def plot_users_by_join_date(users):
                 yvalues[i] = len(L)
             logger.info("Y values")
             logger.info(yvalues)
-            fig = Figure(figsize=(12, 8), dpi=100, tight_layout=True)
+            fig = Figure(figsize=(12, 8), dpi=80, tight_layout=True)
             ax = fig.subplots()
             ax.plot(xvalues, yvalues)
             ax.set_xlabel('Month')
