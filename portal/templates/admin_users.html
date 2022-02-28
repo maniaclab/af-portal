@@ -32,11 +32,12 @@ $(document).ready(function() {
     spreadsheet = jspreadsheet(document.getElementById('spreadsheet'), {
         url: "{{url_for('admin_get_user_profiles')}}",
         columns:[
-            { title:'Username', name:'username', width: 250, type: 'text', readOnly: true },
-            { title:'Email', name:'email', width: 350, type: 'text', readOnly: true },
-            { title:'Join date', name:'join_date', width: 200, type: 'calendar', options: { format:'MM/DD/YYYY' }, readOnly: true },
-            { title:'Institution', name:'institution', type: 'text', width: 450 }
+            { title:'Username', name:'username', type: 'text', readOnly: true },
+            { title:'Email', name:'email', type: 'text', readOnly: true },
+            { title:'Join date', name:'join_date', type: 'calendar', options: { format:'MM/DD/YYYY' }, readOnly: true },
+            { title:'Institution', name:'institution', type: 'text'}
         ],
+        colWidths: [200, 250, 150, 400],
         onchange: changed,
         loadingSpin: true,
         columnSorting: true,
@@ -63,51 +64,7 @@ $(document).ready(function() {
                 onclick: function () {
                     spreadsheet.download();
                 }
-            },
-            /*{
-                type: 'select',
-                k: 'font-family',
-                v: ['Arial','Verdana']
-            },
-            {
-                type: 'select',
-                k: 'font-size',
-                v: ['9px','10px','11px','12px','13px','14px','15px','16px','17px','18px','19px','20px']
-            },
-            {
-                type: 'i',
-                content: 'format_align_left',
-                k: 'text-align',
-                v: 'left'
-            },
-            {
-                type:'i',
-                content:'format_align_center',
-                k:'text-align',
-                v:'center'
-            },
-            {
-                type: 'i',
-                content: 'format_align_right', 
-                k: 'text-align',
-                v: 'right'
-            },
-            {
-                type: 'i',
-                content: 'format_bold',
-                k: 'font-weight',
-                v: 'bold'
-            },
-            {
-                type: 'color',
-                content: 'format_color_text',
-                k: 'color'
-            },
-            {
-                type: 'color',
-                content: 'format_color_fill',
-                k: 'background-color'
-            }*/
+            }
         ]
     });
 });
