@@ -80,7 +80,14 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-178331567-6"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-178331567-7"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-178331567-8"></script>
-    {%include 'scripts.html'%}
+    
+    <!-- jspreadsheet -->
+    <script src="https://bossanova.uk/jspreadsheet/v4/jexcel.js"></script>
+    <script src="https://jsuites.net/v4/jsuites.js"></script>
+    <link rel="stylesheet" href="https://bossanova.uk/jspreadsheet/v4/jexcel.css" type="text/css" />
+    <link rel="stylesheet" href="https://jsuites.net/v4/jsuites.css" type="text/css" />  
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Material+Icons" />
+
     <style>
       [v-cloak] {display: none}
       #loader { 
@@ -108,18 +115,17 @@
       }
     </style>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
     <script>
       //Change delimiters to avoid collision with Flask templates
       Vue.options.delimiters = ['{[{','}]}'];
     </script>
     <script type="text/javascript">
-    function loader() {
-      var loader = document.getElementById("loader");
-      loader.style.display = 'inline';
-    }
+      function loader() {
+        var loader = document.getElementById("loader");
+        loader.style.display = 'inline';
+      }
     </script>
-    
 
   </head>
   <body id="page-top">
@@ -129,100 +135,19 @@
       <div id="content">
         <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top nav-bar-shadow" id="nav-main">
           <a class="navbar-brand" href="{{url_for('home')}}">
-            <img src="" id="connect-brand" height="35" class="d-inline-block align-top" alt="">
+            {% include 'connect_brand.html' %}
           </a>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-              {% if session.get('is_authenticated') and session.get('unix_name') %}
-              <li class="nav-item">
-                <a class="nav-link" href="{{url_for('groups')}}">Groups</a>
-              </li>
-              <!--
-              <li class="nav-item dropdown" id="apps-nav-dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="apps-dropdown-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  Apps
-                </a>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="apps-dropdown-menu" id="apps-dropdown">
-                  <a class="dropdown-item" href="{{url_for('view_jupyter_notebooks')}}" onclick="loader()">Jupyter notebooks</a>
-                  <a class="dropdown-item" href="{{url_for('view_instances')}}" onclick="loader()">Slate interface</a> 
-                </div>
-              </li>
-              -->
-              <li class="nav-item" id="instances-nav">
-                <a class="nav-link" href="{{url_for('view_jupyter_notebooks')}}" onclick="loader()">Apps</a>
-              </li>
-              <li class="nav-item dropdown" id="login-node-nav" style="display: none;">
-                <a class="nav-link dropdown-toggle" href="#" id="login-node-nav-link" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Login Nodes</a>
-                <div class="dropdown-menu dropdown-menu-right" id="login-node-dropdown" aria-labelledby="support-dropdown-menu">
-                </div>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{url_for('profile')}}">Profile</a>
-              </li>
-              {% elif session.get('is_authenticated') %}
-              <li class="nav-item">
-                <a class="nav-link" href="{{url_for('create_profile')}}">Create Profile</a>
-              </li>
-              {% endif %}
-              <li class="nav-item dropdown" id="platforms-nav-dropdown" style="display: none">
-                <a class="nav-link dropdown-toggle" href="#" id="platforms-dropdown-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  Platforms
-                </a>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="platforms-dropdown-menu" id="platforms-dropdown">
-                  <!-- <h6 class="dropdown-header">Preproduction</h6> -->
-                  <a class="dropdown-item" href="https://coffea.af.uchicago.edu/" target="_blank">Coffea Casa</a>
-                  <a class="dropdown-item" href="https://uproot-atlas.servicex.af.uchicago.edu" target="_blank">ServiceX for uproot</a>
-                  <a class="dropdown-item" href="https://xaod.servicex.af.uchicago.edu" target="_blank">ServiceX for xAOD</a> 
-                  <!-- <h6 class="dropdown-header">Production</h6>
-                  <a class="dropdown-item" href="https://www.atlas-ml.org" target="_blank">ATLAS ML</a> -->
-                </div>
-              </li>
-              <li class="nav-item dropdown" id="support-nav-dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="support-dropdown-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  Support
-                </a>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="support-dropdown-menu" id="support-dropdown">
-                  <!-- <h6 class="dropdown-header" id="nav-documentation">Documentation</h6> -->
-                  <!-- <a class="dropdown-item" href="{{url_for('about')}}">About</a> -->
-                  <h6 class="dropdown-header" id="nav-docs">Documentation</h6>
-                  <a class="dropdown-item" id="nav-overview" href="" target="_blank" style="display: none">Overview</a>                  
-                  <a class="dropdown-item" id="nav-handbook" href="" target="_blank" style="display: none;">Handbook</a>
-                  <a class="dropdown-item" id="nav-user-docs" href="" target="_blank" style="display: none">UChicago Docs</a>
-                  <a class="dropdown-item" id="nav-external-docs" href="" target="_blank" style="display: none">US ATLAS Analysis Facilities</a>
-                  <a class="dropdown-item" id="nav-aup" href="{{url_for('aup')}}">Acceptable Use Policy</a>
-                  <h6 class="dropdown-header" id="nav-support">Direct Support</h6>
-                  <a class="dropdown-item" id="nav-discourse" href="https://atlas-talk.sdcc.bnl.gov/" target="_blank">Discourse Forums</a>
-                  <a class="dropdown-item" id="nav-email" href="" target="_blank">System or Login Problems</a>
-                </div>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{url_for('about')}}">About</a>
-              </li>
-              {% if session.get('is_authenticated') %}
-              <li class="nav-item">
-                <a class="nav-link" href="{{url_for('logout')}}">Log out</a>
-              </li>
-              {% else %}
-              <li class="nav-item">
-                <a class="nav-link" href="{{url_for('login')}}">Login</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{url_for('signup')}}">Sign Up</a>
-              </li>
-              {% endif %}
-            </ul>
+            {% include 'nav.html' %}
           </div>
         </nav>
-
         <!-- Page body -->
         {%block body%}
         {%endblock%}
       </div>
-
     </div>
-
   </body>
 </html>

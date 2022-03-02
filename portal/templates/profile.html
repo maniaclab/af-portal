@@ -25,7 +25,7 @@
               <div class="card-body">
                 <!-- <h5 class="card-title" style="text-align: center">User Information</h5> -->
                 <div class="row">
-                  <div class="col-sm-6">
+                  <div class="col-sm-12">
                     <ul class="list-unstyled">
                       <li><strong>Name:</strong> {{profile['name']}}</li>
                       <li><strong>Email:</strong> {{profile['email']}}</li>
@@ -35,19 +35,22 @@
                       {% if profile['X.509_DN'] %}
                       <li><strong>X.509 DN:</strong> {{profile['X.509_DN']}}</li>
                       {% endif %}
-                      <br>
-                      <li><strong>Joined:</strong> {{profile['join_date'][:11]}}</li>
-                      <li><strong>Last Active:</strong> {{profile['last_use_time'][:11]}}</li>
+                      <!--<br>-->
+                      <li id="join_date"><strong>Joined:</strong> {{profile['join_date'][:11]}}</li>
+                      <!--<li><strong>Last Active:</strong> {{profile['last_use_time'][:11]}}</li>-->
                     </ul>
+                    <br>
                     <a href="{{url_for('edit_profile', unix_name=profile['unix_name'])}}" class="btn btn-primary btn-sm btn-box-shadow">Edit Profile</a>
                     <br>
                   </div>
-                  <div class="col-sm-6" id='snowmass-login-node' style="display: none;">
+                  {% if 'snowmass21.ci-connect.net' in request.host or 'snowmass21.io' in request.host %}
+                  <div class="col-sm-12" id='snowmass-login-node' style="margin-top: 50px">
                     <strong>Connect to your assigned login node(s) via ssh:</strong>
                     <ul style="list-style: inside; padding-left:0;">
                       <li>login.snowmass21.io</li>
                     </ul>
                   </div>
+                  {% endif %}
                 </div>
               </div>
             </div>
@@ -126,12 +129,17 @@ $(document).ready(function() {
     order: [[1, 'desc'],[0, 'asc']],
     "aLengthMenu": [[5, 10, 15, -1], [5, 10, 15, "All"]],
     "pageLength": 5
-  })
+  });
+  try {
+    var s = '{{profile['join_date'][:11]}}';
+    var join_date = moment(s, "YYYY-MMM-D").format("MMMM D YYYY");
+    if (join_date) {
+      $('#join_date').html('<strong>Joined:</strong> ' + join_date);
+    }
+  } catch (error) {
+    $('#join_date').html('<strong>Joined:</strong> {{profile['join_date'][:11]}}')
+  }
 });
-
-if(String(hostname).includes('snowmass21')){
-  document.getElementById("snowmass-login-node").style.display = "inline";
-};
 
 </script>
 {%endblock%}

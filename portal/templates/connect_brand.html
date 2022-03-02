@@ -1,0 +1,23 @@
+{% if 'af.uchicago.edu' in request.host %}
+<img src="{{url_for('static', filename='img/atlas-af-logo.png')}}" height="35" class="d-inline-block align-top" alt="">
+{% elif 'www-test.ci-connect.net' in request.host %}
+<img src="{{url_for('static', filename='img/atlas-af-logo.png')}}" height="35" class="d-inline-block align-top" alt="">
+{% elif 'snowmass21.ci-connect.net' in request.host or 'snowmass21.io' in request.host %}
+<img src="{{url_for('static', filename='img/snowmass-connect-logo.png')}}" height="35" class="d-inline-block align-top" alt="">
+{% elif 'atlas.ci-connect.net' in request.host or 'usatlas.org' in request.host %}
+<img src="{{url_for('static', filename='img/atlas-connect-logo.png')}}" height="35" class="d-inline-block align-top" alt="">
+{% elif 'cms.ci-connect.net' in request.host %}
+<img src="{{url_for('static', filename='img/cms-connect-logo.png')}}" height="35" class="d-inline-block align-top" alt="">
+{% elif 'duke.ci-connect.net' in request.host %}
+<img src="{{url_for('static', filename='img/duke-connect-logo.png')}}" height="35" class="d-inline-block align-top" alt="">
+{% elif 'spt.ci-connect.net' in request.host %}
+<img src="{{url_for('static', filename='img/spt-connect-logo.png')}}" height="35" class="d-inline-block align-top" alt="">
+{% elif 'psd.ci-connect.net' in request.host or 'psdconnect.uchicago.edu' in request.host %}
+<img src="{{url_for('static', filename='img/psd-connect-logo.png')}}" height="35" class="d-inline-block align-top" alt="">
+{% elif 'ci-connect.net' in request.host %}
+<img src="{{url_for('static', filename='img/CIConnect_Logo.png')}}" height="35" class="d-inline-block align-top" alt="">
+{% elif 'uscms.org' in request.host %}
+<img src="{{url_for('static', filename='img/cms-connect-logo.png')}}" height="35" class="d-inline-block align-top" alt="">
+{% else %}
+<img src="{{url_for('static', filename='img/atlas-af-logo.png')}}" height="35" class="d-inline-block align-top" alt="">
+{% endif %}

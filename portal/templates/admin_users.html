@@ -1,0 +1,72 @@
+{%extends "base.html"%}
+
+{%block title%}
+  Admin - Users
+{%endblock%}
+
+{%block body%}
+<style>
+    #spreadsheet *, #spreadsheet *::before, #spreadsheet *::after {
+        box-sizing: content-box !important;
+    }
+</style>
+<section>
+    <div class="container col-lg-12">
+        {%include 'messages.html' %}
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">Admin</li>
+            <li class="breadcrumb-item">Read or update user information</li>
+        </ol>
+        <div id="spreadsheet"></div>
+    </div>
+</section>
+<script type="text/javascript">
+$(document).ready(function() {
+    $.ajaxSetup({headers: { 'X-CSRF-TOKEN': "{{ csrf_token() }}" }});
+
+    var changed = function(instance, cell, x, y, value) {
+        row = spreadsheet.getRowData(y);
+        $.post("{{url_for('admin_update_user_institution')}}", {'username': row[0], 'institution': row[3]});
+    }
+    
+    spreadsheet = jspreadsheet(document.getElementById('spreadsheet'), {
+        url: "{{url_for('admin_get_user_profiles')}}",
+        columns:[
+            { title:'Username', name:'username', type: 'text', readOnly: true },
+            { title:'Email', name:'email', type: 'text', readOnly: true },
+            { title:'Join date', name:'join_date', type: 'calendar', options: { format:'MM/DD/YYYY' }, readOnly: true },
+            { title:'Institution', name:'institution', type: 'text'}
+        ],
+        colWidths: [200, 250, 150, 400],
+        onchange: changed,
+        loadingSpin: true,
+        columnSorting: true,
+        allowExport: true,
+        csvFileName: 'users',
+        toolbar:[
+            {
+                type: 'i',
+                content: 'undo',
+                onclick: function() {
+                    spreadsheet.undo();
+                }
+            },
+            {
+                type: 'i',
+                content: 'redo',
+                onclick: function() {
+                    spreadsheet.redo();
+                }
+            },
+            {
+                type: 'i',
+                content: 'save',
+                onclick: function () {
+                    spreadsheet.download();
+                }
+            }
+        ]
+    });
+});
+</script>
+{%endblock%}

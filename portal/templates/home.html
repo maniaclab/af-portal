@@ -3,13 +3,9 @@
 {%block title%}Home{%endblock%}
 
 {%block body%}
-
-<!-- Page Header -->
-
 <header class="text-white" style="height: 100%;" id="hero">
   <div class="container text-center">
-
-    <img src="{{url_for('static', filename='img/OSGConnect_Logo.png')}}" id="home-brand" style="width:30%;">
+    {% include 'home_brand.html' %}
     <br></br>
     <h2 id="headline"></h2>
     <h4 class="lead">
@@ -18,6 +14,7 @@
       </span>
     </h4>
     {% if session.get('is_authenticated') %}
+    {% elif 'www.ci-connect.net' in request.host %}
     {% else %}
     <a role="button" href="{{url_for('login')}}" class="btn btn-primary btn-box-shadow">Login</a>
     <a role="button" href="{{url_for('signup')}}" class="btn btn-primary btn-box-shadow">Sign Up</a>
@@ -26,7 +23,8 @@
   </div>
 </header>
 
-<section id="about" class="container wow animate fadeInUp" style="display: none;">
+{% if 'www.ci-connect.net' in request.host %}
+<section id="about" class="container wow animate fadeInUp">
   <div class="container" id="about-vc3-scroll">
     <div class="content container col-xs-12">
       <h2 class="section-title">
@@ -57,41 +55,13 @@
 
   </div>
 </section>
+{% endif %}
+
 {%include 'contributions.html'%}
-<!-- Page footer -->
 {%include 'footer.html'%}
 
 <script type="text/javascript">
-
 $('.carousel').carousel()
-
-$(document).ready(function() {
-// get current URL path and assign connect branding
-var hostname = window.location.hostname
-
-if(String(hostname).includes('local')){
-  document.getElementById("home-brand").src="{{url_for('static', filename='img/atlas-af-logo.png')}}";
-  // document.getElementById("home-brand").src="{{url_for('static', filename='img/snowmass-connect-logo.png')}}";
-} else if(String(hostname).includes('atlas')){
-  document.getElementById("home-brand").src="{{url_for('static', filename='img/atlas-connect-logo.png')}}";
-} else if(String(hostname).includes('cms')){
-  document.getElementById("home-brand").src="{{url_for('static', filename='img/cms-connect-logo.png')}}";
-} else if(String(hostname).includes('duke')){
-  document.getElementById("home-brand").src="{{url_for('static', filename='img/duke-connect-logo.png')}}";
-} else if(String(hostname).includes('spt')){
-  document.getElementById("home-brand").src="{{url_for('static', filename='img/spt-logo.jpg')}}";
-} else if(String(hostname).includes('af.uchicago')){
-  document.getElementById("home-brand").src="{{url_for('static', filename='img/atlas-af-logo.png')}}";
-} else if(String(hostname).includes('www-test.ci-connect.net')){
-  document.getElementById("home-brand").src="{{url_for('static', filename='img/atlas-af-logo.png')}}";
-} else if(String(hostname).includes('snowmass21')){
-  document.getElementById("home-brand").src="{{url_for('static', filename='img/snowmass-connect-logo.png')}}";
-} else if(String(hostname).includes('psdconnect') || String(hostname).includes('uchicago')){
-  document.getElementById("home-brand").src="{{url_for('static', filename='img/psd-connect-logo.png')}}";
-} else {
-  document.getElementById("home-brand").src="{{url_for('static', filename='img/CIConnect_Logo.png')}}";
-}
-})
 
 new WOW().init();
 var md = new Remarkable('full');
@@ -106,6 +76,5 @@ for(collab of collaborations) {
   if (document.getElementById(collab['name']).querySelector("h2"))
     document.getElementById(collab['name']).querySelector("h2").style.display = 'none';
 }
-
 </script>
 {%endblock%}

@@ -1,17 +1,18 @@
-{% if image == 'ivukotic/ml_platform:latest' or image == 'ivukotic/ml_platform:conda' %}
 apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    instance: {{notebook_name}}
+    instance: {{notebook_id}}
+    display-name: {{display_name}}
     k8s-app: privatejupyter
     owner: {{username}}
+    globus-id: {{globus_id}}
     time2delete: ttl-{{days}}
-  name: {{notebook_name}}
+  name: {{notebook_id}}
   namespace: {{namespace}}
 spec:
   containers:
-  - name: {{notebook_name}}
+  - name: {{notebook_id}}
     args:
     - /.run
     - /ML_platform_tests/SetupPrivateJupyterLab.sh
@@ -48,39 +49,3 @@ spec:
   - hostPath:
       path: /data
     name: local-scratch
-{% elif image == 'jupyter/minimal-notebook:latest' %}
-apiVersion: v1
-kind: Pod
-metadata:
-  name: {{notebook_name}}
-  namespace: {{namespace}}
-  labels:
-    instance: {{notebook_name}}
-    owner: {{username}}
-    time2delete: ttl-{{days}}
-spec:
-  containers:
-  - name: {{notebook_name}}
-    image: {{image}}
-    ports:
-    - containerPort: 8888
-    {% if gpu_available and gpu_request == 0 %} 
-    env:
-    - name: NVIDIA_VISIBLE_DEVICES
-      value: none
-    {% endif %}
-    resources:
-      limits:
-        memory: {{memory_limit}}
-        cpu: {{cpu_limit}}
-        {% if gpu_available %}
-        nvidia.com/gpu: {{gpu_limit}}
-        {% endif %}
-      requests:
-        memory: {{memory_request}}
-        cpu: {{cpu_request}}
-        {% if gpu_available %}
-        nvidia.com/gpu: {{gpu_request}}
-        {% endif %}
-    args: ["start-notebook.sh", "--NotebookApp.token='{{token}}'", "--ServerApp.allow_password_change=False"]
-{% endif %}

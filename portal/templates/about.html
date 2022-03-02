@@ -3,196 +3,24 @@
 {%block title%}About{%endblock%}
 
 {%block body%}
-
-<style>
-  #hardware-section ul.outer {
-    list-style: none;
-    padding: 0
-  }
-</style>
-
-<section id="about-section" class="bg-light">
+<section id="about-section">
   <div class="container col-lg-12">
     {%include 'messages.html'%}
     <div class="row">
       <div class="col-lg-8 mx-auto">
-        <!--<h1 id="about_title">About</h1>-->
         <p class="leadl" id="about_content"></p>
       </div>
     </div>
   </div>
 </section>
-
-<section id="snowmass-about" class="bg-light wow animate fadeInUp" style='display: none;'>
-  <div class="container col-lg-12" id="about-vc3-scroll">
-    <div class="row">
-      <div class="content col-lg-8 mx-auto">
-        <p class="section-description">
-          Snowmass21 Connect provides hosted job submission services for
-          distributed, high-throughput computing through collaborative efforts with the following organizations
-        </p>
-      <div class="section-title-divider"></div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="content col-lg-8 mx-auto">
-        {% for collab in organizations %}
-        <div class="row wow animate fadeInRight">
-          <div class="col-xs-12 col-md-4">
-            <a href="{{collab['href']}}" target="_blank">
-              <img style='width: 50%' class="img-responsive" src="{{url_for('static', filename=collab['img'])}}">
-            </a>
-          </div>
-          <div class="col-xs-12 col-md-8 section-description">
-            <p>{{collab['description']}}</p>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<section id="hardware-section" class="bg-light" style='display: none; padding-top: 0px !important'>
-  <div class="container col-lg-12">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <h5>Hardware Information</h5>
-            <table class="table table-hover table-bordered">
-                <!-- <caption style="caption-side: top; text-align: center">Hardware Information</caption> -->
-                <tr>
-                    <td>Hyperconverged compute and storage</td>
-                    <td>
-                        <ul class="outer">
-                            <li>16 primary compute nodes</li>
-                            <li>Two AMD EPYC 7402 CPUs at 2.8 GHz each</li>
-                            <li>48 cores and 96 threads per node (24 cores per CPU)</li>
-                            <li>512GB DDR4 SDRAM with a transfer rate of 3200 Mt/s on each node</li>
-                            <li>Two 960GB SSD for disk storage on each node<li>
-                            <li>Broadcom BCM57414 Dual port 10/25GbE SFP28</li>
-                            <li>OCP NIC 3.0 10 Gbps connection</li>
-                        </ul>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Home file system</td>
-                    <td>
-                        <ul class="outer">
-                            <li>/home NFS is made from the NFS machine</li>
-                            <li>192GB DDR4 SDRAM with a transfer rate of 3200 Mt/s</li>
-                            <li>Twenty-four 3.2 TB NVMe SSDs</li>
-                            <li>Two 240GB m.2 BOSS RAID cards in RAID-1</li>
-                            <li>Broadcom BCM57414 Dual port 10/25GbE SFP28</li>
-                            <li>OCP NIC 3.0 10 Gbps connection</li>
-                        </ul>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Storage system</td>
-                    <td>
-                      <ul class="outer">
-                          <li>/data CephFS is made from disks on each compute node</li>
-                          <li>1.1 PB usable storage capacity</li>
-                          <li>Twelve 16TB disks on each compute node for Ceph OSDs</li>
-                          <li>One 1TB m.2 SSD on each compute node for metadata</li>
-                          <li>One 1TB m.2 SSD on each compute node used for RocksDB database</li>
-                          <li>Broadcom BCM57414 Dual port 10/25GbE SFP28</li>
-                          <li>OCP NIC 3.0 10 Gbps connection</li>
-                      </ul>
-                  </td>  
-                </tr>
-                <tr>
-                    <td>Interactive</td>
-                    <td>
-                        <ul class="outer">
-                            <li>6 interactive nodes</li>
-                            <li>Two AMD EPYC 7402 CPUs at 2.8 GHz each</li>
-                            <li>48 cores and 96 threads per node (24 cores per CPU)</li>
-                            <li>256GB DDR4 SDRAM with a transfer rate of 3200 Mt/s on each node</li>
-                            <li>Two 960GB SSD for disk storage on each node</li>
-                            <li>Broadcom BCM57414 Dual port 10/25GbE SFP28</li> 
-                            <li>OCP NIC 3.0 10 Gbps connection</li>
-                        </ul>
-                    </td>
-                </tr>
-                <tr>
-                    <td>GPU server</td>
-                    <td>
-                        <ul class="outer">
-                            <li>Four NVIDIA HGX A100 GPUs</li>
-                            <li>Two AMD 7543 CPUs at 2.8 Ghz each</li>
-                            <li>64 cores and 128 threads (32 cores per CPU)</li>
-                            <li>192GB DDR4 SDRAM with a transfer rate of 3200 Mt/s</li>
-                            <li>Two 960GB SSDs for disk storage</li>
-                            <li>Broadcom BCM57414 Dual port 10/25GbE SFP28</li> 
-                            <li>OCP NIC 3.0 10 Gbps connection</li>
-                        </ul>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Network</td>
-                    <td>
-                        <ul class="outer">
-                            <li>Two Juniper QFX5120 analysis facility switches
-                              <ul class="inner">
-                                <li>40 Gbps bandwidth each for a total bandwidth of 80 Gbps</li>
-                                <li>48 10/25GbE SFP28 ports each for 96 total ports</li>
-                              </ul>
-                            <li>
-                              Two Juniper QFX10002 distribution switches
-                              <ul class="inner">
-                                <li>100 Gbps bandwidth each for a total of 100 Gbps</li>
-                                <li>MC LAG configuration creates a virtual single switch</li>
-                                <li>Interfaces with Science DMZ</li>
-                              </ul>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
-            </table>
-        </div>
-    </div>
-  </div>
-</section>
-
-<!-- Page footer -->
 {%include 'footer.html'%}
 
 <script type="text/javascript">
+$(document).ready(function() {
   var md = new Remarkable('full');
   var about_md = {{about|tojson}};
-  // get current URL path and assign connect branding
-  var hostname = window.location.hostname;
-
-  $(window).on('load',function(){
-    var about_rendered = md.render(about_md);
-    $('#about_content').html(about_rendered);
-  });
-  if(String(hostname).includes('snowmass21')){
-    document.getElementById("contact-us").style.display = "none";
-    document.getElementById("snowmass-about").style.display = "inline";
-  };
-  if(String(hostname).includes('af.uchicago.edu')){
-    $('#about-section').css('padding-bottom', '0px');
-    $('#hardware-section').css('display', 'block').css('padding', '0px');
-    $('#about-section div.container').css('padding-bottom', '0px');
-    $('#hardware-section div.container').css('padding-top', '0px');
-  };
-  if(String(hostname).includes('www-test.ci-connect.net')){
-    $('#about-section').css('padding-bottom', '0px');
-    $('#hardware-section').css('display', 'block').css('padding', '0px');
-    $('#about-section div.container').css('padding-bottom', '0px');
-    $('#hardware-section div.container').css('padding-top', '0px');
-  };
-  
-  if(String(hostname).includes('localhost')){
-    $('#about-section').css('padding-bottom', '0px');
-    $('#hardware-section').css('display', 'block').css('padding', '0px');
-    $('#about-section div.container').css('padding-bottom', '0px');
-    $('#hardware-section div.container').css('padding-top', '0px');
-  };
-  
+  var about_rendered = md.render(about_md);
+  $('#about_content').html(about_rendered);
+});
 </script>
-
 {%endblock%}

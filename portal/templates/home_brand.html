@@ -1,0 +1,23 @@
+{% if 'af.uchicago.edu' in request.host %}
+<img src="{{url_for('static', filename='img/atlas-af-logo.png')}}" style="width:30%;">
+{% elif 'www-test.ci-connect.net' in request.host %}
+<img src="{{url_for('static', filename='img/atlas-af-logo.png')}}" style="width:30%;">
+{% elif 'snowmass21.ci-connect.net' in request.host or 'snowmass21.io' in request.host %}
+<img src="{{url_for('static', filename='img/snowmass-connect-logo.png')}}" style="width:30%;">
+{% elif 'atlas.ci-connect.net' in request.host or 'usatlas.org' in request.host %}
+<img src="{{url_for('static', filename='img/atlas-connect-logo.png')}}" style="width:30%;">
+{% elif 'cms.ci-connect.net' in request.host %}
+<img src="{{url_for('static', filename='img/cms-connect-logo.png')}}" style="width:30%;">
+{% elif 'duke.ci-connect.net' in request.host %}
+<img src="{{url_for('static', filename='img/duke-connect-logo.png')}}" style="width:30%;">
+{% elif 'spt.ci-connect.net' in request.host %}
+<img src="{{url_for('static', filename='img/spt-logo.jpg')}}" style="width:30%;">
+{% elif 'psd.ci-connect.net' in request.host or 'psdconnect.uchicago.edu' in request.host %}
+<img src="{{url_for('static', filename='img/psd-connect-logo.png')}}" style="width:30%;">
+{% elif 'ci-connect.net' in request.host %}
+<img src="{{url_for('static', filename='img/CIConnect_Logo.png')}}" style="width:30%;">
+{% elif 'uscms.org' in request.host %}
+<img src="{{url_for('static', filename='img/cms-connect-logo.png')}}" style="width:30%;">
+{% else %}
+<img src="{{url_for('static', filename='img/atlas-af-logo.png')}}" style="width:30%;">
+{% endif %}

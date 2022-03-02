@@ -154,14 +154,16 @@ ul.powered-by li{
 #af-footer-images a {
   padding: 20px;
 }
-.resource-config td {
+
+#deploy-table {
+  width: 100%;
+}
+
+#deploy-table td {
   padding-right: 20px;
   padding-bottom: 10px;
-  min-width: 120px;
 }
-.resource-config td input[type="number"] {
-  /* width: initial !important; */
-}
+
 .powered-by-large {
   max-height: 8ex;
   margin-top: 3px;
