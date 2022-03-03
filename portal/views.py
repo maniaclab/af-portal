@@ -11,7 +11,7 @@ except ImportError:
     from urlparse import urlparse, parse_qs
     from urllib import urlencode
 
-from portal import app, csrf
+from portal import app, csrf, logger
 from portal.decorators import authenticated
 from portal.utils import load_portal_client, get_safe_redirect, flash_message_parser
 from portal.connect_api import (
@@ -28,6 +28,7 @@ from portal.connect_api import (
     domain_name_edgecase,
     get_user_profile,
     get_user_group_status,
+    update_last_use_time
 )
 
 # Use these four lines on container
@@ -153,6 +154,12 @@ def home():
             "description": get_about_markdown("snowmass21.ci-connect.net"),
         },
     ]
+
+    try:
+        if 'is_authenticated' in session and session['is_authenticated'] == True:
+            update_last_use_time(session['unix_name'])
+    except:
+        logger.error("Error updating last use time")
 
     return render_template(
         "home.html",

@@ -1,5 +1,6 @@
 from flask import session, request
 from portal import app
+from portal import logger
 import requests
 import json
 
@@ -344,3 +345,13 @@ def domain_name_edgecase():
         domain_name = "snowmass21.ci-connect.net"
 
     return domain_name
+
+def update_last_use_time(username):
+    try:
+        params = {'token': ciconnect_api_token}
+        url = ciconnect_api_endpoint + "/v1alpha1/users/" + username + "/update_last_use_time"
+        resp = requests.put(url, params=params)
+        logger.info("Updated last use time for user %s." %(username))
+        return resp
+    except Exception as err:
+        logger.error("Error updating last use time for user %s." %username)
