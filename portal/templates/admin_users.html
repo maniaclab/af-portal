@@ -26,7 +26,7 @@ $(document).ready(function() {
 
     var changed = function(instance, cell, x, y, value) {
         row = spreadsheet.getRowData(y);
-        $.post("{{url_for('admin_update_user_institution')}}", {'username': row[0], 'institution': row[3]});
+        $.post("{{url_for('admin_update_user_institution')}}", {'username': row[0], 'institution': row[4]});
     }
     
     spreadsheet = jspreadsheet(document.getElementById('spreadsheet'), {
@@ -35,9 +35,10 @@ $(document).ready(function() {
             { title:'Username', name:'username', type: 'text', readOnly: true },
             { title:'Email', name:'email', type: 'text', readOnly: true },
             { title:'Join date', name:'join_date', type: 'calendar', options: { format:'MM/DD/YYYY' }, readOnly: true },
+            { title:'Last active', name:'last_use_time', type: 'calendar', options: { format:'MM/DD/YYYY' }, readOnly: true},
             { title:'Institution', name:'institution', type: 'text'}
         ],
-        colWidths: [200, 250, 150, 400],
+        colWidths: [200, 250, 150, 150, 350],
         onchange: changed,
         loadingSpin: true,
         columnSorting: true,
