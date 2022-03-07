@@ -25,11 +25,11 @@
 
     <title>
       {% if 'af.uchicago.edu' in request.host or 'localhost' in request.host or 'www-test.ci-connect.net' in request.host %}
-      ATLAS Analysis Facility
+      ATLAS Analysis Facility -
       {% else %}
-      Connect
+      Connect -
       {% endif %}
-      - {%block title%}{%endblock%}
+      {%block title%}{%endblock%}
     </title>
 
     {# CSS files #}
