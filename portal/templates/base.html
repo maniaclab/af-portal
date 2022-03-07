@@ -23,7 +23,14 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <title>Connect - {%block title%}{%endblock%}</title>
+    <title>
+      {% if 'af.uchicago.edu' in request.host or 'localhost' in request.host or 'www-test.ci-connect.net' in request.host %}
+      ATLAS Analysis Facility
+      {% else %}
+      Connect
+      {% endif %}
+      - {%block title%}{%endblock%}
+    </title>
 
     {# CSS files #}
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
