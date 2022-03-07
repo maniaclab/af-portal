@@ -172,7 +172,7 @@ def memory_request_valid(memory):
     return False
 
 def gpu_request_valid(gpu):
-    if gpu >=0 and gpu <= 4:
+    if gpu >=0 and gpu <= 7:
         return True
     return False
 
@@ -206,8 +206,8 @@ def validate(notebook_name, notebook_id, username, cpu, memory, gpu, image, time
         return k8sException('The request of %d GB is outside the bounds [1, 16]' %memory)
 
     if not gpu_request_valid(gpu):
-        logger.warning('The request of %d GPUs is outside the bounds [1, 2]' %gpu)
-        raise k8sException('The request of %d GPUs is outside the bounds [1, 2]' %gpu)
+        logger.warning('The request of %d GPUs is outside the bounds [1, 7]' %gpu)
+        raise k8sException('The request of %d GPUs is outside the bounds [1, 7]' %gpu)
 
 def create_notebook(notebook_name, username, globus_id, cpu, memory, gpu, image, time_duration):
     notebook_id = notebook_name.lower()
