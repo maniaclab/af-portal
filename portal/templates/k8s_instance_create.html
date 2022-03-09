@@ -50,7 +50,7 @@
                 </tr>
                 <tr>
                   <td>
-                    <label for="cpu-cores">CPU cores</label>
+                    <label for="cpu">CPU cores</label>
                   </td>
                   <td>
                     <input 
@@ -67,7 +67,7 @@
                 </tr>    
                 <tr>
                   <td>              
-                    <label for="cpu-cores">Memory (GB)</label>
+                    <label for="memory">Memory (GB)</label>
                   </td>
                   <td>
                     <input 
@@ -84,7 +84,12 @@
                 </tr>
                 <tr>
                   <td>
-                    <label for="gpu-cores">GPU instances</label>
+                    <label for="gpu">
+                      GPU instances
+                      <a href="https://maniaclab.uchicago.edu/af-docs/ml_platform/#selecting-a-number-of-gpu-instances" target="_blank">
+                        <i class="fas fa-info-circle"></i>
+                      </a>
+                    </label>
                   </td>
                   <td>
                     <input 
@@ -118,7 +123,12 @@
                 </tr>
                 <tr>
                   <td>
-                    <label for="image">Image</label>
+                    <label for="image">
+                      Image
+                      <a href="https://maniaclab.uchicago.edu/af-docs/ml_platform/#selecting-a-docker-image" target="_blank">
+                        <i class="fas fa-info-circle"></i>
+                      </a>
+                    </label>
                   </td>
                   <td>
                     <select name="image" id="notebook-image" style="width: 100%">
