@@ -255,9 +255,6 @@ def get_expiration_timestamp(pod):
 def has_notebook_expired(pod):
     exp_date = get_expiration_date(pod)
     cr_ts = pod.metadata.creation_timestamp
-    logger.info("Comparing creation timestamp with expiration timestamp for pod %s" %pod.metadata.name)
-    logger.info("Creation timetamp: %s" %str(cr_ts))
-    logger.info("Expiration timestamp: %s" %str(exp_date))
     if exp_date:
         return datetime.datetime.now(timezone.utc) > exp_date
     return False
