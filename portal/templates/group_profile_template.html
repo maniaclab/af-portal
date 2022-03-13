@@ -78,7 +78,7 @@
           </li>
             {% endif %}
           {% endif %}
-          {% if group_name.split('.')|length == 2 and (connect_status == 'admin') %}
+          {% if group_name.split('.')|length >= 2 and (connect_status == 'admin') %}
           <li class="nav-item">
             <a class="nav-link" href="{{url_for('view_group_email', group_name=group_name)}}" id='email-tab'><i class="fas fa-envelope"></i> Email</a>
           </li>
