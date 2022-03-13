@@ -565,6 +565,7 @@ def view_group_email(group_name):
             "psdconnect.uchicago.edu": "support@ci-connect.uchicago.edu",
             "www.ci-connect.net": "support@ci-connect.net",
             "localhost:5000": "root@localhost.localdomain",
+            "af.uchicago.edu": "noreply@af.uchicago.edu"
         }
 
         try:
