@@ -939,7 +939,7 @@ def profile():
             profile = None
 
         if profile:
-            print("Found profile: {}".format(profile))
+            # print("Found profile: {}".format(profile))
             profile = profile["metadata"]
             unix_name = profile["unix_name"]
             group_name = session["url_host"]["unix_name"]

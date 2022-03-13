@@ -23,7 +23,9 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
-    <title>Connect - {%block title%}{%endblock%}</title>
+    <title>
+      {% if 'af.uchicago.edu' in request.host or 'www-test.ci-connect.net' in request.host or 'localhost' in request.host %}AF{% else %}Connect{% endif %} - {%block title%}{%endblock%}
+    </title>
 
     {# CSS files #}
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
@@ -113,6 +115,14 @@
           right: 0; 
           margin: auto; 
       }
+
+      {% if 'af.uchicago.edu' in request.host or 'localhost' in request.host %}
+      * {
+        font-family: 'Open Sans';
+        font-size: 16px;
+        line-height: 1.4;
+      } 
+      {% endif %}
     </style>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>

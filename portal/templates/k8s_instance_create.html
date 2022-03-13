@@ -1,7 +1,7 @@
 {%extends "base.html"%}
 
 {%block title%}
-  Deploy Application
+  Create JupyterLab
 {%endblock%}
 
 {%block body%}
@@ -50,7 +50,7 @@
                 </tr>
                 <tr>
                   <td>
-                    <label for="cpu-cores">CPU cores</label>
+                    <label for="cpu">CPU cores</label>
                   </td>
                   <td>
                     <input 
@@ -67,7 +67,7 @@
                 </tr>    
                 <tr>
                   <td>              
-                    <label for="cpu-cores">Memory (GB)</label>
+                    <label for="memory">Memory (GB)</label>
                   </td>
                   <td>
                     <input 
@@ -84,7 +84,12 @@
                 </tr>
                 <tr>
                   <td>
-                    <label for="gpu-cores">GPU cores</label>
+                    <label for="gpu">
+                      GPU instances
+                      <a href="https://maniaclab.uchicago.edu/af-docs/ml_platform/#selecting-a-number-of-gpu-instances" target="_blank">
+                        <i class="fas fa-info-circle"></i>
+                      </a>
+                    </label>
                   </td>
                   <td>
                     <input 
@@ -93,7 +98,7 @@
                       id="gpu"
                       name="gpu"
                       min=0
-                      max=4
+                      max=7
                       value=0
                       required
                     >
@@ -101,7 +106,7 @@
                 </tr>
                 <tr>
                   <td>
-                    <label for="time-duration">Time to live (days)</label>
+                    <label for="time-duration">Time to live (hours)</label>
                   </td>
                   <td>
                     <input 
@@ -110,15 +115,20 @@
                       id="time-duration"
                       name="time-duration"
                       min=1
-                      max=100
-                      value=1
+                      max=48
+                      value=8
                       required
                     >
                   </td>
                 </tr>
                 <tr>
                   <td>
-                    <label for="image">Docker image</label>
+                    <label for="image">
+                      Image
+                      <a href="https://maniaclab.uchicago.edu/af-docs/ml_platform/#selecting-a-docker-image" target="_blank">
+                        <i class="fas fa-info-circle"></i>
+                      </a>
+                    </label>
                   </td>
                   <td>
                     <select name="image" id="notebook-image" style="width: 100%">
