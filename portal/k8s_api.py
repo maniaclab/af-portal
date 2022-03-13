@@ -58,7 +58,7 @@ def manage_notebooks():
                     remove_notebook(pod.metadata.name)
                 except:
                     logger.info('Error removing notebook %s during management cycle' %pod.metadata.name)
-        time.sleep(3600)
+        time.sleep(1800)
 
 def generate_token():
     token_bytes = os.urandom(32)
@@ -236,12 +236,12 @@ def get_creation_timestamp(pod):
 def get_expiration_date(pod):
     try:
         if hasattr(pod.metadata, 'labels') and 'time2delete' in pod.metadata.labels:
-            cr_ts = pod.metadata.creation_timestamp
-            td_str = pod.metadata.labels['time2delete']
+            creation_ts = pod.metadata.creation_timestamp
+            duration = pod.metadata.labels['time2delete']
             pattern = re.compile(r"ttl-\d+")
-            if pattern.match(td_str):
-                td = int(td_str.split("-")[1])
-                expiration_date = cr_ts + datetime.timedelta(td)
+            if pattern.match(duration):
+                hours = int(duration.split("-")[1])
+                expiration_date = creation_ts + datetime.timedelta(hours=hours)
                 return expiration_date
     except:
         logger.error('Error getting expiration date for notebook %s in namespace %s' %(pod.metadata.name, namespace))
@@ -254,6 +254,10 @@ def get_expiration_timestamp(pod):
 
 def has_notebook_expired(pod):
     exp_date = get_expiration_date(pod)
+    cr_ts = pod.metadata.creation_timestamp
+    logger.info("Comparing creation timestamp with expiration timestamp for pod %s" %pod.metadata.name)
+    logger.info("Creation timetamp: %s" %str(cr_ts))
+    logger.info("Expiration timestamp: %s" %str(exp_date))
     if exp_date:
         return datetime.datetime.now(timezone.utc) > exp_date
     return False
