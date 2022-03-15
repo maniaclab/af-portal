@@ -157,10 +157,10 @@ ul.powered-by li{
 }
 
 #ciconnect-footer-images {
-  margin-top: 20px;
+  margin-top: 20px !important;
 }
 #ciconnect-footer-images a {
-  padding: 20px;
+  padding: 20px !important;
 }
 
 #deploy-table {
