@@ -148,10 +148,18 @@ span.powered-by {
 ul.powered-by li{
   /* float: left; */
 }
+
 #af-footer-images {
   margin-top: 20px;
 }
 #af-footer-images a {
+  padding: 20px;
+}
+
+#ciconnect-footer-images {
+  margin-top: 20px;
+}
+#ciconnect-footer-images a {
   padding: 20px;
 }
 

@@ -1,4 +1,4 @@
-{% if 'af.uchicago.edu' in request.host or 'www-test.ci-connect.net' in request.host or 'localhost' in request.host %}
+{% if 'af.uchicago.edu' in request.host or 'localhost' in request.host %}
 <footer>
   <div class="img-container"> 
       <div id="af-footer-images">
@@ -15,12 +15,20 @@
   </div>
   <br></br>
 </footer>
-{% elif 'ci-connect.net' in request.host %}
+{% elif 'www.ci-connect.net' in request.host %}
 <footer>
   <div class="img-container"> 
-      <a href="http://ci-connect.net/" target="_blank">
-        <img src="{{url_for('static', filename='img/footer/powered-by-ciconnect.png')}}" class="powered-by-large" alt="CI Connect" id="footer-img">
-      </a>
+      <div id="ciconnect-footer-images">
+        <a href="https://maniaclab.uchicago.edu" target="_blank">
+          <img src="{{url_for('static', filename='img/footer/maniac-blue-with-text-logo.png')}}" class="powered-by-large">
+        </a>
+        <a href="https://efi.uchicago.edu" target="_blank">
+          <img src="{{url_for('static', filename='img/footer/efi-logo.png')}}" class="powered-by-large">
+        </a>
+        <a href="https://www.uchicago.edu" target="_blank">
+          <img src="{{url_for('static', filename='img/footer/uchicago-maroon-logo.png')}}" class="powered-by-large">
+        </a>
+      </div>
   </div>
   <br></br>
 </footer>
