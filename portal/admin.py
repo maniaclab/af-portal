@@ -47,7 +47,8 @@ def get_user_profiles(group):
                 email = user['metadata']['email']
                 join_date = parse(user['metadata']['join_date']).strftime('%Y-%m-%d')
                 institution = user['metadata']['institution']
-                profiles.append({'username': username, 'email': email, 'join_date': join_date, 'institution': institution})
+                name = user['metadata']['name']
+                profiles.append({'username': username, 'email': email, 'join_date': join_date, 'institution': institution, 'name': name})
             return profiles
         except:
             logger.error('Error getting user profiles')

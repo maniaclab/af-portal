@@ -33,11 +33,14 @@ $(document).ready(function() {
         url: "{{url_for('admin_get_user_profiles')}}",
         columns:[
             { title:'Username', name:'username', type: 'text', readOnly: true },
+            { title:'Name', name:'name', type: 'text', readOnly: true} ,
             { title:'Email', name:'email', type: 'text', readOnly: true },
             { title:'Join date', name:'join_date', type: 'calendar', options: { format:'MM/DD/YYYY' }, readOnly: true },
             { title:'Institution', name:'institution', type: 'text'}
         ],
-        colWidths: [200, 250, 150, 400],
+        colWidths: [200, 250, 250, 150, 400],
+        columnResize: true,
+        wordWrap: true,
         onchange: changed,
         loadingSpin: true,
         columnSorting: true,
