@@ -11,6 +11,10 @@ metadata:
   name: {{notebook_id}}
   namespace: {{namespace}}
 spec:
+  {% if gpu_available %}
+  nodeSelector:
+    nvidia.com/gpu.memory: "{{gpu_memory}}"
+  {% endif %}
   containers:
   - name: {{notebook_id}}
     args:
@@ -23,6 +27,11 @@ spec:
     - name: NVIDIA_VISIBLE_DEVICES
       value: none
     {% endif %}
+    # - name: API_TOKEN
+    #   valueFrom:
+    #   secretKeyRef:
+    #     name: ciconnect-creds
+    #     key: token
     image: {{image}}
     imagePullPolicy: Always
     ports:
@@ -44,8 +53,25 @@ spec:
     - mountPath: /data
       name: local-scratch
       readOnly: false
+    # - name: nfs-home
+    #   mountPath: /home
+    # - name: ceph-data
+    #   mountPath: /data
   restartPolicy: Always
   volumes:
   - hostPath:
       path: /data
     name: local-scratch
+  # - name: nfs-home
+  #   nfs: 
+  #     server: nfs.af.uchicago.edu
+  #     path: /export/home
+  # - name: ceph-data
+  #   cephfs:
+  #     monitors: 
+  #     - 192.170.240.118:6789
+  #     - 192.170.240.121:6789
+  #     - 192.170.240.132:6789
+  #     user: admin
+  #     secretRef:
+  #       name: ceph-secret

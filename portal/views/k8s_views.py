@@ -10,12 +10,7 @@ from portal.connect_api import get_user_profile, get_user_connect_status
 @app.route("/jupyter/create", methods=["GET"])
 @authenticated
 def create_jupyter_notebook():
-    try:
-        profile = get_user_profile(session["unix_name"])
-        public_key = profile["metadata"]["public_key"]
-    except:
-        public_key = None
-    return render_template("k8s_instance_create.html", public_key=public_key)
+    return render_template("k8s_instance_create.html")
 
 @app.route("/jupyter/deploy", methods=["GET", "POST"])
 @authenticated
@@ -27,9 +22,11 @@ def deploy_jupyter_notebook():
         cpu = int(request.form['cpu']) 
         memory = int(request.form['memory']) 
         gpu = int(request.form['gpu'])
+        gpu_memory = int(request.form['gpu-memory'])
+        logger.info("GPU memory is %s" %gpu_memory)
         image = request.form['image']
         time_duration = int(request.form['time-duration'])
-        k8s_api.create_notebook(notebook_name, username, globus_id, cpu, memory, gpu, image, time_duration)
+        k8s_api.create_notebook(notebook_name, username, globus_id, cpu, memory, gpu, gpu_memory, image, time_duration)
     except k8sException as e:
         flash(str(e), 'warning')
     except:

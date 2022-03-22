@@ -98,10 +98,26 @@
                       id="gpu"
                       name="gpu"
                       min=0
-                      max=7
+                      max=4
                       value=0
                       required
                     >
+                  </td>                  
+                </tr>
+                <tr>
+                  <td>
+                    <label for="gpu-memory">
+                      GPU Memory (MB)
+                      <a href="https://maniaclab.uchicago.edu/af-docs/ml_platform/#selecting-gpu-memory" target="_blank">
+                        <i class="fas fa-info-circle"></i>
+                      </a>
+                    </label>
+                  </td>
+                  <td>
+                    <select name="gpu-memory" style="width: 100%">
+                      <option value="4864">4864</option>
+                      <option value="40536">40536</option>
+                    </select>
                   </td>
                 </tr>
                 <tr>
@@ -143,19 +159,6 @@
                 </tr>
               </table>      
   
-              {% if not public_key %}
-              <div class="form-group">
-                <label for="sshpubstring">SSH Public Key</label>
-                <textarea
-                  placeholder="Please enter your SSH public key here..."
-                  name="sshpubstring"
-                  id="sshpubstring"
-                  tabindex="1"
-                  style="background-color:white; color:black; border-radius:4px; border-color:lightgrey;"
-                  ></textarea>
-              </div>
-              {% endif %}
-
               <div class="form-group">
                 <button type="submit" class="btn btn-primary btn-box-shadow" onclick="loader()" style="margin-top: 20px" disabled>Create notebook</button>
               </div>
@@ -163,96 +166,6 @@
           </div>
         </div>
       </div> 
-      <!-- <div class="col-lg-5">
-        <div class="card h-100" style="width: 32rem;">
-          <table>
-            <tr>
-              <td><img class="card-img-top" src="{{url_for('static', filename='img/jupyter-lab-logo.png')}}" alt="Jupyter Notebook Logo" style="padding: 5px; width: 250px"></td>
-              <td><img class="card-img-top" src="{{url_for('static', filename='img/coffea-casa.png')}}" alt="Coffea Casa logo" style="padding: 5px; width: 150px"></td>
-            </tr>
-          </table>
-          <div class="card-body">
-            <h5 class="card-title">Jupyter Notebook via Coffea Casa</h5>
-            <p>
-              Launch Jupyter notebooks through Coffea Casa for low latency columnar analysis workloads
-            </p>
-            <div>
-              <a class="btn btn-primary btn-box-shadow" href="https://coffea.af.uchicago.edu" target="_blank" style="position: absolute; bottom: 35px; left: 20px;">Open Coffea Casa</a>
-            </div>
-          </div>
-      </div> -->
-      {% if not public_key %}
-      <!--
-      <div class="col-md-6">
-        <h2 class="title">
-          <small>Adding or generating your SSH public key:</small>
-        </h2>
-        <hr/>
-        <div id="accordion" role="tablist" aria-multiselectable="true">
-          <div class="card panel panel-info resource-profile" style="margin: 1em;">
-            <div class="card-header panel-title" role="tab" id="headingTwo">
-              <h6 class="mb-0">
-                <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                  Already have an SSH public key? <i class="fa fa-info-circle pull-right" aria-hidden="true"></i>
-                </a>
-              </h6>
-            </div>
-            <div id="collapseTwo" class="collapse" role="tabpanel" aria-labelledby="headingTwo">
-              <div class="card-block panel-body disabled" style="font-size: 14px">
-                <ol>
-                  <li>To find out, open your terminal and type:  <kbd>ls ~/.ssh</kbd></li>
-                  <li>If there is a <kbd>.pub</kbd> extension, such as <kbd>id_rsa.pub</kbd>, that is your SSH key.</li>
-                  <li>Type:  <kbd>cat ~/.ssh/id_rsa.pub</kbd> in order to see your key.</li>
-                  <li>Copy the selection to the clipboard.</li>
-                  <li>Paste the contents of the clipboard in the
-                    corresponding box on your CI Connect Profile. Please <b>only</b> paste the SSH ( typically ending in .pub) public key into this box.
-                  </li>
-                </ol>
-              </div>
-            </div>
-          </div>
-          <div class="card panel panel-info resource-profile" style="margin: 1em;">
-            <div class="card-header panel-title" role="tab" id="headingThree">
-              <h6 class="mb-0">
-                <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                  Generate a new SSH public key <i class="fa fa-info-circle pull-right" aria-hidden="true"></i>
-                </a>
-              </h6>
-            </div>
-            <div id="collapseThree" class="collapse" role="tabpanel" aria-labelledby="headingThree">
-              <div class="card-block panel-body disabled" style="font-size: 14px">
-                <ol>
-                  <li>In a terminal, type:
-                    <div>
-                      <kbd>ssh-keygen -t rsa</kbd>
-                    </div>
-                  </li>
-                  <li>Hit enter for the default location, and optionally enter a
-                    password. This will generate two files: A private key file
-                    (typically <kbd>id_rsa</kbd>) and a key file (typically <kbd>id_rsa.pub</kbd>). The private key should <b>never</b> be shared, and {{session['url_host']['display_name']}} will never ask you for your private key.
-                  </li>
-                  <li>In order to see your SSH public key type:
-                    <div>
-                      <kbd>cat ~/.ssh/id_rsa.pub</kbd>
-                    </div>
-                  </li>
-                  <li>Use your mouse to select everything that is printed
-                    to the screen, the format should look like:
-                    <div>
-                      <kbd>ssh-rsa AAAAB3N....M7Q== yourusername@yourmachine</kbd>
-                    </div>
-                  </li>
-                  <li>Copy the selection to the clipboard.</li>
-                  <li>Paste the contents of the clipboard in the
-                    corresponding box on your CI Connect Profile.
-                  </li>
-                </ol>
-              </div>
-            </div>
-          </div>
-        </div><!-- /.accordion-->
-      <!-- </div><!-- /.col-md-6 -->
-      {% endif %} 
     </div> <!-- row -->
 
   </div>

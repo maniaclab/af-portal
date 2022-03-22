@@ -65,7 +65,7 @@ def generate_token():
     b64_encoded = b64encode(token_bytes).decode()
     return b64_encoded
 
-def create_pod(notebook_id, display_name, username, globus_id, cpu, memory, gpu, image, time_duration, token):
+def create_pod(notebook_id, display_name, username, globus_id, cpu, memory, gpu, gpu_memory, image, time_duration, token):
     try: 
         api = client.CoreV1Api()
         template = templates.get_template("pod.yaml")
@@ -86,11 +86,13 @@ def create_pod(notebook_id, display_name, username, globus_id, cpu, memory, gpu,
                 gpu_request=gpu,
                 gpu_limit=gpu,
                 gpu_available=gpu_available, 
+                gpu_memory=gpu_memory,
                 image=image, 
                 days=time_duration))                           
         api.create_namespaced_pod(namespace=namespace, body=pod)
-    except:
+    except Exception as err:
         logger.error('Error creating pod %s' %notebook_id)
+        logger.error(str(err))
         raise k8sException('Error creating pod %s' %notebook_id)
 
 def create_service(notebook_id, image):
@@ -209,7 +211,7 @@ def validate(notebook_name, notebook_id, username, cpu, memory, gpu, image, time
         logger.warning('The request of %d GPUs is outside the bounds [1, 7]' %gpu)
         raise k8sException('The request of %d GPUs is outside the bounds [1, 7]' %gpu)
 
-def create_notebook(notebook_name, username, globus_id, cpu, memory, gpu, image, time_duration):
+def create_notebook(notebook_name, username, globus_id, cpu, memory, gpu, gpu_memory, image, time_duration):
     notebook_id = notebook_name.lower()
 
     validate(notebook_name, notebook_id, username, cpu, memory, gpu, image, time_duration)
@@ -217,7 +219,7 @@ def create_notebook(notebook_name, username, globus_id, cpu, memory, gpu, image,
     token = generate_token()
     logger.info("The token for %s is %s" %(notebook_name, token))
       
-    create_pod(notebook_id, notebook_name, username, globus_id, cpu, memory, gpu, image, time_duration, token)
+    create_pod(notebook_id, notebook_name, username, globus_id, cpu, memory, gpu, gpu_memory, image, time_duration, token)
     create_service(notebook_id, image)
     create_ingress(notebook_id, username, image)
     create_secret(notebook_id, username, token)
