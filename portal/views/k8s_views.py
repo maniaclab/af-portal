@@ -23,7 +23,6 @@ def deploy_jupyter_notebook():
         memory = int(request.form['memory']) 
         gpu = int(request.form['gpu'])
         gpu_memory = int(request.form['gpu-memory'])
-        logger.info("GPU memory is %s" %gpu_memory)
         image = request.form['image']
         time_duration = int(request.form['time-duration'])
         k8s_api.create_notebook(notebook_name, username, globus_id, cpu, memory, gpu, gpu_memory, image, time_duration)

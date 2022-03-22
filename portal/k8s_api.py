@@ -178,7 +178,7 @@ def gpu_request_valid(gpu):
         return True
     return False
 
-def validate(notebook_name, notebook_id, username, cpu, memory, gpu, image, time_duration):
+def validate(notebook_name, notebook_id, username, cpu, memory, gpu, gpu_memory, image, time_duration):
     if " " in notebook_name:
         logger.warning('The name %s has whitespace' %notebook_name)
         raise k8sException('The notebook name cannot have any whitespace')
@@ -211,10 +211,14 @@ def validate(notebook_name, notebook_id, username, cpu, memory, gpu, image, time
         logger.warning('The request of %d GPUs is outside the bounds [1, 7]' %gpu)
         raise k8sException('The request of %d GPUs is outside the bounds [1, 7]' %gpu)
 
+    if not gpu_memory or gpu_memory not in (4864, 40536):
+        logger.warning('The gpu_memory value has to be 4864 or 40536')
+        raise k8sException('The gpu_memory value has to be 4864 or 40536')
+
 def create_notebook(notebook_name, username, globus_id, cpu, memory, gpu, gpu_memory, image, time_duration):
     notebook_id = notebook_name.lower()
 
-    validate(notebook_name, notebook_id, username, cpu, memory, gpu, image, time_duration)
+    validate(notebook_name, notebook_id, username, cpu, memory, gpu, gpu_memory, image, time_duration)
 
     token = generate_token()
     logger.info("The token for %s is %s" %(notebook_name, token))
