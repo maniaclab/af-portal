@@ -29,9 +29,9 @@ spec:
     {% endif %}
     - name: API_TOKEN
       valueFrom:
-      secretKeyRef:
-        name: ciconnect-creds
-        key: token
+        secretKeyRef:
+          name: ciconnect-creds
+          key: token
     - name: OWNER
       value: {{username}}
     image: {{image}}
