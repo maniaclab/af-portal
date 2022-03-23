@@ -27,11 +27,13 @@ spec:
     - name: NVIDIA_VISIBLE_DEVICES
       value: none
     {% endif %}
-    # - name: API_TOKEN
-    #   valueFrom:
-    #   secretKeyRef:
-    #     name: ciconnect-creds
-    #     key: token
+    - name: API_TOKEN
+      valueFrom:
+      secretKeyRef:
+        name: ciconnect-creds
+        key: token
+    - name: OWNER
+      value: {{username}}
     image: {{image}}
     imagePullPolicy: Always
     ports:
@@ -50,28 +52,22 @@ spec:
         nvidia.com/gpu: {{gpu_request}}
         {% endif %}
     volumeMounts:
-    - mountPath: /data
-      name: local-scratch
-      readOnly: false
-    # - name: nfs-home
-    #   mountPath: /home
-    # - name: ceph-data
-    #   mountPath: /data
+      - name: nfs-home
+        mountPath: /home
+      - name: ceph-data
+        mountPath: /data
   restartPolicy: Always
   volumes:
-  - hostPath:
-      path: /data
-    name: local-scratch
-  # - name: nfs-home
-  #   nfs: 
-  #     server: nfs.af.uchicago.edu
-  #     path: /export/home
-  # - name: ceph-data
-  #   cephfs:
-  #     monitors: 
-  #     - 192.170.240.118:6789
-  #     - 192.170.240.121:6789
-  #     - 192.170.240.132:6789
-  #     user: admin
-  #     secretRef:
-  #       name: ceph-secret
+    - name: nfs-home
+      nfs: 
+        server: nfs.af.uchicago.edu
+        path: /export/home
+    - name: ceph-data
+      cephfs:
+        monitors: 
+        - 192.170.240.118:6789
+        - 192.170.240.121:6789
+        - 192.170.240.132:6789
+        user: admin
+        secretRef:
+          name: ceph-secret
