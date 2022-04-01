@@ -61,3 +61,10 @@ def plot_users_by_join_date():
         data = admin.plot_users_by_join_date(users)
         return render_template("admin_plot_users_by_join_date.html", base64_encoded_image = data)
     return render_template("404.html")
+
+@app.route("/elasticsearch", methods=["GET"])
+@authenticated
+def elasticsearch():
+    if authorized():
+        return render_template("elasticsearch.html")
+    return render_template("404.html")
