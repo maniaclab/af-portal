@@ -5,6 +5,8 @@ from portal import admin
 from portal.admin import authorized
 from portal.decorators import authenticated
 from portal.connect_api import get_user_profile, get_user_connect_status
+from portal import k8s_api
+from portal.k8s_api import k8sException
 
 @app.route("/admin/email", methods=["GET"])
 @authenticated
@@ -66,5 +68,13 @@ def plot_users_by_join_date():
 @authenticated
 def elasticsearch():
     if authorized():
-        return render_template("elasticsearch.html")
+        try: 
+            username = session['unix_name']
+            notebooks = k8s_api.get_notebooks(username)
+            return render_template("elasticsearch.html", notebooks=notebooks)
+        except k8sException as e:
+            flash(str(e), 'warning')
+        except:
+            flash('Error getting Jupyter notebooks', 'warning')
+        return render_template("elasticsearch.html", notebooks=[])
     return render_template("404.html")
