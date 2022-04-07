@@ -26,7 +26,7 @@ $(document).ready(function() {
 
     var changed = function(instance, cell, x, y, value) {
         row = spreadsheet.getRowData(y);
-        $.post("{{url_for('admin_update_user_institution')}}", {'username': row[0], 'institution': row[3]});
+        $.post("{{url_for('admin_update_user_institution')}}", {'username': row[0], 'institution': row[4]});
     }
     
     spreadsheet = jspreadsheet(document.getElementById('spreadsheet'), {
