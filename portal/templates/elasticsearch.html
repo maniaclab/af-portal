@@ -5,20 +5,46 @@
 {%endblock%}
 
 {%block body%}
+<style>
+  table {
+    table-layout: fixed;
+  }
+  td:first-child {
+    width: 175px;
+  }
+  td {
+    padding-left: 0px !important;
+    padding-top: 0px !important;
+    padding-bottom: 6px !important;
+  }
+</style>
 <section>
       <div class="container col-lg-12">
         {%include 'messages.html' %}
         <ol class="breadcrumb">
           <li class="breadcrumb-item">ElasticSearch visualizations</li>
         </ol>
-        <div>
-          <label>Select a notebook:</label>
-          <select id="select-notebook">
-            {% for notebook in notebooks %}
-            <option value="{{notebook['name']}}">{{notebook['name']}}</option>
-            {% endfor %}
-          </select>
-        </div>
+        <table class="table table-borderless">
+          <tr>
+            <td><label>Select a notebook:</label></td>
+            <td>
+              <select id="select-notebook">
+                {% for notebook in notebooks %}
+                <option value="{{notebook['name']}}">{{notebook['name']}}</option>
+                {% endfor %}
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td><label>Select a timeframe:</label></td>
+            <td>
+              <select id="select-timeframe">
+                <option value="now-24h%2Fh">24 hours</option>
+                <option value="now-7d%2Fd">7 days</option>
+              </select>
+            </td>
+          </tr>
+        </table>
         <br/>
         <div id="notebook-analytics"></div>
       </div>
@@ -29,26 +55,28 @@
       var notebookAnalytics = $('#notebook-analytics')
       notebookAnalytics.empty();
       var notebookName = $('#select-notebook option:selected').val();
+      var timeframe = $('#select-timeframe option:selected').val();
       var memoryUsage = $('<iframe>'), cpuUsage = $('<iframe>'), networkBytes = $('<iframe>');
-      memoryUsage.attr('src', "https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/visualize?auth_provider_hint=anonymous1#/create?embed=true&type=line&savedSearchId=1dfaf530-b442-11ec-9b57-bf21ae80f105&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-24h%2Fh,to:now))&_a=(filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'8079b500-b043-11ec-bb38-f3791366de11',key:kubernetes.labels.owner,negate:!f,params:(query:{{session.get('unix_name')}}),type:phrase),query:(match_phrase:(kubernetes.labels.owner:{{session.get('unix_name')}}))),('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'8079b500-b043-11ec-bb38-f3791366de11',key:kubernetes.labels.instance,negate:!f,params:(query:" + notebookName + "),type:phrase),query:(match_phrase:(kubernetes.labels.instance:" + notebookName + ")))),linked:!t,query:(language:kuery,query:''),uiState:(),vis:(aggs:!((enabled:!t,id:'1',params:(customLabel:'Total%20pod%20memory%20usage%20in%20bytes',field:kubernetes.pod.memory.usage.bytes),schema:metric,type:sum),(enabled:!t,id:'2',params:(customLabel:'Time%20of%20day',drop_partials:!f,extended_bounds:(),field:'@timestamp',interval:auto,min_doc_count:1,scaleMetricValues:!f,timeRange:(from:now-24h%2Fh,to:now),useNormalizedEsInterval:!t,used_interval:'30m'),schema:segment,type:date_histogram)),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,categoryAxes:!((id:CategoryAxis-1,labels:(filter:!t,show:!t,truncate:100),position:bottom,scale:(type:linear),show:!t,style:(),title:(),type:category)),detailedTooltip:!t,fittingFunction:linear,grid:(categoryLines:!f),labels:(),legendPosition:right,palette:(name:default,type:palette),radiusRatio:9,seriesParams:!((circlesRadius:3,data:(id:'1',label:'Total%20pod%20memory%20usage%20in%20bytes'),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1)),thresholdLine:(color:%23E7664C,show:!f,style:full,value:10,width:1),times:!(),type:line,valueAxes:!((id:ValueAxis-1,labels:(filter:!f,rotate:0,show:!t,truncate:100),name:LeftAxis-1,position:left,scale:(mode:normal,type:linear),show:!t,style:(),title:(text:'Total%20pod%20memory%20usage%20in%20bytes'),type:value))),title:'',type:line))");
+      memoryUsage.attr('src', "https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/visualize?auth_provider_hint=anonymous1#/create?embed=true&type=line&savedSearchId=1dfaf530-b442-11ec-9b57-bf21ae80f105&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:" + timeframe + ",to:now))&_a=(filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'8079b500-b043-11ec-bb38-f3791366de11',key:kubernetes.labels.owner,negate:!f,params:(query:{{session.get('unix_name')}}),type:phrase),query:(match_phrase:(kubernetes.labels.owner:{{session.get('unix_name')}}))),('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'8079b500-b043-11ec-bb38-f3791366de11',key:kubernetes.labels.instance,negate:!f,params:(query:" + notebookName + "),type:phrase),query:(match_phrase:(kubernetes.labels.instance:" + notebookName + ")))),linked:!t,query:(language:kuery,query:''),uiState:(),vis:(aggs:!((enabled:!t,id:'1',params:(customLabel:'Total%20pod%20memory%20usage%20in%20bytes',field:kubernetes.pod.memory.usage.bytes),schema:metric,type:sum),(enabled:!t,id:'2',params:(customLabel:'Time%20of%20day',drop_partials:!f,extended_bounds:(),field:'@timestamp',interval:auto,min_doc_count:1,scaleMetricValues:!f,timeRange:(from:now-24h%2Fh,to:now),useNormalizedEsInterval:!t,used_interval:'30m'),schema:segment,type:date_histogram)),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,categoryAxes:!((id:CategoryAxis-1,labels:(filter:!t,show:!t,truncate:100),position:bottom,scale:(type:linear),show:!t,style:(),title:(),type:category)),detailedTooltip:!t,fittingFunction:linear,grid:(categoryLines:!f),labels:(),legendPosition:right,palette:(name:default,type:palette),radiusRatio:9,seriesParams:!((circlesRadius:3,data:(id:'1',label:'Total%20pod%20memory%20usage%20in%20bytes'),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1)),thresholdLine:(color:%23E7664C,show:!f,style:full,value:10,width:1),times:!(),type:line,valueAxes:!((id:ValueAxis-1,labels:(filter:!f,rotate:0,show:!t,truncate:100),name:LeftAxis-1,position:left,scale:(mode:normal,type:linear),show:!t,style:(),title:(text:'Total%20pod%20memory%20usage%20in%20bytes'),type:value))),title:'',type:line))");
       memoryUsage.attr('height', '600');
-      memoryUsage.attr('width', '800');
-      cpuUsage.attr('src', "https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/visualize?auth_provider_hint=anonymous1#/create?embed=true&type=line&savedSearchId=1dfaf530-b442-11ec-9b57-bf21ae80f105&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-24h%2Fh,to:now))&_a=(filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'8079b500-b043-11ec-bb38-f3791366de11',key:kubernetes.labels.owner,negate:!f,params:(query:{{session.get('unix_name')}}),type:phrase),query:(match_phrase:(kubernetes.labels.owner:{{session.get('unix_name')}}))),('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'8079b500-b043-11ec-bb38-f3791366de11',key:kubernetes.labels.instance,negate:!f,params:(query:" + notebookName + "),type:phrase),query:(match_phrase:(kubernetes.labels.instance:" + notebookName + ")))),linked:!t,query:(language:kuery,query:''),uiState:(),vis:(aggs:!((enabled:!t,id:'1',params:(customLabel:'Total%20pod%20CPU%20usage%20in%20nanocores',field:kubernetes.pod.cpu.usage.nanocores),schema:metric,type:sum),(enabled:!t,id:'2',params:(customLabel:'Time%20of%20day',drop_partials:!f,extended_bounds:(),field:'@timestamp',interval:auto,min_doc_count:1,scaleMetricValues:!f,timeRange:(from:now-24h%2Fh,to:now),useNormalizedEsInterval:!t,used_interval:'30m'),schema:segment,type:date_histogram)),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,categoryAxes:!((id:CategoryAxis-1,labels:(filter:!t,show:!t,truncate:100),position:bottom,scale:(type:linear),show:!t,style:(),title:(),type:category)),detailedTooltip:!t,fittingFunction:linear,grid:(categoryLines:!f),labels:(),legendPosition:right,palette:(name:default,type:palette),radiusRatio:9,seriesParams:!((circlesRadius:3,data:(id:'1',label:'Total%20pod%20CPU%20usage%20in%20nanocores'),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1)),thresholdLine:(color:%23E7664C,show:!f,style:full,value:10,width:1),times:!(),type:line,valueAxes:!((id:ValueAxis-1,labels:(filter:!f,rotate:0,show:!t,truncate:100),name:LeftAxis-1,position:left,scale:(mode:normal,type:linear),show:!t,style:(),title:(text:'Total%20pod%20CPU%20usage%20in%20nanocores'),type:value))),title:'',type:line))");
+      memoryUsage.attr('width', '1000');
+      cpuUsage.attr('src', "https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/visualize?auth_provider_hint=anonymous1#/create?embed=true&type=line&savedSearchId=1dfaf530-b442-11ec-9b57-bf21ae80f105&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:" + timeframe + ",to:now))&_a=(filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'8079b500-b043-11ec-bb38-f3791366de11',key:kubernetes.labels.owner,negate:!f,params:(query:{{session.get('unix_name')}}),type:phrase),query:(match_phrase:(kubernetes.labels.owner:{{session.get('unix_name')}}))),('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'8079b500-b043-11ec-bb38-f3791366de11',key:kubernetes.labels.instance,negate:!f,params:(query:" + notebookName + "),type:phrase),query:(match_phrase:(kubernetes.labels.instance:" + notebookName + ")))),linked:!t,query:(language:kuery,query:''),uiState:(),vis:(aggs:!((enabled:!t,id:'1',params:(customLabel:'Total%20pod%20CPU%20usage%20in%20nanocores',field:kubernetes.pod.cpu.usage.nanocores),schema:metric,type:sum),(enabled:!t,id:'2',params:(customLabel:'Time%20of%20day',drop_partials:!f,extended_bounds:(),field:'@timestamp',interval:auto,min_doc_count:1,scaleMetricValues:!f,timeRange:(from:now-24h%2Fh,to:now),useNormalizedEsInterval:!t,used_interval:'30m'),schema:segment,type:date_histogram)),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,categoryAxes:!((id:CategoryAxis-1,labels:(filter:!t,show:!t,truncate:100),position:bottom,scale:(type:linear),show:!t,style:(),title:(),type:category)),detailedTooltip:!t,fittingFunction:linear,grid:(categoryLines:!f),labels:(),legendPosition:right,palette:(name:default,type:palette),radiusRatio:9,seriesParams:!((circlesRadius:3,data:(id:'1',label:'Total%20pod%20CPU%20usage%20in%20nanocores'),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1)),thresholdLine:(color:%23E7664C,show:!f,style:full,value:10,width:1),times:!(),type:line,valueAxes:!((id:ValueAxis-1,labels:(filter:!f,rotate:0,show:!t,truncate:100),name:LeftAxis-1,position:left,scale:(mode:normal,type:linear),show:!t,style:(),title:(text:'Total%20pod%20CPU%20usage%20in%20nanocores'),type:value))),title:'',type:line))");
       cpuUsage.attr('height', '600');
-      cpuUsage.attr('width', '800');
-      networkBytes.attr('src', "https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/visualize?auth_provider_hint=anonymous1#/create?embed=true&type=line&savedSearchId=1dfaf530-b442-11ec-9b57-bf21ae80f105&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-24h%2Fh,to:now))&_a=(filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'8079b500-b043-11ec-bb38-f3791366de11',key:kubernetes.labels.owner,negate:!f,params:(query:{{session.get('unix_name')}}),type:phrase),query:(match_phrase:(kubernetes.labels.owner:{{session.get('unix_name')}}))),('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'8079b500-b043-11ec-bb38-f3791366de11',key:kubernetes.labels.instance,negate:!f,params:(query:" + notebookName + "),type:phrase),query:(match_phrase:(kubernetes.labels.instance:" + notebookName + ")))),linked:!t,query:(language:kuery,query:''),uiState:(),vis:(aggs:!((enabled:!t,id:'1',params:(customLabel:'Total%20pod%20network%20transaction%20bytes',field:kubernetes.pod.network.tx.bytes),schema:metric,type:sum),(enabled:!t,id:'2',params:(customLabel:'Time%20of%20day',drop_partials:!f,extended_bounds:(),field:'@timestamp',interval:auto,min_doc_count:1,scaleMetricValues:!f,timeRange:(from:now-24h%2Fh,to:now),useNormalizedEsInterval:!t,used_interval:'30m'),schema:segment,type:date_histogram)),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,categoryAxes:!((id:CategoryAxis-1,labels:(filter:!t,show:!t,truncate:100),position:bottom,scale:(type:linear),show:!t,style:(),title:(),type:category)),detailedTooltip:!t,fittingFunction:linear,grid:(categoryLines:!f),labels:(),legendPosition:right,palette:(name:default,type:palette),radiusRatio:9,seriesParams:!((circlesRadius:3,data:(id:'1',label:'Total%20pod%20network%20transaction%20bytes'),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1)),thresholdLine:(color:%23E7664C,show:!f,style:full,value:10,width:1),times:!(),type:line,valueAxes:!((id:ValueAxis-1,labels:(filter:!f,rotate:0,show:!t,truncate:100),name:LeftAxis-1,position:left,scale:(mode:normal,type:linear),show:!t,style:(),title:(text:'Total%20pod%20network%20transaction%20bytes'),type:value))),title:'',type:line))");
+      cpuUsage.attr('width', '1000');
+      networkBytes.attr('src', "https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/visualize?auth_provider_hint=anonymous1#/create?embed=true&type=line&savedSearchId=1dfaf530-b442-11ec-9b57-bf21ae80f105&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:" + timeframe + ",to:now))&_a=(filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'8079b500-b043-11ec-bb38-f3791366de11',key:kubernetes.labels.owner,negate:!f,params:(query:{{session.get('unix_name')}}),type:phrase),query:(match_phrase:(kubernetes.labels.owner:{{session.get('unix_name')}}))),('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'8079b500-b043-11ec-bb38-f3791366de11',key:kubernetes.labels.instance,negate:!f,params:(query:" + notebookName + "),type:phrase),query:(match_phrase:(kubernetes.labels.instance:" + notebookName + ")))),linked:!t,query:(language:kuery,query:''),uiState:(),vis:(aggs:!((enabled:!t,id:'1',params:(customLabel:'Total%20pod%20network%20transaction%20bytes',field:kubernetes.pod.network.tx.bytes),schema:metric,type:sum),(enabled:!t,id:'2',params:(customLabel:'Time%20of%20day',drop_partials:!f,extended_bounds:(),field:'@timestamp',interval:auto,min_doc_count:1,scaleMetricValues:!f,timeRange:(from:now-24h%2Fh,to:now),useNormalizedEsInterval:!t,used_interval:'30m'),schema:segment,type:date_histogram)),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,categoryAxes:!((id:CategoryAxis-1,labels:(filter:!t,show:!t,truncate:100),position:bottom,scale:(type:linear),show:!t,style:(),title:(),type:category)),detailedTooltip:!t,fittingFunction:linear,grid:(categoryLines:!f),labels:(),legendPosition:right,palette:(name:default,type:palette),radiusRatio:9,seriesParams:!((circlesRadius:3,data:(id:'1',label:'Total%20pod%20network%20transaction%20bytes'),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1)),thresholdLine:(color:%23E7664C,show:!f,style:full,value:10,width:1),times:!(),type:line,valueAxes:!((id:ValueAxis-1,labels:(filter:!f,rotate:0,show:!t,truncate:100),name:LeftAxis-1,position:left,scale:(mode:normal,type:linear),show:!t,style:(),title:(text:'Total%20pod%20network%20transaction%20bytes'),type:value))),title:'',type:line))");
       networkBytes.attr('height', '600');
-      networkBytes.attr('width', '800');
-      notebookAnalytics.append('<h6>Total memory usage for notebook ' + notebookName + ' in the past 24 hours</h6>');
+      networkBytes.attr('width', '1000');
+      notebookAnalytics.append('<h6>Total memory usage for notebook ' + notebookName + '</h6>');
       notebookAnalytics.append(memoryUsage);
-      notebookAnalytics.append('<h6>Total CPU usage for notebook ' + notebookName + ' in the past 24 hours</h6>');
+      notebookAnalytics.append('<h6>Total CPU usage for notebook ' + notebookName + '</h6>');
       notebookAnalytics.append(cpuUsage);
-      notebookAnalytics.append('<h6>Total network transaction bytes for notebook ' + notebookName + ' in the past 24 hours');
+      notebookAnalytics.append('<h6>Total network transaction bytes for notebook ' + notebookName + '</h6>');
       notebookAnalytics.append(networkBytes);
 
     }
     refreshNotebookAnalytics();
     $('#select-notebook').on('change', refreshNotebookAnalytics);
+    $('#select-timeframe').on('change', refreshNotebookAnalytics);
   });
 </script>
 {%endblock%}
