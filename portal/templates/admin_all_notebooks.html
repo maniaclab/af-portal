@@ -33,7 +33,7 @@
           <tbody>
             {% for notebook in notebooks %}
             <tr>
-              <td><a href="{{notebook['url']}}" target="_blank">{{notebook['name']}}</a></td>
+              <td><a href="{{notebook['url']}}" target="_blank">{{notebook['display_name']}}</a></td>
               <td>{{notebook['username']}}</td>
               <td>{{notebook['memory_request']}}</td>
               <td>{{notebook['cpu_request']}}</td>
@@ -49,7 +49,7 @@
             <td>
               <select id="select-notebook">
                 {% for notebook in notebooks %}
-                <option value="{{notebook['name']}}">{{notebook['name']}}</option>
+                <option value="{{notebook['name']}}">{{notebook['display_name']}}</option>
                 {% endfor %}
               </select>
             </td>

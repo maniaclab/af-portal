@@ -328,7 +328,7 @@ def get_token(notebook_name):
         logger.error("Error getting secret for notebook %s" %notebook_name)
         return None
 
-def get_notebook_name(pod):
+def get_display_name(pod):
     if hasattr(pod.metadata, 'labels') and 'display-name' in pod.metadata.labels:
         return pod.metadata.labels['display-name']
     return pod.metadata.name
@@ -404,7 +404,8 @@ def get_notebooks(username):
     notebooks = []
     for pod in user_pods:
         try: 
-            name = get_notebook_name(pod)
+            name = pod.metadata.name
+            display_name = get_display_name(pod)
             url = get_url(pod)
             creation_date = get_creation_timestamp(pod)
             expiration_date = get_expiration_timestamp(pod)
@@ -417,6 +418,7 @@ def get_notebooks(username):
             hours_remaining = get_hours_remaining(pod)
             notebooks.append(
                 {'name': name, 
+                'display_name': display_name,
                 'namespace': namespace, 
                 'username': username,
                 'url': url,
@@ -439,7 +441,8 @@ def get_all_notebooks():
     notebooks = []
     for pod in pods:
         try: 
-            name = get_notebook_name(pod)
+            name = pod.metadata.name
+            display_name = get_display_name(pod)
             owner = get_owner(pod)
             url = get_url(pod)
             creation_date = get_creation_timestamp(pod)
@@ -453,6 +456,7 @@ def get_all_notebooks():
             hours_remaining = get_hours_remaining(pod)
             notebooks.append(
                 {'name': name, 
+                'display_name': display_name,
                 'namespace': namespace, 
                 'username': owner,
                 'url': url,

@@ -35,9 +35,9 @@
             {% for instance in instances %}
             <tr>
               {% if instance['notebook_status'] == 'Ready' and instance['pod_status'] == 'Running' and instance['cert_status'] == 'Ready' %}
-              <td><a href="{{instance['url']}}" target="_blank">{{instance['name']}}</a></td>
+              <td><a href="{{instance['url']}}" target="_blank">{{instance['display_name']}}</a></td>
               {% else %}
-              <td>{{instance['name']}}</td>
+              <td>{{instance['display_name']}}</td>
               {% endif %}
               <td>{{instance['notebook_status']}}</td>
               <td>{{instance['pod_status']}}</td>
