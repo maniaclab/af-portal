@@ -64,24 +64,9 @@ def plot_users_by_join_date():
         return render_template("admin_plot_users_by_join_date.html", base64_encoded_image = data)
     return render_template("404.html")
 
-@app.route("/admin/my_notebooks", methods=["GET"])
+@app.route("/monitoring/all_notebooks", methods=["GET"])
 @authenticated
-def my_notebooks_admin():
-    if authorized():
-        try: 
-            username = session['unix_name']
-            notebooks = k8s_api.get_notebooks(username)
-            return render_template("admin_my_notebooks.html", notebooks=notebooks)
-        except k8sException as e:
-            flash(str(e), 'warning')
-        except:
-            flash('Error getting Jupyter notebooks', 'warning')
-        return render_template("admin_my_notebooks.html", notebooks=[])
-    return render_template("404.html")
-
-@app.route("/admin/all_notebooks", methods=["GET"])
-@authenticated
-def all_notebooks_admin():
+def all_notebooks_monitoring():
     if authorized():
         try: 
             notebooks = k8s_api.get_all_notebooks()

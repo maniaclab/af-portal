@@ -65,3 +65,16 @@ def remove_jupyter_notebook(notebook_name):
     except:
         flash('Error removing notebook %s' %notebook_name, 'warning')
     return redirect(url_for("view_jupyter_notebooks"))
+
+@app.route("/monitoring/my_notebooks", methods=["GET"])
+@authenticated
+def my_notebooks_monitoring():
+    try: 
+        username = session['unix_name']
+        notebooks = k8s_api.get_notebooks(username)
+        return render_template("my_notebooks.html", notebooks=notebooks)
+    except k8sException as e:
+        flash(str(e), 'warning')
+    except:
+        flash('Error getting Jupyter notebooks', 'warning')
+    return render_template("my_notebooks.html", notebooks=[])

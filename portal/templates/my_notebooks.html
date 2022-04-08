@@ -7,18 +7,10 @@
 {%block body%}
 <style>
   #select-table {
-    table-layout: fixed;
-  }
-  #select-table td:first-child {
-    width: 175px;
+    width: auto;
   }
   #select-table td {
     padding-left: 0px !important;
-    padding-top: 0px !important;
-    padding-bottom: 6px !important;
-  }
-  caption {
-    caption-side: top;
   }
 </style>
 <section>
@@ -40,7 +32,7 @@
           <tbody>
             {% for notebook in notebooks %}
             <tr>
-              <td>{{notebook['name']}}</td>
+              <td><a href="{{notebook['url']}}" target="_blank">{{notebook['name']}}</a></td>
               <td>{{notebook['memory_request']}}</td>
               <td>{{notebook['cpu_request']}}</td>
               <td>{{notebook['gpu_request']}}</td>
@@ -49,10 +41,9 @@
             {% endfor %}
           </tbody>
         </table>
-        <br/>
         <table id="select-table" class="table table-borderless">
           <tr>
-            <td><label>Select a notebook:</label></td>
+            <td>Select a notebook:</td>
             <td>
               <select id="select-notebook">
                 {% for notebook in notebooks %}
@@ -60,9 +51,7 @@
                 {% endfor %}
               </select>
             </td>
-          </tr>
-          <tr>
-            <td><label>Select a timeframe:</label></td>
+            <td>Select a timeframe:</td>
             <td>
               <select id="select-timeframe">
                 <option value="now-1h%2Fh">1 hour</option>
