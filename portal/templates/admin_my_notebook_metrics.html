@@ -6,16 +6,19 @@
 
 {%block body%}
 <style>
-  table {
+  #select-table {
     table-layout: fixed;
   }
-  td:first-child {
+  #select-table td:first-child {
     width: 175px;
   }
-  td {
+  #select-table td {
     padding-left: 0px !important;
     padding-top: 0px !important;
     padding-bottom: 6px !important;
+  }
+  caption {
+    caption-side: top;
   }
 </style>
 <section>
@@ -24,7 +27,31 @@
         <ol class="breadcrumb">
           <li class="breadcrumb-item">My notebook metrics</li>
         </ol>
-        <table class="table table-borderless">
+        <table class="table table-bordered">
+          <caption>My notebooks</caption>
+          <thead>
+            <tr>
+              <th>Name of notebook</th>
+              <th>Memory requested</th>
+              <th>CPU requested</th>
+              <th>GPU requested</th>
+              <th>Hours remaining</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for notebook in notebooks %}
+            <tr>
+              <td>{{notebook['name']}}</td>
+              <td>{{notebook['memory_request']}}</td>
+              <td>{{notebook['cpu_request']}}</td>
+              <td>{{notebook['gpu_request']}}</td>
+              <td>{{notebook['hours_remaining']}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <br/>
+        <table id="select-table" class="table table-borderless">
           <tr>
             <td><label>Select a notebook:</label></td>
             <td>

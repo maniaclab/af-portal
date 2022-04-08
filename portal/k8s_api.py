@@ -233,12 +233,6 @@ def create_notebook(notebook_name, username, globus_id, cpu, memory, gpu, gpu_me
 def get_creation_date(pod):
     return pod.metadata.creation_timestamp
 
-def get_creation_timestamp(pod):
-    creation_date = get_creation_date(pod)
-    if creation_date:
-        return creation_date.timestamp()
-    return -1
-
 def get_expiration_date(pod):
     try:
         if hasattr(pod.metadata, 'labels') and 'time2delete' in pod.metadata.labels:
@@ -252,6 +246,12 @@ def get_expiration_date(pod):
     except:
         logger.error('Error getting expiration date for notebook %s in namespace %s' %(pod.metadata.name, namespace))
 
+def get_creation_timestamp(pod):
+    creation_date = get_creation_date(pod)
+    if creation_date:
+        return creation_date.timestamp()
+    return -1
+
 def get_expiration_timestamp(pod):
     expiration_date = get_expiration_date(pod)
     if expiration_date:
@@ -260,10 +260,19 @@ def get_expiration_timestamp(pod):
 
 def has_notebook_expired(pod):
     exp_date = get_expiration_date(pod)
-    cr_ts = pod.metadata.creation_timestamp
     if exp_date:
         return datetime.datetime.now(timezone.utc) > exp_date
     return False
+
+def get_hours_remaining(pod):
+    try:
+        exp_date = get_expiration_date(pod)
+        now_date = datetime.datetime.now(timezone.utc)
+        diff = exp_date - now_date
+        return int(diff.total_seconds() / 3600)
+    except:
+        logger.error('Error getting the hours remaining')
+    return None
 
 def notebook_closing(pod):
     if pod.metadata.deletion_timestamp:
@@ -338,6 +347,27 @@ def get_url(pod):
         logger.error('Error getting URL for pod %s' %notebook_name)
         return None
 
+def get_memory_request(pod):
+    try:
+        return pod.spec.containers[0].resources.requests['memory']
+    except:
+        logger.error('Error getting the memory request for a pod')
+        return None     
+
+def get_cpu_request(pod):
+    try:
+        return pod.spec.containers[0].resources.requests['cpu']
+    except:
+        logger.error('Error getting the CPU request for a pod')
+        return None        
+
+def get_gpu_request(pod):
+    try:
+        return pod.spec.containers[0].resources.requests['nvidia.com/gpu']
+    except:
+        logger.error('Error getting the GPU request for a pod')
+        return None       
+
 def get_pods():
     try:
         core_v1_api = client.CoreV1Api()
@@ -375,6 +405,10 @@ def get_notebooks(username):
             pod_status = get_pod_status(pod)
             cert_status = get_certificate_status(pod)
             notebook_status = get_notebook_status(pod)
+            memory_request = get_memory_request(pod)
+            cpu_request = get_cpu_request(pod)
+            gpu_request = get_gpu_request(pod)
+            hours_remaining = get_hours_remaining(pod)
             notebooks.append(
                 {'name': name, 
                 'namespace': namespace, 
@@ -384,7 +418,11 @@ def get_notebooks(username):
                 'cert_status': cert_status,
                 'notebook_status': notebook_status,
                 'creation_date': creation_date,
-                'expiration_date': expiration_date}
+                'expiration_date': expiration_date,
+                'memory_request': memory_request,
+                'cpu_request': cpu_request,
+                'gpu_request': gpu_request,
+                'hours_remaining': hours_remaining}
             )
         except:          
             logger.error('Error processing Jupyter notebook %s' %pod.metadata.name)   
