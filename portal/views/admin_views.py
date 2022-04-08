@@ -64,9 +64,9 @@ def plot_users_by_join_date():
         return render_template("admin_plot_users_by_join_date.html", base64_encoded_image = data)
     return render_template("404.html")
 
-@app.route("/monitoring/all_notebooks", methods=["GET"])
+@app.route("/admin/all_notebooks", methods=["GET"])
 @authenticated
-def all_notebooks_monitoring():
+def all_notebooks_admin():
     if authorized():
         try: 
             notebooks = k8s_api.get_all_notebooks()

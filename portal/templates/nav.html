@@ -10,6 +10,7 @@
             <!-- <a class="dropdown-item" href="{{url_for('admin_email')}}">Email all users</a> -->
             <a class="dropdown-item" href="{{url_for('admin_users')}}">Read or update user info</a>
             <a class="dropdown-item" href="{{url_for('plot_users_by_join_date')}}">Plot user join dates</a>
+            <a class="dropdown-item" href="{{url_for('all_notebooks_admin')}}">All user notebooks</a>
         </div>
     </li>
     <li class="nav-item">
@@ -17,26 +18,18 @@
             Groups
         </a>
     </li>
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Monitoring
-        </a>
-        <div class="dropdown-menu dropdown-menu-right">
-            <a class="dropdown-item" href="https://grafana.mwt2.org/d/m3teM9W7k/af-servers?orgId=1" target="_blank">Login Nodes</a>
-            <a class="dropdown-item" href="{{url_for('my_notebooks_monitoring')}}">My notebooks</a>
-            <a class="dropdown-item" href="{{url_for('all_notebooks_monitoring')}}">All user notebooks</a>
-        </div>
-    </li>
-        {% else %}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Monitoring
-        </a>
-        <div class="dropdown-menu dropdown-menu-right">
-            <a class="dropdown-item" href="{{url_for('my_notebooks_monitoring')}}">My notebooks</a>
-        </div>
-    </li>
         {% endif %}
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Monitoring
+        </a>
+        <div class="dropdown-menu dropdown-menu-right">
+                {% if session.get('admin') == 'admin' %}
+            <a class="dropdown-item" href="https://grafana.mwt2.org/d/m3teM9W7k/af-servers?orgId=1" target="_blank">Login Nodes</a>
+                {% endif %}
+            <a class="dropdown-item" href="{{url_for('my_notebooks_monitoring')}}">My notebooks</a>
+        </div>
+    </li>
     <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Services
