@@ -333,6 +333,12 @@ def get_notebook_name(pod):
         return pod.metadata.labels['display-name']
     return pod.metadata.name
 
+def get_owner(pod):
+    try:
+        return pod.metadata.labels['owner']
+    except:
+        return 'Unknown'
+
 def get_url(pod):
     try: 
         if notebook_closing(pod):
@@ -413,6 +419,42 @@ def get_notebooks(username):
                 {'name': name, 
                 'namespace': namespace, 
                 'username': username,
+                'url': url,
+                'pod_status': pod_status,
+                'cert_status': cert_status,
+                'notebook_status': notebook_status,
+                'creation_date': creation_date,
+                'expiration_date': expiration_date,
+                'memory_request': memory_request,
+                'cpu_request': cpu_request,
+                'gpu_request': gpu_request,
+                'hours_remaining': hours_remaining}
+            )
+        except:          
+            logger.error('Error processing Jupyter notebook %s' %pod.metadata.name)   
+    return notebooks
+
+def get_all_notebooks():
+    pods = get_pods()
+    notebooks = []
+    for pod in pods:
+        try: 
+            name = get_notebook_name(pod)
+            owner = get_owner(pod)
+            url = get_url(pod)
+            creation_date = get_creation_timestamp(pod)
+            expiration_date = get_expiration_timestamp(pod)
+            pod_status = get_pod_status(pod)
+            cert_status = get_certificate_status(pod)
+            notebook_status = get_notebook_status(pod)
+            memory_request = get_memory_request(pod)
+            cpu_request = get_cpu_request(pod)
+            gpu_request = get_gpu_request(pod)
+            hours_remaining = get_hours_remaining(pod)
+            notebooks.append(
+                {'name': name, 
+                'namespace': namespace, 
+                'username': owner,
                 'url': url,
                 'pod_status': pod_status,
                 'cert_status': cert_status,
