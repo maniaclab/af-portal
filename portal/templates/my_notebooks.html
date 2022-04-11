@@ -19,6 +19,7 @@
         <ol class="breadcrumb">
           <li class="breadcrumb-item">My notebooks</li>
         </ol>
+        {% if notebooks|length > 0 %}
         <table class="table table-bordered">
           <thead>
             <tr>
@@ -62,6 +63,9 @@
           </tr>
         </table>
         <div id="notebook-analytics"></div>
+        {% else %}
+        <p>You have zero notebooks currently running.</p>
+        {% endif %}
       </div>
 </section>
 <script type="text/javascript">
