@@ -25,7 +25,6 @@
               <th data-field="name" data-sortable="true">Application</th>
               <th data-field="ready" data-sortable="false">Notebook</th>
               <th data-field="pod_status" data-sortable="false">Pod</th>
-              <th data-field="cert_status" data-sortable="false">Certificate</th>
               <th data-field="creation-date" data-sortable="true">Created on</th>
               <th data-field="expiry-date" data-sortable="true">Expires on</th>
               <th data-field="remove-instance" data-sortable="false"></th>
@@ -39,9 +38,16 @@
               {% else %}
               <td>{{instance['display_name']}}</td>
               {% endif %}
+              {% if instance['notebook_status'] in ['Ready', 'Removing'] %}
               <td>{{instance['notebook_status']}}</td>
+              {% else %}
+              <td>
+                <div class="spinner-border text-primary" style="width: 2rem; height: 2rem" role="status">
+                  <span class="sr-only">Loading...</span>
+                </div>
+              </td>
+              {% endif %}
               <td>{{instance['pod_status']}}</td>
-              <td>{{instance['cert_status']}}</td>
               <td id="{{instance['name']}}_creation_date"></td>
               <td id="{{instance['name']}}_expiration_date"></td>
               {% if instance['notebook_status'] != 'Removing' %}
@@ -55,22 +61,15 @@
         </table>
       </div>
     </div>
-    {% if refresh %}
-    <p class="h6">
-      <small>
-        Page will refresh every 30 seconds
-      </small>
-    </p>
-    {% endif %}
   </div> <!-- container -->
 </section>
 <script type="text/javascript">
 $(document).ready(function() {
-  $('#instance-table').DataTable({"columns": [{'width': '22%'}, {width: '10%'}, {width: '10%'}, {width: '10%'}, {'width': '22%'}, {'width': '22%'}, {'width': '4%'}]});
+  $('#instance-table').DataTable({"columns": [{'width': '22%'}, {width: '10%'}, {width: '10%'}, {'width': '22%'}, {'width': '22%'}, {'width': '4%'}]});
   {% if refresh %}
   window.setTimeout(function () {
     window.location.reload();
-  }, 30000);
+  }, 10000);
   {% endif %}
   {% for instance in instances %}
     var creation_date = {{instance['creation_date']}};

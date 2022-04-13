@@ -28,6 +28,7 @@
               <th>Memory requested</th>
               <th>CPU requested</th>
               <th>GPU requested</th>
+              <th>GPU memory requested</th>
               <th>Hours remaining</th>
             </tr>
           </thead>
@@ -39,6 +40,7 @@
               <td>{{notebook['memory_request']}}</td>
               <td>{{notebook['cpu_request']}}</td>
               <td>{{notebook['gpu_request']}}</td>
+              <td>{{notebook['gpu_memory_request']}}</td>
               <td>{{notebook['hours_remaining']}}</td>
             </tr>
             {% endfor %}

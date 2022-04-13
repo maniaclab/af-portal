@@ -374,6 +374,13 @@ def get_gpu_request(pod):
         logger.error('Error getting the GPU request for a pod')
         return None       
 
+def get_gpu_memory_request(pod):
+    try: 
+        return pod.spec.node_selector['nvidia.com/gpu.memory'] + 'Mi'
+    except:
+        logger.error('Error getting the GPU memory request for a pod')
+        return None   
+
 def get_pods():
     try:
         core_v1_api = client.CoreV1Api()
@@ -415,6 +422,7 @@ def get_notebooks(username):
             memory_request = get_memory_request(pod)
             cpu_request = get_cpu_request(pod)
             gpu_request = get_gpu_request(pod)
+            gpu_memory_request = get_gpu_memory_request(pod)
             hours_remaining = get_hours_remaining(pod)
             notebooks.append(
                 {'name': name, 
@@ -430,6 +438,7 @@ def get_notebooks(username):
                 'memory_request': memory_request,
                 'cpu_request': cpu_request,
                 'gpu_request': gpu_request,
+                'gpu_memory_request': gpu_memory_request,
                 'hours_remaining': hours_remaining}
             )
         except:          
@@ -453,6 +462,7 @@ def get_all_notebooks():
             memory_request = get_memory_request(pod)
             cpu_request = get_cpu_request(pod)
             gpu_request = get_gpu_request(pod)
+            gpu_memory_request = get_gpu_memory_request(pod)
             hours_remaining = get_hours_remaining(pod)
             notebooks.append(
                 {'name': name, 
@@ -468,6 +478,7 @@ def get_all_notebooks():
                 'memory_request': memory_request,
                 'cpu_request': cpu_request,
                 'gpu_request': gpu_request,
+                'gpu_memory_request': gpu_memory_request,
                 'hours_remaining': hours_remaining}
             )
         except:          
