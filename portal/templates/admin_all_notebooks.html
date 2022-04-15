@@ -46,28 +46,37 @@
             {% endfor %}
           </tbody>
         </table>
-        <table id="select-table" class="table table-borderless">
-          <tr>
-            <td>Select a notebook:</td>
-            <td>
-              <select id="select-notebook">
-                <option value="all-notebooks">All notebooks</option>
-                {% for notebook in notebooks %}
-                <option value="{{notebook['name']}}">{{notebook['display_name']}}</option>
-                {% endfor %}
-              </select>
-            </td>
-            <td>Select a timeframe:</td>
-            <td>
-              <select id="select-timeframe">
-                <option value="now-1h%2Fh">1 hour</option>
-                <option value="now-24h%2Fh" selected>24 hours</option>
-                <option value="now-7d%2Fd">7 days</option>
-              </select>
-            </td>
-          </tr>
-        </table>
-        <div id="notebook-analytics"></div>
+        <div>
+          <h6><b>Grafana visualizations</b></h6>
+          <iframe src="https://grafana.mwt2.org/d-solo/P2AwYf8nz/af-jupyter?orgId=1&from=1649968383282&to=1649989983282&var-owner=rolyata&panelId=2" width="800" height="500" frameborder="0"></iframe>
+          <br/>
+          <iframe src="https://grafana.mwt2.org/d-solo/P2AwYf8nz/af-jupyter?orgId=1&from=1649968422107&to=1649990022107&var-owner=rolyata&panelId=3" width="800" height="500" frameborder="0"></iframe>
+        </div>
+        <div>
+          <h6><b>Kibana visualizations</b></h6>
+          <table id="select-table" class="table table-borderless">
+            <tr>
+              <td>Select a notebook:</td>
+              <td>
+                <select id="select-notebook">
+                  <option value="all-notebooks">All notebooks</option>
+                  {% for notebook in notebooks %}
+                  <option value="{{notebook['name']}}">{{notebook['display_name']}}</option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td>Select a timeframe:</td>
+              <td>
+                <select id="select-timeframe">
+                  <option value="now-1h%2Fh">1 hour</option>
+                  <option value="now-24h%2Fh" selected>24 hours</option>
+                  <option value="now-7d%2Fd">7 days</option>
+                </select>
+              </td>
+            </tr>
+          </table>
+          <div id="notebook-analytics"></div>
+        </div>
         {% else %}
         <p>There are zero notebooks currently running in the namespace.</p>
         {% endif %}

@@ -38,15 +38,7 @@
               {% else %}
               <td>{{instance['display_name']}}</td>
               {% endif %}
-              {% if instance['notebook_status'] in ['Ready', 'Removing'] %}
               <td>{{instance['notebook_status']}}</td>
-              {% else %}
-              <td>
-                <div class="spinner-border text-primary" style="width: 2rem; height: 2rem" role="status">
-                  <span class="sr-only">Loading...</span>
-                </div>
-              </td>
-              {% endif %}
               <td>{{instance['pod_status']}}</td>
               <td id="{{instance['name']}}_creation_date"></td>
               <td id="{{instance['name']}}_expiration_date"></td>
