@@ -46,7 +46,7 @@
             {% endfor %}
           </tbody>
         </table>
-        <div>
+        <div id="grafana-viz">
           <h6><b>Grafana visualizations</b></h6>
           <iframe src="https://grafana.mwt2.org/d-solo/P2AwYf8nz/af-jupyter?orgId=1&from=1649968383282&to=1649989983282&var-owner=rolyata&panelId=2" width="800" height="500" frameborder="0"></iframe>
           <br/>
@@ -75,7 +75,7 @@
               </td>
             </tr>
           </table>
-          <div id="notebook-analytics"></div>
+          <div id="kibana-viz"></div>
         </div>
         {% else %}
         <p>There are zero notebooks currently running in the namespace.</p>
@@ -84,9 +84,11 @@
 </section>
 <script type="text/javascript">
   $(document).ready(function() {
-    var refreshNotebookAnalytics = function() {
-      var notebookAnalytics = $('#notebook-analytics')
-      notebookAnalytics.empty();
+    var username = "{{session.get('unix_name')}}";
+
+    var refreshKibanaViz = function() {
+      var kibanaViz = $('#kibana-viz')
+      kibanaViz.empty();
       var notebookName = $('#select-notebook option:selected').val();
       var timeframe = $('#select-timeframe option:selected').val();
 
@@ -98,10 +100,10 @@
         cpuUsage.attr('src', "https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/visualize?auth_provider_hint=anonymous1#/create?embed=true&type=line&savedSearchId=1dfaf530-b442-11ec-9b57-bf21ae80f105&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:" + timeframe + ",to:now))&_a=(filters:!(),linked:!t,query:(language:kuery,query:''),uiState:(),vis:(aggs:!((enabled:!t,id:'1',params:(customLabel:'CPU%20usage%20in%20nanocores',field:kubernetes.pod.cpu.usage.nanocores),schema:metric,type:avg),(enabled:!t,id:'2',params:(customLabel:'Time%20of%20day',drop_partials:!f,extended_bounds:(),field:'@timestamp',interval:auto,min_doc_count:1,scaleMetricValues:!f,timeRange:(from:now-24h%2Fh,to:now),useNormalizedEsInterval:!t,used_interval:'30m'),schema:segment,type:date_histogram),(enabled:!t,id:'3',params:(customLabel:'',field:kubernetes.labels.instance,missingBucket:!f,missingBucketLabel:Missing,order:desc,orderBy:'1',otherBucket:!f,otherBucketLabel:Other,size:5),schema:group,type:terms)),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,categoryAxes:!((id:CategoryAxis-1,labels:(filter:!t,show:!t,truncate:100),position:bottom,scale:(type:linear),show:!t,style:(),title:(),type:category)),detailedTooltip:!t,fittingFunction:linear,grid:(categoryLines:!f),labels:(),legendPosition:right,palette:(name:default,type:palette),radiusRatio:9,seriesParams:!((circlesRadius:3,data:(id:'1',label:'CPU%20usage%20in%20nanocores'),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1)),thresholdLine:(color:%23E7664C,show:!f,style:full,value:10,width:1),times:!(),type:line,valueAxes:!((id:ValueAxis-1,labels:(filter:!f,rotate:0,show:!t,truncate:100),name:LeftAxis-1,position:left,scale:(mode:normal,type:linear),show:!t,style:(),title:(text:'CPU%20usage%20in%20nanocores'),type:value))),title:'',type:line))")
         cpuUsage.attr('height', '600');
         cpuUsage.attr('width', '1000');
-        notebookAnalytics.append('<h6>Memory usage in bytes</h6>');
-        notebookAnalytics.append(memoryUsage);
-        notebookAnalytics.append('<h6>CPU usage in nanocores</h6>');
-        notebookAnalytics.append(cpuUsage);
+        kibanaViz.append('<h6>Memory usage in bytes</h6>');
+        kibanaViz.append(memoryUsage);
+        kibanaViz.append('<h6>CPU usage in nanocores</h6>');
+        kibanaViz.append(cpuUsage);
       }
       else {
         var memoryUsage = $('<iframe>'), cpuUsage = $('<iframe>'), networkBytes = $('<iframe>');
@@ -114,17 +116,45 @@
         networkBytes.attr('src', "https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/visualize?auth_provider_hint=anonymous1#/create?embed=true&type=line&savedSearchId=1dfaf530-b442-11ec-9b57-bf21ae80f105&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:" + timeframe + ",to:now))&_a=(filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'8079b500-b043-11ec-bb38-f3791366de11',key:kubernetes.labels.instance,negate:!f,params:(query:" + notebookName + "),type:phrase),query:(match_phrase:(kubernetes.labels.instance:" + notebookName + ")))),linked:!t,query:(language:kuery,query:''),uiState:(),vis:(aggs:!((enabled:!t,id:'1',params:(customLabel:'Bytes%20transmitted',field:kubernetes.pod.network.tx.bytes),schema:metric,type:avg),(enabled:!t,id:'2',params:(customLabel:'Time%20of%20day',drop_partials:!f,extended_bounds:(),field:'@timestamp',interval:auto,min_doc_count:1,scaleMetricValues:!f,timeRange:(from:now-24h%2Fh,to:now),useNormalizedEsInterval:!t,used_interval:'30m'),schema:segment,type:date_histogram),(enabled:!t,id:'3',params:(customLabel:'Bytes%20received',field:kubernetes.pod.network.rx.bytes),schema:metric,type:avg)),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,categoryAxes:!((id:CategoryAxis-1,labels:(filter:!t,show:!t,truncate:100),position:bottom,scale:(type:linear),show:!t,style:(),title:(),type:category)),detailedTooltip:!t,fittingFunction:linear,grid:(categoryLines:!f),labels:(),legendPosition:right,palette:(name:default,type:palette),radiusRatio:9,seriesParams:!((circlesRadius:3,data:(id:'1',label:'Bytes%20transmitted'),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1),(circlesRadius:3,data:(id:'3',label:'Bytes%20received'),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1)),thresholdLine:(color:%23E7664C,show:!f,style:full,value:10,width:1),times:!(),type:line,valueAxes:!((id:ValueAxis-1,labels:(filter:!f,rotate:0,show:!t,truncate:100),name:LeftAxis-1,position:left,scale:(mode:normal,type:linear),show:!t,style:(),title:(text:'Bytes%20transmitted%20and%20received%20over%20network'),type:value))),title:'',type:line))");
         networkBytes.attr('height', '600');
         networkBytes.attr('width', '1000');
-        notebookAnalytics.append('<h6>Memory usage in bytes</h6>');
-        notebookAnalytics.append(memoryUsage);
-        notebookAnalytics.append('<h6>CPU usage in nanocores</h6>');
-        notebookAnalytics.append(cpuUsage);
-        notebookAnalytics.append('<h6>Bytes transmitted and received over network</h6>');
-        notebookAnalytics.append(networkBytes);
+        kibanaViz.append('<h6>Memory usage in bytes</h6>');
+        kibanaViz.append(memoryUsage);
+        kibanaViz.append('<h6>CPU usage in nanocores</h6>');
+        kibanaViz.append(cpuUsage);
+        kibanaViz.append('<h6>Bytes transmitted and received over network</h6>');
+        kibanaViz.append(networkBytes);
       }
     }
-    refreshNotebookAnalytics();
-    $('#select-notebook').on('change', refreshNotebookAnalytics);
-    $('#select-timeframe').on('change', refreshNotebookAnalytics);
+
+    var refreshGrafanaViz = function() {
+      var grafanaViz = $('#grafana-viz');
+      grafanaViz.empty();
+      grafanaViz.append('<h6><b>Grafana visualizations</b></h6>');
+      var memoryUsage = $('<iframe>'), cpuUsage = $('<iframe>');
+
+      var end = Date.now();
+      var start = end - 24*60*60*1000;
+      
+      memoryUsage.attr('src', "https://grafana.mwt2.org/d-solo/P2AwYf8nz/af-jupyter?orgId=1&from=" + start + "&to=" + end + "&var-owner=" + username + "&panelId=2");
+      memoryUsage.attr('width', '800');
+      memoryUsage.attr('height', '500');
+      cpuUsage.attr('src', "https://grafana.mwt2.org/d-solo/P2AwYf8nz/af-jupyter?orgId=1&from=" + start + "&to=" + end + "&var-owner=" + username + "&panelId=3");
+      cpuUsage.attr('width', '800');
+      cpuUsage.attr('height', '500');        
+      grafanaViz.append(memoryUsage);
+      grafanaViz.append("<br/>");
+      grafanaViz.append(cpuUsage);
+
+      "https://grafana.mwt2.org/d-solo/P2AwYf8nz/af-jupyter?orgId=1&from=1650287596638&to=1650309196638&var-owner=rolyata&panelId=2"
+    }
+
+    var refreshVisualizations = function() {
+      refreshKibanaViz();
+      refreshGrafanaViz();
+    }
+
+    refreshVisualizations();
+    $('#select-notebook').on('change', refreshVisualizations);
+    $('#select-timeframe').on('change', refreshVisualizations);
   });
 </script>
 {%endblock%}
