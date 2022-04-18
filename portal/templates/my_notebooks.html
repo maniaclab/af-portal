@@ -86,10 +86,14 @@
       grafanaViz.empty();
       grafanaViz.append('<h6><b>Grafana visualizations</b></h6>');
       var memoryUsage = $('<iframe>'), cpuUsage = $('<iframe>');
-      memoryUsage.attr('src', "https://grafana.mwt2.org/d-solo/P2AwYf8nz/af-jupyter?orgId=1&from=1650275256013&to=1650296856013&var-owner=" + username + "&panelId=9");  
+
+      var end = Date.now();
+      var start = end - 6*60*60*1000;
+        
+      memoryUsage.attr('src', "https://grafana.mwt2.org/d-solo/P2AwYf8nz/af-jupyter?orgId=1&from=" + start + "&to=" + end + "&var-owner=" + username + "&panelId=9");  
       memoryUsage.attr('height', '500');
       memoryUsage.attr('width', '800');
-      cpuUsage.attr('src', "https://grafana.mwt2.org/d-solo/P2AwYf8nz/af-jupyter?orgId=1&from=1650275186640&to=1650296786640&var-owner=" + username + "&panelId=11");
+      cpuUsage.attr('src', "https://grafana.mwt2.org/d-solo/P2AwYf8nz/af-jupyter?orgId=1&from=" + start + "&to=" + end + "&var-owner=" + username + "&panelId=11");
       cpuUsage.attr('height', '500');
       cpuUsage.attr('width', '800');
       grafanaViz.append(memoryUsage);
@@ -142,7 +146,7 @@
 
     refreshVisualizations();
     $('#select-notebook').on('change', refreshVisualizations);
-    $('#select-timeframe').on('change', refreshVisualiztions);
+    $('#select-timeframe').on('change', refreshVisualizations);
   });
 </script>
 {%endblock%}
