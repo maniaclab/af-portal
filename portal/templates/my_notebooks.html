@@ -88,7 +88,7 @@
       var memoryUsage = $('<iframe>'), cpuUsage = $('<iframe>');
 
       var end = Date.now();
-      var start = end - 6*60*60*1000;
+      var start = end - 24*60*60*1000;
         
       memoryUsage.attr('src', "https://grafana.mwt2.org/d-solo/P2AwYf8nz/af-jupyter?orgId=1&from=" + start + "&to=" + end + "&var-owner=" + username + "&panelId=9");  
       memoryUsage.attr('height', '500');
