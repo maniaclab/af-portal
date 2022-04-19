@@ -14,73 +14,78 @@
   }
 </style>
 <section>
-      <div class="container col-lg-12">
-        {%include 'messages.html' %}
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item">All user notebooks</li>
-        </ol>
-        {% if notebooks|length > 0 %}
-        <table class="table table-bordered">
-          <thead>
-            <tr>
-              <th>Name of notebook</th>
-              <th>Name of user</th>
-              <th>Memory requested</th>
-              <th>CPU requested</th>
-              <th>GPU requested</th>
-              <th>GPU memory requested</th>
-              <th>Hours remaining</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for notebook in notebooks %}
-            <tr>
-              <td><a href="{{notebook['url']}}" target="_blank">{{notebook['display_name']}}</a></td>
-              <td>{{notebook['username']}}</td>
-              <td>{{notebook['memory_request']}}</td>
-              <td>{{notebook['cpu_request']}}</td>
-              <td>{{notebook['gpu_request']}}</td>
-              <td>{{notebook['gpu_memory_request']}}</td>
-              <td>{{notebook['hours_remaining']}}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        <div id="grafana-viz">
-          <h6><b>Grafana visualizations</b></h6>
-          <iframe src="https://grafana.mwt2.org/d-solo/P2AwYf8nz/af-jupyter?orgId=1&from=1649968383282&to=1649989983282&var-owner=rolyata&panelId=2" width="800" height="500" frameborder="0"></iframe>
-          <br/>
-          <iframe src="https://grafana.mwt2.org/d-solo/P2AwYf8nz/af-jupyter?orgId=1&from=1649968422107&to=1649990022107&var-owner=rolyata&panelId=3" width="800" height="500" frameborder="0"></iframe>
-        </div>
-        <div>
-          <h6><b>Kibana visualizations</b></h6>
-          <table id="select-table" class="table table-borderless">
-            <tr>
-              <td>Select a notebook:</td>
-              <td>
-                <select id="select-notebook">
-                  <option value="all-notebooks">All notebooks</option>
-                  {% for notebook in notebooks %}
-                  <option value="{{notebook['name']}}">{{notebook['display_name']}}</option>
-                  {% endfor %}
-                </select>
-              </td>
-              <td>Select a timeframe:</td>
-              <td>
-                <select id="select-timeframe">
-                  <option value="now-1h%2Fh">1 hour</option>
-                  <option value="now-24h%2Fh" selected>24 hours</option>
-                  <option value="now-7d%2Fd">7 days</option>
-                </select>
-              </td>
-            </tr>
-          </table>
-          <div id="kibana-viz"></div>
-        </div>
-        {% else %}
-        <p>There are zero notebooks currently running in the namespace.</p>
-        {% endif %}
+  <div class="container col-lg-12">
+    {%include 'messages.html' %}
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">All user notebooks</li>
+    </ol>
+    {% if notebooks|length > 0 %}
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Name of notebook</th>
+          <th>Name of user</th>
+          <th>Memory requested</th>
+          <th>CPU requested</th>
+          <th>GPU requested</th>
+          <th>GPU memory requested</th>
+          <th>Hours remaining</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for notebook in notebooks %}
+        <tr>
+          <td><a href="{{notebook['url']}}" target="_blank">{{notebook['display_name']}}</a></td>
+          <td>{{notebook['username']}}</td>
+          <td>{{notebook['memory_request']}}</td>
+          <td>{{notebook['cpu_request']}}</td>
+          <td>{{notebook['gpu_request']}}</td>
+          <td>{{notebook['gpu_memory_request']}}</td>
+          <td>{{notebook['hours_remaining']}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <nav>
+      <div class="nav nav-tabs" role="tablist">
+        <a class="nav-link active" id="kibana-tab" data-toggle="tab" href="#kibana-content" role="tab" type="button" aria-controls="kibana-content" aria-selected="true">Kibana visualizations</a>
+        <a class="nav-link" id="grafana-tab" data-toggle="tab" href="#grafana-content" role="tab" type="button" aria-controls="grafana-content" aria-selected="false">Grafana visualizations</a>
       </div>
+    </nav>
+    <br/>
+    <div class="tab-content">
+      <div class="tab-pane fade show active" id="kibana-content" role="tabpanel" aria-labelledby="kibana-tab">
+        <table id="select-table" class="table table-borderless">
+          <tr>
+            <td>Select a notebook:</td>
+            <td>
+              <select id="select-notebook">
+                <option value="all-notebooks">All notebooks</option>
+                {% for notebook in notebooks %}
+                <option value="{{notebook['name']}}">{{notebook['display_name']}}</option>
+                {% endfor %}
+              </select>
+            </td>
+            <td>Select a timeframe:</td>
+            <td>
+              <select id="select-timeframe">
+                <option value="now-1h%2Fh">1 hour</option>
+                <option value="now-24h%2Fh" selected>24 hours</option>
+                <option value="now-7d%2Fd">7 days</option>
+              </select>
+            </td>
+          </tr>
+        </table>
+        <div id="kibana-viz"></div>
+      </div>
+      <div class="tab-pane fade" id="grafana-content" role="tabpanel" aria-labelledby="grafana-tab">
+        <div id="grafana-viz"></div>
+      </div>
+    </div>
+    {% else %}
+    <p>There are zero notebooks currently running in the namespace.</p>
+    {% endif %}
+  </div>
 </section>
 <script type="text/javascript">
   $(document).ready(function() {
@@ -128,7 +133,6 @@
     var refreshGrafanaViz = function() {
       var grafanaViz = $('#grafana-viz');
       grafanaViz.empty();
-      grafanaViz.append('<h6><b>Grafana visualizations</b></h6>');
       var memoryUsage = $('<iframe>'), cpuUsage = $('<iframe>');
 
       var end = Date.now();
@@ -143,8 +147,6 @@
       grafanaViz.append(memoryUsage);
       grafanaViz.append("<br/>");
       grafanaViz.append(cpuUsage);
-
-      "https://grafana.mwt2.org/d-solo/P2AwYf8nz/af-jupyter?orgId=1&from=1650287596638&to=1650309196638&var-owner=rolyata&panelId=2"
     }
 
     var refreshVisualizations = function() {
@@ -155,6 +157,12 @@
     refreshVisualizations();
     $('#select-notebook').on('change', refreshVisualizations);
     $('#select-timeframe').on('change', refreshVisualizations);
+
+    $('.nav-tabs a').on('click', function (e) {
+      e.preventDefault()
+      console.log('Clicked');
+      $(this).tab('show');
+    });
   });
 </script>
 {%endblock%}
