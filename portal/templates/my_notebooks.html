@@ -50,7 +50,7 @@
     <nav>
       <div class="nav nav-tabs" role="tablist">
         <a class="nav-link active" id="kibana-tab" data-toggle="tab" href="#kibana-content" role="tab" type="button" aria-controls="kibana-content" aria-selected="true">Kibana visualizations</a>
-        <a class="nav-link" id="grafana-tab" data-toggle="tab" href="#grafana-content" role="tab" type="button" aria-controls="grafana-content" aria-selected="false">Grafana visualizations</a>
+        <!-- <a class="nav-link" id="grafana-tab" data-toggle="tab" href="#grafana-content" role="tab" type="button" aria-controls="grafana-content" aria-selected="false">Grafana visualizations</a> -->
       </div>
     </nav>
     <br/>
@@ -79,9 +79,9 @@
         </table>
         <div id="kibana-viz"></div>
       </div>
-      <div class="tab-pane fade" id="grafana-content" role="tabpanel" aria-labelledby="grafana-tab">
+      <!-- <div class="tab-pane fade" id="grafana-content" role="tabpanel" aria-labelledby="grafana-tab">
         <div id="grafana-viz"></div>
-      </div>
+      </div> -->
     </div>
     {% else %}
     <p>You have zero notebooks currently running.</p>
@@ -146,7 +146,7 @@
 
     var refreshVisualizations = function() {
       refreshKibanaViz();
-      refreshGrafanaViz();
+      // refreshGrafanaViz();
     }
 
     refreshVisualizations();
