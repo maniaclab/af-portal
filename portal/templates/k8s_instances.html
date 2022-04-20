@@ -37,19 +37,14 @@
               {% else %}
               <td>{{instance['display_name']}}</td>
               {% endif %}
-              {% if instance['pod_status'] == 'Pending' %}
-              <td>Pod starting...</td>
-              {% elif instance['pod_status'] == 'Running' and instance['notebook_status'] == 'Loading' %}
-              <td>Notebook loading...</td>
-              {% elif instance['pod_status'] == 'Running' and instance['notebook_status'] == 'Ready' and instance['cert_status'] == 'Ready' %}
-              <td>Ready</td>
-              {% elif instance['pod_status'] == 'Running' and instance['notebook_status'] == 'Ready' and instance['cert_status'] != 'Ready' %}
-              <td>Waiting for certificate...</td>
-              {% elif instance['notebook_status'] == 'Removing' %}
-              <td>Removing notebook...</td>
-              {% else %}
-              <td>Unknown</td>
-              {% endif %}
+              <td>
+                <a class="status-button" data-nbname="{{instance['name']}}" href="#" role="button">{{instance['notebook_status']}}</a>
+                <ul id="{{instance['name']}}_detailed_status" style="list-style-type: none; padding: 0; margin: 0; display: none">
+                {% for status in instance['detailed_status'] %}
+                  <li>{{status}}</li>
+                {% endfor %}
+                </ul>
+              </td>              
               <td id="{{instance['name']}}_creation_date"></td>
               <td id="{{instance['name']}}_expiration_date"></td>
               {% if instance['notebook_status'] != 'Removing' %}
@@ -67,26 +62,37 @@
 </section>
 <script type="text/javascript">
 $(document).ready(function() {
+  var formatDate = function(timestamp) { return moment(timestamp * 1000).format("dddd MMMM D YYYY h:mm a"); }
+
   $('#instance-table').DataTable({"columns": [{'width': '22%'}, {width: '20%'}, {'width': '22%'}, {'width': '22%'}, {'width': '4%'}]});
-  {% if refresh %}
-  window.setTimeout(function () {
-    window.location.reload();
-  }, 10000);
-  {% endif %}
+  
+  $('.status-button').click(function(e) {
+    e.preventDefault();
+    var nbname = $(this).data('nbname');
+    $('#' + nbname + '_detailed_status').toggle();
+  });
+
   {% for instance in instances %}
     var creation_date = {{instance['creation_date']}};
     var expiration_date = {{instance['expiration_date']}};
+    var nbname = "{{instance['name']}}";
+    var td_creation_date = $("#" + nbname + "_creation_date");
+    var td_expiration_date = $("#" + nbname + "_expiration_date");
 
     if (isNaN(creation_date) || creation_date < 0) 
-      $("#{{instance['name']}}_creation_date").html('Unknown');
+      td_creation_date.html('Unknown');
     else 
-      $("#{{instance['name']}}_creation_date").html(moment(creation_date * 1000).format("dddd MMMM D YYYY h:mm a"));
+      td_creation_date.html(formatDate(creation_date));
 
     if (isNaN(expiration_date) || expiration_date < 0) 
-      $("#{{instance['name']}}_expiration_date").html('Never');
+      td_expiration_date.html('Never');
     else 
-      $("#{{instance['name']}}_expiration_date").html(moment(expiration_date * 1000).format("dddd MMMM D YYYY h:mm a"));
+      td_expiration_date.html(formatDate(expiration_date));
   {% endfor %}
+
+  {% if refresh %}
+  window.setTimeout(function () { window.location.reload(); }, 10000);
+  {% endif %}
 });
 </script>
 {%endblock%}

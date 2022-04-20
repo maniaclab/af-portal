@@ -272,35 +272,14 @@ def get_hours_remaining(pod):
         return int(diff.total_seconds() / 3600)
     except:
         logger.error('Error getting the hours remaining')
-    return None
-
-def notebook_closing(pod):
-    if pod.metadata.deletion_timestamp:
-        return True
-    return False
-
-def get_notebook_status(pod):
-    notebook_name = pod.metadata.name
-    try: 
-        if notebook_closing(pod):
-            return 'Removing'
-        elif get_pod_status(pod) == 'Running':
-            core_v1_api = client.CoreV1Api()
-            log = core_v1_api.read_namespaced_pod_log(notebook_name, namespace=namespace)
-            if re.search("Jupyter Notebook.*is running at.*", log) or re.search("Jupyter Server.*is running at.*", log):
-                return 'Ready'
-            else:
-                return 'Loading'
-        else:
-            return 'Not ready'
-    except:
-        logger.error('Error getting status for notebook %s' %notebook_name)
-        return 'Error'
 
 def get_pod_status(pod):
-    if notebook_closing(pod):
-        return '--'
-    return pod.status.phase
+    try:
+        if notebook_closing(pod):
+            return '--'
+        return pod.status.phase
+    except:
+        logger.error('Error getting status for pod %s' %pod.metadata.name)
 
 def get_certificate_status(pod):
     try:
@@ -315,9 +294,49 @@ def get_certificate_status(pod):
         for condition in cert['status']['conditions']:
             if condition['type'] == 'Ready':    
                 return 'Ready' if condition['status'] == 'True' else 'Not ready'
+        return 'Unknown'
     except:
         logger.error("Error getting certificate status for notebook %s" %notebook_name)
-    return 'Unknown'
+
+def notebook_closing(pod):
+    try:
+        if pod.metadata.deletion_timestamp:
+            return True
+        return False
+    except:
+        logger.error('Error checking whether notebook is closing in pod %s' %pod.metadata.name)
+
+def get_notebook_status(pod):
+    try: 
+        pod_status = get_pod_status(pod)
+        cert_status = get_certificate_status(pod)
+        if notebook_closing(pod):
+            return 'Removing notebook...'
+        elif pod_status == 'Pending':
+            return 'Pod starting...'
+        elif cert_status != 'Ready':
+            return 'Waiting for certificate...'
+        elif pod_status == 'Running':
+            core_v1_api = client.CoreV1Api()
+            log = core_v1_api.read_namespaced_pod_log(pod.metadata.name, namespace=namespace)
+            if re.search("Jupyter Notebook.*is running at.*", log) or re.search("Jupyter Server.*is running at.*", log):
+                return 'Ready'
+            else:
+                return 'Notebook loading...'
+        else:
+            return pod_status
+    except:
+        logger.error('Error getting status for notebook %s' %pod.metadata.name)
+        return 'Error'
+
+def get_detailed_status(pod):
+    try:
+        detailed_status = []
+        for c in pod.status.conditions:
+            detailed_status.append("%s: %s" %(c.type, c.status))
+        return detailed_status
+    except:
+        logger.error("Error getting detailed status for pod %s" %pod.metadata.name)
 
 def get_token(notebook_name):
     try:
@@ -326,18 +345,20 @@ def get_token(notebook_name):
         return sec.data['token']
     except:
         logger.error("Error getting secret for notebook %s" %notebook_name)
-        return None
 
 def get_display_name(pod):
-    if hasattr(pod.metadata, 'labels') and 'display-name' in pod.metadata.labels:
-        return pod.metadata.labels['display-name']
-    return pod.metadata.name
+    try:
+        if hasattr(pod.metadata, 'labels') and 'display-name' in pod.metadata.labels:
+            return pod.metadata.labels['display-name']
+        return pod.metadata.name
+    except:
+        logger.error('Error getting value for display-name in pod %s' %pod.metadata.name)
 
 def get_owner(pod):
     try:
         return pod.metadata.labels['owner']
     except:
-        return 'Unknown'
+        logger.error('Error getting value for owner in pod %s' %pod.metadata.name)
 
 def get_url(pod):
     try: 
@@ -351,35 +372,30 @@ def get_url(pod):
         return url
     except:
         logger.error('Error getting URL for pod %s' %notebook_name)
-        return None
 
 def get_memory_request(pod):
     try:
         return pod.spec.containers[0].resources.requests['memory']
     except:
-        logger.error('Error getting the memory request for a pod')
-        return None     
+        logger.error('Error getting the memory request for a pod')   
 
 def get_cpu_request(pod):
     try:
         return pod.spec.containers[0].resources.requests['cpu']
     except:
-        logger.error('Error getting the CPU request for a pod')
-        return None        
+        logger.error('Error getting the CPU request for a pod')    
 
 def get_gpu_request(pod):
     try:
         return pod.spec.containers[0].resources.requests['nvidia.com/gpu']
     except:
-        logger.error('Error getting the GPU request for a pod')
-        return None       
+        logger.error('Error getting the GPU request for a pod')     
 
 def get_gpu_memory_request(pod):
     try: 
         return pod.spec.node_selector['nvidia.com/gpu.memory'] + 'Mi'
     except:
         logger.error('Error getting the GPU memory request for a pod')
-        return None   
 
 def get_pods():
     try:
@@ -419,6 +435,7 @@ def get_notebooks(username):
             pod_status = get_pod_status(pod)
             cert_status = get_certificate_status(pod)
             notebook_status = get_notebook_status(pod)
+            detailed_status = get_detailed_status(pod)
             memory_request = get_memory_request(pod)
             cpu_request = get_cpu_request(pod)
             gpu_request = get_gpu_request(pod)
@@ -433,6 +450,7 @@ def get_notebooks(username):
                 'pod_status': pod_status,
                 'cert_status': cert_status,
                 'notebook_status': notebook_status,
+                'detailed_status': detailed_status,
                 'creation_date': creation_date,
                 'expiration_date': expiration_date,
                 'memory_request': memory_request,
