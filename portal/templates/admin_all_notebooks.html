@@ -134,12 +134,12 @@
       var memoryUsage = $('<iframe>'), cpuUsage = $('<iframe>');
 
       var end = Date.now();
-      var start = end - 24*60*60*1000;
+      var start = end - 12*60*60*1000;
       
-      memoryUsage.attr('src', "https://grafana.mwt2.org/d-solo/P2AwYf8nz/af-jupyter?orgId=1&from=" + start + "&to=" + end + "&var-owner=" + username + "&panelId=2");
+      memoryUsage.attr('src', "https://grafana.mwt2.org/d-solo/P2AwYf8nz/af-jupyter?orgId=1&from=" + start + "&to=" + end + "&var-owner=" + username + "&panelId=13");
       memoryUsage.attr('width', '800');
       memoryUsage.attr('height', '500');
-      cpuUsage.attr('src', "https://grafana.mwt2.org/d-solo/P2AwYf8nz/af-jupyter?orgId=1&from=" + start + "&to=" + end + "&var-owner=" + username + "&panelId=3");
+      cpuUsage.attr('src', "https://grafana.mwt2.org/d-solo/P2AwYf8nz/af-jupyter?orgId=1&from=" + start + "&to=" + end + "&var-owner=" + username + "&panelId=15");
       cpuUsage.attr('width', '800');
       cpuUsage.attr('height', '500');        
       grafanaViz.append(memoryUsage);
