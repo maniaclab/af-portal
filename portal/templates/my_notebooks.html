@@ -6,10 +6,10 @@
 
 {%block body%}
 <style>
-  #select-table {
+  .select-table {
     width: auto;
   }
-  #select-table td {
+  .select-table td {
     padding-left: 0px !important;
   }
   .nav-tabs .nav-link {
@@ -56,11 +56,11 @@
     <br/>
     <div class="tab-content">
       <div class="tab-pane fade show active" id="kibana-content" role="tabpanel" aria-labelledby="kibana-tab">
-        <table id="select-table" class="table table-borderless">
+        <table id="select-table-kibana" class="table table-borderless select-table">
           <tr>
             <td>Select a notebook:</td>
             <td>
-              <select id="select-notebook">
+              <select id="select-notebook-kibana">
                 <option value="all-notebooks">All notebooks</option>
                 {% for notebook in notebooks %}
                 <option value="{{notebook['name']}}">{{notebook['display_name']}}</option>
@@ -69,8 +69,10 @@
             </td>
             <td>Select a timeframe:</td>
             <td>
-              <select id="select-timeframe">
+              <select id="select-timeframe-kibana">
                 <option value="now-1h%2Fh">1 hour</option>
+                <option value="now-6h%2Fh">6 hours</option>
+                <option value="now-12h%2Fh">12 hours</option>
                 <option value="now-24h%2Fh" selected>24 hours</option>
                 <option value="now-7d%2Fd">7 days</option>
               </select>
@@ -80,6 +82,29 @@
         <div id="kibana-viz"></div>
       </div>
       <div class="tab-pane fade" id="grafana-content" role="tabpanel" aria-labelledby="grafana-tab">
+        <table id="select-table-grafana" class="table table-borderless select-table">
+          <tr>
+            <td>Select a notebook:</td>
+            <td>
+              <select id="select-notebook-grafana">
+                <option value="all-notebooks">All notebooks</option>
+                {% for notebook in notebooks %}
+                <option value="{{notebook['name']}}">{{notebook['display_name']}}</option>
+                {% endfor %}
+              </select>
+            </td>
+            <td>Select a timeframe:</td>
+            <td>
+              <select id="select-timeframe-grafana">
+                <option value="1">1 hour</option>
+                <option value="6">6 hours</option>
+                <option value="12" selected>12 hours</option>
+                <option value="24">24 hours</option>
+                <option value="168">7 days</option>
+              </select>
+            </td>
+          </tr>
+        </table>
         <div id="grafana-viz"></div>
       </div>
     </div>
@@ -92,36 +117,18 @@
   $(document).ready(function() {
     var username = "{{session.get('unix_name')}}";
 
-    var refreshGrafanaViz = function() {
-      var grafanaViz = $('#grafana-viz');
-      grafanaViz.empty();
-      var memoryUsage = $('<iframe>'), cpuUsage = $('<iframe>');
-
-      var end = Date.now();
-      var start = end - 12*60*60*1000;
-        
-      memoryUsage.attr('src', "https://grafana.mwt2.org/d-solo/P2AwYf8nz/af-jupyter?orgId=1&from=" + start + "&to=" + end + "&var-owner=" + username + "&panelId=9");  
-      memoryUsage.attr('height', '500');
-      memoryUsage.attr('width', '800');
-      cpuUsage.attr('src', "https://grafana.mwt2.org/d-solo/P2AwYf8nz/af-jupyter?orgId=1&from=" + start + "&to=" + end + "&var-owner=" + username + "&panelId=11");
-      cpuUsage.attr('height', '500');
-      cpuUsage.attr('width', '800');
-      grafanaViz.append(memoryUsage);
-      grafanaViz.append(cpuUsage);
-    }
-
     var refreshKibanaViz = function() {
       var kibanaViz = $('#kibana-viz')
       kibanaViz.empty();
-      var notebookName = $('#select-notebook option:selected').val();
-      var timeframe = $('#select-timeframe option:selected').val();
+      var notebookName = $('#select-notebook-kibana option:selected').val();
+      var timeframe = $('#select-timeframe-kibana option:selected').val();
 
       if (notebookName == 'all-notebooks') {
         var memoryUsage = $('<iframe>'), cpuUsage = $('<iframe>');
-        memoryUsage.attr('src', "https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/visualize?auth_provider_hint=anonymous1#/create?embed=true&type=line&savedSearchId=1dfaf530-b442-11ec-9b57-bf21ae80f105&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:" + timeframe + ",to:now))&_a=(filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'8079b500-b043-11ec-bb38-f3791366de11',key:kubernetes.labels.owner,negate:!f,params:(query:" + username + "),type:phrase),query:(match_phrase:(kubernetes.labels.owner:" + username + ")))),linked:!t,query:(language:kuery,query:''),uiState:(),vis:(aggs:!((enabled:!t,id:'1',params:(customLabel:'Memory%20usage%20in%20bytes',field:kubernetes.container.memory.usage.bytes),schema:metric,type:avg),(enabled:!t,id:'2',params:(customLabel:'Time%20of%20day',drop_partials:!f,extended_bounds:(),field:'@timestamp',interval:auto,min_doc_count:1,scaleMetricValues:!f,timeRange:(from:now-24h%2Fh,to:now),useNormalizedEsInterval:!t,used_interval:'30m'),schema:segment,type:date_histogram),(enabled:!t,id:'3',params:(field:kubernetes.labels.instance,missingBucket:!f,missingBucketLabel:Missing,order:desc,orderBy:'1',otherBucket:!f,otherBucketLabel:Other,size:5),schema:group,type:terms)),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,categoryAxes:!((id:CategoryAxis-1,labels:(filter:!t,show:!t,truncate:100),position:bottom,scale:(type:linear),show:!t,style:(),title:(),type:category)),detailedTooltip:!t,fittingFunction:linear,grid:(categoryLines:!f),labels:(),legendPosition:right,palette:(name:default,type:palette),radiusRatio:9,seriesParams:!((circlesRadius:3,data:(id:'1',label:'Memory%20usage%20in%20bytes'),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1)),thresholdLine:(color:%23E7664C,show:!f,style:full,value:10,width:1),times:!(),type:line,valueAxes:!((id:ValueAxis-1,labels:(filter:!f,rotate:0,show:!t,truncate:100),name:LeftAxis-1,position:left,scale:(mode:normal,type:linear),show:!t,style:(),title:(text:'Memory%20usage%20in%20bytes'),type:value))),title:'',type:line))");
+        memoryUsage.attr('src', "https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/visualize?auth_provider_hint=anonymous1#/create?embed=true&type=line&savedSearchId=1dfaf530-b442-11ec-9b57-bf21ae80f105&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:" + timeframe + ",to:now))&_a=(filters:!(),linked:!t,query:(language:kuery,query:''),uiState:(),vis:(aggs:!((enabled:!t,id:'1',params:(customLabel:'Memory%20usage%20in%20bytes',field:kubernetes.container.memory.usage.bytes),schema:metric,type:avg),(enabled:!t,id:'2',params:(customLabel:'Time%20of%20day',drop_partials:!f,extended_bounds:(),field:'@timestamp',interval:auto,min_doc_count:1,scaleMetricValues:!f,timeRange:(from:now-24h%2Fh,to:now),useNormalizedEsInterval:!t,used_interval:'30m'),schema:segment,type:date_histogram),(enabled:!t,id:'3',params:(field:kubernetes.labels.instance,missingBucket:!f,missingBucketLabel:Missing,order:desc,orderBy:'1',otherBucket:!f,otherBucketLabel:Other,size:5),schema:group,type:terms)),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,categoryAxes:!((id:CategoryAxis-1,labels:(filter:!t,show:!t,truncate:100),position:bottom,scale:(type:linear),show:!t,style:(),title:(),type:category)),detailedTooltip:!t,fittingFunction:linear,grid:(categoryLines:!f),labels:(),legendPosition:right,palette:(name:default,type:palette),radiusRatio:9,seriesParams:!((circlesRadius:3,data:(id:'1',label:'Memory%20usage%20in%20bytes'),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1)),thresholdLine:(color:%23E7664C,show:!f,style:full,value:10,width:1),times:!(),type:line,valueAxes:!((id:ValueAxis-1,labels:(filter:!f,rotate:0,show:!t,truncate:100),name:LeftAxis-1,position:left,scale:(mode:normal,type:linear),show:!t,style:(),title:(text:'Memory%20usage%20in%20bytes'),type:value))),title:'',type:line))");
         memoryUsage.attr('height', '600');
         memoryUsage.attr('width', '1000');
-        cpuUsage.attr('src', "https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/visualize?auth_provider_hint=anonymous1#/create?embed=true&type=line&savedSearchId=1dfaf530-b442-11ec-9b57-bf21ae80f105&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:" + timeframe + ",to:now))&_a=(filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'8079b500-b043-11ec-bb38-f3791366de11',key:kubernetes.labels.owner,negate:!f,params:(query:" + username + "),type:phrase),query:(match_phrase:(kubernetes.labels.owner:" + username + ")))),linked:!t,query:(language:kuery,query:''),uiState:(),vis:(aggs:!((enabled:!t,id:'1',params:(customLabel:'Logical%20CPU%20Cores',field:k8s.container.cpu.usage),schema:metric,type:avg),(enabled:!t,id:'2',params:(customLabel:'Time%20of%20day',drop_partials:!f,extended_bounds:(),field:'@timestamp',interval:auto,min_doc_count:1,scaleMetricValues:!f,timeRange:(from:now-24h%2Fh,to:now),useNormalizedEsInterval:!t,used_interval:'30m'),schema:segment,type:date_histogram),(enabled:!t,id:'3',params:(field:kubernetes.labels.instance,missingBucket:!f,missingBucketLabel:Missing,order:desc,orderBy:'1',otherBucket:!f,otherBucketLabel:Other,size:5),schema:group,type:terms)),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,categoryAxes:!((id:CategoryAxis-1,labels:(filter:!t,show:!t,truncate:100),position:bottom,scale:(type:linear),show:!t,style:(),title:(),type:category)),detailedTooltip:!t,fittingFunction:linear,grid:(categoryLines:!f),labels:(),legendPosition:right,palette:(name:default,type:palette),radiusRatio:9,seriesParams:!((circlesRadius:3,data:(id:'1',label:'Logical%20CPU%20Cores'),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1)),thresholdLine:(color:%23E7664C,show:!f,style:full,value:10,width:1),times:!(),type:line,valueAxes:!((id:ValueAxis-1,labels:(filter:!f,rotate:0,show:!t,truncate:100),name:LeftAxis-1,position:left,scale:(mode:normal,type:linear),show:!t,style:(),title:(text:'Logical%20CPU%20Cores'),type:value))),title:'',type:line))");
+        cpuUsage.attr('src', "https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/visualize?auth_provider_hint=anonymous1#/create?embed=true&type=line&savedSearchId=1dfaf530-b442-11ec-9b57-bf21ae80f105&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:" + timeframe + ",to:now))&_a=(filters:!(),linked:!t,query:(language:kuery,query:''),uiState:(),vis:(aggs:!((enabled:!t,id:'1',params:(customLabel:'Logical%20CPU%20Cores',field:k8s.container.cpu.usage),schema:metric,type:avg),(enabled:!t,id:'2',params:(customLabel:'Time%20of%20day',drop_partials:!f,extended_bounds:(),field:'@timestamp',interval:auto,min_doc_count:1,scaleMetricValues:!f,timeRange:(from:now-24h%2Fh,to:now),useNormalizedEsInterval:!t,used_interval:'30m'),schema:segment,type:date_histogram),(enabled:!t,id:'3',params:(field:kubernetes.labels.instance,missingBucket:!f,missingBucketLabel:Missing,order:desc,orderBy:'1',otherBucket:!f,otherBucketLabel:Other,size:5),schema:group,type:terms)),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,categoryAxes:!((id:CategoryAxis-1,labels:(filter:!t,show:!t,truncate:100),position:bottom,scale:(type:linear),show:!t,style:(),title:(),type:category)),detailedTooltip:!t,fittingFunction:linear,grid:(categoryLines:!f),labels:(),legendPosition:right,palette:(name:default,type:palette),radiusRatio:9,seriesParams:!((circlesRadius:3,data:(id:'1',label:'Logical%20CPU%20Cores'),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1)),thresholdLine:(color:%23E7664C,show:!f,style:full,value:10,width:1),times:!(),type:line,valueAxes:!((id:ValueAxis-1,labels:(filter:!f,rotate:0,show:!t,truncate:100),name:LeftAxis-1,position:left,scale:(mode:normal,type:linear),show:!t,style:(),title:(text:'Logical%20CPU%20Cores'),type:value))),title:'',type:line))")
         cpuUsage.attr('height', '600');
         cpuUsage.attr('width', '1000');
         kibanaViz.append(memoryUsage);
@@ -132,7 +139,7 @@
         memoryUsage.attr('src', "https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/visualize?auth_provider_hint=anonymous1#/create?embed=true&type=line&savedSearchId=1dfaf530-b442-11ec-9b57-bf21ae80f105&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:" + timeframe + ",to:now))&_a=(filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'8079b500-b043-11ec-bb38-f3791366de11',key:kubernetes.labels.instance,negate:!f,params:(query:" + notebookName + "),type:phrase),query:(match_phrase:(kubernetes.labels.instance:" + notebookName + ")))),linked:!t,query:(language:kuery,query:''),uiState:(),vis:(aggs:!((enabled:!t,id:'1',params:(customLabel:'Memory%20usage%20in%20bytes',field:kubernetes.container.memory.usage.bytes),schema:metric,type:avg),(enabled:!t,id:'2',params:(customLabel:'Time%20of%20day',drop_partials:!f,extended_bounds:(),field:'@timestamp',interval:auto,min_doc_count:1,scaleMetricValues:!f,timeRange:(from:now-24h%2Fh,to:now),useNormalizedEsInterval:!t,used_interval:'30m'),schema:segment,type:date_histogram)),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,categoryAxes:!((id:CategoryAxis-1,labels:(filter:!t,show:!t,truncate:100),position:bottom,scale:(type:linear),show:!t,style:(),title:(),type:category)),detailedTooltip:!t,fittingFunction:linear,grid:(categoryLines:!f),labels:(),legendPosition:right,palette:(name:default,type:palette),radiusRatio:9,seriesParams:!((circlesRadius:3,data:(id:'1',label:'Memory%20usage%20in%20bytes'),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1)),thresholdLine:(color:%23E7664C,show:!f,style:full,value:10,width:1),times:!(),type:line,valueAxes:!((id:ValueAxis-1,labels:(filter:!f,rotate:0,show:!t,truncate:100),name:LeftAxis-1,position:left,scale:(mode:normal,type:linear),show:!t,style:(),title:(text:'Memory%20usage%20in%20bytes'),type:value))),title:'',type:line))");
         memoryUsage.attr('height', '600');
         memoryUsage.attr('width', '1000');
-        cpuUsage.attr('src', "https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/visualize?auth_provider_hint=anonymous1#/create?embed=true&type=line&savedSearchId=1dfaf530-b442-11ec-9b57-bf21ae80f105&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:" + timeframe + ",to:now))&_a=(filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'8079b500-b043-11ec-bb38-f3791366de11',key:kubernetes.labels.instance,negate:!f,params:(query:" + notebookName + "),type:phrase),query:(match_phrase:(kubernetes.labels.instance:" + notebookName + ")))),linked:!t,query:(language:kuery,query:''),uiState:(),vis:(aggs:!((enabled:!t,id:'1',params:(customLabel:'Logical%20CPU%20Cores',field:k8s.container.cpu.usage),schema:metric,type:avg),(enabled:!t,id:'2',params:(customLabel:'Time%20of%20day',drop_partials:!f,extended_bounds:(),field:'@timestamp',interval:auto,min_doc_count:1,scaleMetricValues:!f,timeRange:(from:now-24h%2Fh,to:now),useNormalizedEsInterval:!t,used_interval:'30m'),schema:segment,type:date_histogram)),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,categoryAxes:!((id:CategoryAxis-1,labels:(filter:!t,show:!t,truncate:100),position:bottom,scale:(type:linear),show:!t,style:(),title:(),type:category)),detailedTooltip:!t,fittingFunction:linear,grid:(categoryLines:!f),labels:(),legendPosition:right,palette:(name:default,type:palette),radiusRatio:9,seriesParams:!((circlesRadius:3,data:(id:'1',label:'Logical%20CPU%20Cores'),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1)),thresholdLine:(color:%23E7664C,show:!f,style:full,value:10,width:1),times:!(),type:line,valueAxes:!((id:ValueAxis-1,labels:(filter:!f,rotate:0,show:!t,truncate:100),name:LeftAxis-1,position:left,scale:(mode:normal,type:linear),show:!t,style:(),title:(text:'Logical%20CPU%20Cores'),type:value))),title:'',type:line))");        
+        cpuUsage.attr('src', "https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/visualize?auth_provider_hint=anonymous1#/create?embed=true&type=line&savedSearchId=1dfaf530-b442-11ec-9b57-bf21ae80f105&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:" + timeframe + ",to:now))&_a=(filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'8079b500-b043-11ec-bb38-f3791366de11',key:kubernetes.labels.instance,negate:!f,params:(query:" + notebookName + "),type:phrase),query:(match_phrase:(kubernetes.labels.instance:" + notebookName + ")))),linked:!t,query:(language:kuery,query:''),uiState:(),vis:(aggs:!((enabled:!t,id:'1',params:(customLabel:'Logical%20CPU%20Cores',field:k8s.container.cpu.usage),schema:metric,type:avg),(enabled:!t,id:'2',params:(customLabel:'Time%20of%20day',drop_partials:!f,extended_bounds:(),field:'@timestamp',interval:auto,min_doc_count:1,scaleMetricValues:!f,timeRange:(from:now-24h%2Fh,to:now),useNormalizedEsInterval:!t,used_interval:'30m'),schema:segment,type:date_histogram)),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,categoryAxes:!((id:CategoryAxis-1,labels:(filter:!t,show:!t,truncate:100),position:bottom,scale:(type:linear),show:!t,style:(),title:(),type:category)),detailedTooltip:!t,fittingFunction:linear,grid:(categoryLines:!f),labels:(),legendPosition:right,palette:(name:default,type:palette),radiusRatio:9,seriesParams:!((circlesRadius:3,data:(id:'1',label:'Logical%20CPU%20Cores'),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1)),thresholdLine:(color:%23E7664C,show:!f,style:full,value:10,width:1),times:!(),type:line,valueAxes:!((id:ValueAxis-1,labels:(filter:!f,rotate:0,show:!t,truncate:100),name:LeftAxis-1,position:left,scale:(mode:normal,type:linear),show:!t,style:(),title:(text:'Logical%20CPU%20Cores'),type:value))),title:'',type:line))");
         cpuUsage.attr('height', '600');
         cpuUsage.attr('width', '1000');
         networkBytes.attr('src', "https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/visualize?auth_provider_hint=anonymous1#/create?embed=true&type=line&savedSearchId=1dfaf530-b442-11ec-9b57-bf21ae80f105&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:" + timeframe + ",to:now))&_a=(filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'8079b500-b043-11ec-bb38-f3791366de11',key:kubernetes.labels.instance,negate:!f,params:(query:" + notebookName + "),type:phrase),query:(match_phrase:(kubernetes.labels.instance:" + notebookName + ")))),linked:!t,query:(language:kuery,query:''),uiState:(),vis:(aggs:!((enabled:!t,id:'1',params:(customLabel:'Bytes%20transmitted',field:kubernetes.pod.network.tx.bytes),schema:metric,type:avg),(enabled:!t,id:'2',params:(customLabel:'Time%20of%20day',drop_partials:!f,extended_bounds:(),field:'@timestamp',interval:auto,min_doc_count:1,scaleMetricValues:!f,timeRange:(from:now-24h%2Fh,to:now),useNormalizedEsInterval:!t,used_interval:'30m'),schema:segment,type:date_histogram),(enabled:!t,id:'3',params:(customLabel:'Bytes%20received',field:kubernetes.pod.network.rx.bytes),schema:metric,type:avg)),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,categoryAxes:!((id:CategoryAxis-1,labels:(filter:!t,show:!t,truncate:100),position:bottom,scale:(type:linear),show:!t,style:(),title:(),type:category)),detailedTooltip:!t,fittingFunction:linear,grid:(categoryLines:!f),labels:(),legendPosition:right,palette:(name:default,type:palette),radiusRatio:9,seriesParams:!((circlesRadius:3,data:(id:'1',label:'Bytes%20transmitted'),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1),(circlesRadius:3,data:(id:'3',label:'Bytes%20received'),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1)),thresholdLine:(color:%23E7664C,show:!f,style:full,value:10,width:1),times:!(),type:line,valueAxes:!((id:ValueAxis-1,labels:(filter:!f,rotate:0,show:!t,truncate:100),name:LeftAxis-1,position:left,scale:(mode:normal,type:linear),show:!t,style:(),title:(text:'Bytes%20transmitted%20and%20received%20over%20network'),type:value))),title:'',type:line))");
@@ -144,20 +151,52 @@
       }
     }
 
-    var refreshVisualizations = function() {
-      refreshKibanaViz();
-      refreshGrafanaViz();
+    var refreshGrafanaViz = function() {
+      var grafanaViz = $('#grafana-viz');
+      grafanaViz.empty();
+
+      var notebookName = $('#select-notebook-grafana option:selected').val();
+      var timeframe = parseInt($('#select-timeframe-grafana option:selected').val()) || 12;
+      var memoryUsage = $('<iframe>'), cpuUsage = $('<iframe>');
+      var end = Date.now();
+      var start = end - timeframe*60*60*1000;
+      
+      if (notebookName == 'all-notebooks') {
+        memoryUsage.attr('src', "https://grafana.mwt2.org/d-solo/P2AwYf8nz/af-jupyter?orgId=1&from=" + start + "&to=" + end + "&var-owner=" + username + "&panelId=9");
+        memoryUsage.attr('width', '800');
+        memoryUsage.attr('height', '500');
+        cpuUsage.attr('src', "https://grafana.mwt2.org/d-solo/P2AwYf8nz/af-jupyter?orgId=1&from=" + start + "&to=" + end + "&var-owner=" + username + "&panelId=11");
+        cpuUsage.attr('width', '800');
+        cpuUsage.attr('height', '500');        
+        grafanaViz.append(memoryUsage);
+        grafanaViz.append("<br/>");
+        grafanaViz.append(cpuUsage);
+      }
+      else {
+        memoryUsage.attr('src', "https://grafana.mwt2.org/d-solo/P2AwYf8nz/af-jupyter?orgId=1&from=" + start + "&to=" + end + "&var-owner=" + username + "&var-nbname=" + notebookName + "&panelId=17");
+        memoryUsage.attr('width', '800');
+        memoryUsage.attr('height', '500');
+        cpuUsage.attr('src', "https://grafana.mwt2.org/d-solo/P2AwYf8nz/af-jupyter?orgId=1&from=" + start + "&to=" + end + "&var-owner=" + username + "&var-nbname=" + notebookName + "&panelId=19");
+        cpuUsage.attr('width', '800');
+        cpuUsage.attr('height', '500');  
+        grafanaViz.append(memoryUsage);
+        grafanaViz.append("<br/>");
+        grafanaViz.append(cpuUsage);
+      }
     }
 
-    refreshVisualizations();
-    $('#select-notebook').on('change', refreshVisualizations);
-    $('#select-timeframe').on('change', refreshVisualizations);
+    refreshKibanaViz();
+    refreshGrafanaViz();
+
+    $('#select-notebook-kibana').on('change', refreshKibanaViz);
+    $('#select-timeframe-kibana').on('change', refreshKibanaViz);
+    $('#select-notebook-grafana').on('change', refreshGrafanaViz);
+    $('#select-timeframe-grafana').on('change', refreshGrafanaViz);
 
     $('.nav-tabs a').on('click', function (e) {
       e.preventDefault();
       $(this).tab('show');
     });
-
   });
 </script>
 {%endblock%}
