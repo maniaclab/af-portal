@@ -331,9 +331,20 @@ def get_notebook_status(pod):
 
 def get_detailed_status(pod):
     try:
-        detailed_status = []
-        for c in pod.status.conditions:
-            detailed_status.append("%s: %s" %(c.type, c.status))
+        detailed_status = ['', '', '', '']
+        for cond in pod.status.conditions:
+            if cond.type == 'PodScheduled' and cond.status == 'True':
+                detailed_status[0] = 'Pod scheduled.'
+            elif cond.type == 'ContainersReady' and cond.status == 'True':
+                detailed_status[1] = 'Containers ready.'
+            elif cond.type == 'Initialized' and cond.status == 'True':
+                detailed_status[2] = 'Pod initialized.'
+            elif cond.type == 'Ready' and cond.status == 'True':
+                detailed_status[3] = 'Pod ready.'
+        if pod.status.phase == 'Pending':
+            detailed_status.append('Pod starting...')
+        if get_certificate_status(pod) != 'Ready':
+            detailed_status.append('Waiting for certificate...')
         return detailed_status
     except:
         logger.error("Error getting detailed status for pod %s" %pod.metadata.name)
@@ -509,6 +520,7 @@ def remove_notebook(notebook_id):
     core_v1_api.delete_namespaced_service(notebook_id, namespace)
     networking_v1_api = client.NetworkingV1Api()
     networking_v1_api.delete_namespaced_ingress(notebook_id, namespace)
+    core_v1_api.delete_namespaced_secret(notebook_id, namespace)
     logger.info("Removing notebook %s in namespace %s" %(notebook_id, namespace))
 
 def remove_user_notebook(notebook_name, username):
@@ -521,6 +533,7 @@ def remove_user_notebook(notebook_name, username):
             core_v1_api.delete_namespaced_pod(notebook_id, namespace)
             core_v1_api.delete_namespaced_service(notebook_id, namespace)
             networking_v1_api.delete_namespaced_ingress(notebook_id, namespace)
+            core_v1_api.delete_namespaced_secret(notebook_id, namespace)
             logger.info('Removing notebook %s' %notebook_id)
         else:
             logger.warning('Notebook %s does not belong to user %s' %(notebook_id, username))

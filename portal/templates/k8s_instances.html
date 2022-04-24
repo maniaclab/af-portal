@@ -41,7 +41,9 @@
                 <a class="status-button" data-nbname="{{instance['name']}}" href="#" role="button">{{instance['notebook_status']}}</a>
                 <ul id="{{instance['name']}}_detailed_status" style="list-style-type: none; padding: 0; margin: 0; display: none">
                 {% for status in instance['detailed_status'] %}
+                  {% if status|length %}
                   <li>{{status}}</li>
+                  {% endif %}
                 {% endfor %}
                 </ul>
               </td>              
