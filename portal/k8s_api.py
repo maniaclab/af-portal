@@ -341,8 +341,6 @@ def get_detailed_status(pod):
                 detailed_status[2] = 'Pod initialized.'
             elif cond.type == 'Ready' and cond.status == 'True':
                 detailed_status[3] = 'Pod ready.'
-        if pod.status.phase == 'Pending':
-            detailed_status.append('Pod starting...')
         if get_certificate_status(pod) != 'Ready':
             detailed_status.append('Waiting for certificate...')
         return detailed_status

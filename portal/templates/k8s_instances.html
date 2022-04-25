@@ -37,6 +37,9 @@
               {% else %}
               <td>{{instance['display_name']}}</td>
               {% endif %}
+              {% if instance['notebook_status'] == 'Removing notebook...' %}
+              <td>{{instance['notebook_status']}}</td>
+              {% else %}
               <td>
                 <a class="status-button" data-nbname="{{instance['name']}}" href="#" role="button">{{instance['notebook_status']}}</a>
                 <ul id="{{instance['name']}}_detailed_status" style="list-style-type: none; padding: 0; margin: 0; display: none">
@@ -46,10 +49,11 @@
                   {% endif %}
                 {% endfor %}
                 </ul>
-              </td>              
+              </td>
+              {% endif %}              
               <td id="{{instance['name']}}_creation_date"></td>
               <td id="{{instance['name']}}_expiration_date"></td>
-              {% if instance['notebook_status'] != 'Removing' %}
+              {% if instance['notebook_status'] != 'Removing notebook...' %}
               <td><a href="{{url_for('remove_jupyter_notebook', notebook_name=instance['name'])}}" onclick="loader()"><i class="bi bi-trash"></i></a></td>
               {% else %}
               <td><i class="bi bi-trash"></i></td>
