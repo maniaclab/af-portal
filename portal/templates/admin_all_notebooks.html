@@ -38,7 +38,7 @@
       <tbody>
         {% for notebook in notebooks %}
         <tr>
-          <td><a href="{{notebook['url']}}" target="_blank">{{notebook['display_name']}}</a></td>
+          <td>{{notebook['display_name']}}</td>
           <td>{{notebook['username']}}</td>
           <td>{{notebook['memory_request']}}</td>
           <td>{{notebook['cpu_request']}}</td>
