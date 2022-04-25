@@ -104,7 +104,7 @@
                     >
                   </td>                  
                 </tr>
-                <tr>
+                <tr id="gpu-memory-row" style="display: none">
                   <td>
                     <label for="gpu-memory">
                       GPU Memory (MB)
@@ -176,6 +176,13 @@ $(document).ready(function() {
     $('#deploy-form').validate();
     var valid = $('#deploy-form').valid();
     $('button[type="submit"]').attr("disabled", !valid);
+  });
+  $('#gpu').change(function() {
+    var val = $(this).val();
+    if (val > 0) 
+      $('#gpu-memory-row').show();
+    else
+      $('#gpu-memory-row').hide();
   });
 });
 </script>
