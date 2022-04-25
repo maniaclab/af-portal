@@ -384,7 +384,8 @@ def get_url(pod):
 
 def get_memory_request(pod):
     try:
-        return pod.spec.containers[0].resources.requests['memory']
+        val = pod.spec.containers[0].resources.requests['memory']
+        return val[:-2] + ' GB'
     except:
         logger.error('Error getting the memory request for a pod')   
 
@@ -402,7 +403,8 @@ def get_gpu_request(pod):
 
 def get_gpu_memory_request(pod):
     try: 
-        return pod.spec.node_selector['nvidia.com/gpu.memory'] + 'Mi'
+        val = float(pod.spec.node_selector['nvidia.com/gpu.memory'])/1000
+        return str(val) + ' GB'
     except:
         logger.error('Error getting the GPU memory request for a pod')
 
