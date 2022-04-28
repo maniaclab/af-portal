@@ -12,7 +12,6 @@
     <ol class="breadcrumb">
       <li class="breadcrumb-item">JupyterLab</li>
     </ol>
-    <!--<h1>Deployed Applications</h1>-->
     <div class="btn-group mr-2" role="group" aria-label="first group">
       <a href="{{url_for('create_jupyter_notebook')}}" class="btn btn-primary btn-sm btn-box-shadow">Create notebook</a>
     </div>
@@ -31,33 +30,39 @@
           </thead>
           <tbody data-link="row" class="rowlink" style="font-size:14px;">
             {% for instance in instances %}
-            <tr>
-              {% if instance['notebook_status'] == 'Ready' and instance['pod_status'] == 'Running' and instance['cert_status'] == 'Ready' %}
-              <td><a href="{{instance['url']}}" target="_blank">{{instance['display_name']}}</a></td>
-              {% else %}
-              <td>{{instance['display_name']}}</td>
-              {% endif %}
-              {% if instance['notebook_status'] == 'Removing notebook...' %}
-              <td>{{instance['notebook_status']}}</td>
-              {% else %}
-              <td>
-                <a class="status-button" data-nbname="{{instance['name']}}" href="#" role="button">{{instance['notebook_status']}}</a>
-                <ul id="{{instance['name']}}_detailed_status" style="list-style-type: none; padding: 0; margin: 0; display: none">
+            <tr 
+                data-notebook="{{instance['name']}}" 
+                data-status="{{instance['notebook_status']}}" 
+                data-display-name="{{instance['display_name']}}" 
+                data-url="{{instance['url']}}"
+                data-create-timestamp="{{instance['creation_date']}}"
+                data-expiration-timestamp="{{instance['expiration_date']}}">
+              <td class="notebook_name">
+                {% if instance['notebook_status'] == 'Ready' %}
+                <a href="{{instance['url']}}" target="_blank">{{instance['display_name']}}</a></td>
+                {% else %}
+                {{instance['display_name']}}
+                {% endif %}
+              </td>
+              <td class="notebook_status">
+                {% if instance['notebook_status'] == 'Removing notebook...' %}
+                {{instance['notebook_status']}}
+                {% else %}
+                <a class="status-button" href="#" role="button">{{instance['notebook_status']}}</a>
+                <ul class="status-list" style="list-style-type: none; padding: 0; margin: 0; display: none">
                 {% for status in instance['detailed_status'] %}
                   {% if status|length %}
                   <li>{{status}}</li>
                   {% endif %}
                 {% endfor %}
-                </ul>
+                </ul> 
+                {% endif %}
+              </td>         
+              <td class="notebook_create_timestamp"></td>
+              <td class="notebook_expiration_timestamp"></td>
+              <td class="notebook_remove">
+                <a class="remove-button" href="#" role="button"><i class="bi bi-trash"></i></a>
               </td>
-              {% endif %}              
-              <td id="{{instance['name']}}_creation_date"></td>
-              <td id="{{instance['name']}}_expiration_date"></td>
-              {% if instance['notebook_status'] != 'Removing notebook...' %}
-              <td><a href="{{url_for('remove_jupyter_notebook', notebook_name=instance['name'])}}" onclick="loader()"><i class="bi bi-trash"></i></a></td>
-              {% else %}
-              <td><i class="bi bi-trash"></i></td>
-              {% endif %}
             </tr>
             {% endfor %}
           </tbody>
@@ -68,37 +73,108 @@
 </section>
 <script type="text/javascript">
 $(document).ready(function() {
+  $.ajaxSetup({headers: { 'X-CSRF-TOKEN': "{{ csrf_token() }}" }});
+
   var formatDate = function(timestamp) { return moment(timestamp * 1000).format("dddd MMMM D YYYY h:mm a"); }
 
-  $('#instance-table').DataTable({"columns": [{'width': '22%'}, {width: '20%'}, {'width': '22%'}, {'width': '22%'}, {'width': '4%'}]});
+  var activateNotebookLink = function(td) {
+    var $td = $(td);
+    var $tr = $td.parent();
+    var url = $tr.data('url');
+    var displayName = $tr.data('display-name');
+    $td.empty();
+    $td.append('<a href="' + url + '" target="_blank">' + displayName + '</a>');
+  }
+
+  var deactivateNotebookLink = function(td) {
+    var $td = $(td);
+    var $tr = $td.parent();
+    var displayName = $tr.data('display-name');
+    $td.empty();
+    $td.html(displayName);
+  }
+
+  var deactivateRemoveButton = function(td) {
+    var $td = $(td);
+    $td.empty();
+    $td.html('<i class="bi bi-trash"></i>');
+  }
+
+  var updateStatus = function(td) {
+    var $td = $(td);
+    var $tr = $td.parent();
+    var name = $tr.data('notebook');
+    var counter = 0;
+    var id = setInterval(function() {
+      $.get("/jupyter/status/" + name, function(resp) {
+        if (++counter > 30)
+          clearInterval(id);
+        if (!resp['notebook_status']) {
+          clearInterval(id);
+          dataTable.row($td.parent()).remove().draw();
+        }
+        if (resp['notebook_status'] == 'Ready') {
+          clearInterval(id);
+          var $td0 = $td.siblings('.notebook_name');
+          activateNotebookLink($td0);
+        }
+        if (resp['notebook_status'] != 'Removing notebook...') {
+          $td.find('.status-button').html(resp['notebook_status']);
+          var statusList = $td.find('.status-list');
+          statusList.empty();
+          for (var i = 0; i < resp['detailed_status'].length; i++) {
+            var statusDetail = resp['detailed_status'][i];
+            statusList.append('<li>' + statusDetail + '</li>');
+          }
+        }
+      });
+    }, 10000);
+  }
+
+  var dataTable =  $('#instance-table').DataTable({"columns": [{'width': '22%'}, {width: '20%'}, {'width': '22%'}, {'width': '22%'}, {'width': '4%'}]});
   
   $('.status-button').click(function(e) {
     e.preventDefault();
-    var nbname = $(this).data('nbname');
-    $('#' + nbname + '_detailed_status').toggle();
+    $(this).siblings('.status-list').toggle();
   });
 
-  {% for instance in instances %}
-    var creation_date = {{instance['creation_date']}};
-    var expiration_date = {{instance['expiration_date']}};
-    var nbname = "{{instance['name']}}";
-    var td_creation_date = $("#" + nbname + "_creation_date");
-    var td_expiration_date = $("#" + nbname + "_expiration_date");
+  $('.remove-button').click(function(e) {
+    e.preventDefault();
+    var $td = $(this).parent();
+    var $tr = $td.parent();
+    var name = $tr.data('notebook');
+    $.post('/jupyter/remove/' + name, function(resp) {
+      if (resp['success']) {
+        deactivateNotebookLink($tr.find('.notebook_name'));
+        deactivateRemoveButton($tr.find('.notebook_remove'));
+        var $td1 = $tr.find('.notebook_status');
+        $td1.html('Removing notebook...');
+        updateStatus($td1);
+      }
+    });
+  })
 
-    if (isNaN(creation_date) || creation_date < 0) 
-      td_creation_date.html('Unknown');
-    else 
-      td_creation_date.html(formatDate(creation_date));
+  $('.notebook_create_timestamp').each(function(index, td) {
+    var $td = $(td);
+    var $tr = $td.parent();
+    var timestamp = $tr.data('create-timestamp');
+    $td.html(formatDate(timestamp));
+  }); 
 
-    if (isNaN(expiration_date) || expiration_date < 0) 
-      td_expiration_date.html('Never');
-    else 
-      td_expiration_date.html(formatDate(expiration_date));
-  {% endfor %}
+  $('.notebook_expiration_timestamp').each(function(index, td) {
+    var $td = $(td);
+    var $tr = $td.parent();
+    var timestamp = $tr.data('expiration-timestamp');
+    $td.html(formatDate(timestamp));
+  }); 
 
-  {% if refresh %}
-  window.setTimeout(function () { window.location.reload(); }, 10000);
-  {% endif %}
+  $('.notebook_status').each(function(index, td) {
+    var $td = $(td);
+    var $tr = $td.parent();
+    var status = $tr.data('status');
+    if (status != 'Ready') 
+      updateStatus($td);
+  });
 });
 </script>
 {%endblock%}

@@ -331,18 +331,26 @@ def get_notebook_status(pod):
 
 def get_detailed_status(pod):
     try:
+        if notebook_closing(pod):
+            return None
         detailed_status = ['', '', '', '']
         for cond in pod.status.conditions:
             if cond.type == 'PodScheduled' and cond.status == 'True':
                 detailed_status[0] = 'Pod scheduled.'
-            elif cond.type == 'ContainersReady' and cond.status == 'True':
-                detailed_status[1] = 'Containers ready.'
             elif cond.type == 'Initialized' and cond.status == 'True':
-                detailed_status[2] = 'Pod initialized.'
+                detailed_status[1] = 'Pod initialized.'
             elif cond.type == 'Ready' and cond.status == 'True':
-                detailed_status[3] = 'Pod ready.'
-        if get_certificate_status(pod) != 'Ready':
+                detailed_status[2] = 'Pod ready.'
+            elif cond.type == 'ContainersReady' and cond.status == 'True':
+                detailed_status[3] = 'Containers ready.'
+        cert_status = get_certificate_status(pod)
+        if cert_status != 'Ready':
             detailed_status.append('Waiting for certificate...')
+        nbstatus = get_notebook_status(pod)
+        if nbstatus == 'Notebook loading...':
+            detailed_status.append('Waiting for Jupyter notebook server...')
+        elif nbstatus == 'Ready':
+            detailed_status.append('Jupyter notebook server started.')
         return detailed_status
     except:
         logger.error("Error getting detailed status for pod %s" %pod.metadata.name)
@@ -416,6 +424,27 @@ def get_pods():
     except:
         logger.error('Error getting pods')
         return []
+
+def get_pod(name):
+    try:
+        core_v1_api = client.CoreV1Api()
+        return core_v1_api.read_namespaced_pod(name, namespace)
+    except:
+        logger.info('Pod %s does not exist' %name)
+        return None
+
+def get_user_pod(name, username):
+    try:
+        core_v1_api = client.CoreV1Api()
+        pod = core_v1_api.read_namespaced_pod(name, namespace)
+        if pod.metadata.labels['owner'] == username:
+            return pod
+        else:
+            logger.error('Pod %s is not owned by user %s' %(name, username))
+            return None
+    except:
+        logger.info('Pod %s does not exist' %name)
+        return None
 
 def get_user_pods(username):
     try:
