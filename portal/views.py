@@ -12,6 +12,8 @@ except ImportError:
     from urllib import urlencode
 
 from portal import app, csrf
+from portal import admin, logger
+from portal.admin import authorized
 from portal.decorators import authenticated
 from portal.utils import load_portal_client, get_safe_redirect, flash_message_parser
 from portal.connect_api import (
@@ -244,6 +246,19 @@ def add_group_member(group_name, unix_name):
         if user_status.status_code == requests.codes.ok:
             flash_message = flash_message_parser("add_group_member")
             flash(flash_message, "success")
+
+            try:
+                if authorized():
+                    approver = session['unix_name']
+                    support_email = admin.get_support_email(request.headers["Host"])
+                    administrators = admin.get_email_list('root.atlas-af')
+                    subject = "Account approval"
+                    body = "User %s approved a request from %s to join group %s" %(approver, unix_name, group_name)
+                    admin.email_users(support_email, administrators, subject, body)
+                    logger.info("Account approved: %s" %body)
+            except:
+                logger.error('Error sending email confirming the account approval')
+
             return redirect(url_for("view_group_members", group_name=group_name))
         else:
             err_message = user_status.json()["message"]
