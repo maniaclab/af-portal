@@ -14,16 +14,6 @@ ciconnect_api_token = app.config["CONNECT_API_TOKEN"]
 ciconnect_api_endpoint = app.config["CONNECT_API_ENDPOINT"]
 mailgun_api_token = app.config["MAILGUN_API_TOKEN"]
 params = {'token': ciconnect_api_token}
-support_emails = {
-    "cms.ci-connect.net": "cms-connect-support@cern.ch",
-    "duke.ci-connect.net": "scsc@duke.edu",
-    "spt.ci-connect.net": "spt-connect-approvers@api.ci-connect.net",
-    "atlas.ci-connect.net": "atlas-connect-l@lists.bnl.gov",
-    "psdconnect.uchicago.edu": "support@ci-connect.uchicago.edu",
-    "www.ci-connect.net": "support@ci-connect.net",
-    "localhost:5000": "root@localhost.localdomain",
-    "af.uchicago.edu": "noreply@af.uchicago.edu"
-}
 
 def authorized():
     return session.get('admin') == 'admin'
@@ -63,6 +53,14 @@ def get_user_profiles(group):
         except:
             logger.error('Error getting user profiles')
 
+def get_email_list(group):
+    if authorized():
+        email_list = []
+        profiles = get_user_profiles(group)
+        for profile in profiles:
+            email_list.append(profile['email'])
+        return email_list
+
 def update_user_institution(username, institution):
     if authorized():
         try:
@@ -73,46 +71,11 @@ def update_user_institution(username, institution):
             return resp
         except Exception as err:
             logger.error("Error updating institution for user %s." %username)
-
-def get_email_list(group):
-    if authorized():
-        try:
-            email_list = []
-            profiles = get_user_profiles(group)
-            for profile in profiles:
-                email_list.append(profile['email'])
-            return email_list
-        except:
-            return []
-
-def get_support_email(domain_name):
-    if authorized():
-        try:
-            if "usatlas" in domain_name:
-                domain_name = "atlas.ci-connect.net"
-            elif "uscms" in domain_name:
-                domain_name = "cms.ci-connect.net"
-            elif "af" in domain_name:
-                domain_name = "af.uchicago.edu"
-            elif "uchicago" in domain_name:
-                domain_name = "psdconnect.uchicago.edu"
-            elif "snowmass21" in domain_name:
-                domain_name = "snowmass21.ci-connect.net"
-            return support_emails[domain_name]
-        except:
-            return "support@ci-connect.net"
-
-def valid_email(sender, recipients, subject, body):
-    if sender and recipients and subject and body:
-        return True
-    return False
-
+    
 def email_users(sender, recipients, subject, body):
     if authorized():
-        try:
-            if not valid_email(sender, recipients, subject, body):
-                logger.error("One or more arguments to admin.email_users is invalid")
-                return None
+        try: 
+            logger.info("Sending email...")
             resp = requests.post("https://api.mailgun.net/v3/api.ci-connect.net/messages",
                 auth=("api", mailgun_api_token),
                 data={
@@ -123,10 +86,9 @@ def email_users(sender, recipients, subject, body):
                     "text": body
                 }
             )
-            logger.info("Sent email from %s with subject %s" %(sender, subject))
             return resp
         except:
-            logger.error("Error sending email")
+            logger.error("Error sending email to all users")
 
 def plot_users_by_join_date(users):
     if authorized():
