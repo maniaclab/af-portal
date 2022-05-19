@@ -58,15 +58,6 @@ def groups():
 
         domain_name = request.headers["Host"]
 
-        if "usatlas" in domain_name:
-            domain_name = "atlas.ci-connect.net"
-        elif "uscms" in domain_name:
-            domain_name = "cms.ci-connect.net"
-        elif "uchicago" in domain_name:
-            domain_name = "psdconnect.uchicago.edu"
-        elif "snowmass21" in domain_name:
-            domain_name = "snowmass21.ci-connect.net"
-
         with open(
             brand_dir
             + "/"
@@ -396,15 +387,6 @@ def view_group_subgroups(group_name):
 
         domain_name = request.headers["Host"]
 
-        if "usatlas" in domain_name:
-            domain_name = "atlas.ci-connect.net"
-        elif "uscms" in domain_name:
-            domain_name = "cms.ci-connect.net"
-        elif "uchicago" in domain_name:
-            domain_name = "psdconnect.uchicago.edu"
-        elif "snowmass21" in domain_name:
-            domain_name = "snowmass21.ci-connect.net"
-
         with open(
             brand_dir
             + "/"
@@ -558,20 +540,15 @@ def view_group_email(group_name):
         # mailgun setup here
         domain_name = domain_name_edgecase()
         support_emails = {
-            "cms.ci-connect.net": "cms-connect-support@cern.ch",
-            "duke.ci-connect.net": "scsc@duke.edu",
-            "spt.ci-connect.net": "spt-connect-approvers@api.ci-connect.net",
-            "atlas.ci-connect.net": "atlas-connect-l@lists.bnl.gov",
-            "psdconnect.uchicago.edu": "support@ci-connect.uchicago.edu",
-            "www.ci-connect.net": "support@ci-connect.net",
             "localhost:5000": "root@localhost.localdomain",
+            "localhost:9874": "root@localhost.localdomain",
             "af.uchicago.edu": "noreply@af.uchicago.edu"
         }
 
         try:
             support_email = support_emails[domain_name]
         except:
-            support_email = "support@ci-connect.net"
+            support_email = "noreply@af.uchicago.edu"
 
         user_dict, users_statuses = get_group_members_emails(group_name)
         user_emails = [user_dict[user]["metadata"]["email"] for user in user_dict]

@@ -24,7 +24,7 @@
     <meta name="theme-color" content="#ffffff">
 
     <title>
-      {% if 'af.uchicago.edu' in request.host or 'www-test.ci-connect.net' in request.host or 'localhost' in request.host %}AF{% else %}Connect{% endif %} - {%block title%}{%endblock%}
+      AF - {%block title%}{%endblock%}
     </title>
 
     {# CSS files #}
@@ -91,6 +91,12 @@
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Material+Icons" />
 
     <style>
+      html, body {
+        font-family: 'Open Sans';
+        font-size: 16px;
+        line-height: 1.4;
+      }
+
       [v-cloak] {display: none}
       #loader { 
           border: 12px solid #f3f3f3; 
@@ -115,14 +121,6 @@
           right: 0; 
           margin: auto; 
       }
-
-      {% if 'af.uchicago.edu' in request.host or 'localhost' in request.host %}
-      html, body {
-        font-family: 'Open Sans';
-        font-size: 16px;
-        line-height: 1.4;
-      } 
-      {% endif %}
     </style>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>

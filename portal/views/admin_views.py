@@ -42,7 +42,7 @@ def admin_update_user_institution():
 @authenticated
 def admin_email_users():
     if authorized():
-        sender = 'noreply@ci-connect.net'
+        sender = 'noreply@af.uchicago.edu'
         # recipients = admin.get_email_list('root.atlas-af')
         recipients = []
         subject = request.form['subject']

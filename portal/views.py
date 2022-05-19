@@ -103,63 +103,11 @@ def home():
     else:
         home_text_description = "CI Connect Portal, Efficiently connect your science to cycles and data"
 
-    collaborations = [
-        {
-            "name": "ATLAS_Analysis_Facility",
-            "href": "https://af.uchicago.edu",
-            "img": "img/atlas-af-logo.png",
-            "description": get_about_markdown("af.uchicago.edu"),
-        },
-        {
-            "name": "Atlas",
-            "href": "https://connect.usatlas.org",
-            "img": "img/atlas-connect-logo.png",
-            "description": get_about_markdown("atlas.ci-connect.net"),
-        },
-        {
-            "name": "CMS",
-            "href": "https://connect.uscms.org",
-            "img": "img/cms-connect-logo.png",
-            "description": get_about_markdown("cms.ci-connect.net"),
-        },
-        {
-            "name": "Duke",
-            "href": "https://duke.ci-connect.net",
-            "img": "img/duke-connect-logo.png",
-            "description": get_about_markdown("duke.ci-connect.net"),
-        },
-        {
-            "name": "OSG",
-            "href": "https://www.osgconnect.net",
-            "img": "img/osg-connect-logo.png",
-            "description": get_about_markdown("osgconnect.net"),
-        },
-        {
-            "name": "SPT",
-            "href": "https://spt.ci-connect.net",
-            "img": "img/spt-connect-logo.png",
-            "description": get_about_markdown("spt.ci-connect.net"),
-        },
-        {
-            "name": "PSD",
-            "href": "https://psdconnect.uchicago.edu",
-            "img": "img/psd-connect-logo.png",
-            "description": get_about_markdown("psdconnect.uchicago.edu"),
-        },
-        {
-            "name": "Snowmass21",
-            "href": "https://connect.snowmass21.io",
-            "img": "img/snowmass-connect-logo.png",
-            "description": get_about_markdown("snowmass21.ci-connect.net"),
-        },
-    ]
-
     return render_template(
         "home.html",
         home_text_headline=home_text_headline,
         home_text_rotating=home_text_rotating,
-        home_text_description=home_text_description,
-        collaborations=collaborations,
+        home_text_description=home_text_description
     )
 
 

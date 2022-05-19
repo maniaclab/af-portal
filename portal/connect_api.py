@@ -332,15 +332,7 @@ def domain_name_edgecase():
     """"""
     domain_name = request.headers["Host"]
 
-    if "usatlas" in domain_name:
-        domain_name = "atlas.ci-connect.net"
-    elif "uscms" in domain_name:
-        domain_name = "cms.ci-connect.net"
-    elif "af" in domain_name:
+    if "af" in domain_name:
         domain_name = "af.uchicago.edu"
-    elif "uchicago" in domain_name:
-        domain_name = "psdconnect.uchicago.edu"
-    elif "snowmass21" in domain_name:
-        domain_name = "snowmass21.ci-connect.net"
 
     return domain_name
