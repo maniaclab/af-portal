@@ -55,10 +55,13 @@ def get_user_profiles(group):
 
 def get_email_list(group):
     if authorized():
-        email_list = []
-        profiles = get_user_profiles(group)
-        for profile in profiles:
-            email_list.append(profile['email'])
+        try:
+            email_list = []
+            profiles = get_user_profiles(group)
+            for profile in profiles:
+                email_list.append(profile['email'])
+        except:
+            logger.error('Error getting emails for group %s' %group)
         return email_list
 
 def update_user_institution(username, institution):
@@ -71,7 +74,15 @@ def update_user_institution(username, institution):
             return resp
         except Exception as err:
             logger.error("Error updating institution for user %s." %username)
-    
+
+def get_email_list(group):
+    if authorized():
+        email_list = []
+        profiles = get_user_profiles(group)
+        for profile in profiles:
+            email_list.append(profile['email'])
+        return email_list
+
 def email_users(sender, recipients, subject, body):
     if authorized():
         try: 
