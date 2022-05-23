@@ -26,6 +26,7 @@ k8s_charset = set(string.ascii_lowercase + string.ascii_uppercase + string.digit
 class k8sException(Exception):
     pass
 
+@app.before_first_request
 def load_kube_config():
     try:
         if config_file:
@@ -42,23 +43,24 @@ def load_kube_config():
         logger.error("Error loading kubeconfig")
         config.load_kube_config()
 
+@app.before_first_request
 def start_notebook_manager():
-    t = threading.Thread(target=manage_notebooks)
-    t.start()
-    logger.info("Started k8s notebook manager")
+    def manage_notebooks():
+        time.sleep(10)
+        while True:
+            pods = get_pods()
+            for pod in pods:
+                if has_notebook_expired(pod):
+                    try:
+                        logger.info("Notebook %s in namespace %s has expired" %(pod.metadata.name, namespace))
+                        remove_notebook(pod.metadata.name)
+                    except:
+                        logger.info('Error removing notebook %s during management cycle' %pod.metadata.name)
+            time.sleep(180)
 
-def manage_notebooks():
-    time.sleep(10)
-    while True:
-        pods = get_pods()
-        for pod in pods:
-            if has_notebook_expired(pod):
-                try:
-                    logger.info("Notebook %s in namespace %s has expired" %(pod.metadata.name, namespace))
-                    remove_notebook(pod.metadata.name)
-                except:
-                    logger.info('Error removing notebook %s during management cycle' %pod.metadata.name)
-        time.sleep(1800)
+    maintenance_thread = threading.Thread(target=manage_notebooks)
+    maintenance_thread.start()
+    logger.info("Started k8s notebook manager")
 
 def generate_token():
     token_bytes = os.urandom(32)
@@ -545,12 +547,12 @@ def get_all_notebooks():
 
 def remove_notebook(notebook_id):
     core_v1_api = client.CoreV1Api()
+    networking_v1_api = client.NetworkingV1Api()
     core_v1_api.delete_namespaced_pod(notebook_id, namespace)
     core_v1_api.delete_namespaced_service(notebook_id, namespace)
-    networking_v1_api = client.NetworkingV1Api()
     networking_v1_api.delete_namespaced_ingress(notebook_id, namespace)
     core_v1_api.delete_namespaced_secret(notebook_id, namespace)
-    logger.info("Removing notebook %s in namespace %s" %(notebook_id, namespace))
+    logger.info("Removed notebook %s in namespace %s" %(notebook_id, namespace))
 
 def remove_user_notebook(notebook_name, username):
     try:

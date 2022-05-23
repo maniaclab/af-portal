@@ -29,10 +29,6 @@ else:
     app.config.from_pyfile("portal.conf")
     logger.info("Read config file from portal.conf")
 
-from portal import k8s_api
-k8s_api.load_kube_config()
-k8s_api.start_notebook_manager()
-
 app.url_map.strict_slashes = False
 app.permanent_session_lifetime = timedelta(minutes=1440)
 app.config.update(
