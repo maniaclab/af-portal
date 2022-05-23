@@ -56,7 +56,7 @@ def start_notebook_manager():
                         remove_notebook(pod.metadata.name)
                     except:
                         logger.info('Error removing notebook %s during management cycle' %pod.metadata.name)
-            time.sleep(180)
+            time.sleep(1800)
 
     maintenance_thread = threading.Thread(target=manage_notebooks)
     maintenance_thread.start()
