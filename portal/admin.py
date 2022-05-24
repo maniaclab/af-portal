@@ -82,6 +82,7 @@ def get_email_list(group):
         for profile in profiles:
             email_list.append(profile['email'])
         return email_list
+    return None
 
 def email_users(sender, recipients, subject, body):
     if authorized():
