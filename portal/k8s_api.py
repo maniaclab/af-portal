@@ -91,7 +91,7 @@ def create_pod(notebook_id, display_name, username, globus_id, cpu, memory, gpu,
                 gpu_available=gpu_available, 
                 gpu_memory=gpu_memory,
                 image=image, 
-                days=time_duration))                           
+                hours=time_duration))                           
         api.create_namespaced_pod(namespace=namespace, body=pod)
     except Exception as err:
         logger.error('Error creating pod %s' %notebook_id)
