@@ -23,32 +23,27 @@ config_file = app.config.get("KUBECONFIG")
 
 k8s_charset = set(string.ascii_lowercase + string.ascii_uppercase + string.digits + '_' + '-' + '.')
 
-k8s_status = {'CONFIG_FILE_LOADED': False}
-
 class k8sException(Exception):
     pass
 
 @app.before_first_request
 def load_kube_config():
     try:
-        if not k8s_status['CONFIG_FILE_LOADED']:
-            if config_file:
-                config.load_kube_config(config_file = config_file)
-                logger.info("Loaded kubeconfig from file %s" %config_file)
-            else:
-                config.load_kube_config()
-                logger.info("Loaded default kubeconfig file")
-            logger.info("Using namespace %s" %namespace)
-            logger.info("Using domain name %s" %domain_name)
-            logger.info("GPU is available as a resource" if gpu_available else "GPU is not available as a resource")
-            logger.info("Using kubernetes.io/ingress.class %s" %ingress_class)
-            k8s_status['CONFIG_FILE_LOADED'] = True
+        if config_file:
+            config.load_kube_config(config_file = config_file)
+            logger.info("Loaded kubeconfig from file %s" %config_file)
+        else:
+            config.load_kube_config()
+            logger.info("Loaded default kubeconfig file")
+        logger.info("Using namespace %s" %namespace)
+        logger.info("Using domain name %s" %domain_name)
+        logger.info("GPU is available as a resource" if gpu_available else "GPU is not available as a resource")
+        logger.info("Using kubernetes.io/ingress.class %s" %ingress_class)
     except:
         logger.error("Error loading kubeconfig")
         config.load_kube_config()
 
 def manage_notebooks():
-    time.sleep(10)
     while True:
         pods = get_pods()
         for pod in pods:
@@ -58,7 +53,7 @@ def manage_notebooks():
                     remove_notebook(pod.metadata.name)
                 except:
                     logger.info('Error removing notebook %s during management cycle' %pod.metadata.name)
-        time.sleep(180)
+        time.sleep(1800)
 
 maintenance_thread = threading.Thread(target=manage_notebooks)
 
@@ -67,7 +62,6 @@ def start_notebook_manager():
     if not maintenance_thread.is_alive():
         maintenance_thread.start()
         logger.info("Started k8s notebook manager")
-        k8s_status['NOTEBOOK_MANAGER_STARTED'] = True
 
 def generate_token():
     token_bytes = os.urandom(32)
