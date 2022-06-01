@@ -1,91 +1,101 @@
-<ul class="navbar-nav ml-auto">
-    {% if session.get('is_authenticated') and session.get('unix_name') %}
-        {% if session.get('admin') == 'admin' %} 
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Admin
-        </a>
-        <div class="dropdown-menu dropdown-menu-right">
-            <!-- <a class="dropdown-item" href="{{url_for('admin_email')}}">Email all users</a> -->
-            <a class="dropdown-item" href="{{url_for('admin_users')}}">Read or update user info</a>
-            <a class="dropdown-item" href="{{url_for('plot_users_by_join_date')}}">Plot user join dates</a>
-            <a class="dropdown-item" href="{{url_for('all_notebooks_admin')}}">All user notebooks</a>
-        </div>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{{url_for('view_group', group_name='root.atlas-af')}}">
-            Groups
-        </a>
-    </li>
-        {% endif %}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Monitoring
-        </a>
-        <div class="dropdown-menu dropdown-menu-right">
-                {% if session.get('admin') == 'admin' %}
-            <a class="dropdown-item" href="https://grafana.mwt2.org/d/m3teM9W7k/af-servers?orgId=1" target="_blank">Login Nodes</a>
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top nav-bar-shadow" id="nav-main">
+    <a class="navbar-brand" href="{{url_for('home')}}">
+      {% include 'connect_brand.html' %}
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            {% if session.get('is_authenticated') and session.get('unix_name') %}
+                {% if session.get('admin') == 'admin' %} 
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Admin
+                </a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <!-- <a class="dropdown-item" href="{{url_for('admin_email')}}">Email all users</a> -->
+                    <a class="dropdown-item" href="{{url_for('admin_users')}}">Read or update user info</a>
+                    <a class="dropdown-item" href="{{url_for('plot_users_by_join_date')}}">Plot user join dates</a>
+                    <a class="dropdown-item" href="{{url_for('all_notebooks_admin')}}">All user notebooks</a>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{url_for('view_group', group_name='root.atlas-af')}}">
+                    Groups
+                </a>
+            </li>
                 {% endif %}
-            <a class="dropdown-item" href="{{url_for('my_notebooks_monitoring')}}">My notebooks</a>
-        </div>
-    </li>
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Services
-        </a>
-        <div class="dropdown-menu dropdown-menu-right">
-            <a class="dropdown-item" href="{{url_for('view_jupyter_notebooks')}}" onclick="loader()">JupyterLab</a>
-            <a class="dropdown-item" href="https://coffea.af.uchicago.edu/" target="_blank">Coffea Casa</a>
-            <a class="dropdown-item" href="https://uproot-atlas.servicex.af.uchicago.edu" target="_blank">ServiceX for uproot</a>
-            <a class="dropdown-item" href="https://xaod.servicex.af.uchicago.edu" target="_blank">ServiceX for xAOD</a> 
-        </div>
-    </li>
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Documentation
-        </a>
-        <div class="dropdown-menu dropdown-menu-right">
-            <a class="dropdown-item" href="https://maniaclab.uchicago.edu/af-docs/" target="_blank">UChicago Docs</a>
-            <a class="dropdown-item" href="https://usatlas.readthedocs.io/projects/af-docs/en/latest/" target="_blank">US ATLAS Analysis Facilities</a>
-            <a class="dropdown-item" href="{{url_for('aup')}}">Acceptable Use Policy</a>
-            <a class="dropdown-item" href="{{url_for('hardware_information')}}">Hardware Information</a>
-            <a class="dropdown-item" href="{{url_for('about')}}">About Page</a>
-        </div>
-    </li>
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Support
-        </a>
-        <div class="dropdown-menu dropdown-menu-right">
-            <a class="dropdown-item" href="https://atlas-talk.sdcc.bnl.gov/" target="_blank">Discourse Forums</a>
-            <a class="dropdown-item" href="mailto:atlas-us-chicago-tier3-admins@cern.ch" target="_blank">System or Login Problems</a>
-        </div>
-    </li>
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Profile
-        </a>
-        <div class="dropdown-menu dropdown-menu-right">
-            <a class="dropdown-item" href="{{url_for('profile')}}">Edit profile</a>
-            <a class="dropdown-item" href="{{url_for('logout')}}">Log out</a>
-        </div>
-    </li>
-    {% elif session.get('is_authenticated') %}
-    <li class="nav-item">
-        <a class="nav-link" href="{{url_for('create_profile')}}">Create Profile</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{{url_for('logout')}}">Log out</a>
-    </li>
-    {% else %}
-    <li class="nav-item">
-        <a class="nav-link" href="{{url_for('about')}}">About</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{{url_for('login')}}">Login</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{{url_for('signup')}}">Sign Up</a>
-    </li>
-    {% endif %}
-</ul>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Monitoring
+                </a>
+                <div class="dropdown-menu dropdown-menu-right">
+                        {% if session.get('admin') == 'admin' %}
+                    <a class="dropdown-item" href="https://grafana.mwt2.org/d/m3teM9W7k/af-servers?orgId=1" target="_blank">Login Nodes</a>
+                        {% endif %}
+                    <a class="dropdown-item" href="{{url_for('my_notebooks_monitoring')}}">My notebooks</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Services
+                </a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" href="{{url_for('view_jupyter_notebooks')}}" onclick="loader()">JupyterLab</a>
+                    <a class="dropdown-item" href="https://coffea.af.uchicago.edu/" target="_blank">Coffea Casa</a>
+                    <a class="dropdown-item" href="https://uproot-atlas.servicex.af.uchicago.edu" target="_blank">ServiceX for uproot</a>
+                    <a class="dropdown-item" href="https://xaod.servicex.af.uchicago.edu" target="_blank">ServiceX for xAOD</a> 
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Documentation
+                </a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" href="https://maniaclab.uchicago.edu/af-docs/" target="_blank">UChicago Docs</a>
+                    <a class="dropdown-item" href="https://usatlas.readthedocs.io/projects/af-docs/en/latest/" target="_blank">US ATLAS Analysis Facilities</a>
+                    <a class="dropdown-item" href="{{url_for('aup')}}">Acceptable Use Policy</a>
+                    <a class="dropdown-item" href="{{url_for('hardware_information')}}">Hardware Information</a>
+                    <a class="dropdown-item" href="{{url_for('about')}}">About Page</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Support
+                </a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" href="https://atlas-talk.sdcc.bnl.gov/" target="_blank">Discourse Forums</a>
+                    <a class="dropdown-item" href="mailto:atlas-us-chicago-tier3-admins@cern.ch" target="_blank">System or Login Problems</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Profile
+                </a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" href="{{url_for('profile')}}">Edit profile</a>
+                    <a class="dropdown-item" href="{{url_for('logout')}}">Log out</a>
+                </div>
+            </li>
+            {% elif session.get('is_authenticated') %}
+            <li class="nav-item">
+                <a class="nav-link" href="{{url_for('create_profile')}}">Create Profile</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{url_for('logout')}}">Log out</a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+                <a class="nav-link" href="{{url_for('about')}}">About</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{url_for('login')}}">Login</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{url_for('signup')}}">Sign Up</a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>

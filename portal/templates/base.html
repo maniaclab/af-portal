@@ -7,12 +7,8 @@
     <meta http-equiv="Content-Language" content="en">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% if home_text_description %}
     <meta name="description" content="{{home_text_description}}">
-    {% else %}
-    <meta name="description" content="CI Connect Portal, Efficiently connect your science to cycles and data">
-    {% endif %}
-    <meta name="author" content="Jeremy Van">
+    <meta name="author" content="Jeremy Van, Andrew Taylor">
 
     {# Favicons for Connect #}
     <link rel="apple-touch-icon" sizes="180x180" href="{{url_for('static', filename='img/favicons/apple-touch-icon.png')}}">
@@ -139,20 +135,8 @@
   <body id="page-top">
     <div id="loader" class="center" style='display: none;'></div> 
     <div class="wrapper">
-    <!-- Navigation -->
       <div id="content">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top nav-bar-shadow" id="nav-main">
-          <a class="navbar-brand" href="{{url_for('home')}}">
-            {% include 'connect_brand.html' %}
-          </a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
-            {% include 'nav.html' %}
-          </div>
-        </nav>
-        <!-- Page body -->
+        {% include 'nav.html' %}
         {%block body%}
         {%endblock%}
       </div>
