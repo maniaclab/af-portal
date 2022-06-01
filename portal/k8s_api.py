@@ -10,8 +10,7 @@ from base64 import b64encode
 from datetime import timezone
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from kubernetes import client, config
-from portal import logger
-from portal import app
+from portal import app, logger
 
 templates = Environment(loader=FileSystemLoader("portal/yaml"), autoescape=select_autoescape())
 

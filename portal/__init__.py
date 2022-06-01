@@ -1,14 +1,22 @@
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 from datetime import timedelta
-
-# from flask import Markup
 from flask_misaka import Misaka
 import logging.handlers
 import sys
 
-from portal import app_logging
-logger = app_logging.init_logger()
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+formatter = logging.Formatter("%(asctime)s;%(module)s;%(funcName)s;%(levelname)s;%(message)s")
+logger.propagate = False
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+fh = logging.FileHandler('af-portal.log')
+fh.setLevel(logging.INFO)
+fh.setFormatter(formatter)
+logger.addHandler(fh)
 
 __author__ = "MANIAC Lab <gardnergroup@lists.uchicago.edu>"
 
@@ -19,7 +27,6 @@ csrf.init_app(app)
 
 if len(sys.argv) > 1:
     try:
-        # Try to read config location from .ini file
         config_file = sys.argv[1]
         app.config.from_pyfile(config_file)
         logger.info("Read config file from sys.argv[1]")

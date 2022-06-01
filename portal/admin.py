@@ -7,8 +7,7 @@ from flask import session
 from dateutil.parser import parse
 from datetime import datetime 
 from datetime import timedelta
-from portal import logger
-from portal import app
+from portal import app, logger
 
 ciconnect_api_token = app.config["CONNECT_API_TOKEN"]
 ciconnect_api_endpoint = app.config["CONNECT_API_ENDPOINT"]
