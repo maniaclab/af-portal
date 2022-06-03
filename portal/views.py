@@ -606,51 +606,7 @@ def about():
     with open(brand_dir + "/" + domain_name + "/about/about.md", "r") as file:
         about = file.read()
 
-    organizations = [
-        {
-            "name": "OSG",
-            "href": "https://www.osgconnect.net",
-            "img": "img/osg-org.png",
-            "description": "The OSG is providing a job submission service to the member institutions of the the Open Science Grid which are providing opportunistic CPU resources",
-        },
-        {
-            "name": "SLATE",
-            "href": "https://slateci.io/",
-            "img": "img/slate-org.png",
-            "description": "The SLATE platform is utilized for job submission services",
-        },
-        {
-            "name": "IRIS-HEP",
-            "href": "https://iris-hep.org/",
-            "img": "img/iris-hep-org.png",
-            "description": "The IRIS-HEP Scalable Systems Laboratory provides support for Snowmass21 Connect analysis services",
-        },
-        {
-            "name": "PSD",
-            "href": "https://psdconnect.uchicago.edu",
-            "img": "img/psd-org.png",
-            "description": "The Physical Sciences Division of the University of Chicago is providing IT infrastructure supporting the login service and storage",
-        },
-        {
-            "name": "MANIAC lab",
-            "href": "https://maniaclab.uchicago.edu/",
-            "img": "img/maniac-org.png",
-            "description": "The team at MANIAC Lab provides the CI-Connect service",
-        },
-        {
-            "name": "Brookhaven National Lab",
-            "href": "https://www.bnl.gov/world/",
-            "img": "img/brookhaven_national_lab.jpg",
-            "description": "Brookhaven National Laboratory has pledged to store data from Snowmass21 Monte Carlo simulation activities",
-        },
-        {
-            "name": "Fermilab",
-            "href": "https://www.fnal.gov/",
-            "img": "img/fermilab_plain_logo.jpeg",
-            "description": "Fermilab is pledging storage resources for Snowmass21",
-        },
-    ]
-    return render_template("about.html", about=about, organizations=organizations)
+    return render_template("about.html", about=about)
 
 
 @app.route("/login", methods=["GET"])
