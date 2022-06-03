@@ -57,7 +57,7 @@ import admin_views
 @app.route("/webhooks/github", methods=["GET", "POST"])
 @csrf.exempt
 def webhooks():
-    """Endpoint that acepts post requests from Github Webhooks"""
+    """Endpoint that accepts post requests from Github Webhooks"""
 
     cmd = """
     cd {}
@@ -89,35 +89,17 @@ def home():
     """Home page - play with it if you must!"""
     domain_name = domain_name_edgecase()
 
-    with open(
-        brand_dir + "/" + domain_name + "/home_content/home_text_headline.md", "r"
-    ) as file:
-        home_text_headline = file.read()
-    with open(
-        brand_dir + "/" + domain_name + "/home_content/home_text_rotating.md", "r"
-    ) as file:
-        home_text_rotating = file.read()
+    with open(brand_dir + "/" + domain_name + "/home_content/home_text_headline.md", "r") as file:
+        ht_headline = file.read()
+    with open(brand_dir + "/" + domain_name + "/home_content/home_text_rotating.md", "r") as file:
+        ht_rotating = file.read()    
     
-    htd_file = brand_dir + "/" + domain_name + "/home_content/home_text_description.md"
-    if os.path.isfile(htd_file):
-        with open(htd_file, "r") as file:
-            home_text_description = file.read() 
-    else:
-        home_text_description = "CI Connect Portal, Efficiently connect your science to cycles and data"
-
-    return render_template(
-        "home.html",
-        home_text_headline=home_text_headline,
-        home_text_rotating=home_text_rotating,
-        home_text_description=home_text_description
-    )
-
+    return render_template("home.html", home_text_headline=ht_headline, home_text_rotating=ht_rotating)
 
 def get_about_markdown(domain_name):
     with open(brand_dir + "/" + domain_name + "/about/about.md", "r") as file:
         about = file.read()
     return about
-
 
 @app.route("/groups/new", methods=["GET", "POST"])
 @authenticated
