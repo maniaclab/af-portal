@@ -29,7 +29,7 @@ if len(sys.argv) > 1:
     try:
         config_file = sys.argv[1]
         app.config.from_pyfile(config_file)
-        logger.info("Read config file from sys.argv[1]")
+        logger.info("Read config file from sys.argv[1] (%s)" %config_file)
     except:
         logger.error("Could not read config location from {}".format(sys.argv[1]))
 else:

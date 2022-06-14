@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: af-portal
+  namespace: af-jupyter
+  labels:
+    k8s-app: af-portal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: af-portal
+  template:
+    metadata:
+      labels:
+        k8s-app: af-portal
+    spec:
+      volumes:
+        - name: portal-conf
+          secret:
+            secretName: portal-conf-secret
+        - name: kubeconfig
+          secret:
+            secretName: kubeconfig-secret
+      containers:
+        - name: af-portal
+          image: ataylor89/af-portal-amd64:latest
+          volumeMounts:
+            - mountPath: /usr/local/etc/af-portal
+              name: portal-conf
+            - mountPath: /usr/local/etc/kube
+              name: kubeconfig
+          ports:
+            - containerPort: 8080
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: af-portal
+  namespace: af-jupyter
+  labels:
+    k8s-app: af-portal
+spec:
+  type: NodePort
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+  selector:
+    k8s-app: af-portal
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: af-portal
+  namespace: af-jupyter
+  labels:
+    k8s-app: af-portal
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod-nginx
+spec:
+  tls:
+    - hosts:
+        - k8s.af.uchicago.edu
+      secretName: k8sdeployment-tls
+  rules:
+    - host: k8s.af.uchicago.edu
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: af-portal
+                port:
+                  number: 80

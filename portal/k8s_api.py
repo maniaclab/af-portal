@@ -12,7 +12,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from kubernetes import client, config
 from portal import app, logger
 
-templates = Environment(loader=FileSystemLoader("portal/yaml"), autoescape=select_autoescape())
+templates = Environment(loader=FileSystemLoader("portal/templates/k8s"), autoescape=select_autoescape())
 
 namespace = app.config.get("NAMESPACE")
 domain_name = app.config.get('DOMAIN_NAME')

@@ -895,6 +895,8 @@ def authcallback():
 
     # Set up our Globus Auth/OAuth2 state
     redirect_uri = url_for("authcallback", _external=True)
+    if 'https://' not in redirect_uri:
+        redirect_uri = redirect_uri.replace("http://", "https://", 1)
 
     client = load_portal_client()
     client.oauth2_start_flow(redirect_uri, refresh_tokens=True)
