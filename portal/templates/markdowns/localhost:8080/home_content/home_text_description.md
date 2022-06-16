@@ -1,1 +1,0 @@
-ATLAS Analysis Facility at UChicago

@@ -30,8 +30,8 @@ ciconnect_api_token = app.config["CONNECT_API_TOKEN"]
 ciconnect_api_endpoint = app.config["CONNECT_API_ENDPOINT"]
 mailgun_api_token = app.config["MAILGUN_API_TOKEN"]
 # Read Brand Dir from config and insert path to read
-brand_dir = app.config["MARKDOWN_DIR"]
-sys.path.insert(0, brand_dir)
+MARKDOWN_DIR = app.config["MARKDOWN_DIR"]
+sys.path.insert(0, MARKDOWN_DIR)
 
 
 @app.route("/groups", methods=["GET"])
@@ -58,13 +58,7 @@ def groups():
 
         domain_name = request.headers["Host"]
 
-        with open(
-            brand_dir
-            + "/"
-            + domain_name
-            + "/form_descriptions/group_unix_name_description.md",
-            "r",
-        ) as file:
+        with open(MARKDOWN_DIR + "/form_descriptions/group_unix_name_description.md", "r") as file:
             group_unix_name_description = file.read()
         return render_template(
             "groups.html",
@@ -387,13 +381,7 @@ def view_group_subgroups(group_name):
 
         domain_name = request.headers["Host"]
 
-        with open(
-            brand_dir
-            + "/"
-            + domain_name
-            + "/form_descriptions/group_unix_name_description.md",
-            "r",
-        ) as file:
+        with open(MARKDOWN_DIR + "/form_descriptions/group_unix_name_description.md", "r") as file:
             group_unix_name_description = file.read()
 
         return render_template(

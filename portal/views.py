@@ -43,8 +43,8 @@ ciconnect_api_token = app.config["CONNECT_API_TOKEN"]
 ciconnect_api_endpoint = app.config["CONNECT_API_ENDPOINT"]
 mailgun_api_token = app.config["MAILGUN_API_TOKEN"]
 # Read Brand Dir from config and insert path to read
-brand_dir = app.config["MARKDOWN_DIR"]
-sys.path.insert(0, brand_dir)
+MARKDOWN_DIR = app.config["MARKDOWN_DIR"]
+sys.path.insert(0, MARKDOWN_DIR)
 # Set sys path and import view routes
 sys.path.insert(1, "portal/views")
 import group_views
@@ -62,9 +62,7 @@ def webhooks():
     cmd = """
     cd {}
     git pull origin master
-    """.format(
-        brand_dir
-    )
+    """.format(MARKDOWN_DIR)
 
     p = subprocess.Popen(
         cmd,
@@ -87,17 +85,14 @@ def webhooks():
 @app.route("/", methods=["GET"])
 def home():
     """Home page - play with it if you must!"""
-    domain_name = domain_name_edgecase()
-
-    with open(brand_dir + "/" + domain_name + "/home_content/home_text_headline.md", "r") as file:
+    with open(MARKDOWN_DIR + "/home_content/home_text_headline.md", "r") as file:
         ht_headline = file.read()
-    with open(brand_dir + "/" + domain_name + "/home_content/home_text_rotating.md", "r") as file:
+    with open(MARKDOWN_DIR + "/home_content/home_text_rotating.md", "r") as file:
         ht_rotating = file.read()    
-    
     return render_template("home.html", home_text_headline=ht_headline, home_text_rotating=ht_rotating)
 
 def get_about_markdown(domain_name):
-    with open(brand_dir + "/" + domain_name + "/about/about.md", "r") as file:
+    with open(MARKDOWN_DIR + "/about/about.md", "r") as file:
         about = file.read()
     return about
 
@@ -543,35 +538,20 @@ def deny_subgroup(group_name, subgroup_name):
 @app.route("/signup", methods=["GET"])
 def signup():
     """Send the user to Globus Auth with signup=1."""
-    domain_name = domain_name_edgecase()
-
-    with open(
-        brand_dir + "/" + domain_name + "/signup_content/signup_modal.md", "r"
-    ) as file:
+    with open(MARKDOWN_DIR + "/signup_content/signup_modal.md", "r") as file:
         signup_modal_md = file.read()
-    with open(
-        brand_dir + "/" + domain_name + "/signup_content/signup_instructions.md", "r"
-    ) as file:
+    with open(MARKDOWN_DIR + "/signup_content/signup_instructions.md", "r") as file:
         signup_instructions_md = file.read()
-    with open(brand_dir + "/" + domain_name + "/signup_content/signup.md", "r") as file:
+    with open(MARKDOWN_DIR + "/signup_content/signup.md", "r") as file:
         signup_md = file.read()
-    return render_template(
-        "signup.html",
-        signup_modal_md=signup_modal_md,
-        signup_instructions_md=signup_instructions_md,
-        signup_md=signup_md,
-    )
+    return render_template("signup.html", 
+        signup_modal_md=signup_modal_md, signup_instructions_md=signup_instructions_md, signup_md=signup_md)
 
 
 @app.route("/aup", methods=["GET"])
 def aup():
     """Send the user to Acceptable Use Policy page"""
-    # Read AUP from markdown dir
-    domain_name = domain_name_edgecase()
-
-    with open(
-        brand_dir + "/" + domain_name + "/signup_content/signup_modal.md", "r"
-    ) as file:
+    with open(MARKDOWN_DIR + "/signup_content/signup_modal.md", "r") as file:
         aup_md = file.read()
     return render_template("AUP.html", aup_md=aup_md)
 
@@ -582,10 +562,7 @@ def hardware_information():
 @app.route("/about", methods=["GET"])
 def about():
     """Send the user to the About page"""
-    # Read About from markdown dir
-    domain_name = domain_name_edgecase()
-
-    with open(brand_dir + "/" + domain_name + "/about/about.md", "r") as file:
+    with open(MARKDOWN_DIR + "/about/about.md", "r") as file:
         about = file.read()
 
     return render_template("about.html", about=about)
@@ -861,15 +838,7 @@ def profile():
             ):
                 group_memberships.append(group)
 
-        domain_name = domain_name_edgecase()
-
-        with open(
-            brand_dir
-            + "/"
-            + domain_name
-            + "/form_descriptions/group_unix_name_description.md",
-            "r",
-        ) as file:
+        with open(MARKDOWN_DIR + "/form_descriptions/group_unix_name_description.md", "r") as file:
             group_unix_name_description = file.read()
 
         return render_template(
@@ -877,7 +846,7 @@ def profile():
             profile=profile,
             user_status=user_status,
             group_memberships=group_memberships,
-            group_unix_name_description=group_unix_name_description,
+            group_unix_name_description=group_unix_name_description
         )
 
 @app.route("/authcallback", methods=["GET"])

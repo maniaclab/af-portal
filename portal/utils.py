@@ -16,14 +16,14 @@ except ImportError:
 from portal import app
 from portal.connect_api import domain_name_edgecase
 
-brand_dir = app.config["MARKDOWN_DIR"]
+MARKDOWN_DIR = app.config["MARKDOWN_DIR"]
 
 
 def flash_message_parser(route_name):
     domain_name = domain_name_edgecase()
     # print(domain_name)
     config = configparser.RawConfigParser(allow_no_value=True)
-    config.read(brand_dir + "/" + domain_name + "/flash_messages/flash_messages.cfg")
+    config.read(MARKDOWN_DIR + "/flash_messages/flash_messages.cfg")
     flash_message = config.get("flash_messages", route_name)
     return flash_message
 
