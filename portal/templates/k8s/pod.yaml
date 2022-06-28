@@ -13,11 +13,7 @@ metadata:
 spec:
   {% if gpu_available %}
   nodeSelector:
-    {% if gpu_memory == 4864 %}
-    nvidia.com/gpu.memory: '4864'
-    {% else %}
-    nvidia.com/gpu.memory: '42505273344'
-    {% endif %}
+    nvidia.com/gpu.memory: "{{gpu_memory}}"
   {% endif %}
   containers:
   - name: {{notebook_id}}
