@@ -14,11 +14,9 @@ from portal import app, logger
 
 templates = Environment(loader=FileSystemLoader("portal/templates/k8s"), autoescape=select_autoescape())
 
-namespace = app.config.get("NAMESPACE")
-domain_name = app.config.get('DOMAIN_NAME')
-ingress_class = app.config.get('INGRESS_CLASS')
-gpu_available = app.config.get("GPU_AVAILABLE")
 config_file = app.config.get("KUBECONFIG")
+namespace = app.config.get("NAMESPACE")
+domain_name = app.config.get("DOMAIN_NAME")
 
 k8s_charset = set(string.ascii_lowercase + string.ascii_uppercase + string.digits + '_' + '-' + '.')
 
@@ -36,8 +34,6 @@ def load_kube_config():
             logger.info("Loaded default kubeconfig file")
         logger.info("Using namespace %s" %namespace)
         logger.info("Using domain name %s" %domain_name)
-        logger.info("GPU is available as a resource" if gpu_available else "GPU is not available as a resource")
-        logger.info("Using kubernetes.io/ingress.class %s" %ingress_class)
     except:
         logger.error("Error loading kubeconfig")
         config.load_kube_config()
@@ -87,7 +83,6 @@ def create_pod(notebook_id, display_name, username, globus_id, cpu, memory, gpu,
                 memory_limit=f"{memory_limit}Gi", 
                 gpu_request=gpu,
                 gpu_limit=gpu,
-                gpu_available=gpu_available, 
                 gpu_memory=gpu_memory,
                 image=image, 
                 hours=time_duration))                           
@@ -118,7 +113,6 @@ def create_ingress(notebook_id, username, image):
         ingress = yaml.safe_load(
             template.render(
                 domain_name=domain_name, 
-                ingress_class=ingress_class, 
                 namespace=namespace, 
                 notebook_id=notebook_id,
                 username=username, 
@@ -407,14 +401,18 @@ def get_cpu_request(pod):
 
 def get_gpu_request(pod):
     try:
-        return pod.spec.containers[0].resources.requests['nvidia.com/gpu']
+        if 'nvidia.com/gpu' in pod.spec.containers[0].resources.requests:
+            return pod.spec.containers[0].resources.requests['nvidia.com/gpu']
+        return '0'
     except:
         logger.error('Error getting the GPU request for a pod')     
 
 def get_gpu_memory_request(pod):
-    try: 
-        val = float(pod.spec.node_selector['nvidia.com/gpu.memory'])/1000
-        return str(val) + ' GB'
+    try:
+        if pod.spec.node_selector and 'nvidia.com/gpu.memory' in pod.spec.node_selector: 
+            val = float(pod.spec.node_selector['nvidia.com/gpu.memory'])/1000
+            return str(val) + ' GB'
+        return '--'
     except:
         logger.error('Error getting the GPU memory request for a pod')
 

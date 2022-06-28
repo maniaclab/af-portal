@@ -11,7 +11,7 @@ metadata:
   name: {{notebook_id}}
   namespace: {{namespace}}
 spec:
-  {% if gpu_available %}
+  {% if gpu_request %}
   nodeSelector:
     nvidia.com/gpu.memory: "{{gpu_memory}}"
   {% endif %}
@@ -23,7 +23,7 @@ spec:
     env:
     - name: "JUPYTER_TOKEN"
       value: {{token}}
-    {% if gpu_available and gpu_request == 0 %} 
+    {% if not gpu_request %} 
     - name: NVIDIA_VISIBLE_DEVICES
       value: none
     {% endif %}
@@ -42,13 +42,13 @@ spec:
       limits:
         cpu: {{cpu_limit}}
         memory: {{memory_limit}}
-        {% if gpu_available %}
+        {% if gpu_request %}
         nvidia.com/gpu: {{gpu_limit}}
         {% endif %}
       requests:
         cpu: {{cpu_request}}
         memory: {{memory_request}}
-        {% if gpu_available %}
+        {% if gpu_request %}
         nvidia.com/gpu: {{gpu_request}}
         {% endif %}
     volumeMounts:
