@@ -23,10 +23,6 @@ spec:
     env:
     - name: "JUPYTER_TOKEN"
       value: {{token}}
-    {% if not gpu_request %} 
-    - name: NVIDIA_VISIBLE_DEVICES
-      value: none
-    {% endif %}
     - name: API_TOKEN
       valueFrom:
         secretKeyRef:
