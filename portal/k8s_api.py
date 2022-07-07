@@ -140,6 +140,7 @@ def create_secret(notebook_id, username, token):
 def supports_image(image):
     images = [
         'ivukotic/ml_platform:latest', 
+        'ivukotic/ml_julia:latest', 
         'ivukotic/ml_platform:conda', 
         'ivukotic/ml_platform_auto:latest', 
         'ivukotic/ml_platform_auto:conda', 
