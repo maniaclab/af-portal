@@ -1,3 +1,6 @@
+# This module is organized in the following way:
+# At the beginning of the file there are helper functions used by the main interface
+# Toward the end of the file, the main interface is presented and introduced by a comment
 import yaml
 import time
 import datetime
@@ -8,64 +11,54 @@ import string
 import urllib
 from base64 import b64encode
 from datetime import timezone
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+from jinja2 import Environment, FileSystemLoader
 from kubernetes import client, config
 from portal import app, logger
 
-templates = Environment(loader=FileSystemLoader("portal/templates/k8s"), autoescape=select_autoescape())
-
+# Kubernetes settings
 config_file = app.config.get("KUBECONFIG")
 namespace = app.config.get("NAMESPACE")
 domain_name = app.config.get("DOMAIN_NAME")
 
-k8s_charset = set(string.ascii_lowercase + string.ascii_uppercase + string.digits + '_' + '-' + '.')
-
+# A class of exceptions that lets us pass a detailed error message to the frontend
 class k8sException(Exception):
     pass
 
+# Configures Kubernetes by loading the config_file if present, or else the default settings
 @app.before_first_request
 def load_kube_config():
     try:
-        if config_file:
-            config.load_kube_config(config_file = config_file)
-            logger.info("Loaded kubeconfig from file %s" %config_file)
-        else:
-            config.load_kube_config()
-            logger.info("Loaded default kubeconfig file")
-        logger.info("Using namespace %s" %namespace)
-        logger.info("Using domain name %s" %domain_name)
+        config.load_kube_config(config_file = config_file)
+        logger.info("Loaded kubeconfig from file %s" %config_file)
     except:
-        logger.error("Error loading kubeconfig")
         config.load_kube_config()
+        logger.info("Loaded default kubeconfig file")
+    logger.info("Using namespace %s" %namespace)
+    logger.info("Using domain name %s" %domain_name)
 
-def manage_notebooks():
-    while True:
-        pods = get_pods()
-        for pod in pods:
-            if has_notebook_expired(pod):
-                try:
-                    logger.info("Notebook %s in namespace %s has expired" %(pod.metadata.name, namespace))
-                    remove_notebook(pod.metadata.name)
-                except:
-                    logger.info('Error removing notebook %s during management cycle' %pod.metadata.name)
-        time.sleep(1800)
-
-maintenance_thread = threading.Thread(target=manage_notebooks)
-
+# Starts the notebook manager, which removes expired notebooks, and checks for expired notebooks
 @app.before_first_request
 def start_notebook_manager():
-    if not maintenance_thread.is_alive():
-        maintenance_thread.start()
-        logger.info("Started k8s notebook manager")
+    def manage_notebooks():
+        while True:
+            pods = get_all_pods()
+            for pod in pods:
+                name = pod.metadata.name
+                exp_date = get_expiration_date(pod)
+                curr_time = datetime.datetime.now(timezone.utc)
+                if exp_date and exp_date < curr_time:
+                    logger.info("Notebook %s in namespace %s has expired" %(name, namespace))
+                    remove_notebook(name)                        
+            time.sleep(1800)
+    maintenance_thread = threading.Thread(target=manage_notebooks)
+    maintenance_thread.start()
+    logger.info("Started k8s notebook manager")
 
-def generate_token():
-    token_bytes = os.urandom(32)
-    b64_encoded = b64encode(token_bytes).decode()
-    return b64_encoded
-
+# The methods below are helper functions 
 def create_pod(notebook_id, display_name, username, globus_id, cpu, memory, gpu, gpu_memory, image, time_duration, token):
     try: 
         api = client.CoreV1Api()
+        templates = Environment(loader=FileSystemLoader("portal/templates/k8s"))
         template = templates.get_template("pod.yaml")
         cpu_limit = cpu * 2
         memory_limit = memory * 2
@@ -88,13 +81,13 @@ def create_pod(notebook_id, display_name, username, globus_id, cpu, memory, gpu,
                 hours=time_duration))                           
         api.create_namespaced_pod(namespace=namespace, body=pod)
     except Exception as err:
-        logger.error('Error creating pod %s' %notebook_id)
-        logger.error(str(err))
+        logger.error('Error creating pod %s\n%s' %(notebook_id, str(err)))
         raise k8sException('Error creating pod %s' %notebook_id)
 
 def create_service(notebook_id, image):
     try: 
         api = client.CoreV1Api()
+        templates = Environment(loader=FileSystemLoader("portal/templates/k8s"))
         template = templates.get_template("service.yaml")
         service = yaml.safe_load(
             template.render(
@@ -109,6 +102,7 @@ def create_service(notebook_id, image):
 def create_ingress(notebook_id, username, image):
     try: 
         api = client.NetworkingV1Api()
+        templates = Environment(loader=FileSystemLoader("portal/templates/k8s"))
         template = templates.get_template("ingress.yaml")
         ingress = yaml.safe_load(
             template.render(
@@ -125,6 +119,7 @@ def create_ingress(notebook_id, username, image):
 def create_secret(notebook_id, username, token):
     try: 
         api = client.CoreV1Api()
+        templates = Environment(loader=FileSystemLoader("portal/templates/k8s"))
         template = templates.get_template("secret.yaml")
         sec = yaml.safe_load(
             template.render(
@@ -136,6 +131,19 @@ def create_secret(notebook_id, username, token):
     except:
         logger.error('Error creating secret %s' %notebook_id)
         raise k8sException('Error creating secret %s' %notebook_id)
+
+def create_pvc_if_needed(username):
+    try:
+        api = client.CoreV1Api()
+        templates = Environment(loader=FileSystemLoader("portal/templates/k8s"))
+        if len(api.list_namespaced_persistent_volume_claim(namespace, label_selector=f"owner={username}").items) == 0:
+            template = templates.get_template("pvc.yaml")
+            pvc = yaml.safe_load(template.render(username=username, namespace=namespace))
+            api.create_namespaced_persistent_volume_claim(namespace=namespace, body=pvc)
+            logger.info('Created persistent volume claim for user %s' %username)
+    except Exception as err:
+        logger.error('Error creating persistent volume claim for user %s\n%s' %(username, str(err)))
+        raise k8sException('Error creating persistent volume claim for user %s' %username)
 
 def supports_image(image):
     images = [
@@ -153,25 +161,23 @@ def notebook_id_available(notebook_id):
     try: 
         core_v1_api = client.CoreV1Api()
         pods = core_v1_api.list_namespaced_pod(namespace, label_selector="instance={0}".format(notebook_id))
-
-        if not pods or len(pods.items) == 0:
-            return True
+        return len(pods.items) == 0
     except:
         logger.error('Error checking whether notebook name %s is available' %notebook_id)
         raise k8sException('Error checking whether notebook name %s is available' %notebook_id)
 
 def cpu_request_valid(cpu):
-    if cpu >=1 and cpu <= 4:
+    if cpu >= 1 and cpu <= 4:
         return True
     return False
 
 def memory_request_valid(memory):
-    if memory >=1 and memory <= 16:
+    if memory >= 1 and memory <= 16:
         return True
     return False
 
 def gpu_request_valid(gpu):
-    if gpu >=0 and gpu <= 7:
+    if gpu >= 0 and gpu <= 7:
         return True
     return False
 
@@ -183,6 +189,8 @@ def validate(notebook_name, notebook_id, username, cpu, memory, gpu, gpu_memory,
     if len(notebook_name) > 30:
         logger.warning('The name %s has more than 30 characters' %notebook_name)
         raise k8sException('The notebook name cannot exceed 30 characters')
+
+    k8s_charset = set(string.ascii_lowercase + string.ascii_uppercase + string.digits + '_' + '-' + '.')
 
     if not set(notebook_name) <= k8s_charset:
         logger.warning('The name %s has invalid characters' %notebook_name)
@@ -212,21 +220,6 @@ def validate(notebook_name, notebook_id, username, cpu, memory, gpu, gpu_memory,
         logger.warning('The gpu_memory value has to be 4864 or 40536')
         raise k8sException('The gpu_memory value has to be 4864 or 40536')
 
-def create_notebook(notebook_name, username, globus_id, cpu, memory, gpu, gpu_memory, image, time_duration):
-    notebook_id = notebook_name.lower()
-
-    validate(notebook_name, notebook_id, username, cpu, memory, gpu, gpu_memory, image, time_duration)
-
-    token = generate_token()
-    logger.info("The token for %s is %s" %(notebook_name, token))
-      
-    create_pod(notebook_id, notebook_name, username, globus_id, cpu, memory, gpu, gpu_memory, image, time_duration, token)
-    create_service(notebook_id, image)
-    create_ingress(notebook_id, username, image)
-    create_secret(notebook_id, username, token)
-
-    logger.info('Created notebook %s' %notebook_name)
-
 def get_creation_date(pod):
     return pod.metadata.creation_timestamp
 
@@ -242,115 +235,100 @@ def get_expiration_date(pod):
                 return expiration_date
     except:
         logger.error('Error getting expiration date for notebook %s in namespace %s' %(pod.metadata.name, namespace))
+    return None
 
 def get_creation_timestamp(pod):
-    creation_date = get_creation_date(pod)
-    if creation_date:
-        return creation_date.timestamp()
+    crt_date = get_creation_date(pod)
+    if crt_date:
+        return crt_date.timestamp()
     return -1
 
 def get_expiration_timestamp(pod):
-    expiration_date = get_expiration_date(pod)
-    if expiration_date:
-        return expiration_date.timestamp()
-    return -1
-
-def has_notebook_expired(pod):
     exp_date = get_expiration_date(pod)
     if exp_date:
-        return datetime.datetime.now(timezone.utc) > exp_date
-    return False
+        return exp_date.timestamp()
+    return -1
 
 def get_hours_remaining(pod):
-    try:
-        exp_date = get_expiration_date(pod)
+    exp_date = get_expiration_date(pod)
+    if exp_date:
         now_date = datetime.datetime.now(timezone.utc)
         diff = exp_date - now_date
         return int(diff.total_seconds() / 3600)
-    except:
-        logger.error('Error getting the hours remaining')
+    return -1
+
+def pod_terminating(pod):
+    if hasattr(pod.metadata, 'deletion_timestamp') and pod.metadata.deletion_timestamp:
+        return True
+    return False
 
 def get_pod_status(pod):
-    try:
-        if notebook_closing(pod):
-            return '--'
-        return pod.status.phase
-    except:
-        logger.error('Error getting status for pod %s' %pod.metadata.name)
+    if pod_terminating(pod):
+        return '--'
+    return pod.status.phase
 
 def get_certificate_status(pod):
     try:
-        if notebook_closing(pod):
-            return '--'
-        net = client.NetworkingV1Api()
+        api = client.NetworkingV1Api()
         notebook_name = pod.metadata.name
-        ingress = net.read_namespaced_ingress(notebook_name, namespace)
+        ingress = api.read_namespaced_ingress(notebook_name, namespace)
         secretName = ingress.spec.tls[0].secret_name
         objs = client.CustomObjectsApi()
         cert = objs.get_namespaced_custom_object(group="cert-manager.io", version="v1", name=secretName, namespace=namespace, plural="certificates")   
         for condition in cert['status']['conditions']:
-            if condition['type'] == 'Ready':    
-                return 'Ready' if condition['status'] == 'True' else 'Not ready'
-        return 'Unknown'
+            if condition['type'] == 'Ready':   
+                if condition['status'] == 'True':
+                    return 'Ready'
+                else:
+                    return 'Not ready' 
     except:
         logger.error("Error getting certificate status for notebook %s" %notebook_name)
-
-def notebook_closing(pod):
-    try:
-        if pod.metadata.deletion_timestamp:
-            return True
-        return False
-    except:
-        logger.error('Error checking whether notebook is closing in pod %s' %pod.metadata.name)
+    return 'Unknown'
 
 def get_notebook_status(pod):
-    try: 
-        pod_status = get_pod_status(pod)
-        cert_status = get_certificate_status(pod)
-        if notebook_closing(pod):
-            return 'Removing notebook...'
-        elif pod_status == 'Pending':
-            return 'Pod starting...'
-        elif cert_status != 'Ready':
-            return 'Waiting for certificate...'
-        elif pod_status == 'Running':
+    pod_status = get_pod_status(pod)
+    cert_status = get_certificate_status(pod)
+    if pod_terminating(pod):
+        return 'Removing notebook...'
+    elif pod_status == 'Pending':
+        return 'Pod starting...'
+    elif cert_status != 'Ready':
+        return 'Waiting for certificate...'
+    elif pod_status == 'Running':
+        try:
             core_v1_api = client.CoreV1Api()
             log = core_v1_api.read_namespaced_pod_log(pod.metadata.name, namespace=namespace)
             if re.search("Jupyter Notebook.*is running at.*", log) or re.search("Jupyter Server.*is running at.*", log):
                 return 'Ready'
             else:
                 return 'Notebook loading...'
-        else:
-            return pod_status
-    except:
-        logger.error('Error getting status for notebook %s' %pod.metadata.name)
-        return 'Error'
+        except: 
+            return 'Error'
+    else:
+        return pod_status
 
-def get_detailed_status(pod):
-    try:
-        if notebook_closing(pod):
-            return None
-        detailed_status = ['', '', '', '']
-        for cond in pod.status.conditions:
-            if cond.type == 'PodScheduled' and cond.status == 'True':
-                detailed_status[0] = 'Pod scheduled.'
-            elif cond.type == 'Initialized' and cond.status == 'True':
-                detailed_status[1] = 'Pod initialized.'
-            elif cond.type == 'Ready' and cond.status == 'True':
-                detailed_status[2] = 'Pod ready.'
-            elif cond.type == 'ContainersReady' and cond.status == 'True':
-                detailed_status[3] = 'Containers ready.'
-        cert_status = get_certificate_status(pod)
-        if cert_status != 'Ready':
-            detailed_status.append('Waiting for certificate...')
-        nbstatus = get_notebook_status(pod)
-        if nbstatus == 'Notebook loading...':
-            detailed_status.append('Waiting for Jupyter notebook server...')
-        elif nbstatus == 'Ready':
-            detailed_status.append('Jupyter notebook server started.')
-        return detailed_status
-    except:
-        logger.error("Error getting detailed status for pod %s" %pod.metadata.name)
+def get_detailed_notebook_status(pod):
+    if pod_terminating(pod):
+        return None
+    detailed_status = ['', '', '', '']
+    for cond in pod.status.conditions:
+        if cond.type == 'PodScheduled' and cond.status == 'True':
+            detailed_status[0] = 'Pod scheduled.'
+        elif cond.type == 'Initialized' and cond.status == 'True':
+            detailed_status[1] = 'Pod initialized.'
+        elif cond.type == 'Ready' and cond.status == 'True':
+            detailed_status[2] = 'Pod ready.'
+        elif cond.type == 'ContainersReady' and cond.status == 'True':
+            detailed_status[3] = 'Containers ready.'
+    cert_status = get_certificate_status(pod)
+    if cert_status != 'Ready':
+        detailed_status.append('Waiting for certificate...')
+    nbstatus = get_notebook_status(pod)
+    if nbstatus == 'Notebook loading...':
+        detailed_status.append('Waiting for Jupyter notebook server...')
+    elif nbstatus == 'Ready':
+        detailed_status.append('Jupyter notebook server started.')
+    return detailed_status
 
 def get_token(notebook_name):
     try:
@@ -361,22 +339,18 @@ def get_token(notebook_name):
         logger.error("Error getting secret for notebook %s" %notebook_name)
 
 def get_display_name(pod):
-    try:
-        if hasattr(pod.metadata, 'labels') and 'display-name' in pod.metadata.labels:
-            return pod.metadata.labels['display-name']
-        return pod.metadata.name
-    except:
-        logger.error('Error getting value for display-name in pod %s' %pod.metadata.name)
+    if hasattr(pod.metadata, 'labels') and 'display-name' in pod.metadata.labels:
+        return pod.metadata.labels['display-name']
+    return pod.metadata.name
 
 def get_owner(pod):
-    try:
+    if hasattr(pod.metadata, 'labels') and 'owner' in pod.metadata.labels:
         return pod.metadata.labels['owner']
-    except:
-        logger.error('Error getting value for owner in pod %s' %pod.metadata.name)
+    return None
 
 def get_url(pod):
     try: 
-        if notebook_closing(pod):
+        if pod_terminating(pod):
             return None
         api = client.NetworkingV1Api()
         notebook_name = pod.metadata.name
@@ -406,7 +380,7 @@ def get_gpu_request(pod):
             return pod.spec.containers[0].resources.requests['nvidia.com/gpu']
         return '0'
     except:
-        logger.error('Error getting the GPU request for a pod')     
+        logger.error('Error getting the GPU request for a pod')    
 
 def get_gpu_memory_request(pod):
     try:
@@ -417,51 +391,48 @@ def get_gpu_memory_request(pod):
     except:
         logger.error('Error getting the GPU memory request for a pod')
 
-def get_pods():
+def get_pod(podname):
     try:
         core_v1_api = client.CoreV1Api()
-        pods = core_v1_api.list_namespaced_pod(namespace)
+        return core_v1_api.read_namespaced_pod(podname, namespace)
+    except:
+        logger.info('Pod %s does not exist' %podname)
+        return None
+
+def get_all_pods():
+    try:
+        core_v1_api = client.CoreV1Api()
+        pods = core_v1_api.list_namespaced_pod(namespace, label_selector="k8s-app=privatejupyter")
         return pods.items
     except:
         logger.error('Error getting pods')
         return []
 
-def get_pod(name):
-    try:
-        core_v1_api = client.CoreV1Api()
-        return core_v1_api.read_namespaced_pod(name, namespace)
-    except:
-        logger.info('Pod %s does not exist' %name)
-        return None
-
-def get_user_pod(name, username):
-    try:
-        core_v1_api = client.CoreV1Api()
-        pod = core_v1_api.read_namespaced_pod(name, namespace)
-        if pod.metadata.labels['owner'] == username:
-            return pod
-        else:
-            logger.error('Pod %s is not owned by user %s' %(name, username))
-            return None
-    except:
-        logger.info('Pod %s does not exist' %name)
-        return None
-
 def get_user_pods(username):
     try:
-        user_pods = []
         core_v1_api = client.CoreV1Api()
-        pods = core_v1_api.list_namespaced_pod(namespace)
-        for pod in pods.items:
-            try: 
-                if pod.metadata.labels['owner'] == username:   
-                    user_pods.append(pod)
-            except:
-                logger.error('Error processing pod %s' %pod.metadata.name)
-        return user_pods        
+        user_pods = core_v1_api.list_namespaced_pod(namespace, label_selector=f"k8s-app=privatejupyter,owner={username}")       
+        return user_pods.items
     except:
         logger.error('Error getting user pods')
         return []
+
+# The methods below form the main interface of the k8s_api module
+def create_notebook(notebook_name, username, globus_id, cpu, memory, gpu, gpu_memory, image, time_duration):
+    notebook_id = notebook_name.lower()
+
+    validate(notebook_name, notebook_id, username, cpu, memory, gpu, gpu_memory, image, time_duration)
+
+    token_bytes = os.urandom(32)
+    token = b64encode(token_bytes).decode()
+    logger.info("The token for %s is %s" %(notebook_name, token))
+      
+    create_pod(notebook_id, notebook_name, username, globus_id, cpu, memory, gpu, gpu_memory, image, time_duration, token)
+    create_service(notebook_id, image)
+    create_ingress(notebook_id, username, image)
+    create_secret(notebook_id, username, token)
+
+    logger.info('Created notebook %s' %notebook_name)
 
 def get_notebooks(username):
     user_pods = get_user_pods(username)
@@ -476,7 +447,7 @@ def get_notebooks(username):
             pod_status = get_pod_status(pod)
             cert_status = get_certificate_status(pod)
             notebook_status = get_notebook_status(pod)
-            detailed_status = get_detailed_status(pod)
+            detailed_status = get_detailed_notebook_status(pod)
             memory_request = get_memory_request(pod)
             cpu_request = get_cpu_request(pod)
             gpu_request = get_gpu_request(pod)
@@ -505,7 +476,7 @@ def get_notebooks(username):
     return notebooks
 
 def get_all_notebooks():
-    pods = get_pods()
+    pods = get_all_pods()
     notebooks = []
     for pod in pods:
         try: 
@@ -544,15 +515,6 @@ def get_all_notebooks():
             logger.error('Error processing Jupyter notebook %s' %pod.metadata.name)   
     return notebooks
 
-def remove_notebook(notebook_id):
-    core_v1_api = client.CoreV1Api()
-    networking_v1_api = client.NetworkingV1Api()
-    core_v1_api.delete_namespaced_pod(notebook_id, namespace)
-    core_v1_api.delete_namespaced_service(notebook_id, namespace)
-    networking_v1_api.delete_namespaced_ingress(notebook_id, namespace)
-    core_v1_api.delete_namespaced_secret(notebook_id, namespace)
-    logger.info("Removed notebook %s in namespace %s" %(notebook_id, namespace))
-
 def remove_user_notebook(notebook_name, username):
     try:
         notebook_id = notebook_name.lower()
@@ -572,13 +534,25 @@ def remove_user_notebook(notebook_name, username):
         logger.error(f"Error removing pod {notebook_id} in namespace {namespace}")
         raise k8sException('Error removing notebook %s' %notebook_id)
 
+def remove_notebook(notebook_name):
+    try: 
+        notebook_id = notebook_name.lower()
+        core_v1_api = client.CoreV1Api()
+        networking_v1_api = client.NetworkingV1Api()
+        core_v1_api.delete_namespaced_pod(notebook_id, namespace)
+        core_v1_api.delete_namespaced_service(notebook_id, namespace)
+        networking_v1_api.delete_namespaced_ingress(notebook_id, namespace)
+        core_v1_api.delete_namespaced_secret(notebook_id, namespace)
+        logger.info("Removed notebook %s in namespace %s" %(notebook_id, namespace))
+    except: 
+        logger.info('Error removing notebook %s during management cycle' %notebook_id) 
+
 def get_autogenerated_notebook_name(username):
     try:
         for i in range(1, 100):
-            nbname = "{0}-notebook-{1}".format(username, i)
+            nbname = f"{username}-notebook-{i}"
             if notebook_id_available(nbname):
                 return nbname
-    except k8sException as e:
-        logger.error(str(e))
     except:
         logger.error("Error getting autogenerated notebook name")
+    return None

@@ -33,7 +33,7 @@ if len(sys.argv) > 1:
     except:
         logger.error("Could not read config location from {}".format(sys.argv[1]))
 else:
-    app.config.from_pyfile("portal.conf")
+    app.config.from_pyfile("../secrets/portal.conf")
     logger.info("Read config file from portal.conf")
 
 app.url_map.strict_slashes = False

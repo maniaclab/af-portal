@@ -933,54 +933,6 @@ def authcallback():
             except:
                 print("NO PROFILE FOUND WITH IDENTITY: {}".format(identity))
 
-        connect_keynames = {
-            "atlas": {
-                "name": "atlas-connect",
-                "display_name": "Atlas Connect",
-                "unix_name": "root.atlas",
-            },
-            "cms": {
-                "name": "cms-connect",
-                "display_name": "CMS Connect",
-                "unix_name": "root.cms",
-            },
-            "duke": {
-                "name": "duke-connect",
-                "display_name": "Duke Connect",
-                "unix_name": "root.duke",
-            },
-            "uchicago": {
-                "name": "uchicago-connect",
-                "display_name": "UChicago Connect",
-                "unix_name": "root.uchicago",
-            },
-            "spt": {
-                "name": "spt-connect",
-                "display_name": "SPT Connect",
-                "unix_name": "root.spt",
-            },
-            "af": {
-                "name": "atlas-af",
-                "display_name": "ATLAS Analysis Facility",
-                "unix_name": "root.atlas-af",
-            },
-            "psdconnect": {
-                "name": "psd-connect",
-                "display_name": "PSD Connect",
-                "unix_name": "root.uchicago",
-            },
-            "snowmass21": {
-                "name": "snowmass21-connect",
-                "display_name": "Snowmass21 Connect",
-                "unix_name": "root.snowmass21",
-            },
-            "localhost": {
-                "name": "snowmass21-connect",
-                "display_name": "Snowmass21 Connect",
-                "unix_name": "root.snowmass21",
-            },
-        }
-        url_host = request.host
         try:
             referrer = urlparse(request.referrer)
             # print("REFERRER: {}".format(referrer))
@@ -992,16 +944,6 @@ def authcallback():
             # print("AFTER QUERIES NEXT URL: {}".format(next_url))
         except:
             next_url = "/"
-        if "ci-connect" in url_host:
-            session["url_host"] = {
-                "name": "ci-connect",
-                "display_name": "CI Connect",
-                "unix_name": "root",
-            }
-
-        for key, value in list(connect_keynames.items()):
-            if key in url_host:
-                session["url_host"] = value
 
         if profile:
             profile = profile["metadata"]
@@ -1011,8 +953,16 @@ def authcallback():
             session["institution"] = profile["institution"]
             session["unix_name"] = profile["unix_name"]
             session["url_root"] = request.url_root
-            # session['url_host'] = (request.host).split(':')[0]
+            session["url_host"] = {
+                "name": "atlas-af",
+                "display_name": "ATLAS Analysis Facility",
+                "unix_name": "root.atlas-af"
+            }
             session["admin"] = admin_check(profile["unix_name"])
+            session["site_member"] = False
+            for group in profile["group_memberships"]:
+                if group["name"] == "root.atlas-af":
+                    session["site_member"] = True
         else:
             session["url_root"] = request.url_root
             return redirect(url_for("create_profile", next=url_for("profile")))
@@ -1022,7 +972,6 @@ def authcallback():
             return redirect(url_for("profile"))
         else:
             return redirect(next_url)
-
 
 def admin_check(unix_name):
     """
