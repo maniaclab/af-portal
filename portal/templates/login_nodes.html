@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}
+Login nodes
+{% endblock %}
+
+{% block body %}
+<section>
+    <div class="container col-lg-12">
+        {%include 'messages.html' %}
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">Login nodes</li>
+        </ol>
+        <div>
+            <iframe  
+                src="https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/dashboards?auth_provider_hint=anonymous1#/view/1d030a20-f6fd-11ec-9b57-bf21ae80f105?embed=true&_g=(filters%3A!()%2CrefreshInterval%3A(pause%3A!t%2Cvalue%3A0)%2Ctime%3A(from%3Anow-7d%2Fd%2Cto%3Anow))&show-time-filter=true&hide-filter-bar=true"
+                height="800" 
+                width="100%"
+                frameborder="0">
+            </iframe>
+        </div>
+    </div>
+</section>
+{% endblock %}
