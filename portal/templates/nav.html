@@ -32,9 +32,9 @@
                 </a>
                 <div class="dropdown-menu dropdown-menu-right">
                         {% if session.get('admin') == 'admin' %}
-                    <a class="dropdown-item" href="https://grafana.mwt2.org/d/m3teM9W7k/af-servers?orgId=1" target="_blank">Login Nodes</a>
+                    <a class="dropdown-item" href="{{url_for('monitor_login_nodes')}}">Login Nodes</a>
                         {% endif %}
-                    <a class="dropdown-item" href="{{url_for('my_notebooks_monitoring')}}">My notebooks</a>
+                    <a class="dropdown-item" href="{{url_for('monitor_notebooks')}}">My notebooks</a>
                 </div>
             </li>
             <li class="nav-item dropdown">

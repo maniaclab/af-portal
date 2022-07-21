@@ -13,8 +13,7 @@ except ImportError:
 
 from portal import app, csrf
 from portal import admin, logger
-from portal.admin import authorized
-from portal.decorators import authenticated
+from portal.decorators import authenticated, site_admin
 from portal.utils import load_portal_client, get_safe_redirect, flash_message_parser
 from portal.connect_api import (
     get_user_info,
@@ -53,6 +52,7 @@ import users_groups
 import slate_views
 import k8s_views
 import admin_views
+import monitoring_views
 
 @app.route("/webhooks/github", methods=["GET", "POST"])
 @csrf.exempt
@@ -161,7 +161,7 @@ def delete_group(group_name):
 
 
 @app.route("/groups/<group_name>/add_group_member/<unix_name>", methods=["POST"])
-@authenticated
+@site_admin
 def add_group_member(group_name, unix_name):
     if request.method == "POST":
         # Add user to group by setting user status to active
@@ -171,20 +171,19 @@ def add_group_member(group_name, unix_name):
         if user_status.status_code == requests.codes.ok:
             flash_message = flash_message_parser("add_group_member")
             flash(flash_message, "success")
+        
+            try:
+                approver = session['unix_name']
+                support_email = "noreply@af.uchicago.edu"
+                administrators = admin.get_email_list('root.atlas-af.staff')
+                subject = "Account approval"
+                body = "User %s approved a request from %s to join group %s" %(approver, unix_name, group_name)
+                admin.email_users(support_email, administrators, subject, body)
+                logger.info("Account approved: %s" %body)
+            except:
+                logger.error('Error sending email confirming the account approval')
 
-            if authorized():
-                try:
-                    approver = session['unix_name']
-                    support_email = "noreply@af.uchicago.edu"
-                    administrators = admin.get_email_list('root.atlas-af.staff')
-                    subject = "Account approval"
-                    body = "User %s approved a request from %s to join group %s" %(approver, unix_name, group_name)
-                    admin.email_users(support_email, administrators, subject, body)
-                    logger.info("Account approved: %s" %body)
-                except:
-                    logger.error('Error sending email confirming the account approval')
-
-                return redirect(url_for("view_group_members", group_name=group_name))
+            return redirect(url_for("view_group_members", group_name=group_name))
         else:
             err_message = user_status.json()["message"]
             flash("Failed to add member to group: {}".format(err_message), "warning")
