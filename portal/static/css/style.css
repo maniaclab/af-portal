@@ -1,0 +1,52 @@
+html, body {
+    font-family: 'Open Sans';
+    font-size: 16px;
+    line-height: 1.4;
+  }
+
+#site-logo {
+    width: 25%;
+    margin: 4em 0 2em;
+}
+
+#carousel {
+    margin: 2em 0 2em;
+}
+
+#carousel:before {
+    color: #6c757d;
+    content: "Tier 3 computing";
+    animation-name: carousel;
+    animation-duration: 15s;
+    animation-iteration-count: infinite;
+}
+
+@keyframes carousel {
+    0% { content: "Tier 3 computing"; opacity: 1;}
+    22% { content: "Tier 3 computing"; opacity: 1; }
+    33% { content: "Batch processing via HTCondor"; opacity: 1; }
+    55% { content: "Batch processing via HTCondor"; opacity: 1; }
+    66% { content: "Pythonic analysis"; opacity: 1; }
+    88% { content: "Pythonic analysis"; opacity: 1; }
+}
+
+footer {
+    position: absolute;
+    width: 100%;
+    bottom: 1em;
+    left: auto;
+    right: auto;
+}
+
+footer img {
+    max-height: 55px;
+    margin-right: 50px;
+}
+
+footer a, footer a:hover {
+    text-decoration: none
+}
+
+#headline {
+    margin: 1em 0 1em;
+}

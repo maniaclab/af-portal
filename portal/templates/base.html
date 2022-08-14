@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <title>Portal - {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    {% block libraries %} {% endblock %}
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('home') }}"> 
+                <img src="{{url_for('static', filename='img/atlas-af-logo.png')}}" height="35" alt="" />
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('about') }}">About</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">Login</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">Signup</a>
+                  </li>
+                </ul>
+              </div>
+        </div>
+    </nav>
+    {% block content %} {% endblock %}
+    <footer class="text-center">
+      <a href="https://www.uchicago.edu" target="_blank">
+          <img src="{{url_for('static', filename='img/uc-logo.png')}}">
+      </a>
+      <a href="https://efi.uchicago.edu" target="_blank">
+          <img src="{{url_for('static', filename='img/efi-logo.png')}}">
+      </a>
+      <a href="https://iris-hep.org" target="_blank">
+          <img src="{{url_for('static', filename='img/iris-hep-logo.png')}}">
+      </a>
+  </footer>
+</body>
+
+</html>

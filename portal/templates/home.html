@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %} Home {% endblock %}
+
+{% block libraries %}
+<script type="text/javascript" src="{{ url_for('static', filename='js/home.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container text-center">
+    <img id="site-logo" src="{{url_for('static', filename='img/atlas-af-logo.png')}}">
+    <h4>An analysis facility for the ATLAS collaboration</h4>
+    <p id="carousel"></p>
+    <button type="button" class="btn btn-primary">Login</button>
+    <button type="button" class="btn btn-primary">Signup</button>
+</div>
+{% endblock %}
