@@ -75,6 +75,7 @@ def get_notebooks(username):
             notebook_id = pod.metadata.name
             notebook_name = get_notebook_name(pod)
             status = get_notebook_status(pod)
+            status_messages = get_notebook_status_messages(pod)
             url = get_url(pod)
             creation_date = get_creation_date(pod)
             expiration_date = get_expiration_date(pod)
@@ -89,6 +90,7 @@ def get_notebooks(username):
                 'namespace': namespace, 
                 'username': username,
                 'status': status,
+                'status_messages': status_messages,
                 'url': url,
                 'creation_date': creation_date.strftime("%A %B %d %Y %H:%M %p") if creation_date else "--",
                 'expiration_date': expiration_date.strftime("%A %B %d %Y %H:%M %p") if expiration_date else "--",
@@ -167,41 +169,50 @@ def get_notebook_status(pod):
     try:
         pod_status = get_pod_status(pod)
         if pod_status == "Closing":
-            return {"status": "Removing notebook..."}
-
-        notebook_status = {"status": pod_status, "messages": ["", "", "", ""]}
-
-        for cond in pod.status.conditions:
-            if cond.type == 'PodScheduled' and cond.status == 'True':
-                notebook_status["messages"][0] = 'Pod scheduled.'
-            elif cond.type == 'Initialized' and cond.status == 'True':
-                notebook_status["messages"][1] = 'Pod initialized.'
-            elif cond.type == 'Ready' and cond.status == 'True':
-                notebook_status["messages"][2] = 'Pod ready.'
-            elif cond.type == 'ContainersReady' and cond.status == 'True':
-                notebook_status["messages"][3] = 'Containers ready.'
-
-        notebook_status["messages"] = list(filter(None, notebook_status["messages"]))
+            return "Removing notebook..."
 
         cert_status = get_certificate_status(pod)
-        
         if cert_status != "Ready":
-            notebook_status["messages"].append("Waiting for certificate...")
+            return "Waiting for certificate..."
 
         if pod_status == 'Running':
             core_v1_api = client.CoreV1Api()
             log = core_v1_api.read_namespaced_pod_log(pod.metadata.name, namespace=namespace)
             if re.search("Jupyter Notebook.*is running at.*", log) or re.search("Jupyter Server.*is running at.*", log):
-                notebook_status["status"] = "Ready"
-                notebook_status["messages"].append("Jupyter notebook server started.")
-            else:
-                notebook_status["status"] = 'Notebook loading...'
-                notebook_status["messages"].append("Waiting for Jupyter notebook server...")
+                return "Ready"
+            return "Notebook loading..."
 
-        return notebook_status
+        return pod_status
+    except Exception as err:
+        logger.error(str(err))
+        return "Unknown"
+    
+def get_notebook_status_messages(pod):
+    try:
+        notebook_status = get_notebook_status(pod)
+        if notebook_status == "Removing notebook...":
+            return []
+        messages = ["", "", "", ""]
+        for cond in pod.status.conditions:
+            if cond.type == 'PodScheduled' and cond.status == 'True':
+                messages[0] = 'Pod scheduled.'
+            elif cond.type == 'Initialized' and cond.status == 'True':
+                messages[1] = 'Pod initialized.'
+            elif cond.type == 'Ready' and cond.status == 'True':
+                messages[2] = 'Pod ready.'
+            elif cond.type == 'ContainersReady' and cond.status == 'True':
+                messages[3] = 'Containers ready.'
+        messages = list(filter(None, messages))
+        if notebook_status == "Waiting for certificate...":
+            messages.append("Waiting for certificate...")
+        elif notebook_status == "Notebook loading...":
+            messages.append("Waiting for Jupyter notebook server...")
+        elif notebook_status == "Ready":
+            messages.append("Jupyter notebook server started.")
+        return messages
     except Exception as err: 
         logger.error(str(err))
-        return {"status": "Unknown"}
+        return []
 
 # Helper functions
 def create_pod(notebook_name, **kwargs):
@@ -326,7 +337,10 @@ def supports_image(image):
         'ivukotic/ml_platform_auto:conda', 
         'hub.opensciencegrid.org/usatlas/ml-platform:latest',
         'hub.opensciencegrid.org/usatlas/ml-platform:conda',
-        'hub.opensciencegrid.org/usatlas/ml-platform:julia'
+        'hub.opensciencegrid.org/usatlas/ml-platform:julia',
+        'jupyter/minimal-notebook',
+        'jupyter/scipy-notebook',
+        'jupyter/datascience-notebook'
     ]
     return image in images
 
