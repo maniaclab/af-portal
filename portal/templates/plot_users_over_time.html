@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Plot of users over time
+{% endblock %}
+
+{% block content %}
+<section>
+      <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a class="text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Plot of users over time</li>
+            </ol>
+        </nav>
+        <img src="data:image/png;base64,{{ base64_encoded_image }}">
+      </div>
+</section>
+{% endblock %}

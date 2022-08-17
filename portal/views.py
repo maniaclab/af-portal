@@ -1,4 +1,4 @@
-from portal import app, auth, logger, connect, jupyterlab
+from portal import app, auth, logger, connect, jupyterlab, admin
 from flask import session, request, render_template, url_for, redirect, jsonify, flash
 import globus_sdk
 from urllib.parse import urlparse, urljoin
@@ -42,7 +42,7 @@ def login():
         user = connect.find_user(session["globus_id"])
         if user:
             session["unix_name"] = user["metadata"]["unix_name"]
-        logger.info(str(session))
+            session["member_status"] = connect.get_member_status(session["unix_name"], session["globus_id"])
         return redirect(url_for("home"))
 
 @app.route("/logout")
@@ -167,3 +167,9 @@ def remove_notebook(notebook):
         return {"success": True}
     except JupyterLabException as err:
         return {"success": False}
+
+@app.route("/admin/plot_users_over_time", methods=["GET"])
+@auth.admins_only
+def plot_users_over_time():
+    data = admin.plot_users_over_time()
+    return render_template("plot_users_over_time.html", base64_encoded_image = data)
