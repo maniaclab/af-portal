@@ -120,16 +120,6 @@ def open_jupyterlab():
         flash(str(err), "error")
         return render_template("jupyterlab.html", notebooks=[])
 
-@app.route("/jupyter/get")
-@auth.members_only
-def get_notebooks():
-    try:
-        username = session["unix_name"]
-        notebooks = jupyterlab.get_notebooks(username)
-        return notebooks
-    except JupyterLabException as err:
-        return []
-
 @app.route("/jupyter/configure")
 @auth.members_only
 def configure_notebook():
@@ -167,6 +157,16 @@ def remove_notebook(notebook):
         return {"success": True}
     except JupyterLabException as err:
         return {"success": False}
+
+@app.route("/jupyter/get")
+@auth.members_only
+def get_notebooks():
+    try:
+        username = session["unix_name"]
+        notebooks = jupyterlab.get_notebooks(username)
+        return notebooks
+    except JupyterLabException as err:
+        return []
 
 @app.route("/admin/plot_users_over_time", methods=["GET"])
 @auth.admins_only
