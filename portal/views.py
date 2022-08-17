@@ -115,17 +115,18 @@ def open_jupyterlab():
     try:
         username = session["unix_name"]
         notebooks = jupyterlab.get_notebooks(username)
-        return render_template("jupyterlab2.html", notebooks=notebooks)
+        return render_template("jupyterlab.html", notebooks=notebooks)
     except JupyterLabException as err:
         flash(str(err), "error")
-        return render_template("jupyterlab2.html", notebooks=[])
+        return render_template("jupyterlab.html", notebooks=[])
 
-@app.route("/jupyter/notebooks")
+@app.route("/jupyter/get")
 @auth.members_only
 def get_notebooks():
     try:
         username = session["unix_name"]
-        return jupyterlab.get_notebooks(username)
+        notebooks = jupyterlab.get_notebooks(username)
+        return notebooks
     except JupyterLabException as err:
         return []
 
@@ -157,15 +158,6 @@ def deploy_notebook():
     except JupyterLabException as err:
         flash(str(err), "error")
     return redirect(url_for("open_jupyterlab"))
-
-@app.route("/jupyter/status/<notebook>")
-@auth.members_only
-def get_notebook_status(notebook):
-    pod = jupyterlab.get_pod(notebook)
-    if pod:
-        return jupyterlab.get_notebook_status(pod)
-    return {"status": "Not found"}
-
 
 @app.route("/jupyter/remove/<notebook>")
 @auth.members_only
