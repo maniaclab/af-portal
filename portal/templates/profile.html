@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %} Profile {% endblock %}
+
+{% block content %}
+<section>
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a class="text-decoration-none" href="{{ url_for('home') }}">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Profile</li>
+            </ol>
+        </nav>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="card h-100">
+                    <div class="card-header">User information <i class="fa-solid fa-user-pen float-end"></i></div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li><span class="text-muted">Username:</span> {{ profile["unix_name"] }}</li>
+                            <li><span class="text-muted">Globus ID:</span> {{ session["globus_id"] }}</li>
+                            <li><span class="text-muted">Name:</span> {{ profile["name"] }}</li>
+                            <li><span class="text-muted">Email:</span> {{ profile["email"] }}</li>
+                            <li><span class="text-muted">Phone:</span> {{ profile["phone"] }}</li>
+                            <li><span class="text-muted">Institution:</span> {{ profile["institution"] }}</li>
+                            <li><span class="text-muted">Joined:</span> {{ profile["join_date"] }}</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0">
+                        <a href="{{ url_for('edit_profile') }}" type="button" class="btn btn-sm btn-primary">Edit profile</a>  
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="card h-100">
+                    <div class="card-header">Group memberships<i class="fa-solid fa-users float-end"></i></div>
+                    <div class="card-body">
+                        <table class="table table-sm table-borderless">
+                            <thead class="text-muted">
+                                <tr>
+                                    <td>Group name</td>
+                                    <td>Member status</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for group in profile["group_memberships"] %}
+                                {% if group["name"] == "root.atlas-af" or group["name"].startswith("root.atlas-af.") %}
+                                <tr>
+                                    <td>{{ group["name"] }}</td>
+                                    <td>
+                                        {% if group["state"] == "admin" %}
+                                        <span class="text-primary">{{ group["state"] }}</span>
+                                        {% elif group["state"] == "active" %}
+                                        <span class="text-success">{{ group["state"] }}</span>
+                                        {% else %}
+                                        <span class="text-secondary">{{ group["state"] }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>             
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0">
+                        <a href="{{ url_for('user_groups') }}" type="button" class="btn btn-sm btn-primary">My groups</a>  
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% include 'footer.html' %}
+{% endblock %}

@@ -7,13 +7,16 @@
 {% endblock %}
 
 {% block content %}
-<div class="container text-center">
-    <img id="site-logo" src="{{url_for('static', filename='img/atlas-af-logo.png')}}">
-    <h4>An analysis facility for the ATLAS collaboration</h4>
-    <p id="carousel"></p>
-    {% if not session.get('is_authenticated') %}
-    <button type="button" class="btn btn-sm btn-primary">Login</button>
-    <button type="button" class="btn btn-sm btn-primary">Signup</button>
-    {% endif %}
-</div>
+<section>
+    <div class="container text-center">
+        <img id="site-logo" src="{{url_for('static', filename='img/atlas-af-logo.png')}}">
+        <h4>An analysis facility for the ATLAS collaboration</h4>
+        <p id="carousel"></p>
+        {% if not session.get('is_authenticated') %}
+        <a href="{{ url_for('login') }}" role="button" class="btn btn-sm btn-primary">Login</a>
+        <a href="{{ url_for('signup') }}" role="button" class="btn btn-sm btn-primary">Signup</a>
+        {% endif %}
+    </div>
+</section>
+{% include 'footer.html' %}
 {% endblock %}

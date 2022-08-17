@@ -1,0 +1,5 @@
+Flask                       # Flask web framework   
+jinja2_markdown             # Markdown extension
+globus-sdk==1.7.1           # Globus SDK for login/signup
+pyyaml                      # For parsing YAML strings into objects
+kubernetes                  # Python binding for Kubernetes client

@@ -3,70 +3,94 @@
 <html lang="en">
 
 <head>
-    <title>Portal - {% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
-    {% block libraries %} {% endblock %}
+  <title>Portal - {% block title %}{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome.all.min.css') }}">
+  <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  {% block libraries %} {% endblock %}
 </head>
 
 <body>
+  <header>
     <nav class="navbar navbar-expand-lg bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('home') }}"> 
-                <img src="{{url_for('static', filename='img/atlas-af-logo.png')}}" height="35" alt="" />
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-              <ul class="navbar-nav">
-                {% if session.get("is_authenticated") %}
-                <li class="nav-item">
-                  <a class="nav-link" href="#">Services</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#">Documentation</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#">Support</a>
-                </li>
-                <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Profile
-                  </a>
-                  <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
-                  </ul>
-                </li>
-                {% else %}
-                <li class="nav-item">
-                  <a class="nav-link" href="{{ url_for('about') }}">About</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="{{ url_for('login') }}">Login</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="{{ url_for('signup') }}">Signup</a>
-                </li>
-                {% endif %}
+      <div class="container-fluid">
+        <a class="navbar-brand" href="{{ url_for('home') }}">
+          <img src="{{url_for('static', filename='img/atlas-af-logo.png')}}" height="35" alt="" />
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+          <ul class="navbar-nav">
+            {% if session.get("is_authenticated") %}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Services
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{{ url_for('open_jupyterlab') }}">JupyterLab</a></li>
+                <li><a class="dropdown-item" href="https://coffea.af.uchicago.edu/" target="_blank">Coffea Casa</a></li>
+                <li><a class="dropdown-item" href="https://uproot-atlas.servicex.af.uchicago.edu"
+                    target="_blank">ServiceX for uproot</a></li>
+                <li><a class="dropdown-item" href="https://xaod.servicex.af.uchicago.edu" target="_blank">ServiceX for
+                    xAOD</a></li>
               </ul>
-            </div>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Documentation
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="https://maniaclab.uchicago.edu/af-docs/" target="_blank">AF Docs</a>
+                </li>
+                <li><a class="dropdown-item" href="{{ url_for('aup') }}">Acceptable Use Policy</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('about') }}">About Page</a></li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Support
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="https://atlas-talk.sdcc.bnl.gov/" target="_blank">Discourse
+                    Forums</a></li>
+                <li><a class="dropdown-item" href="mailto:atlas-us-chicago-tier3-admins@cern.ch" target="_blank">System
+                    or Login Problems</a></li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Account
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" style="min-width: 100px;">
+                <li><a class="dropdown-item" href="{{ url_for('profile') }}">Profile</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
+              </ul>
+            </li>
+            {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('about') }}">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('signup') }}">Signup</a>
+            </li>
+            {% endif %}
+          </ul>
         </div>
+      </div>
     </nav>
-    {% block content %} {% endblock %}
-    <footer class="text-center">
-      <a href="https://www.uchicago.edu" target="_blank">
-          <img src="{{url_for('static', filename='img/uc-logo.png')}}">
-      </a>
-      <a href="https://efi.uchicago.edu" target="_blank">
-          <img src="{{url_for('static', filename='img/efi-logo.png')}}">
-      </a>
-      <a href="https://iris-hep.org" target="_blank">
-          <img src="{{url_for('static', filename='img/iris-hep-logo.png')}}">
-      </a>
-  </footer>
+  </header>
+  {% block content %} {% endblock %}
 </body>
 
 </html>

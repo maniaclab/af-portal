@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{%block title%}Request membership{%endblock%}
+
+{% block content %}
+<section>
+  <div class="container">
+    <h4>Request membership</h4>
+    {% if member_status == 'nonmember' %}
+    <p>To use this service, you have to be a member of the atlas-af group.</p>
+    {% elif member_status == 'pending' %}
+    <p>To use this service, you have to be a member of the atlas-af group. Your membership request is waiting for approval.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

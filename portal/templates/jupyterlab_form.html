@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}
+Create JupyterLab
+{% endblock %}
+
+{% block libraries %}
+<script type="text/javascript" src="{{url_for('static', filename='js/jupyterlab_form.js')}}"></script>
+{% endblock %}
+
+{% block content %}
+<section>
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a class="text-decoration-none" href="{{ url_for('home') }}">Home</a></li>
+                <li class="breadcrumb-item"><a class="text-decoration-none"
+                        href="{{ url_for('open_jupyterlab') }}">JupyterLab</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Configure</li>
+            </ol>
+        </nav>
+        <div class="card col-sm-6 mx-auto">
+            <img id="jupyterlab-logo" class="card-img-top" src="{{url_for('static', filename='img/jupyter-lab-logo.png')}}" alt="JupyterLab">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Create a Jupyter notebook with a machine learning setup</h5>
+                <form action="{{ url_for('deploy_notebook') }}" method="POST">
+                    <div class="row mb-2">
+                        <div class="col-sm-3">
+                            <label for="notebook-name" class="form-label my-2">Notebook name</label>
+                        </div>
+                        <div class="col-sm-9">
+                            <input id="notebook-name" type="text" class="form-control" name="notebook-name" value="{{ notebook_name }}" required/>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-sm-3">
+                            <label for="cpu" class="form-label my-2">CPU cores</label>
+                        </div>
+                        <div class="col-sm-9">
+                            <input type="number" class="form-control" name="cpu" min=1 max=4 value=1 required/>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-sm-3">                       
+                            <label for="memory" class="form-label my-2">Memory</label>
+                        </div>
+                        <div class="col-sm-9">                           
+                            <input type="number" class="form-control" name="memory" min=1 max=32 value=2 required/>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-sm-3">  
+                            <label for="gpu" class="form-label my-2">
+                                GPU instances
+                                <a href="#" id="gpu-instances-info-icon"><i class="fas fa-info-circle"></i></a>
+                            </label>
+                        </div>
+                        <div class="col-sm-9">  
+                           <input type="number" class="form-control" name="gpu" min=0 max=4 value=0 required/>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-sm-3">
+                            <label for="gpu-memory" class="form-label my-2">
+                                GPU memory
+                                <a href="#" id="gpu-memory-info-icon"><i class="fas fa-info-circle"></i></a>
+                            </label>
+                        </div>
+                        <div class="col-sm-9">
+                            <select name="gpu-memory" class="form-control">
+                                <option value="4864">4864</option>
+                                <option value="40536">40536</option>
+                                <option value="11019">11019</option>
+                                <option value="11178">11178</option>
+                                <option value="16160">16160</option>
+                            </select>
+                        </div>                      
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-sm-3">
+                            <label for="duration" class="form-label my-2">Duration (hours)</label>
+                        </div>
+                        <div class="col-sm-9">
+                            <input type="number" name="duration" class="form-control col" min=1 max=168 value=8 required/>
+                        </div>
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-sm-3">
+                            <label for="image" class="form-label my-2">
+                                Image
+                                <a href="#" id="docker-image-info-icon"><i class="fas fa-info-circle"></i></a>
+                            </label>
+                        </div>
+                        <div class="col-sm-9">
+                            <select name="image" class="form-control">
+                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:latest">hub.opensciencegrid.org/usatlas/ml-platform:latest</option>
+                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:conda">hub.opensciencegrid.org/usatlas/ml-platform:conda</option>
+                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:julia">hub.opensciencegrid.org/usatlas/ml-platform:julia</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" type="submit">Create notebook</button>
+                </form>
+            </div>
+        </div>
+        <div id="availableGPUs" class="modal fade" role="dialog">
+            <div class="modal-dialog" style="max-width: 600px">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Available GPUs</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Please select one of the following GPUs in the HTML dropdown.</p>
+                        <table class="table table-hover table-bordered">
+                            <tr>
+                                <th>Type</th>
+                                <th>Count</th>
+                                <th>Memory (MB)</th>
+                            </tr>
+                            <tr>
+                                <td>NVIDIA-A100-SXM4-40GB-MIG-1g.5gb</td>
+                                <td>28</td>
+                                <td>4864</td>
+                            </tr>
+                            <tr>
+                                <td>NVIDIA-A100-SXM4-40GB</td>
+                                <td>4</td>
+                                <td>40536</td>
+                            </tr>
+                            <tr>
+                                <td>NVIDIA-GeForce-RTX-2080-Ti</td>
+                                <td>8</td>
+                                <td>11019</td>
+                            </tr>
+                            <tr>
+                                <td>NVIDIA-GeForce-GTX-1080-Ti</td>
+                                <td>8</td>
+                                <td>11178</td>
+                            </tr>
+                            <tr>
+                                <td>Tesla-V100-PCIE-16GB</td>
+                                <td>4</td>
+                                <td>16160</td>
+                            </tr>
+                        </table>
+                        <p>For more information, you can read the <a
+                                href="https://maniaclab.uchicago.edu/af-docs/ml_platform/#selecting-a-number-of-gpu-instances"
+                                target="_blank">AF docs</a>.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="GPUinstances" class="modal fade" role="dialog">
+            <div class="modal-dialog" style="max-width: 600px">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Selecting GPU instances</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>The AF cluster has a variety of GPUs you can choose from. Each GPU can be partitioned into
+                            instances. You can have many instances running in parallel.</p>
+                        <p>Please select the number of GPU instances you would like to request. You can select any
+                            number
+                            from 0 to 4.</p>
+                        <p>For more information, you can read the <a
+                                href="https://maniaclab.uchicago.edu/af-docs/ml_platform/#selecting-a-number-of-gpu-instances"
+                                target="_blank">AF docs</a>.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="dockerImage" class="modal fade">
+            <div class="modal-dialog" style="max-width: 600px">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Selecting a Docker image</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Users can choose between two images: One with full anaconda
+                            <code>(ivukotic/ml_platform:conda)</code> and one with NVidia GPU and ROOT support
+                            <code>(ivukotic/ml_platform:latest)</code>.
+                        </p>
+                        <p>The later has most of the ML packages (Tensorflow, Keras, ScikitLearn, ...) preinstalled, and
+                            a
+                            small tutorial with code examples in <code>/ML_platform_tests/tutorial</code>.</p>
+                        <p>For more information, you can read the <a
+                                href="https://maniaclab.uchicago.edu/af-docs/ml_platform/#selecting-a-number-of-gpu-instances"
+                                target="_blank">AF docs</a>.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

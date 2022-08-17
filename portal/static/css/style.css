@@ -1,12 +1,12 @@
 html, body {
-    font-family: 'Open Sans';
+    font-family: "Open Sans";
     font-size: 16px;
     line-height: 1.4;
   }
 
 #site-logo {
     width: 25%;
-    margin: 4em 0 2em;
+    margin: 2em 0 2em;
 }
 
 #carousel {
@@ -30,6 +30,10 @@ html, body {
     88% { content: "Pythonic analysis"; opacity: 1; }
 }
 
+section {
+    margin-top: 1em;
+}
+
 footer {
     position: absolute;
     width: 100%;
@@ -47,6 +51,11 @@ footer a, footer a:hover {
     text-decoration: none
 }
 
-#headline {
-    margin: 1em 0 1em;
+span.asterisk {
+    color: red;
+}
+
+#jupyterlab-logo {
+    width: 250px;
+    padding: 5px;
 }

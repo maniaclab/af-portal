@@ -1,0 +1,100 @@
+{%extends "base.html"%}
+
+{%block title%}
+  JupyterLab
+{%endblock%}
+
+{% block libraries %}
+<script src="https://unpkg.com/vue@3"></script>
+{% endblock %}
+
+{% block content %}
+<section>
+    <div id="app" class="container mt-3">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a class="text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">JupyterLab</li>
+            </ol>
+        </nav>
+        <a href="{{ url_for('configure_notebook') }}" class="btn btn-sm btn-primary mb-3">Create notebook</a>
+        <table class="table table-striped table-bordered">
+            <thead class="text-muted">
+            <tr>
+                <td>Notebook</td>
+                <td>Status</td>
+                <td>Creation date</td>
+                <td>Expiration date</td>
+                <td></td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="notebook in notebooks">
+                <td>[[ notebook.name ]]</td>
+                <td>[[ notebook.status ]]</td>
+                <td>[[ notebook.creation_date ]]</td>
+                <td>[[ notebook.expiration_date ]]</td>
+                <td><a @click="remove([[ notebook ]])" class="text-decoration-none" role="button"><i class="fa-regular fa-trash-can"></i></a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  const { createApp } = Vue
+
+  createApp({
+    delimiters: ['[[', ']]'],
+    data() {
+      return {
+        notebooks: []
+      }
+    },
+    mounted() {
+      this.update({{ notebooks|safe }});
+      if (!this.ready()) {
+        this.fetch();
+      }
+    },
+    methods: {
+        update(notebooks) {
+          this.notebooks = [];
+          for (var i = 0; i < notebooks.length; i++) {
+            notebook = {
+              name: notebooks[i].notebook_name,
+              status: notebooks[i].status.status,
+              creation_date: notebooks[i].creation_date,
+              expiration_date: notebooks[i].expiration_date
+            }
+            this.notebooks[i] = notebook;
+          }
+        },
+        ready() {
+          for (var i = 0; i < this.notebooks.length; i++) {
+            if (this.notebooks[i].status.status != "Ready") {
+              return false;
+            }
+          }
+          return true;
+        },
+        fetch() {
+            var self = this;
+            var id = setInterval(function() {
+              $.get("{{ url_for('get_notebooks') }}", function(notebooks) {
+                self.update(notebooks);
+                if (self.ready()) {
+                  clearInterval(id);
+                }
+              });
+            }, 10000);
+        },
+        remove(notebook) {
+          console.dir(notebook);
+        }
+    }
+  }).mount('#app');
+});
+</script>
+{% endblock %}

@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    k8s-app: jupyterlab
+    notebook-id: {{notebook_id}}
+    notebook-name: {{notebook_name}}
+    owner: {{username}}
+    globus-id: {{globus_id}}
+    time2delete: ttl-{{hours}}
+  name: {{notebook_id}}
+  namespace: {{namespace}}
+spec:
+  {% if gpu_request %}
+  nodeSelector:
+    nvidia.com/gpu.memory: "{{gpu_memory}}"
+  {% endif %}
+  containers:
+  - name: {{notebook_id}}
+    args:
+    - /.run
+    - /ML_platform_tests/SetupPrivateJupyterLab.sh
+    env:
+    - name: "JUPYTER_TOKEN"
+      value: {{token}}
+    - name: API_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: ciconnect-creds
+          key: token
+    - name: OWNER
+      value: {{username}}
+    - name: CONNECT_GROUP
+      value: atlas-af
+    image: {{image}}
+    imagePullPolicy: Always
+    ports:
+    - containerPort: 9999
+    resources:
+      limits:
+        cpu: {{cpu_limit}}
+        memory: {{memory_limit}}
+        nvidia.com/gpu: {{gpu_limit}}
+      requests:
+        cpu: {{cpu_request}}
+        memory: {{memory_request}}
+        nvidia.com/gpu: {{gpu_request}}
+    volumeMounts:
+      - name: nfs-home
+        mountPath: /home
+      - name: ceph-data
+        mountPath: /data
+        subPath: data
+  restartPolicy: Always
+  volumes:
+    - name: nfs-home
+      nfs: 
+        server: nfs.af.uchicago.edu
+        path: /export/home
+    - name: ceph-data
+      cephfs:
+        monitors: 
+        - 192.170.240.118:6789
+        - 192.170.240.121:6789
+        - 192.170.240.132:6789
+        user: admin
+        secretRef:
+          name: ceph-secret

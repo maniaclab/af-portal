@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %} Acceptable Use Policy {% endblock %}
+
+{% block content %}
+<section>
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a class="text-decoration-none" href="{{ url_for('home') }}">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">AUP</li>
+            </ol>
+        </nav>
+        <h4 class="text-center mb-4">Acceptable Use Policy</h4>
+        {% markdown %}
+        {% include 'markdown/signup_modal.md' %}
+        {% endmarkdown %}
+    </div>
+</section>
+{% endblock %}

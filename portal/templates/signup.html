@@ -3,38 +3,41 @@
 {% block title %} Signup {% endblock %}
 
 {% block content %}
-<header>
-  <div class="container col-lg-10 text-center">
-    <h2 id="headline">Sign up for ATLAS Analysis Facility at UChicago</h2>
-    <p>
-      To create an account, you can use your institutional ID (preferred), or your CERN ID. Your request will be sent to the ATLAS Analysis Facility support team.
-    </p>
-    <button class="btn btn-sm btn-primary">Continue</button>
-  </div>
-</header>
-
-<div id="myModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">Acceptable Use Policy</h4>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        {% markdown %}
-        {% include "markdowns/signup_modal.md" %}
-        {% endmarkdown %}
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Agree</button>
-      </div>
+<section>
+    <div class="container col-lg-10">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a class="text-decoration-none" href="{{ url_for('home') }}">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Signup</li>
+            </ol>
+        </nav>
+        <h4 class="text-center mb-4">Sign up for ATLAS Analysis Facility at UChicago</h4>
+        <p>To create an account, you can use your institutional ID (preferred), or your CERN ID. Your request will be sent to the ATLAS Analysis Facility support team.</p>
+        <a href="{{url_for('login', signup=1)}}" role="button" class="btn btn-sm btn-primary">Continue</a>
+        <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="myModalLabel">Acceptable Use Policy</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% markdown %}
+                    {% include "markdown/signup_modal.md" %}
+                    {% endmarkdown %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Agree</button>
+                </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
-
+</section>
 <script type="text/javascript">
-  $(document).ready(function() {
-    $('#myModal').modal('show');
-  });
+$(document).ready(function() {
+    const myModal = new bootstrap.Modal("#myModal");
+    myModal.show();
+});
 </script>
 {% endblock %}
