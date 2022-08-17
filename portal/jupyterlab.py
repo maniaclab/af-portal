@@ -170,18 +170,15 @@ def get_notebook_status(pod):
         pod_status = get_pod_status(pod)
         if pod_status == "Closing":
             return "Removing notebook..."
-
         cert_status = get_certificate_status(pod)
         if cert_status != "Ready":
             return "Waiting for certificate..."
-
         if pod_status == 'Running':
             core_v1_api = client.CoreV1Api()
             log = core_v1_api.read_namespaced_pod_log(pod.metadata.name, namespace=namespace)
             if re.search("Jupyter Notebook.*is running at.*", log) or re.search("Jupyter Server.*is running at.*", log):
                 return "Ready"
             return "Notebook loading..."
-
         return pod_status
     except Exception as err:
         logger.error(str(err))
