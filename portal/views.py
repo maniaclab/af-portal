@@ -158,7 +158,7 @@ def remove_notebook(notebook):
     except JupyterLabException as err:
         return {"success": False}
 
-@app.route("/jupyter/get")
+@app.route("/jupyter/notebooks")
 @auth.members_only
 def get_notebooks():
     try:
