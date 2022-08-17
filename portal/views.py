@@ -155,7 +155,7 @@ def remove_notebook(notebook):
     try:
         jupyterlab.remove_notebook(notebook)
         return {"success": True}
-    except JupyterLabException as err:
+    except JupyterLabException:
         return {"success": False}
 
 @app.route("/jupyter/notebooks")
@@ -165,7 +165,7 @@ def get_notebooks():
         username = session["unix_name"]
         notebooks = jupyterlab.get_notebooks(username)
         return notebooks
-    except JupyterLabException as err:
+    except JupyterLabException:
         return []
 
 @app.route("/admin/plot_users_over_time", methods=["GET"])
