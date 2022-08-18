@@ -9,8 +9,8 @@
 {% endblock %}
 
 {% block content %}
-<section>
-    <div id="app" class="container">
+<section id="jupyterlab">
+    <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a class="text-decoration-none" href="{{ url_for('home') }}">Home</a></li>
@@ -58,7 +58,6 @@
         </table>
     </div>
 </section>
-
 <script type="text/javascript">
 $(document).ready(function() {
   const { createApp } = Vue
@@ -141,7 +140,7 @@ $(document).ready(function() {
           });
         }
     }
-  }).mount('#app');
+  }).mount("#jupyterlab");
 });
 </script>
 {% endblock %}

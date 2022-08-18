@@ -198,6 +198,7 @@ def update_user_institution():
 def open_notebook_metrics():
     try: 
         notebooks = jupyterlab.get_all_notebooks()
+        logger.info(str(notebooks))
         return render_template("notebook_metrics.html", notebooks=notebooks)
     except JupyterLabException as e:
         flash(str(e), 'warning')

@@ -110,13 +110,12 @@ def get_all_notebooks():
         try: 
             notebook_id = pod.metadata.name
             notebook_name = get_notebook_name(pod)
-            owner = get_owner(pod)
+            username = get_owner(pod)
+            status = get_notebook_status(pod)
+            status_messages = get_notebook_status_messages(pod)
             url = get_url(pod)
             creation_date = get_creation_date(pod)
             expiration_date = get_expiration_date(pod)
-            pod_status = get_pod_status(pod)
-            cert_status = get_certificate_status(pod)
-            notebook_status = get_notebook_status(pod)
             memory_request = get_memory_request(pod)
             cpu_request = get_cpu_request(pod)
             gpu_request = get_gpu_request(pod)
@@ -125,14 +124,13 @@ def get_all_notebooks():
             notebooks.append({
                 'notebook_id': notebook_id, 
                 'notebook_name': notebook_name,
-                'namespace': namespace,
-                'username': owner,
+                'namespace': namespace, 
+                'username': username,
+                'status': status,
+                'status_messages': status_messages,
                 'url': url,
-                'pod_status': pod_status,
-                'cert_status': cert_status,
-                'notebook_status': notebook_status,
-                'creation_date': creation_date,
-                'expiration_date': expiration_date,
+                'creation_date': creation_date.strftime("%A %B %d %Y %H:%M %p") if creation_date else "--",
+                'expiration_date': expiration_date.strftime("%A %B %d %Y %H:%M %p") if expiration_date else "--",
                 'memory_request': memory_request,
                 'cpu_request': cpu_request,
                 'gpu_request': gpu_request,
