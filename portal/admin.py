@@ -24,7 +24,7 @@ def plot_users_over_time():
         ax.plot(xvalues, yvalues)
         ax.set_xlabel('Month')
         ax.set_ylabel('Number of users')
-        ax.set_title('Number of users by month')
+        # ax.set_title('Number of users by month')
         buf = BytesIO()
         fig.savefig(buf, format='png')
         data = base64.b64encode(buf.getbuffer()).decode("ascii")

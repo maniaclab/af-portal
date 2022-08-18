@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+ 
+{% block title %}
+  Metrics
+{% endblock %}
+
+{% block content %}
+<section>
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a class="text-decoration-none" href="{{ url_for('home') }}">Home</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Notebook metrics</li>
+      </ol>
+  </nav>
+    {% if notebooks|length > 0 %}
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Notebook name</th>
+          <th>Username</th>
+          <th>Memory request</th>
+          <th>CPU request</th>
+          <th>GPU request</th>
+          <th>GPU memory request</th>
+          <th>Hours remaining</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for notebook in notebooks %}
+        <tr>
+          <td>{{notebook['notebook_name']}}</td>
+          <td>{{notebook['username']}}</td>
+          <td>{{notebook['memory_request']}}</td>
+          <td>{{notebook['cpu_request']}}</td>
+          <td>{{notebook['gpu_request']}}</td>
+          <td>{{notebook['gpu_memory_request']}}</td>
+          <td>{{notebook['hours_remaining']}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <table id="controls-table" class="table table-borderless">
+      <tr>
+        <td>Select a notebook:</td>
+        <td>
+          <select id="select-notebook">
+            <option value="all-notebooks">All notebooks</option>
+            {% for notebook in notebooks %}
+            <option value="{{notebook['name']}}">{{notebook['notebook_name']}}</option>
+            {% endfor %}
+          </select>
+        </td>
+        <td>Select a timeframe:</td>
+        <td>
+          <select id="select-timeframe">
+            <option value="now-1h">1 hour</option>
+            <option value="now-6h">6 hours</option>
+            <option value="now-12h">12 hours</option>
+            <option value="now-24h" selected>24 hours</option>
+            <option value="now-7d">7 days</option>
+          </select>
+        </td>
+      </tr>
+    </table>
+    <div id="graphs"></div>
+    {% else %}
+    <p>There are zero notebooks currently running in the namespace.</p>
+    {% endif %}
+  </div>
+</section>
+<script type="text/javascript">
+  $(document).ready(function() {
+    var username = "{{session.get('unix_name')}}";
+
+    var refreshGraphs = function() {
+      var graphs = $('#graphs')
+      graphs.empty();
+      var notebookName = $('#select-notebook option:selected').val();
+      var timeframe = $('#select-timeframe option:selected').val();
+      if (notebookName == 'all-notebooks') {
+        graphs.append("<iframe src=\"https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/visualize?auth_provider_hint=anonymous1#/edit/f404c270-01e3-11ed-9a2c-41033d72f6b6?embed=true&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:" + timeframe + ",to:now))&_a=(filters:!(),linked:!t,query:(language:kuery,query:''),uiState:(),vis:(aggs:!((enabled:!t,id:'1',params:(customLabel:'Memory%20usage',field:kubernetes.pod.memory.usage.bytes),schema:metric,type:avg),(enabled:!t,id:'2',params:(customLabel:'Time%20of%20day',drop_partials:!f,extendToTimeRange:!f,extended_bounds:(),field:'@timestamp',interval:auto,min_doc_count:1,scaleMetricValues:!f,timeRange:(from:now-24h%2Fh,to:now),useNormalizedEsInterval:!t,used_interval:'30m'),schema:segment,type:date_histogram),(enabled:!t,id:'3',params:(field:kubernetes.labels.instance,missingBucket:!f,missingBucketLabel:Missing,order:desc,orderBy:'1',otherBucket:!f,otherBucketLabel:Other,size:7),schema:group,type:terms)),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,categoryAxes:!((id:CategoryAxis-1,labels:(filter:!t,show:!t,truncate:100),position:bottom,scale:(type:linear),show:!t,style:(),title:(),type:category)),detailedTooltip:!t,fittingFunction:linear,grid:(categoryLines:!f),labels:(),legendPosition:right,legendSize:large,maxLegendLines:1,palette:(name:default,type:palette),radiusRatio:9,seriesParams:!((circlesRadius:1,data:(id:'1',label:'Memory%20usage'),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1)),thresholdLine:(color:%23E7664C,show:!f,style:full,value:10,width:1),times:!(),truncateLegend:!t,type:line,valueAxes:!((id:ValueAxis-1,labels:(filter:!t,rotate:0,show:!t,truncate:100),name:LeftAxis-1,position:left,scale:(mode:normal,type:linear),show:!t,style:(),title:(text:'Memory%20usage'),type:value))),title:'Memory%20usage%20for%20all%20notebooks',type:line))\" height=\"600\" width=\"100%\" frameborder=\"0\"></iframe>");
+        graphs.append("<iframe src=\"https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/visualize?auth_provider_hint=anonymous1#/edit/f042e300-01e4-11ed-9a2c-41033d72f6b6?embed=true&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:" + timeframe + ",to:now))&_a=(filters:!(),linked:!t,query:(language:kuery,query:''),uiState:(),vis:(aggs:!((enabled:!t,id:'1',params:(customLabel:'CPU%20usage%20%5Bcores%5D',field:k8s.container.cpu.usage),schema:metric,type:avg),(enabled:!t,id:'2',params:(customLabel:'Time%20of%20day',drop_partials:!f,extendToTimeRange:!f,extended_bounds:(),field:'@timestamp',interval:auto,min_doc_count:1,scaleMetricValues:!f,timeRange:(from:now-24h%2Fh,to:now),useNormalizedEsInterval:!t,used_interval:'30m'),schema:segment,type:date_histogram),(enabled:!t,id:'3',params:(field:kubernetes.labels.instance,missingBucket:!f,missingBucketLabel:Missing,order:desc,orderBy:'1',otherBucket:!f,otherBucketLabel:Other,size:5),schema:group,type:terms)),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,categoryAxes:!((id:CategoryAxis-1,labels:(filter:!t,show:!t,truncate:100),position:bottom,scale:(type:linear),show:!t,style:(),title:(),type:category)),detailedTooltip:!t,fittingFunction:linear,grid:(categoryLines:!f),labels:(),legendPosition:right,legendSize:large,maxLegendLines:1,palette:(name:default,type:palette),radiusRatio:9,seriesParams:!((circlesRadius:1,data:(id:'1',label:'CPU%20usage%20%5Bcores%5D'),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1)),thresholdLine:(color:%23E7664C,show:!f,style:full,value:10,width:1),times:!(),truncateLegend:!t,type:line,valueAxes:!((id:ValueAxis-1,labels:(filter:!t,rotate:0,show:!t,truncate:100),name:LeftAxis-1,position:left,scale:(mode:normal,type:linear),show:!t,style:(),title:(text:'CPU%20usage%20%5Bcores%5D'),type:value))),title:'CPU%20usage%20for%20all%20notebooks',type:line))\" height=\"600\" width=\"100%\" frameborder=\"0\"></iframe>")
+      }
+      else {
+        graphs.append("<iframe src=\"https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/visualize?auth_provider_hint=anonymous1#/edit/86d3fdb0-0143-11ed-9a2c-41033d72f6b6?embed=true&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:" + timeframe + ",to:now))&_a=(filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'960f8933-5f24-51a1-9475-3e0ba79c9b10',key:kubernetes.labels.instance,negate:!f,params:(query:" + notebookName + "),type:phrase),query:(match_phrase:(kubernetes.labels.instance:" + notebookName + ")))),linked:!t,query:(language:kuery,query:''),uiState:(),vis:(aggs:!((enabled:!t,id:'1',params:(customLabel:'Memory%20usage',field:kubernetes.pod.memory.usage.bytes),schema:metric,type:avg),(enabled:!t,id:'2',params:(customLabel:'Time%20of%20day',drop_partials:!f,extendToTimeRange:!f,extended_bounds:(),field:'@timestamp',interval:auto,min_doc_count:1,scaleMetricValues:!f,timeRange:(from:now-24h%2Fh,to:now),useNormalizedEsInterval:!t,used_interval:'30m'),schema:segment,type:date_histogram)),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,categoryAxes:!((id:CategoryAxis-1,labels:(filter:!t,show:!t,truncate:100),position:bottom,scale:(type:linear),show:!t,style:(),title:(),type:category)),detailedTooltip:!t,fittingFunction:linear,grid:(categoryLines:!f),labels:(),legendPosition:right,maxLegendLines:1,palette:(name:default,type:palette),radiusRatio:9,seriesParams:!((circlesRadius:1,data:(id:'1',label:'Memory%20usage'),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1)),thresholdLine:(color:%23E7664C,show:!f,style:full,value:10,width:1),times:!(),truncateLegend:!t,type:line,valueAxes:!((id:ValueAxis-1,labels:(filter:!t,rotate:0,show:!t,truncate:100),name:LeftAxis-1,position:left,scale:(mode:normal,type:linear),show:!t,style:(),title:(text:'Memory%20usage'),type:value))),title:'Memory%20usage%20for%20single%20notebook',type:line))\" height=\"600\" width=\"100%\" frameborder=\"0\"></iframe>");
+        graphs.append("<iframe src=\"https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/visualize?auth_provider_hint=anonymous1#/edit/fc4ebe20-014a-11ed-9a2c-41033d72f6b6?embed=true&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:" + timeframe + ",to:now))&_a=(filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'960f8933-5f24-51a1-9475-3e0ba79c9b10',key:kubernetes.labels.instance,negate:!f,params:(query:" + notebookName + "),type:phrase),query:(match_phrase:(kubernetes.labels.instance:" + notebookName + ")))),linked:!t,query:(language:kuery,query:''),uiState:(),vis:(aggs:!((enabled:!t,id:'1',params:(customLabel:'CPU%20usage%20%5Bcores%5D',field:k8s.container.cpu.usage),schema:metric,type:avg),(enabled:!t,id:'2',params:(customLabel:'Time%20of%20day',drop_partials:!f,extendToTimeRange:!f,extended_bounds:(),field:'@timestamp',interval:auto,min_doc_count:1,scaleMetricValues:!f,timeRange:(from:now-24h%2Fh,to:now),useNormalizedEsInterval:!t,used_interval:'30m'),schema:segment,type:date_histogram)),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,categoryAxes:!((id:CategoryAxis-1,labels:(filter:!t,show:!t,truncate:100),position:bottom,scale:(type:linear),show:!t,style:(),title:(),type:category)),detailedTooltip:!t,fittingFunction:linear,grid:(categoryLines:!f),labels:(),legendPosition:right,legendSize:large,maxLegendLines:1,palette:(name:default,type:palette),radiusRatio:9,seriesParams:!((circlesRadius:1,data:(id:'1',label:'CPU%20usage%20%5Bcores%5D'),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1)),thresholdLine:(color:%23E7664C,show:!f,style:full,value:10,width:1),times:!(),truncateLegend:!t,type:line,valueAxes:!((id:ValueAxis-1,labels:(filter:!t,rotate:0,show:!t,truncate:100),name:LeftAxis-1,position:left,scale:(mode:normal,type:linear),show:!t,style:(),title:(text:'CPU%20usage%20%5Bcores%5D'),type:value))),title:'CPU%20usage%20for%20a%20single%20notebook',type:line))\" height=\"600\" width=\"100%\" frameborder=\"0\"></iframe>");
+        graphs.append("<iframe src=\"https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/visualize?auth_provider_hint=anonymous1#/edit/cef46570-0153-11ed-9a2c-41033d72f6b6?embed=true&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:" + timeframe + ",to:now))&_a=(filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'960f8933-5f24-51a1-9475-3e0ba79c9b10',key:kubernetes.labels.instance,negate:!f,params:(query:" + notebookName + "),type:phrase),query:(match_phrase:(kubernetes.labels.instance:" + notebookName + ")))),linked:!t,query:(language:kuery,query:''),uiState:(),vis:(aggs:!((enabled:!t,id:'1',params:(customLabel:'Bytes%20transmitted',field:kubernetes.pod.network.tx.bytes),schema:metric,type:avg),(enabled:!t,id:'2',params:(customLabel:'Time%20of%20day',drop_partials:!f,extendToTimeRange:!f,extended_bounds:(),field:'@timestamp',interval:auto,min_doc_count:1,scaleMetricValues:!f,timeRange:(from:now-24h%2Fh,to:now),useNormalizedEsInterval:!t,used_interval:'30m'),schema:segment,type:date_histogram)),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,categoryAxes:!((id:CategoryAxis-1,labels:(filter:!t,show:!t,truncate:100),position:bottom,scale:(type:linear),show:!t,style:(),title:(),type:category)),detailedTooltip:!t,fittingFunction:linear,grid:(categoryLines:!f),labels:(),legendPosition:right,maxLegendLines:1,palette:(name:default,type:palette),radiusRatio:9,seriesParams:!((circlesRadius:1,data:(id:'1',label:'Bytes%20transmitted'),drawLinesBetweenPoints:!t,interpolate:linear,lineWidth:2,mode:normal,show:!t,showCircles:!t,type:line,valueAxis:ValueAxis-1)),thresholdLine:(color:%23E7664C,show:!f,style:full,value:10,width:1),times:!(),truncateLegend:!t,type:line,valueAxes:!((id:ValueAxis-1,labels:(filter:!t,rotate:0,show:!t,truncate:100),name:LeftAxis-1,position:left,scale:(mode:normal,type:linear),show:!t,style:(),title:(text:'Bytes%20transmitted'),type:value))),title:'Bytes%20transmitted%20for%20a%20single%20notebook',type:line))\" height=\"600\" width=\"100%\" frameborder=\"0\"></iframe>")
+      }
+    }
+
+    $('#select-notebook').on('change', refreshGraphs);
+    $('#select-timeframe').on('change', refreshGraphs);
+    refreshGraphs();
+  });
+</script>
+{% endblock %}

@@ -93,6 +93,7 @@ def get_usernames(group):
         return [member['user_name']for member in users['memberships']]
     except Exception as err:
         logger.error(str(err))
+        return []
 
 def get_user_profiles(group, date_format='string'):
     try:
@@ -114,3 +115,15 @@ def get_user_profiles(group, date_format='string'):
         return profiles
     except Exception as err: 
         logger.error(str(err))
+        return []
+
+def update_user_institution(unix_name, institution):
+    try:
+        params = {"token": token}
+        json = {'apiVersion': 'v1alpha1', 'kind': 'User', 'metadata': {'institution': institution}}
+        requests.put(base_url + "/v1alpha1/users/" + unix_name, params=params, json=json)
+        logger.info("Updated user %s. Set institution to %s." %(unix_name, institution))
+        return True
+    except Exception as err:
+        logger.error(str(err))
+        return False

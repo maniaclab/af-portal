@@ -173,3 +173,32 @@ def get_notebooks():
 def plot_users_over_time():
     data = admin.plot_users_over_time()
     return render_template("plot_users_over_time.html", base64_encoded_image = data)
+
+@app.route("/admin/user_spreadsheet")
+@auth.admins_only
+def open_user_spreadsheet():
+    return render_template("user_spreadsheet.html")
+
+@app.route("/admin/user_profiles")
+@auth.admins_only
+def get_user_profiles():
+    user_profiles = connect.get_user_profiles('root.atlas-af')
+    return user_profiles
+
+@app.route("/admin/update_user_institution", methods=["POST"])
+@auth.admins_only
+def update_user_institution():
+    username = request.form['username']
+    institution = request.form['institution']
+    resp = connect.update_user_institution(username, institution)
+    return jsonify(success = True if resp and resp.status_code == 200 else False)
+
+@app.route("/admin/notebook_metrics", methods=["GET"])
+@auth.admins_only
+def open_notebook_metrics():
+    try: 
+        notebooks = jupyterlab.get_all_notebooks()
+        return render_template("notebook_metrics.html", notebooks=notebooks)
+    except JupyterLabException as e:
+        flash(str(e), 'warning')
+        return render_template("notebook_metrics.html", notebooks=[])
