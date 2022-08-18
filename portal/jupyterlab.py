@@ -464,4 +464,4 @@ def get_gpu_memory_request(pod):
     try:
         return str(float(pod.spec.node_selector['nvidia.com/gpu.memory'])/1000) + ' GB'
     except:
-        return '--'
+        return '0'
