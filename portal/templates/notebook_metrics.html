@@ -17,50 +17,39 @@
           <li class="breadcrumb-item active" aria-current="page">Notebook metrics</li>
       </ol>
     </nav>
-    <div v-if="notebooks.length > 0">
-      <table class="table table-bordered mb-4">
-        <thead>
-          <tr>
-            <th>Notebook name</th>
-            <th>Username</th>
-            <th>Memory request</th>
-            <th>CPU request</th>
-            <th>GPU request</th>
-            <th>GPU memory request</th>
-            <th>Hours remaining</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="notebook in notebooks">
-            <td>[[ notebook.notebook_name ]]</td>
-            <td>[[ notebook.username ]]</td>
-            <td>[[ notebook.memory_request ]]</td>
-            <td>[[ notebook.cpu_request ]]</td>
-            <td>[[ notebook.gpu_request ]]</td>
-            <td>[[ notebook.gpu_memory_request ]]</td>
-            <td>[[ notebook.hours_remaining ]]</td>
-          </tr>
-        </tbody>
-      </table>
-      <div>
-        <iframe src="https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/dashboards?auth_provider_hint=anonymous1#/view/d5fa21d0-1f39-11ed-afcf-d91dad577662?embed=true&_g=()&show-time-filter=true&hide-filter-bar=true" height="1000" width="1300"></iframe>  
-      </div>
+    {% if notebooks|length %}
+    <table class="table table-bordered mb-4">
+      <thead>
+        <tr>
+          <th>Notebook name</th>
+          <th>Username</th>
+          <th>Memory request</th>
+          <th>CPU request</th>
+          <th>GPU request</th>
+          <th>GPU memory request</th>
+          <th>Hours remaining</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for notebook in notebooks %}
+        <tr>
+          <td>{{ notebook.notebook_name }}</td>
+          <td>{{ notebook.username }}</td>
+          <td>{{ notebook.memory_request }}</td>
+          <td>{{ notebook.cpu_request }}</td>
+          <td>{{ notebook.gpu_request }}</td>
+          <td>{{ notebook.gpu_memory_request }}</td>
+          <td>{{ notebook.hours_remaining }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div>
+      <iframe src="https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/dashboards?auth_provider_hint=anonymous1#/view/d5fa21d0-1f39-11ed-afcf-d91dad577662?embed=true&_g=()&show-time-filter=true&hide-filter-bar=true" height="1000" width="1300"></iframe>  
     </div>
-    <p v-else>There are no notebooks in the namespace.</p>
+    {% else %}
+    <p>There are no notebooks in the namespace.</p>
+    {% endif %}
   </div>
 </section>
-<script type="text/javascript">
-$(document).ready(function() {
-  const { createApp } = Vue
-
-  createApp({
-    delimiters: ['[[', ']]'],
-    data() {
-      return {
-        notebooks: {{ notebooks|safe }}
-      }
-    }
-  }).mount("#notebook-metrics");
- });
-</script>
 {% endblock %}

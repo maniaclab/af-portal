@@ -17,50 +17,39 @@
           <li class="breadcrumb-item active" aria-current="page">Notebook metrics</li>
       </ol>
     </nav>
-    <div v-if="notebooks.length > 0">
-      <table class="table table-bordered mb-4">
-        <thead>
-          <tr>
-            <th>Notebook name</th>
-            <th>Username</th>
-            <th>Memory request</th>
-            <th>CPU request</th>
-            <th>GPU request</th>
-            <th>GPU memory request</th>
-            <th>Hours remaining</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="notebook in notebooks">
-            <td>[[ notebook.notebook_name ]]</td>
-            <td>[[ notebook.username ]]</td>
-            <td>[[ notebook.memory_request ]]</td>
-            <td>[[ notebook.cpu_request ]]</td>
-            <td>[[ notebook.gpu_request ]]</td>
-            <td>[[ notebook.gpu_memory_request ]]</td>
-            <td>[[ notebook.hours_remaining ]]</td>
-          </tr>
-        </tbody>
-      </table>
-      <div>
-        <iframe src="https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/dashboards?auth_provider_hint=anonymous1#/view/17831490-1f4e-11ed-afcf-d91dad577662?embed=true&_g=(filters:!(%28query%3A%28match_phrase%3A%28kubernetes.labels.owner%3A{{session.get('unix_name')}}%29%29%29),refreshInterval:(pause:!t,value:0),time:(from:now-24h%2Fh,to:now))&_a=(controlGroupInput:(chainingSystem:HIERARCHICAL,controlStyle:oneLine,defaultControlGrow:!t,defaultControlWidth:medium,ignoreParentSettings:(ignoreFilters:!f,ignoreQuery:!f,ignoreTimerange:!f,ignoreValidations:!f),panels:(e5565f5c-ddca-4b31-b45d-3db56405db3f:(explicitInput:(dataViewId:'960f8933-5f24-51a1-9475-3e0ba79c9b10',enhancements:(),fieldName:kubernetes.labels.notebook-id,id:e5565f5c-ddca-4b31-b45d-3db56405db3f,singleSelect:!t,title:Notebook),grow:!f,order:0,type:optionsListControl,width:medium))),description:'User%20notebook%20metrics%20for%20the%20AF%20k8s%20cluster',filters:!(),fullScreenMode:!f,options:(hidePanelTitles:!f,syncColors:!f,syncTooltips:!f,useMargins:!t),panels:!((embeddableConfig:(enhancements:(),hidePanelTitles:!f),gridData:(h:15,i:'0bbaa0ce-a207-4206-98ad-f8ed460a7279',w:24,x:0,y:0),id:f94bd4c0-1f4e-11ed-afcf-d91dad577662,panelIndex:'0bbaa0ce-a207-4206-98ad-f8ed460a7279',title:'CPU%20usage',type:visualization,version:'8.3.2'),(embeddableConfig:(enhancements:(),hidePanelTitles:!f),gridData:(h:15,i:'5d43d535-cc17-4c36-9876-b768d1d5dfdb',w:24,x:24,y:0),id:f004fe90-1f4f-11ed-afcf-d91dad577662,panelIndex:'5d43d535-cc17-4c36-9876-b768d1d5dfdb',title:'Memory%20usage',type:visualization,version:'8.3.2'),(embeddableConfig:(enhancements:(),hidePanelTitles:!f),gridData:(h:15,i:'4e0543df-3a9f-4973-ae33-7c6437e260a9',w:24,x:0,y:15),id:'16db50f0-1f50-11ed-afcf-d91dad577662',panelIndex:'4e0543df-3a9f-4973-ae33-7c6437e260a9',title:'Network%20traffic',type:visualization,version:'8.3.2')),query:(language:kuery,query:''),tags:!(),timeRestore:!f,title:'AF%20Notebook%20Metrics%20(User)',viewMode:view)&show-time-filter=true&hide-filter-bar=true" height="1000" width="1300"></iframe>
-      </div>
+    {% if notebooks|length %}
+    <table class="table table-bordered mb-4">
+      <thead>
+        <tr>
+          <th>Notebook name</th>
+          <th>Username</th>
+          <th>Memory request</th>
+          <th>CPU request</th>
+          <th>GPU request</th>
+          <th>GPU memory request</th>
+          <th>Hours remaining</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for notebook in notebooks %}
+        <tr>
+          <td>{{ notebook.notebook_name }}</td>
+          <td>{{ notebook.username }}</td>
+          <td>{{ notebook.memory_request }}</td>
+          <td>{{ notebook.cpu_request }}</td>
+          <td>{{ notebook.gpu_request }}</td>
+          <td>{{ notebook.gpu_memory_request }}</td>
+          <td>{{ notebook.hours_remaining }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div>
+      <iframe src="https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/dashboards?auth_provider_hint=anonymous1#/view/17831490-1f4e-11ed-afcf-d91dad577662?embed=true&_g=(filters:!(%28query%3A%28match_phrase%3A%28kubernetes.labels.owner%3A{{session.get('unix_name')}}%29%29%29),refreshInterval:(pause:!t,value:0),time:(from:now-24h%2Fh,to:now))&_a=(controlGroupInput:(chainingSystem:HIERARCHICAL,controlStyle:oneLine,defaultControlGrow:!t,defaultControlWidth:medium,ignoreParentSettings:(ignoreFilters:!f,ignoreQuery:!f,ignoreTimerange:!f,ignoreValidations:!f),panels:(e5565f5c-ddca-4b31-b45d-3db56405db3f:(explicitInput:(dataViewId:'960f8933-5f24-51a1-9475-3e0ba79c9b10',enhancements:(),fieldName:kubernetes.labels.notebook-id,id:e5565f5c-ddca-4b31-b45d-3db56405db3f,singleSelect:!t,title:Notebook),grow:!f,order:0,type:optionsListControl,width:medium))),description:'User%20notebook%20metrics%20for%20the%20AF%20k8s%20cluster',filters:!(),fullScreenMode:!f,options:(hidePanelTitles:!f,syncColors:!f,syncTooltips:!f,useMargins:!t),panels:!((embeddableConfig:(enhancements:(),hidePanelTitles:!f),gridData:(h:15,i:'0bbaa0ce-a207-4206-98ad-f8ed460a7279',w:24,x:0,y:0),id:f94bd4c0-1f4e-11ed-afcf-d91dad577662,panelIndex:'0bbaa0ce-a207-4206-98ad-f8ed460a7279',title:'CPU%20usage',type:visualization,version:'8.3.2'),(embeddableConfig:(enhancements:(),hidePanelTitles:!f),gridData:(h:15,i:'5d43d535-cc17-4c36-9876-b768d1d5dfdb',w:24,x:24,y:0),id:f004fe90-1f4f-11ed-afcf-d91dad577662,panelIndex:'5d43d535-cc17-4c36-9876-b768d1d5dfdb',title:'Memory%20usage',type:visualization,version:'8.3.2'),(embeddableConfig:(enhancements:(),hidePanelTitles:!f),gridData:(h:15,i:'4e0543df-3a9f-4973-ae33-7c6437e260a9',w:24,x:0,y:15),id:'16db50f0-1f50-11ed-afcf-d91dad577662',panelIndex:'4e0543df-3a9f-4973-ae33-7c6437e260a9',title:'Network%20traffic',type:visualization,version:'8.3.2')),query:(language:kuery,query:''),tags:!(),timeRestore:!f,title:'AF%20Notebook%20Metrics%20(User)',viewMode:view)&show-time-filter=true&hide-filter-bar=true" height="1000" width="1300"></iframe>
     </div>
-    <p v-else>There are no notebooks in the namespace.</p>
+    {% else %}
+    <p>There are no notebooks in the namespace.</p>
+    {% endif %}
   </div>
 </section>
-<script type="text/javascript">
-$(document).ready(function() {
-  const { createApp } = Vue
-
-  createApp({
-    delimiters: ['[[', ']]'],
-    data() {
-      return {
-        notebooks: {{ notebooks|safe }}
-      }
-    }
-  }).mount("#notebook-metrics-for-user");
- });
-</script>
 {% endblock %}

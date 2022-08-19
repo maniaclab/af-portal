@@ -193,7 +193,7 @@ def update_user_institution():
     resp = connect.update_user_institution(username, institution)
     return jsonify(success = True if resp and resp.status_code == 200 else False)
 
-@app.route("/admin/notebook_metrics", methods=["GET"])
+@app.route("/admin/notebook_metrics")
 @auth.admins_only
 def open_notebook_metrics():
     try: 
@@ -203,8 +203,8 @@ def open_notebook_metrics():
         flash(str(e), 'warning')
         return render_template("notebook_metrics.html", notebooks=[])
 
-@app.route("/monitoring/notebook_metrics", methods=["GET"])
-@auth.admins_only
+@app.route("/monitoring/notebook_metrics")
+@auth.members_only
 def open_user_notebook_metrics():
     try: 
         username = session["unix_name"]
@@ -213,3 +213,9 @@ def open_user_notebook_metrics():
     except JupyterLabException as e:
         flash(str(e), 'warning')
         return render_template("notebook_metrics_for_user.html", notebooks=[])
+
+@app.route("/admin/login_nodes")
+@auth.admins_only
+def open_login_nodes():
+    return render_template("login_nodes.html")
+
