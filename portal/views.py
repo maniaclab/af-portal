@@ -198,8 +198,18 @@ def update_user_institution():
 def open_notebook_metrics():
     try: 
         notebooks = jupyterlab.get_all_notebooks()
-        logger.info(str(notebooks))
         return render_template("notebook_metrics.html", notebooks=notebooks)
     except JupyterLabException as e:
         flash(str(e), 'warning')
         return render_template("notebook_metrics.html", notebooks=[])
+
+@app.route("/monitoring/notebook_metrics", methods=["GET"])
+@auth.admins_only
+def open_user_notebook_metrics():
+    try: 
+        username = session["unix_name"]
+        notebooks = jupyterlab.get_notebooks(username)
+        return render_template("notebook_metrics_for_user.html", notebooks=notebooks)
+    except JupyterLabException as e:
+        flash(str(e), 'warning')
+        return render_template("notebook_metrics_for_user.html", notebooks=[])
