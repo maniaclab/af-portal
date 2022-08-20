@@ -1,7 +1,6 @@
 from flask import Flask
 from jinja2_markdown import MarkdownExtension
 import logging
-import json
 
 app = Flask(__name__)
 app.config.from_pyfile("secrets/portal.conf")
