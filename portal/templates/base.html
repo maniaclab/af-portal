@@ -33,9 +33,9 @@
                 Admin
               </a>
               <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{{ url_for('open_user_spreadsheet') }}">User information</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('user_info') }}">User information</a></li>
                 <li><a class="dropdown-item" href="{{ url_for('plot_users_over_time') }}">Plot of users over time</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('open_notebook_metrics') }}">Notebook metrics</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('notebook_metrics') }}">Notebook metrics</a></li>
               </ul>
             </li>
             <li class="nav-item">
@@ -48,9 +48,9 @@
                 Monitoring
               </a>
               <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{{ url_for('open_user_notebook_metrics') }}">Notebook metrics</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('user_notebook_metrics') }}">Notebook metrics</a></li>
                 {% if session.get("member_status") == "admin" %}
-                <li><a class="dropdown-item" href="{{ url_for('open_login_nodes') }}">Login nodes</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('login_nodes') }}">Login nodes</a></li>
                 {% endif %}
               </ul>
             </li>

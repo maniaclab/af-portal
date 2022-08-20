@@ -42,7 +42,7 @@ def login():
         user = connect.find_user(session["globus_id"])
         if user:
             session["unix_name"] = user["metadata"]["unix_name"]
-            session["member_status"] = connect.get_member_status(session["unix_name"], session["globus_id"])
+            session["member_status"] = connect.get_member_status(session["unix_name"])
         return redirect(url_for("home"))
 
 @app.route("/logout")
@@ -99,8 +99,7 @@ def edit_profile():
 @auth.login_required
 def user_groups():
     unix_name = session["unix_name"]
-    globus_id = session["globus_id"]
-    groups = connect.get_user_groups(unix_name, globus_id)
+    groups = connect.get_user_groups(unix_name)
     return render_template("user_groups.html", groups=groups)
 
 @app.route("/aup")
@@ -172,11 +171,11 @@ def plot_users_over_time():
     data = admin.plot_users_over_time()
     return render_template("plot_users_over_time.html", base64_encoded_image = data)
 
-@app.route("/admin/user_spreadsheet")
+@app.route("/admin/user_info")
 @auth.admins_only
-def open_user_spreadsheet():
+def user_info():
     users = connect.get_group_members("root.atlas-af", date_format="%m/%d/%Y")
-    return render_template("user_spreadsheet.html", users=users)
+    return render_template("user_info.html", users=users)
 
 @app.route("/admin/update_user_institution", methods=["POST"])
 @auth.admins_only
@@ -188,7 +187,7 @@ def update_user_institution():
 
 @app.route("/admin/notebook_metrics")
 @auth.admins_only
-def open_notebook_metrics():
+def notebook_metrics():
     try: 
         notebooks = jupyterlab.get_all_notebooks()
         return render_template("notebook_metrics.html", notebooks=notebooks)
@@ -198,7 +197,7 @@ def open_notebook_metrics():
 
 @app.route("/monitoring/notebook_metrics")
 @auth.members_only
-def open_user_notebook_metrics():
+def user_notebook_metrics():
     try: 
         username = session["unix_name"]
         notebooks = jupyterlab.get_notebooks(username)
@@ -209,7 +208,7 @@ def open_user_notebook_metrics():
 
 @app.route("/admin/login_nodes")
 @auth.admins_only
-def open_login_nodes():
+def login_nodes():
     return render_template("login_nodes.html")
 
 @app.route("/admin/groups/<groupname>")
