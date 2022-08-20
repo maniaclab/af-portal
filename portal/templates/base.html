@@ -38,6 +38,9 @@
                 <li><a class="dropdown-item" href="{{ url_for('open_user_spreadsheet') }}">User information</a></li>
               </ul>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('groups') }}">Groups</a>
+            </li>
             {% endif %}
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
@@ -116,6 +119,17 @@
     </nav>
   </header>
   {% block content %} {% endblock %}
+  <footer class="text-center">
+    <a href="https://www.uchicago.edu" target="_blank">
+        <img src="{{url_for('static', filename='img/uc-logo.png')}}">
+    </a>
+    <a href="https://efi.uchicago.edu" target="_blank">
+        <img src="{{url_for('static', filename='img/efi-logo.png')}}">
+    </a>
+    <a href="https://iris-hep.org" target="_blank">
+        <img src="{{url_for('static', filename='img/iris-hep-logo.png')}}">
+    </a>
+  </footer>
 </body>
 
 </html>

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %} Groups {% endblock %}
+
+{% block content %}
+<section>
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a class="text-decoration-none" href="{{ url_for('home') }}">Home</a></li>
+                <li class="breadcrumb-item"><a class="text-decoration-none" href="{{ url_for('home') }}">Groups</a></li>
+                <li class="breadcrumb-item active" aria-current="page">About</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+{% endblock %}

@@ -219,3 +219,8 @@ def open_user_notebook_metrics():
 def open_login_nodes():
     return render_template("login_nodes.html")
 
+@app.route("/admin/groups")
+@auth.admins_only
+def groups():
+    return render_template("groups.html")
+

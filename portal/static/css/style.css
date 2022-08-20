@@ -31,15 +31,12 @@ html, body {
 }
 
 section {
-    margin-top: 1em;
+    margin: 1em;
+    min-height: 500px;
 }
 
 footer {
-    position: absolute;
-    width: 100%;
-    bottom: 1em;
-    left: auto;
-    right: auto;
+    margin: 1em 0 1em;
 }
 
 footer img {
