@@ -12,31 +12,49 @@
                 <li class="breadcrumb-item active" aria-current="page">{{ group["name"] }}</li>
             </ol>
         </nav>
-        <div class="mb-4">
-            <a class="btn btn-sm btn-primary" href="#" role="button">Create subgroup</a>
-            <a class="btn btn-sm btn-secondary" href="#" role="button">Edit group</a>
-        </div>
-        <ul class="nav nav-tabs mb-4">
+        <ul class="nav nav-tabs mt-4 mb-3">
             <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="#">Overview</a>
+                <a class="nav-link active" aria-current="page" href="#">
+                    <i class="fa-solid fa-cubes"></i>&nbsp;Overview
+                </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Members</a>
+                <a class="nav-link" href="#">
+                    <i class="fa-solid fa-user-group"></i>&nbsp;Members
+                </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Members Pending</a>
+                <a class="nav-link position-relative" href="#">
+                    <i class="fa-solid fa-user-group"></i>&nbsp;Member Requests&nbsp;
+                    <span class="position-absolute top-0 start-75 badge rounded-pill bg-danger">
+                        0
+                        <span class="visually-hidden">member requests</span>
+                    </span>
+                </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Subgroups</a>
+                <a class="nav-link" href="#">
+                    <i class="fa-solid fa-diagram-project"></i>&nbsp;Subgroups
+                </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Subgroup Requests</a>
+                <a class="nav-link position-relative" href="#">
+                    <i class="fa-solid fa-diagram-project"></i>&nbsp;Subgroup Requests&nbsp;
+                    <span class="position-absolute top-0 start-75 badge rounded-pill bg-danger">
+                        0
+                        <span class="visually-hidden">subgroup requests</span>
+                    </span>
+                </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Add Members</a>
+                <a class="nav-link" href="#">
+                    <i class="fa-solid fa-user-plus"></i>&nbsp;Add Members
+                </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Email</a>
+                <a class="nav-link" href="#">
+                    <i class="fa-solid fa-envelope"></i>&nbsp;Email
+                </a>
             </li>
         </ul>
         <div class="card h-100 col-sm-6">
@@ -55,6 +73,10 @@
                     <li><span class="text-muted">Phone number:</span> {{ group["phone"] }}</li>
                     <li><span class="text-muted">Created on:</span> {{ group["creation_date"] }}</li>
                 </ul>
+            </div>
+            <div class="card-footer bg-transparent border-top-0">
+                <a class="btn btn-sm btn-primary" href="#" role="button">Create subgroup</a>
+                <a class="btn btn-sm btn-secondary" href="#" role="button">Edit group</a>
             </div>
         </div>
     </div>
