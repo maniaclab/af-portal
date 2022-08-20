@@ -22,12 +22,12 @@ html, body {
 }
 
 @keyframes carousel {
-    0% { content: "Tier 3 computing"; opacity: 1;}
-    22% { content: "Tier 3 computing"; opacity: 1; }
-    33% { content: "Batch processing via HTCondor"; opacity: 1; }
-    55% { content: "Batch processing via HTCondor"; opacity: 1; }
-    66% { content: "Pythonic analysis"; opacity: 1; }
-    88% { content: "Pythonic analysis"; opacity: 1; }
+    0% { content: "Tier 3 computing"; }
+    22% { content: "Tier 3 computing"; }
+    33% { content: "Batch processing via HTCondor"; }
+    55% { content: "Batch processing via HTCondor"; }
+    66% { content: "Pythonic analysis"; }
+    88% { content: "Pythonic analysis"; }
 }
 
 section {
