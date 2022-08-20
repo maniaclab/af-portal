@@ -59,15 +59,3 @@ span.asterisk {
     width: 250px;
     padding: 5px;
 }
-
-#controls-table {
-    width: auto;
-}
-
-#controls-table td {
-    padding-left: 0px !important;
-}
-
-/* nav[aria-label="breadcrumb"] {
-    margin-bottom: 2em;
-} */
