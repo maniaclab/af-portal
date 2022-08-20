@@ -16,8 +16,7 @@ def members_only(fn):
         if not session.get("is_authenticated"):
             return redirect(url_for("login", next=request.url))
         unix_name = session.get("unix_name")
-        globus_id = session.get("globus_id")
-        member_status = connect.get_member_status(unix_name, globus_id)
+        member_status = connect.get_member_status(unix_name)
         if member_status in ("admin", "active"):
             return fn(*args, **kwargs)
         return render_template("request_membership.html", member_status=member_status)
@@ -29,8 +28,7 @@ def admins_only(fn):
         if not session.get("is_authenticated"):
             return redirect(url_for("login", next=request.url))
         unix_name = session.get("unix_name")
-        globus_id = session.get("globus_id")
-        member_status = connect.get_member_status(unix_name, globus_id)
+        member_status = connect.get_member_status(unix_name)
         if member_status == "admin":
             return fn(*args, **kwargs)
         return redirect(url_for("home"))

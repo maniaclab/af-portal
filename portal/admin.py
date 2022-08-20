@@ -7,7 +7,7 @@ from portal import logger, connect
 
 def plot_users_over_time():
     try:
-        users = connect.get_user_profiles('root.atlas-af', date_format='object')
+        users = connect.get_group_members("root.atlas-af", date_format=None)
         logger.info(str(users))
         datemin = datetime(2021, 7, 1)
         datemax = datetime.today()

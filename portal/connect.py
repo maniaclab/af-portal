@@ -15,20 +15,20 @@ def find_user(globus_id):
         logger.error(str(err))
         return None
 
-def get_user_profile(unix_name, globus_id):
+def get_user_profile(unix_name, date_format="%B %m %Y"):
     try: 
-        params = {"token": token, "globus_id": globus_id}
+        params = {"token": token}
         profile = requests.get(base_url + "/v1alpha1/users/" + unix_name, params=params).json()["metadata"]
-        profile["join_date"] = datetime.strptime(profile["join_date"], "%Y-%b-%d %H:%M:%S.%f %Z").strftime("%B %m %Y")
+        profile["join_date"] = datetime.strptime(profile["join_date"], "%Y-%b-%d %H:%M:%S.%f %Z").strftime(date_format)
         profile["group_memberships"].sort(key = lambda group : group["name"])
         return profile
     except Exception as err:
         logger.error(str(err))
         return None
 
-def get_user_groups(unix_name, globus_id):
+def get_user_groups(unix_name):
     try: 
-        profile = get_user_profile(unix_name, globus_id)
+        profile = get_user_profile(unix_name)
         multiplex = {}
         status_lookup = {}
         for group in profile["group_memberships"]:
@@ -51,9 +51,9 @@ def get_user_groups(unix_name, globus_id):
         logger.error(str(err))
         return None
 
-def update_user_profile(unix_name, globus_id, **kwargs):
+def update_user_profile(unix_name, **kwargs):
     try:
-        params = {"token": token, "globus_id": globus_id}
+        params = {"token": token}
         json = {
             "apiVersion": "v1alpha1",
             "metadata": {
@@ -79,39 +79,34 @@ def get_multiplex(json):
         logger.error(str(err))
         return None
 
-def get_member_status(unix_name, globus_id):
+def get_member_status(unix_name):
     try:
-        profile = get_user_profile(unix_name, globus_id)
+        profile = get_user_profile(unix_name)
         group = next(filter(lambda g : g["name"] == "root.atlas-af", profile["group_memberships"]))
         return group["state"]
     except:
         return "nonmember"
 
-def get_usernames(group):
+def get_group_members(groupname, date_format="%B %m %Y"):
     try:
-        users = requests.get(base_url + "/v1alpha1/groups/" + group + "/members", params={"token": token}).json()
-        return [member['user_name'] for member in users["memberships"]]
-    except Exception as err:
-        logger.error(str(err))
-        return []
-
-def get_user_profiles(group, date_format="string"):
-    try:
-        usernames = get_usernames(group)
-        multiplex_json = {}
+        members = requests.get(base_url + "/v1alpha1/groups/" + groupname + "/members", params={"token": token}).json()["memberships"]
+        multiplex = {}
         params = {"token": token}
-        for username in usernames:
-            multiplex_json['/v1alpha1/users/' + username + '?token=' + token] = {'method': 'GET'}
-        data = requests.post(base_url + '/v1alpha1/multiplex', params=params, json=multiplex_json).json()
+        for member in members:
+            multiplex["/v1alpha1/users/" + member["user_name"] + '?token=' + token] = {"method": "GET"}
+        resp = requests.post(base_url + "/v1alpha1/multiplex", params=params, json=multiplex).json()
         profiles = []
-        for entry in data:
-            user = json.loads(data[entry]['body'])
-            username = user['metadata']['unix_name']
-            email = user['metadata']['email']
-            join_date = parse(user['metadata']['join_date']) if date_format=='object' else parse(user['metadata']['join_date']).strftime('%Y-%m-%d')
-            institution = user['metadata']['institution']
-            name = user['metadata']['name']
-            profiles.append({'username': username, 'email': email, 'join_date': join_date, 'institution': institution, 'name': name})
+        for entry in resp:
+            user = json.loads(resp[entry]["body"])["metadata"]
+            username = user["unix_name"]
+            email = user["email"]
+            phone = user["phone"]
+            join_date = parse(user["join_date"]).strftime(date_format) if date_format else parse(user["join_date"]) 
+            institution = user["institution"]
+            name = user["name"]
+            group_membership = next(filter(lambda g : g["name"] == "root.atlas-af", user["group_memberships"]))
+            status = group_membership["state"]
+            profiles.append({"username": username, "email": email, "phone": phone, "join_date": join_date, "institution": institution, "name": name, "status": status})
         return profiles
     except Exception as err: 
         logger.error(str(err))
@@ -128,9 +123,9 @@ def update_user_institution(unix_name, institution):
         logger.error(str(err))
         return False
 
-def get_group_info(group):
+def get_group_info(group, date_format="%B %m %Y"):
     group_info = requests.get(base_url + "/v1alpha1/groups/" + group, params={"token": token}).json()["metadata"]
     if "pending" in group_info:
         group_info["pending"] = "true" if group_info["pending"] else "false"
-    group_info["creation_date"] = parse(group_info["creation_date"]).strftime("%B %m %Y")
+    group_info["creation_date"] = parse(group_info["creation_date"]).strftime(date_format)
     return group_info

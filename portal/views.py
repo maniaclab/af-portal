@@ -75,17 +75,15 @@ def get_safe_redirect():
 @auth.login_required
 def profile():
     unix_name = session["unix_name"]
-    globus_id = session["globus_id"]
-    profile = connect.get_user_profile(unix_name, globus_id)
+    profile = connect.get_user_profile(unix_name)
     return render_template("profile.html", profile=profile)
 
 @app.route("/profile/edit", methods=["GET", "POST"])
 @auth.login_required
 def edit_profile():
     unix_name = session["unix_name"]
-    globus_id = session["globus_id"]
     if request.method == "GET":
-        profile = connect.get_user_profile(unix_name, globus_id)
+        profile = connect.get_user_profile(unix_name)
         return render_template("edit_profile.html", profile=profile)
     if request.method == "POST":
         name = request.form["name"]
@@ -94,7 +92,7 @@ def edit_profile():
         email = request.form["email"]
         x509_dn = request.form["X.509_DN"]
         public_key = request.form["public_key"]
-        connect.update_user_profile(unix_name, globus_id, name=name, phone=phone, institution=institution, email=email, x509_dn=x509_dn, public_key=public_key)
+        connect.update_user_profile(unix_name, name=name, phone=phone, institution=institution, email=email, x509_dn=x509_dn, public_key=public_key)
         return redirect(url_for('profile'))
 
 @app.route("/profile/groups")
@@ -177,13 +175,8 @@ def plot_users_over_time():
 @app.route("/admin/user_spreadsheet")
 @auth.admins_only
 def open_user_spreadsheet():
-    return render_template("user_spreadsheet.html")
-
-@app.route("/admin/user_profiles")
-@auth.admins_only
-def get_user_profiles():
-    user_profiles = connect.get_user_profiles('root.atlas-af')
-    return user_profiles
+    users = connect.get_group_members("root.atlas-af", date_format="%m/%d/%Y")
+    return render_template("user_spreadsheet.html", users=users)
 
 @app.route("/admin/update_user_institution", methods=["POST"])
 @auth.admins_only
@@ -224,9 +217,11 @@ def open_login_nodes():
 def groups(groupname):
     try:
         group = connect.get_group_info(groupname)
+        members = connect.get_group_members(groupname)
         logger.info(str(group))
-        return render_template("groups.html", group = group)
+        logger.info(str(members))
+        return render_template("groups.html", group=group, members=members)
     except Exception as err:
         logger.error(str(err))
-        return render_template("groups.html", group = None)
+        return render_template("groups.html", group=None, members=None)
 

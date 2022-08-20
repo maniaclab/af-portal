@@ -56,3 +56,11 @@ span.asterisk {
     width: 250px;
     padding: 5px;
 }
+
+section#groups div#members {
+    font-size: 12px;
+}
+
+section#users div#wrapper {
+    font-size: 12px;
+}
