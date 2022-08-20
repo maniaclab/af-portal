@@ -75,7 +75,6 @@ def get_notebooks(username):
             notebook_id = pod.metadata.name
             notebook_name = get_notebook_name(pod)
             status = get_notebook_status(pod)
-            status_messages = get_notebook_status_messages(pod)
             url = get_url(pod)
             creation_date = get_creation_date(pod)
             expiration_date = get_expiration_date(pod)
@@ -90,7 +89,6 @@ def get_notebooks(username):
                 'namespace': namespace, 
                 'username': username,
                 'status': status,
-                'status_messages': status_messages,
                 'url': url,
                 'creation_date': creation_date.strftime("%A %B %d %Y %H:%M %p") if creation_date else "--",
                 'expiration_date': expiration_date.strftime("%A %B %d %Y %H:%M %p") if expiration_date else "--",
@@ -112,7 +110,6 @@ def get_all_notebooks():
             notebook_name = get_notebook_name(pod)
             username = get_owner(pod)
             status = get_notebook_status(pod)
-            status_messages = get_notebook_status_messages(pod)
             url = get_url(pod)
             creation_date = get_creation_date(pod)
             expiration_date = get_expiration_date(pod)
@@ -127,7 +124,6 @@ def get_all_notebooks():
                 'namespace': namespace, 
                 'username': username,
                 'status': status,
-                'status_messages': status_messages,
                 'url': url,
                 'creation_date': creation_date.strftime("%A %B %d %Y %H:%M %p") if creation_date else "--",
                 'expiration_date': expiration_date.strftime("%A %B %d %Y %H:%M %p") if expiration_date else "--",
@@ -164,29 +160,12 @@ def generate_notebook_name(username):
         return None
 
 def get_notebook_status(pod):
+    notebook_status = {"current": "", "history": []}
     try:
         pod_status = get_pod_status(pod)
         if pod_status == "Closing":
-            return "Removing notebook..."
-        cert_status = get_certificate_status(pod)
-        if cert_status != "Ready":
-            return "Waiting for certificate..."
-        if pod_status == 'Running':
-            core_v1_api = client.CoreV1Api()
-            log = core_v1_api.read_namespaced_pod_log(pod.metadata.name, namespace=namespace)
-            if re.search("Jupyter Notebook.*is running at.*", log) or re.search("Jupyter Server.*is running at.*", log):
-                return "Ready"
-            return "Notebook loading..."
-        return pod_status
-    except Exception as err:
-        logger.error(str(err))
-        return "Unknown"
-    
-def get_notebook_status_messages(pod):
-    try:
-        notebook_status = get_notebook_status(pod)
-        if notebook_status == "Removing notebook...":
-            return []
+            return {"current": "Removing notebook...", "history": []}
+
         messages = ["", "", "", ""]
         for cond in pod.status.conditions:
             if cond.type == 'PodScheduled' and cond.status == 'True':
@@ -197,17 +176,27 @@ def get_notebook_status_messages(pod):
                 messages[2] = 'Pod ready.'
             elif cond.type == 'ContainersReady' and cond.status == 'True':
                 messages[3] = 'Containers ready.'
-        messages = list(filter(None, messages))
-        if notebook_status == "Waiting for certificate...":
-            messages.append("Waiting for certificate...")
-        elif notebook_status == "Notebook loading...":
-            messages.append("Waiting for Jupyter notebook server...")
-        elif notebook_status == "Ready":
-            messages.append("Jupyter notebook server started.")
-        return messages
-    except Exception as err: 
+            
+        notebook_status["current"] = pod_status
+        notebook_status["history"] = list(filter(None, messages))
+
+        if pod_status == "Running":
+            log = get_pod_log(pod)
+            if re.search("Jupyter Notebook.*is running at", log) or re.search("Jupyter Server.*is running at", log):
+                notebook_status["current"] = "Ready"
+                notebook_status["history"].append("Jupyter notebook server started.")
+            else:
+                notebook_status["current"] = "Notebook loading..."
+                notebook_status["history"].append("Waiting for Jupyter notebook server...")
+
+        cert_status = get_certificate_status(pod)
+        if cert_status != "Ready":
+            notebook_status["current"] = "Waiting for certificate..."        
+
+        return notebook_status
+    except Exception as err:
         logger.error(str(err))
-        return []
+        return  {"current": "Unknown", "history": []}
 
 # Helper functions
 def create_pod(notebook_name, **kwargs):
@@ -345,7 +334,7 @@ def notebook_id_available(notebook_name):
         core_v1_api = client.CoreV1Api()
         pods = core_v1_api.list_namespaced_pod(namespace, label_selector="notebook-id={0}".format(notebook_id))
         return len(pods.items) == 0
-    except:
+    except Exception as err:
         logger.error(str(err))
         raise JupyterLabException('Error checking whether notebook name %s is available' %notebook_id)
 
@@ -417,6 +406,10 @@ def get_pod_status(pod):
     if pod.metadata.deletion_timestamp:
         return 'Closing'
     return pod.status.phase
+
+def get_pod_log(pod):
+    api = client.CoreV1Api()
+    return api.read_namespaced_pod_log(pod.metadata.name, namespace=namespace)
 
 def get_certificate_status(pod):
     try:
