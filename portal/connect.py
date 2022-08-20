@@ -89,13 +89,13 @@ def get_member_status(unix_name, globus_id):
 
 def get_usernames(group):
     try:
-        users = requests.get(base_url + "/v1alpha1/groups/" + group + "/members?token=" + token).json()
-        return [member['user_name']for member in users['memberships']]
+        users = requests.get(base_url + "/v1alpha1/groups/" + group + "/members", params={"token": token}).json()
+        return [member['user_name'] for member in users["memberships"]]
     except Exception as err:
         logger.error(str(err))
         return []
 
-def get_user_profiles(group, date_format='string'):
+def get_user_profiles(group, date_format="string"):
     try:
         usernames = get_usernames(group)
         multiplex_json = {}
@@ -127,3 +127,10 @@ def update_user_institution(unix_name, institution):
     except Exception as err:
         logger.error(str(err))
         return False
+
+def get_group_info(group):
+    group_info = requests.get(base_url + "/v1alpha1/groups/" + group, params={"token": token}).json()["metadata"]
+    if "pending" in group_info:
+        group_info["pending"] = "true" if group_info["pending"] else "false"
+    group_info["creation_date"] = parse(group_info["creation_date"]).strftime("%B %m %Y")
+    return group_info

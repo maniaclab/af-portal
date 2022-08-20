@@ -219,8 +219,14 @@ def open_user_notebook_metrics():
 def open_login_nodes():
     return render_template("login_nodes.html")
 
-@app.route("/admin/groups")
+@app.route("/admin/groups/<groupname>")
 @auth.admins_only
-def groups():
-    return render_template("groups.html")
+def groups(groupname):
+    try:
+        group = connect.get_group_info(groupname)
+        logger.info(str(group))
+        return render_template("groups.html", group = group)
+    except Exception as err:
+        logger.error(str(err))
+        return render_template("groups.html", group = None)
 
