@@ -217,10 +217,12 @@ def groups(groupname):
     try:
         group = connect.get_group_info(groupname)
         members = connect.get_group_members(groupname)
+        subgroups = connect.get_subgroups(groupname)
         logger.info(str(group))
         logger.info(str(members))
-        return render_template("groups.html", group=group, members=members)
+        logger.info(str(subgroups))
+        return render_template("groups.html", group=group, members=members, subgroups=subgroups)
     except Exception as err:
         logger.error(str(err))
-        return render_template("groups.html", group=None, members=None)
+        return render_template("groups.html", group=[], members=[], subgroups=[])
 

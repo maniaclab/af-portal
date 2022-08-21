@@ -87,7 +87,7 @@
                     </div>
                 </div>
             </div>
-            <div class="tab-pane fade" id="members" role="tabpanel" aria-labelledby="members-tab">
+            <div class="tab-pane fade fs12" id="members" role="tabpanel" aria-labelledby="members-tab">
                 <table class="table table-striped nowrap w-100">
                     <thead>
                         <tr>
@@ -120,7 +120,32 @@
                 </table>
             </div>
             <div class="tab-pane fade" id="member_requests" role="tabpanel" aria-labelledby="member_requests-tab">...</div>
-            <div class="tab-pane fade" id="subgroups" role="tabpanel" aria-labelledby="subgroups-tab">...</div>
+            <div class="tab-pane fade fs12" id="subgroups" role="tabpanel" aria-labelledby="subgroups-tab">
+                <table class="table table-striped nowrap w-100">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Unix name</th>
+                            <th>Contact email</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for subgroup in subgroups %}
+                        <tr>
+                            <td>
+                                <a class="text-decoration-none" href="{{ url_for('groups', groupname=subgroup['name']) }}">
+                                    {{ subgroup["display_name"] }}
+                                </a>
+                            </td>
+                            <td>{{ subgroup["name"] }}</td>
+                            <td>{{ subgroup["email"] }}</td>
+                            <td>{{ subgroup["description"] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
             <div class="tab-pane fade" id="subgroup_requests" role="tabpanel" aria-labelledby="subgroup_requests-tab">...</div>
             <div class="tab-pane fade" id="add_members" role="tabpanel" aria-labelledby="add_members-tab">...</div>
             <div class="tab-pane fade" id="email" role="tabpanel" aria-labelledby="email-tab">...</div>

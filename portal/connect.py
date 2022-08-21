@@ -83,7 +83,8 @@ def get_member_status(unix_name):
     try:
         profile = get_user_profile(unix_name)
         group = next(filter(lambda g : g["name"] == "root.atlas-af", profile["group_memberships"]))
-        return group["state"]
+        member_status = group["state"]
+        return member_status
     except:
         return "nonmember"
 
@@ -129,3 +130,8 @@ def get_group_info(group, date_format="%B %m %Y"):
         group_info["pending"] = "true" if group_info["pending"] else "false"
     group_info["creation_date"] = parse(group_info["creation_date"]).strftime(date_format)
     return group_info
+
+def get_subgroups(group):
+    params = {"token": token}
+    subgroups = requests.get(base_url + "/v1alpha1/groups/" + group + "/subgroups", params=params).json()["groups"]
+    return subgroups

@@ -57,10 +57,6 @@ span.asterisk {
     padding: 5px;
 }
 
-section#groups div#members {
-    font-size: 12px;
-}
-
-section#users div#wrapper {
+.fs12 {
     font-size: 12px;
 }
