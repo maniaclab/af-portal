@@ -30,12 +30,11 @@
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link position-relative" id="member_requests-tab" data-bs-toggle="tab" data-bs-target="#member_requests" type="button" role="tab" aria-controls="member_requests" aria-selected="true">
-                    <!-- <i class="fa-solid fa-user-group"></i> -->
+                    <i class="fa-solid fa-user-group"></i>&nbsp;Members&nbsp;
                     <span class="badge rounded-pill bg-warning">
                         {{ group["member_requests"]|length }}
                         <span class="visually-hidden">member requests</span>
                     </span>
-                    &nbsp;Member Requests
                 </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -45,12 +44,11 @@
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link position-relative" id="subgroup_requests-tab" data-bs-toggle="tab" data-bs-target="#subgroup_requests" type="button" role="tab" aria-controls="sugroup_requests" aria-selected="true">
-                    <!-- <i class="fa-solid fa-diagram-project"></i> -->
+                    <i class="fa-solid fa-diagram-project"></i>&nbsp;Subgroups&nbsp;
                     <span class="badge rounded-pill bg-warning">
-                        0
+                        {{ group["subgroup_requests"]|length }}
                         <span class="visually-hidden">subgroup requests</span>
                     </span>
-                    &nbsp;Subgroup Requests
                 </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -99,7 +97,7 @@
                             <th>Phone</th>
                             <th>Institution</th>
                             <th>Status</th>
-                            <th>Remove</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -121,7 +119,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="tab-pane fade" id="member_requests" role="tabpanel" aria-labelledby="member_requests-tab">
+            <div class="tab-pane fade fs12" id="member_requests" role="tabpanel" aria-labelledby="member_requests-tab">
                 <table class="table table-striped nowrap w-100">
                     <thead>
                         <tr>
@@ -182,7 +180,32 @@
                     </tbody>
                 </table>
             </div>
-            <div class="tab-pane fade" id="subgroup_requests" role="tabpanel" aria-labelledby="subgroup_requests-tab">...</div>
+            <div class="tab-pane fade fs12" id="subgroup_requests" role="tabpanel" aria-labelledby="subgroup_requests-tab">
+                <table class="table table-striped nowrap w-100">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Unix name</th>
+                            <th>Contact email</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for subgroup in group["subgroup_requests"] %}
+                        <tr>
+                            <td>
+                                <a class="text-decoration-none" href="{{ url_for('groups', groupname=subgroup['name']) }}">
+                                    {{ subgroup["display_name"] }}
+                                </a>
+                            </td>
+                            <td>{{ subgroup["name"] }}</td>
+                            <td>{{ subgroup["email"] }}</td>
+                            <td>{{ subgroup["description"] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
             <div class="tab-pane fade" id="add_members" role="tabpanel" aria-labelledby="add_members-tab">...</div>
             <div class="tab-pane fade" id="email" role="tabpanel" aria-labelledby="email-tab">...</div>
         </div>

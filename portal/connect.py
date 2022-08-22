@@ -88,7 +88,7 @@ def get_member_status(unix_name):
     return member_status
 
 def get_group(groupname, date_format="%B %m %Y"):
-    group = {"info": {}, "members": [], "member_requests": [], "subgroups": []}
+    group = {"info": {}, "members": [], "member_requests": [], "subgroups": [], "subgroup_requests": []}
     
     params = {"token": token}
     
@@ -137,5 +137,12 @@ def get_group(groupname, date_format="%B %m %Y"):
         logger.info(resp.status)
         raise Exception("Error getting group %s" %groupname)
 
-    group["subgroups"] = resp.json()["groups"]    
+    group["subgroups"] = resp.json()["groups"]
+    
+    resp = requests.get(base_url + "/v1alpha1/groups/" + groupname + "/subgroup_requests", params=params)
+    if resp.status_code != 200:
+        logger.info(resp.status)
+        raise Exception("Error getting group %s" %groupname)
+
+    group["subgroup_requests"] = resp.json()["groups"]
     return group
