@@ -30,7 +30,7 @@
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link position-relative" id="member_requests-tab" data-bs-toggle="tab" data-bs-target="#member_requests" type="button" role="tab" aria-controls="member_requests" aria-selected="true">
-                    <i class="fa-solid fa-user-group"></i>&nbsp;Members&nbsp;
+                    <i class="fa-solid fa-user-group"></i>&nbsp;Member Requests&nbsp;
                     <span class="badge rounded-pill bg-warning">
                         {{ group["member_requests"]|length }}
                         <span class="visually-hidden">member requests</span>
@@ -44,7 +44,7 @@
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link position-relative" id="subgroup_requests-tab" data-bs-toggle="tab" data-bs-target="#subgroup_requests" type="button" role="tab" aria-controls="sugroup_requests" aria-selected="true">
-                    <i class="fa-solid fa-diagram-project"></i>&nbsp;Subgroups&nbsp;
+                    <i class="fa-solid fa-diagram-project"></i>&nbsp;Subgroup Requests&nbsp;
                     <span class="badge rounded-pill bg-warning">
                         {{ group["subgroup_requests"]|length }}
                         <span class="visually-hidden">subgroup requests</span>
@@ -110,8 +110,9 @@
                             <td>{{ member["institution"] }}</td>
                             <td><span class="text-primary">{{ member["status"] }}</span></td>
                             <td>
-                                <a class="text-danger" role="button">
+                                <a class="badge bg-danger text-decoration-none" role="button">
                                     <i class="fa-regular fa-circle-xmark"></i>
+                                    &nbsp; Remove
                                 </a>
                             </td>
                         </tr>
@@ -140,13 +141,15 @@
                             <td>{{ member["email"] }}</td>
                             <td>{{ member["phone"] }}</td>
                             <td>{{ member["institution"] }}</td>
-                            <td><span class="text-warning font-weight-bold">{{ member["status"] }}</span></td>
+                            <td><span class="text-warning fw-bold">{{ member["status"] }}</span></td>
                             <td>
-                                <a class="text-danger" role="button">
-                                    <i class="fa-regular fa-circle-xmark"></i>
-                                </a>
-                                <a class="text-success" role="button">
+                                <a class="badge bg-success text-decoration-none" role="button">
                                     <i class="fa-regular fa-circle-check"></i>
+                                    &nbsp;Approve
+                                </a>
+                                <a class="badge bg-danger text-decoration-none" role="button">
+                                    <i class="fa-regular fa-circle-xmark"></i>
+                                    &nbsp;Deny
                                 </a>
                             </td>
                         </tr>
@@ -193,11 +196,7 @@
                     <tbody>
                         {% for subgroup in group["subgroup_requests"] %}
                         <tr>
-                            <td>
-                                <a class="text-decoration-none" href="{{ url_for('groups', groupname=subgroup['name']) }}">
-                                    {{ subgroup["display_name"] }}
-                                </a>
-                            </td>
+                            <td>{{ subgroup["display_name"] }}</td>
                             <td>{{ subgroup["name"] }}</td>
                             <td>{{ subgroup["email"] }}</td>
                             <td>{{ subgroup["description"] }}</td>
