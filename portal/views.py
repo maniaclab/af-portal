@@ -246,8 +246,17 @@ def login_nodes():
 @auth.admins_only
 def groups(groupname):
     try:
-        group = connect.get_group(groupname)
-        logger.info(str(group))
+        group_info = connect.get_group_info(groupname)
+        group_members = connect.get_group_members(groupname)
+        subgroups = connect.get_subgroups(groupname)
+        subgroup_requests = connect.get_subgroup_requests(groupname)
+        group = {
+            "info": group_info,
+            "members": group_members["active"],
+            "member_requests": group_members["pending"],
+            "subgroups": subgroups,
+            "subgroup_requests": subgroup_requests
+        }
         return render_template("groups.html", group=group)
     except Exception as err:
         logger.error(str(err))

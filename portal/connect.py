@@ -87,24 +87,25 @@ def get_member_status(unix_name):
     member_status = result[0]["state"]
     return member_status
 
-def get_group(groupname, date_format="%B %m %Y"):
-    group = {"info": {}, "members": [], "member_requests": [], "subgroups": [], "subgroup_requests": []}
-    
+def get_group_info(groupname, date_format="%B %m %Y"):
     params = {"token": token}
-    
     resp = requests.get(base_url + "/v1alpha1/groups/" + groupname, params=params)
     if resp.status_code != 200:
         logger.info(resp.status)
-        raise Exception("Error getting group %s" %groupname)
+        raise Exception("Error getting info for group %s" %groupname)
+    group = resp.json()["metadata"]
+    group["pending"] = str(group["pending"])
+    group["creation_date"] = parse(group["creation_date"]).strftime(date_format)
+    return group
 
-    group["info"] = resp.json()["metadata"]
-    group["info"]["pending"] = str(group["info"]["pending"])
-    group["info"]["creation_date"] = parse(group["info"]["creation_date"]).strftime(date_format)
-    
+def get_group_members(groupname, date_format="%B %m %Y"):
+    members = {"active": [], "pending": []}
+    params = {"token": token}
+
     resp = requests.get(base_url + "/v1alpha1/groups/" + groupname + "/members", params=params)
     if resp.status_code != 200:
         logger.info(resp.status)
-        raise Exception("Error getting group %s" %groupname)
+        raise Exception("Error getting members for group %s" %groupname)
 
     multiplex = {}
     for entry in resp.json()["memberships"]:
@@ -113,7 +114,7 @@ def get_group(groupname, date_format="%B %m %Y"):
     resp = requests.post(base_url + "/v1alpha1/multiplex", params=params, json=multiplex)
     if resp.status_code != 200:
         logger.info(resp.status)
-        raise Exception("Error getting group %s" %groupname)
+        raise Exception("Error getting members for group %s" %groupname)
 
     resp = resp.json()
     for entry in resp:
@@ -128,21 +129,30 @@ def get_group(groupname, date_format="%B %m %Y"):
         status = group_membership["state"]
         user = {"username": username, "email": email, "phone": phone, "join_date": join_date, "institution": institution, "name": name, "status": status}
         if status in ("admin", "active"):
-            group["members"].append(user)
+            members["active"].append(user)
         elif status == "pending":
-            group["member_requests"].append(user)
+            members["pending"].append(user)
+
+    return members
+
+def get_subgroups(groupname):
+    params = {"token": token}
 
     resp = requests.get(base_url + "/v1alpha1/groups/" + groupname + "/subgroups", params=params)
     if resp.status_code != 200:
         logger.info(resp.status)
         raise Exception("Error getting group %s" %groupname)
 
-    group["subgroups"] = resp.json()["groups"]
-    
+    subgroups = resp.json()["groups"]
+    return subgroups
+
+def get_subgroup_requests(groupname):
+    params = {"token": token}
+
     resp = requests.get(base_url + "/v1alpha1/groups/" + groupname + "/subgroup_requests", params=params)
     if resp.status_code != 200:
         logger.info(resp.status)
         raise Exception("Error getting group %s" %groupname)
 
-    group["subgroup_requests"] = resp.json()["groups"]
-    return group
+    subgroups = resp.json()["groups"]
+    return subgroups
