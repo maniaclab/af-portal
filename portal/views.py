@@ -18,43 +18,51 @@ def signup():
 
 @app.route("/login")
 def login():
-    redirect_uri = url_for("login", _external=True)
-    client = globus_sdk.ConfidentialAppAuthClient(app.config["CLIENT_ID"], app.config["CLIENT_SECRET"])
-    client.oauth2_start_flow(redirect_uri, refresh_tokens=True)
-    if "code" not in request.args:
-        next_url = get_safe_redirect()
-        params = {"signup": 1} if request.args.get("signup") else {"next": next_url}
-        auth_uri = client.oauth2_get_authorize_url(additional_params=params)
-        return redirect(auth_uri)
-    else:
-        code = request.args.get("code")
-        tokens = client.oauth2_exchange_code_for_tokens(code)
-        id_token = tokens.decode_id_token(client)
-        session.update(
-            tokens=tokens.by_resource_server, 
-            is_authenticated=True,
-            name=id_token.get("name", ""),
-            email=id_token.get("email", ""),
-            institution=id_token.get("organization", ""),
-            globus_id=id_token.get("sub", ""),
-            last_authentication=id_token.get("last_authentication", -1)
-        )
-        user = connect.find_user(session["globus_id"])
-        if user:
-            session["unix_name"] = user["metadata"]["unix_name"]
-            session["member_status"] = connect.get_member_status(session["unix_name"])
+    try:
+        redirect_uri = url_for("login", _external=True)
+        client = globus_sdk.ConfidentialAppAuthClient(app.config["CLIENT_ID"], app.config["CLIENT_SECRET"])
+        client.oauth2_start_flow(redirect_uri, refresh_tokens=True)
+        if "code" not in request.args:
+            next_url = get_safe_redirect()
+            params = {"signup": 1} if request.args.get("signup") else {"next": next_url}
+            auth_uri = client.oauth2_get_authorize_url(additional_params=params)
+            return redirect(auth_uri)
+        else:
+            code = request.args.get("code")
+            tokens = client.oauth2_exchange_code_for_tokens(code)
+            id_token = tokens.decode_id_token(client)
+            session.update(
+                tokens=tokens.by_resource_server, 
+                is_authenticated=True,
+                name=id_token.get("name", ""),
+                email=id_token.get("email", ""),
+                institution=id_token.get("organization", ""),
+                globus_id=id_token.get("sub", ""),
+                last_authentication=id_token.get("last_authentication", -1)
+            )
+            user = connect.find_user(session["globus_id"])
+            if user:
+                session["unix_name"] = user["metadata"]["unix_name"]
+                session["member_status"] = connect.get_member_status(session["unix_name"])
+            return redirect(url_for("home"))
+    except Exception as err:
+        logger.info(str(err))
         return redirect(url_for("home"))
 
 @app.route("/logout")
 @auth.login_required
 def logout():
-    client = globus_sdk.ConfidentialAppAuthClient(app.config["CLIENT_ID"], app.config["CLIENT_SECRET"])
-    for token in (token_info["access_token"] for token_info in session["tokens"].values()):
-        client.oauth2_revoke_token(token)
-    session.clear()
-    redirect_uri = url_for("home", _external=True)
-    globus_logout_url = ("https://auth.globus.org/v2/web/logout?client=%s&redirect_uri=%s&redirect_name=Simple Portal" %(app.config["CLIENT_ID"], redirect_uri))
-    return redirect(globus_logout_url)
+    try:
+        client = globus_sdk.ConfidentialAppAuthClient(app.config["CLIENT_ID"], app.config["CLIENT_SECRET"])
+        for token in (token_info["access_token"] for token_info in session["tokens"].values()):
+            client.oauth2_revoke_token(token)
+        session.clear()
+        redirect_uri = url_for("home", _external=True)
+        globus_logout_url = ("https://auth.globus.org/v2/web/logout?client=%s&redirect_uri=%s&redirect_name=Simple Portal" %(app.config["CLIENT_ID"], redirect_uri))
+        return redirect(globus_logout_url)
+    except Exception as err:
+        logger.info(str(err))
+        return redirect(url_for("home"))
 
 def is_safe_redirect_url(target):
   host_url = urlparse(request.host_url)
@@ -74,33 +82,45 @@ def get_safe_redirect():
 @app.route("/profile")
 @auth.login_required
 def profile():
-    unix_name = session["unix_name"]
-    profile = connect.get_user_profile(unix_name)
-    return render_template("profile.html", profile=profile)
+    try:
+        unix_name = session["unix_name"]
+        profile = connect.get_user_profile(unix_name)
+        return render_template("profile.html", profile=profile)
+    except Exception as err:
+        logger.info(str(err))
+        return render_template("profile.html", profile=None)
 
 @app.route("/profile/edit", methods=["GET", "POST"])
 @auth.login_required
 def edit_profile():
-    unix_name = session["unix_name"]
-    if request.method == "GET":
-        profile = connect.get_user_profile(unix_name)
-        return render_template("edit_profile.html", profile=profile)
-    if request.method == "POST":
-        name = request.form["name"]
-        phone = request.form["phone"]
-        institution = request.form["institution"]
-        email = request.form["email"]
-        x509_dn = request.form["X.509_DN"]
-        public_key = request.form["public_key"]
-        connect.update_user_profile(unix_name, name=name, phone=phone, institution=institution, email=email, x509_dn=x509_dn, public_key=public_key)
+    try:
+        unix_name = session["unix_name"]
+        if request.method == "GET":
+            profile = connect.get_user_profile(unix_name)
+            return render_template("edit_profile.html", profile=profile)
+        if request.method == "POST":
+            name = request.form["name"]
+            phone = request.form["phone"]
+            institution = request.form["institution"]
+            email = request.form["email"]
+            x509_dn = request.form["X.509_DN"]
+            public_key = request.form["public_key"]
+            connect.update_user_profile(unix_name, name=name, phone=phone, institution=institution, email=email, x509_dn=x509_dn, public_key=public_key)
+            return redirect(url_for('profile'))
+    except Exception as err:
+        logger.info(str(err))
         return redirect(url_for('profile'))
 
 @app.route("/profile/groups")
 @auth.login_required
 def user_groups():
-    unix_name = session["unix_name"]
-    groups = connect.get_user_groups(unix_name)
-    return render_template("user_groups.html", groups=groups)
+    try:
+        unix_name = session["unix_name"]
+        groups = connect.get_user_groups(unix_name)
+        return render_template("user_groups.html", groups=groups)
+    except Exception as err:
+        logger.info(str(err))
+        return render_template("user_groups.html", groups=[])
 
 @app.route("/aup")
 def aup():
@@ -151,9 +171,9 @@ def deploy_notebook():
 def remove_notebook(notebook):
     try:
         jupyterlab.remove_notebook(notebook)
-        return {"success": True}
+        return jsonify(success=True)
     except JupyterLabException:
-        return {"success": False}
+        return jsonify(success=False)
 
 @app.route("/jupyter/notebooks")
 @auth.members_only
@@ -168,22 +188,33 @@ def get_notebooks():
 @app.route("/admin/plot_users_over_time", methods=["GET"])
 @auth.admins_only
 def plot_users_over_time():
-    data = admin.plot_users_over_time()
-    return render_template("plot_users_over_time.html", base64_encoded_image = data)
+    try:
+        data = admin.plot_users_over_time()
+        return render_template("plot_users_over_time.html", base64_encoded_image = data)
+    except Exception as err:
+        logger.info(str(err))
+        return render_template("plot_users_over_time.html", base64_encoded_image = None)
 
 @app.route("/admin/user_info")
 @auth.admins_only
 def user_info():
-    users = connect.get_group_members("root.atlas-af", date_format="%m/%d/%Y")
-    return render_template("user_info.html", users=users)
+    try:
+        users = connect.get_group_members("root.atlas-af", date_format="%m/%d/%Y")
+        return render_template("user_info.html", users=users)
+    except Exception as err:
+        return render_template("user_info.html", users=[])
 
 @app.route("/admin/update_user_institution", methods=["POST"])
 @auth.admins_only
 def update_user_institution():
-    username = request.form['username']
-    institution = request.form['institution']
-    resp = connect.update_user_institution(username, institution)
-    return jsonify(success = True if resp and resp.status_code == 200 else False)
+    try:
+        username = request.form['username']
+        institution = request.form['institution']
+        success = connect.update_user_institution(username, institution)
+        return jsonify(success)
+    except Exception as err:
+        logger.info(str(err))
+        return jsonify(success=False)
 
 @app.route("/admin/notebook_metrics")
 @auth.admins_only
@@ -215,14 +246,10 @@ def login_nodes():
 @auth.admins_only
 def groups(groupname):
     try:
-        group = connect.get_group_info(groupname)
-        members = connect.get_group_members(groupname)
-        subgroups = connect.get_subgroups(groupname)
+        group = connect.get_group(groupname)
         logger.info(str(group))
-        logger.info(str(members))
-        logger.info(str(subgroups))
-        return render_template("groups.html", group=group, members=members, subgroups=subgroups)
+        return render_template("groups.html", group=group)
     except Exception as err:
         logger.error(str(err))
-        return render_template("groups.html", group=[], members=[], subgroups=[])
+        return render_template("groups.html", group={})
 
