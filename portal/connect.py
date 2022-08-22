@@ -137,22 +137,18 @@ def get_group_members(groupname, date_format="%B %m %Y"):
 
 def get_subgroups(groupname):
     params = {"token": token}
-
     resp = requests.get(base_url + "/v1alpha1/groups/" + groupname + "/subgroups", params=params)
     if resp.status_code != 200:
         logger.info(resp.status)
         raise Exception("Error getting group %s" %groupname)
-
     subgroups = resp.json()["groups"]
     return subgroups
 
 def get_subgroup_requests(groupname):
     params = {"token": token}
-
     resp = requests.get(base_url + "/v1alpha1/groups/" + groupname + "/subgroup_requests", params=params)
     if resp.status_code != 200:
         logger.info(resp.status)
         raise Exception("Error getting group %s" %groupname)
-
     subgroups = resp.json()["groups"]
     return subgroups
