@@ -27,12 +27,12 @@
                     <td>{{ group["display_name"] }}</td>
                     <td>{{ group["name"] }}</td>
                     <td>
-                        {% if group["member_status"] == "admin" %}
-                        <span class="text-primary">{{ group["member_status"] }}</span>
-                        {% elif group["member_status"] == "active" %}
-                        <span class="text-success">{{ group["member_status"] }}</span>
+                        {% if group["role"] == "admin" %}
+                        <span class="text-primary">{{ group["role"] }}</span>
+                        {% elif group["role"] == "active" %}
+                        <span class="text-success">{{ group["role"] }}</span>
                         {% else %}
-                        <span class="text-secondary">{{ group["member_status"] }}</span>
+                        <span class="text-secondary">{{ group["role"] }}</span>
                         {% endif %}
                     </td>
                     <td>{{ group["description"] }}</td>

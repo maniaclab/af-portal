@@ -39,12 +39,12 @@
                         <td>{{ user["join_date"] }}</td>
                         <td>{{ user["institution"] }}</td>
                         <td>
-                            {% if user["status"] == "admin" %}
-                            <span class="text-primary">{{ user["status"] }}</span>
-                            {% elif user["status"] == "active" %}
-                            <span class="text-success">{{ user["status"] }}</span>
+                            {% if user["role"] == "admin" %}
+                            <span class="text-primary">{{ user["role"] }}</span>
+                            {% elif user["role"] == "active" %}
+                            <span class="text-success">{{ user["role"] }}</span>
                             {% else %}
-                            <span class="text-secondary">{{ user["status"] }}</span>
+                            <span class="text-secondary">{{ user["role"] }}</span>
                             {% endif %}
                         </td>
                     </tr>

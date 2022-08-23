@@ -42,8 +42,8 @@ def login():
             )
             user = connect.find_user(session["globus_id"])
             if user:
-                session["unix_name"] = user["metadata"]["unix_name"]
-                session["member_status"] = connect.get_member_status(session["unix_name"])
+                session["unix_name"] = user["unix_name"]
+                session["role"] = connect.get_user_role(session["unix_name"])
             return redirect(url_for("home"))
     except Exception as err:
         logger.info(str(err))
@@ -247,17 +247,18 @@ def login_nodes():
 def groups(groupname):
     try:
         group_info = connect.get_group_info(groupname)
-        group_members = connect.get_group_members(groupname)
+        members = connect.get_group_members(groupname)
+        member_requests = connect.get_group_member_requests(groupname)
         subgroups = connect.get_subgroups(groupname)
         subgroup_requests = connect.get_subgroup_requests(groupname)
         nonmembers = connect.get_group_nonmembers(groupname)
         group = {
             "info": group_info,
-            "members": group_members["admin"] + group_members["active"],
-            "member_requests": group_members["pending"],
+            "members": connect.get_user_profiles(members),
+            "member_requests": connect.get_user_profiles(member_requests),
             "subgroups": subgroups,
             "subgroup_requests": subgroup_requests,
-            "nonmembers": nonmembers
+            "nonmembers": connect.get_user_profiles(nonmembers)
         }
         return render_template("groups.html", group=group)
     except Exception as err:

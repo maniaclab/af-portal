@@ -108,7 +108,7 @@
                             <td>{{ member["email"] }}</td>
                             <td>{{ member["phone"] }}</td>
                             <td>{{ member["institution"] }}</td>
-                            <td><span class="text-primary">{{ member["status"] }}</span></td>
+                            <td><span class="text-primary">{{ member["role"] }}</span></td>
                             <td>
                                 <a class="badge bg-danger text-decoration-none" role="button">
                                     <i class="fa-solid fa-circle-xmark"></i>
@@ -141,7 +141,7 @@
                             <td>{{ member["email"] }}</td>
                             <td>{{ member["phone"] }}</td>
                             <td>{{ member["institution"] }}</td>
-                            <td><span class="text-warning fw-bold">{{ member["status"] }}</span></td>
+                            <td><span class="text-warning fw-bold">{{ member["role"] }}</span></td>
                             <td>
                                 <a class="badge bg-success text-decoration-none" role="button">
                                     <i class="fa-regular fa-circle-check"></i>
@@ -242,7 +242,9 @@
 </section>
 <script type="text/javascript">
 $(document).ready(function() {
-    $('table').DataTable();
+    $("table").DataTable({
+        lengthMenu: [10, 25, 50, 100, 1000],
+    });
 });
 </script>
 {% endblock %}

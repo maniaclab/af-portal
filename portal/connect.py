@@ -6,6 +6,7 @@ from dateutil.parser import parse
 
 base_url = app.config["CONNECT_API_ENDPOINT"]
 token = app.config["CONNECT_API_TOKEN"]
+params = {"token": token}
 
 def find_user(globus_id):
     params = {"token": token, "globus_id": globus_id}
@@ -15,7 +16,6 @@ def find_user(globus_id):
     return None
 
 def get_user_profile(unix_name, date_format="%B %m %Y"):
-    params = {"token": token}
     resp = requests.get(base_url + "/v1alpha1/users/" + unix_name, params=params).json()
     if resp["kind"] == "User":
         profile = resp["metadata"]
@@ -29,11 +29,11 @@ def get_user_groups(unix_name):
     if not profile:
         return None
     multiplex = {}
-    status_lookup = {}
+    states = {}
     for group in profile["group_memberships"]:
         group_name = group["name"]
-        member_status = group["state"]
-        status_lookup[group_name] = member_status
+        state = group["state"]
+        states[group_name] = state
         query = "/v1alpha1/groups/" + group_name+ "?token=" + token
         multiplex[query] = {"method": "GET"}
     resp = get_multiplex(multiplex)
@@ -42,13 +42,12 @@ def get_user_groups(unix_name):
         if resp[query]["status"] == 200:
             group = json.loads(resp[query]["body"])["metadata"]
             group_name = group["name"]
-            group["member_status"] = status_lookup[group_name]
+            group["role"] = states[group_name]
             groups.append(group)
     groups.sort(key = lambda group : group["name"])
     return groups
 
 def update_user_profile(unix_name, **kwargs):
-    params = {"token": token}
     json = {
         "apiVersion": "v1alpha1",
         "metadata": {
@@ -67,7 +66,6 @@ def update_user_profile(unix_name, **kwargs):
     return False
 
 def update_user_institution(unix_name, institution):
-    params = {"token": token}
     json = {'apiVersion': 'v1alpha1', 'kind': 'User', 'metadata': {'institution': institution}}
     resp = requests.put(base_url + "/v1alpha1/users/" + unix_name, params=params, json=json)
     if resp.status_code == 200:
@@ -76,19 +74,18 @@ def update_user_institution(unix_name, institution):
     return False
 
 def get_multiplex(json):
-    params = {"token": token}
     return requests.post(base_url + "/v1alpha1/multiplex", params=params, json=json).json()
 
-def get_member_status(unix_name):
+def get_user_role(unix_name):
     profile = get_user_profile(unix_name)
-    result = list(filter(lambda g : g["name"] == "root.atlas-af", profile["group_memberships"]))
+    result = list(filter(lambda group : group["name"] == "root.atlas-af", profile["group_memberships"]))
     if len(result) == 0:
         return "nonmember"
-    member_status = result[0]["state"]
-    return member_status
+    role = result[0]["state"]
+    logger.info("User role: " + role)
+    return role
 
 def get_group_info(groupname, date_format="%B %m %Y"):
-    params = {"token": token}
     resp = requests.get(base_url + "/v1alpha1/groups/" + groupname, params=params)
     if resp.status_code != 200:
         logger.info(resp.status)
@@ -98,42 +95,47 @@ def get_group_info(groupname, date_format="%B %m %Y"):
     group["creation_date"] = parse(group["creation_date"]).strftime(date_format)
     return group
 
-def get_group_usernames(groupname, concatenate=False):
-    usernames = {"admin": [], "active": [], "pending": []}
-    params = {"token": token}
+def get_group_members(groupname):
+    usernames = []
     resp = requests.get(base_url + "/v1alpha1/groups/" + groupname + "/members", params=params)
     if resp.status_code != 200:
         logger.info(resp.status)
         raise Exception("Error getting members for group %s" %groupname)
     for entry in resp.json()["memberships"]:
         username = entry["user_name"]
-        status = entry["state"]
-        if status == "admin":
-            usernames["admin"].append(username)
-        elif status == "active":
-            usernames["active"].append(username)
-        elif status == "pending":
-            usernames["pending"].append(username)
-    if concatenate:
-        concatenated_list = usernames["admin"] + usernames["active"] + usernames["pending"]
-        return concatenated_list
+        role = entry["state"]
+        if role in ["admin", "active"]:
+            usernames.append(username)
     return usernames
 
-def get_group_members(groupname, concatenate=False, date_format="%B %m %Y"):
-    members = {"admin": [], "active": [], "pending": []}
-    params = {"token": token}
-
-    usernames = get_group_usernames(groupname, concatenate=True)
-
-    multiplex = {}
-    for username in usernames:
-        multiplex["/v1alpha1/users/" + username + "?token=" + token] = {"method": "GET"}
-
-    resp = requests.post(base_url + "/v1alpha1/multiplex", params=params, json=multiplex)
+def get_group_member_requests(groupname):
+    usernames = []
+    resp = requests.get(base_url + "/v1alpha1/groups/" + groupname + "/members", params=params)
     if resp.status_code != 200:
         logger.info(resp.status)
         raise Exception("Error getting members for group %s" %groupname)
+    for entry in resp.json()["memberships"]:
+        username = entry["user_name"]
+        role = entry["state"]
+        if role == "pending":
+            usernames.append(username)
+    return usernames
 
+def get_group_nonmembers(groupname):
+    members = get_group_members(groupname)
+    all_users = get_group_members("root")
+    usernames = list(filter(lambda user : user not in members, all_users))
+    return usernames
+
+def get_user_profiles(usernames, date_format="%B %m %Y"):
+    profiles = []
+    multiplex = {}
+    for username in usernames:
+        multiplex["/v1alpha1/users/" + username + "?token=" + token] = {"method": "GET"}
+    resp = requests.post(base_url + "/v1alpha1/multiplex", params=params, json=multiplex)
+    if resp.status_code != 200:
+        logger.info(resp.status)
+        raise Exception("Error getting user profiles")
     resp = resp.json()
     for entry in resp:
         data = json.loads(resp[entry]["body"])["metadata"]
@@ -143,22 +145,15 @@ def get_group_members(groupname, concatenate=False, date_format="%B %m %Y"):
         join_date = parse(data["join_date"]).strftime(date_format) if date_format else parse(data["join_date"]) 
         institution = data["institution"]
         name = data["name"]
-        group_membership = next(filter(lambda group : group["name"] == groupname, data["group_memberships"]))
-        status = group_membership["state"]
-        user = {"username": username, "email": email, "phone": phone, "join_date": join_date, "institution": institution, "name": name, "status": status}
-        if status == "admin":
-            members["admin"].append(user)
-        elif status == "active":
-            members["active"].append(user)
-        elif status == "pending":
-            members["pending"].append(user)
-    if concatenate:
-        concatenated_list = members["admin"] + members["active"] + members["pending"]
-        return concatenated_list
-    return members
+        group = list(filter(lambda group : group["name"] == "root.atlas-af", data["group_memberships"]))
+        role = "nonmember"
+        if (len(group) == 1):
+            role = group[0]["state"]
+        profile = {"username": username, "email": email, "phone": phone, "join_date": join_date, "institution": institution, "name": name, "role": role}
+        profiles.append(profile)
+    return profiles    
 
 def get_subgroups(groupname):
-    params = {"token": token}
     resp = requests.get(base_url + "/v1alpha1/groups/" + groupname + "/subgroups", params=params)
     if resp.status_code != 200:
         logger.info(resp.status)
@@ -167,16 +162,9 @@ def get_subgroups(groupname):
     return subgroups
 
 def get_subgroup_requests(groupname):
-    params = {"token": token}
     resp = requests.get(base_url + "/v1alpha1/groups/" + groupname + "/subgroup_requests", params=params)
     if resp.status_code != 200:
         logger.info(resp.status)
         raise Exception("Error getting group %s" %groupname)
     subgroups = resp.json()["groups"]
     return subgroups
-
-def get_group_nonmembers(groupname):
-    group_users = get_group_usernames(groupname, concatenate=True)
-    all_users = get_group_members("root", concatenate=True)
-    nonmembers = list(filter(lambda user : user["username"] not in group_users, all_users))
-    return nonmembers
