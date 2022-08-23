@@ -87,7 +87,7 @@
                     </div>
                 </div>
             </div>
-            <div class="tab-pane fade fs12" id="members" role="tabpanel" aria-labelledby="members-tab">
+            <div class="tab-pane fade" id="members" role="tabpanel" aria-labelledby="members-tab">
                 <table class="table table-striped nowrap w-100">
                     <thead>
                         <tr>
@@ -111,7 +111,7 @@
                             <td><span class="text-primary">{{ member["status"] }}</span></td>
                             <td>
                                 <a class="badge bg-danger text-decoration-none" role="button">
-                                    <i class="fa-regular fa-circle-xmark"></i>
+                                    <i class="fa-solid fa-circle-xmark"></i>
                                     &nbsp; Remove
                                 </a>
                             </td>
@@ -120,7 +120,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="tab-pane fade fs12" id="member_requests" role="tabpanel" aria-labelledby="member_requests-tab">
+            <div class="tab-pane fade" id="member_requests" role="tabpanel" aria-labelledby="member_requests-tab">
                 <table class="table table-striped nowrap w-100">
                     <thead>
                         <tr>
@@ -157,7 +157,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="tab-pane fade fs12" id="subgroups" role="tabpanel" aria-labelledby="subgroups-tab">
+            <div class="tab-pane fade" id="subgroups" role="tabpanel" aria-labelledby="subgroups-tab">
                 <table class="table table-striped nowrap w-100">
                     <thead>
                         <tr>
@@ -183,7 +183,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="tab-pane fade fs12" id="subgroup_requests" role="tabpanel" aria-labelledby="subgroup_requests-tab">
+            <div class="tab-pane fade" id="subgroup_requests" role="tabpanel" aria-labelledby="subgroup_requests-tab">
                 <table class="table table-striped nowrap w-100">
                     <thead>
                         <tr>
@@ -205,7 +205,37 @@
                     </tbody>
                 </table>
             </div>
-            <div class="tab-pane fade" id="add_members" role="tabpanel" aria-labelledby="add_members-tab">...</div>
+            <div class="tab-pane fade" id="add_members" role="tabpanel" aria-labelledby="add_members-tab">
+                <table class="table table-striped nowrap w-100">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Institution</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for member in group["nonmembers"] %}
+                        <tr>
+                            <td>{{ member["username"] }}</td>
+                            <td>{{ member["name"] }}</td>
+                            <td>{{ member["email"] }}</td>
+                            <td>{{ member["phone"] }}</td>
+                            <td>{{ member["institution"] }}</td>
+                            <td>
+                                <a class="badge bg-success text-decoration-none" role="button">
+                                    <i class="fa-solid fa-circle-plus"></i>
+                                    &nbsp; Add
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
             <div class="tab-pane fade" id="email" role="tabpanel" aria-labelledby="email-tab">...</div>
         </div>
     </div>

@@ -98,19 +98,37 @@ def get_group_info(groupname, date_format="%B %m %Y"):
     group["creation_date"] = parse(group["creation_date"]).strftime(date_format)
     return group
 
-def get_group_members(groupname, date_format="%B %m %Y"):
-    members = {"active": [], "pending": []}
+def get_group_usernames(groupname, concatenate=False):
+    usernames = {"admin": [], "active": [], "pending": []}
     params = {"token": token}
-
     resp = requests.get(base_url + "/v1alpha1/groups/" + groupname + "/members", params=params)
     if resp.status_code != 200:
         logger.info(resp.status)
         raise Exception("Error getting members for group %s" %groupname)
+    for entry in resp.json()["memberships"]:
+        username = entry["user_name"]
+        status = entry["state"]
+        if status == "admin":
+            usernames["admin"].append(username)
+        elif status == "active":
+            usernames["active"].append(username)
+        elif status == "pending":
+            usernames["pending"].append(username)
+    if concatenate:
+        concatenated_list = usernames["admin"] + usernames["active"] + usernames["pending"]
+        return concatenated_list
+    return usernames
+
+def get_group_members(groupname, concatenate=False, date_format="%B %m %Y"):
+    members = {"admin": [], "active": [], "pending": []}
+    params = {"token": token}
+
+    usernames = get_group_usernames(groupname, concatenate=True)
 
     multiplex = {}
-    for entry in resp.json()["memberships"]:
-        multiplex["/v1alpha1/users/" + entry["user_name"] + "?token=" + token] = {"method": "GET"}
-    
+    for username in usernames:
+        multiplex["/v1alpha1/users/" + username + "?token=" + token] = {"method": "GET"}
+
     resp = requests.post(base_url + "/v1alpha1/multiplex", params=params, json=multiplex)
     if resp.status_code != 200:
         logger.info(resp.status)
@@ -125,14 +143,18 @@ def get_group_members(groupname, date_format="%B %m %Y"):
         join_date = parse(data["join_date"]).strftime(date_format) if date_format else parse(data["join_date"]) 
         institution = data["institution"]
         name = data["name"]
-        group_membership = next(filter(lambda group : group["name"] == "root.atlas-af", data["group_memberships"]))
+        group_membership = next(filter(lambda group : group["name"] == groupname, data["group_memberships"]))
         status = group_membership["state"]
         user = {"username": username, "email": email, "phone": phone, "join_date": join_date, "institution": institution, "name": name, "status": status}
-        if status in ("admin", "active"):
+        if status == "admin":
+            members["admin"].append(user)
+        elif status == "active":
             members["active"].append(user)
         elif status == "pending":
             members["pending"].append(user)
-
+    if concatenate:
+        concatenated_list = members["admin"] + members["active"] + members["pending"]
+        return concatenated_list
     return members
 
 def get_subgroups(groupname):
@@ -152,3 +174,9 @@ def get_subgroup_requests(groupname):
         raise Exception("Error getting group %s" %groupname)
     subgroups = resp.json()["groups"]
     return subgroups
+
+def get_group_nonmembers(groupname):
+    group_users = get_group_usernames(groupname, concatenate=True)
+    all_users = get_group_members("root", concatenate=True)
+    nonmembers = list(filter(lambda user : user["username"] not in group_users, all_users))
+    return nonmembers

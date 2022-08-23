@@ -250,12 +250,14 @@ def groups(groupname):
         group_members = connect.get_group_members(groupname)
         subgroups = connect.get_subgroups(groupname)
         subgroup_requests = connect.get_subgroup_requests(groupname)
+        nonmembers = connect.get_group_nonmembers(groupname)
         group = {
             "info": group_info,
-            "members": group_members["active"],
+            "members": group_members["admin"] + group_members["active"],
             "member_requests": group_members["pending"],
             "subgroups": subgroups,
-            "subgroup_requests": subgroup_requests
+            "subgroup_requests": subgroup_requests,
+            "nonmembers": nonmembers
         }
         return render_template("groups.html", group=group)
     except Exception as err:
