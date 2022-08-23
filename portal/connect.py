@@ -82,7 +82,6 @@ def get_user_role(unix_name):
     if len(result) == 0:
         return "nonmember"
     role = result[0]["state"]
-    logger.info("User role: " + role)
     return role
 
 def get_group_info(groupname, date_format="%B %m %Y"):
