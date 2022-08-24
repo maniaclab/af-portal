@@ -3,6 +3,7 @@ from flask import session, request, render_template, url_for, redirect, jsonify,
 import globus_sdk
 from urllib.parse import urlparse, urljoin
 from portal.jupyterlab import JupyterLabException
+import time
 
 @app.route("/")
 def home():
@@ -246,20 +247,32 @@ def login_nodes():
 @auth.admins_only
 def groups(groupname):
     try:
-        group_info = connect.get_group_info(groupname)
-        members = connect.get_group_members(groupname)
-        member_requests = connect.get_group_member_requests(groupname)
+        start = time.time()
+        usernames = connect.get_group_members("root")
+        users = connect.get_user_profiles(usernames)
+        members = []
+        member_requests = []
+        nonmembers = []
+        for user in users:
+            if user["role"] in ("admin", "active"):
+                members.append(user)
+            elif user["role"] == "pending":
+                member_requests.append(user)
+            elif user["role"] in ("nonmember", "pending"):
+                nonmembers.append(user)
         subgroups = connect.get_subgroups(groupname)
         subgroup_requests = connect.get_subgroup_requests(groupname)
-        nonmembers = connect.get_group_nonmembers(groupname)
+        group_info = connect.get_group_info(groupname)
         group = {
             "info": group_info,
-            "members": connect.get_user_profiles(members),
-            "member_requests": connect.get_user_profiles(member_requests),
+            "members": members,
+            "member_requests": member_requests,
             "subgroups": subgroups,
             "subgroup_requests": subgroup_requests,
-            "nonmembers": connect.get_user_profiles(nonmembers)
+            "nonmembers": nonmembers
         }
+        stop = time.time()
+        logger.info("The groups view function has taken %.2f ms", (stop-start)*1000)
         return render_template("groups.html", group=group)
     except Exception as err:
         logger.error(str(err))

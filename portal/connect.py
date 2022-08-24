@@ -3,6 +3,7 @@ from datetime import datetime
 import requests
 import json
 from dateutil.parser import parse
+import time
 
 base_url = app.config["CONNECT_API_ENDPOINT"]
 token = app.config["CONNECT_API_TOKEN"]
@@ -28,6 +29,7 @@ def get_multiplex(json):
     return requests.post(base_url + "/v1alpha1/multiplex", params=params, json=json).json()
 
 def get_user_profiles(usernames, date_format="%B %m %Y"):
+    start = time.time()
     profiles = []
     multiplex = {}
     for username in usernames:
@@ -51,6 +53,8 @@ def get_user_profiles(usernames, date_format="%B %m %Y"):
             role = group[0]["state"]
         profile = {"username": username, "email": email, "phone": phone, "join_date": join_date, "institution": institution, "name": name, "role": role}
         profiles.append(profile)
+    stop = time.time()
+    logger.info("The get_user_profiles function has taken %.2f ms", (stop-start)*1000)
     return profiles 
 
 def get_user_role(unix_name):
@@ -120,6 +124,7 @@ def get_group_info(groupname, date_format="%B %m %Y"):
     return group
 
 def get_group_members(groupname):
+    start = time.time()
     usernames = []
     resp = requests.get(base_url + "/v1alpha1/groups/" + groupname + "/members", params=params)
     if resp.status_code != 200:
@@ -130,6 +135,8 @@ def get_group_members(groupname):
         role = entry["state"]
         if role in ["admin", "active"]:
             usernames.append(username)
+    stop = time.time()
+    logger.info("The get_group_members function has taken %.2f ms", (stop-start)*1000)
     return usernames
 
 def get_group_member_requests(groupname):
@@ -146,10 +153,16 @@ def get_group_member_requests(groupname):
     return usernames
 
 def get_group_nonmembers(groupname):
+    start = time.time()
     members = get_group_members(groupname)
+    hash_table = dict()
+    for member in members:
+        hash_table[member] = 1
     all_users = get_group_members("root")
-    usernames = list(filter(lambda user : user not in members, all_users))
-    return usernames
+    nonmembers = filter(lambda username : hash_table.get(username) is None, all_users)
+    stop = time.time()
+    logger.info("The get_group_nonmembers function has taken %.2f ms", (stop-start)*1000)
+    return nonmembers
 
 def get_subgroups(groupname):
     resp = requests.get(base_url + "/v1alpha1/groups/" + groupname + "/subgroups", params=params)
