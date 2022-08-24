@@ -139,31 +139,6 @@ def get_group_members(groupname):
     logger.info("The get_group_members function has taken %.2f ms", (stop-start)*1000)
     return usernames
 
-def get_group_member_requests(groupname):
-    usernames = []
-    resp = requests.get(base_url + "/v1alpha1/groups/" + groupname + "/members", params=params)
-    if resp.status_code != 200:
-        logger.info(resp.status)
-        raise Exception("Error getting members for group %s" %groupname)
-    for entry in resp.json()["memberships"]:
-        username = entry["user_name"]
-        role = entry["state"]
-        if role == "pending":
-            usernames.append(username)
-    return usernames
-
-def get_group_nonmembers(groupname):
-    start = time.time()
-    members = get_group_members(groupname)
-    hash_table = dict()
-    for member in members:
-        hash_table[member] = 1
-    all_users = get_group_members("root")
-    nonmembers = filter(lambda username : hash_table.get(username) is None, all_users)
-    stop = time.time()
-    logger.info("The get_group_nonmembers function has taken %.2f ms", (stop-start)*1000)
-    return nonmembers
-
 def get_subgroups(groupname):
     resp = requests.get(base_url + "/v1alpha1/groups/" + groupname + "/subgroups", params=params)
     if resp.status_code != 200:
