@@ -258,7 +258,8 @@ def groups(groupname):
                 members.append(user)
             elif user["role"] == "pending":
                 member_requests.append(user)
-            elif user["role"] in ("nonmember", "pending"):
+                nonmembers.append(user)
+            elif user["role"] == "nonmember":
                 nonmembers.append(user)
         subgroups = connect.get_subgroups(groupname)
         subgroup_requests = connect.get_subgroup_requests(groupname)
