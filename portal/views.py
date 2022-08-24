@@ -200,9 +200,11 @@ def plot_users_over_time():
 @auth.admins_only
 def user_info():
     try:
-        users = connect.get_group_members("root.atlas-af", date_format="%m/%d/%Y")
+        usernames = connect.get_group_members("root.atlas-af")
+        users = connect.get_user_profiles(usernames, date_format="%m/%d/%Y")
         return render_template("user_info.html", users=users)
     except Exception as err:
+        logger.info(str(err))
         return render_template("user_info.html", users=[])
 
 @app.route("/admin/update_user_institution", methods=["POST"])

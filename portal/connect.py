@@ -133,9 +133,7 @@ def get_group_members(groupname):
         raise Exception("Error getting members for group %s" %groupname)
     for entry in resp.json()["memberships"]:
         username = entry["user_name"]
-        role = entry["state"]
-        if role in ["admin", "active"]:
-            usernames.append(username)
+        usernames.append(username)
     stop = time.time()
     logger.info("The get_group_members function has taken %.2f ms", (stop-start)*1000)
     return usernames
