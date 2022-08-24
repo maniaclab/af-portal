@@ -13,8 +13,8 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a class="text-decoration-none" href="{{ url_for('home') }}">Home</a></li>
-                <li class="breadcrumb-item"><a class="text-decoration-none" href="{{ url_for('groups', groupname='root.atlas-af') }}">Groups</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ group["name"] }}</li>
+                <li class="breadcrumb-item"><a onclick="loader()" class="text-decoration-none" href="{{ url_for('groups', groupname='root.atlas-af') }}">Groups</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ group["info"]["name"] }}</li>
             </ol>
         </nav>
         <ul class="nav nav-tabs my-4" role="tablist">
@@ -171,7 +171,7 @@
                         {% for subgroup in group["subgroups"] %}
                         <tr>
                             <td>
-                                <a class="text-decoration-none" href="{{ url_for('groups', groupname=subgroup['name']) }}">
+                                <a onclick="loader()" class="text-decoration-none" href="{{ url_for('groups', groupname=subgroup['name']) }}">
                                     {{ subgroup["display_name"] }}
                                 </a>
                             </td>
@@ -236,7 +236,24 @@
                     </tbody>
                 </table>
             </div>
-            <div class="tab-pane fade" id="email" role="tabpanel" aria-labelledby="email-tab">...</div>
+            <div class="tab-pane fade col-lg-8 mx-auto" id="email" role="tabpanel" aria-labelledby="email-tab">
+                <form id="email">
+                    <div class="mb-3">
+                        <h5>Send an email to the {{ group["info"]["display_name"] }} users</h5> 
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" name="subject" id="subject" placeholder="Subject">
+                        <label for="subject">Subject</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <textarea class="form-control" placeholder="Body" name="body" id="body" style="height: 300px;"></textarea>
+                        <label for="body">Body</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </section>
@@ -245,6 +262,15 @@ $(document).ready(function() {
     $("table").DataTable({
         lengthMenu: [10, 25, 50, 100, 1000],
     });
+    $("form#email").submit(function(event) {
+        event.preventDefault();
+        var formValues = $(this).serialize();
+        $.post("{{ url_for('send_email', groupname=group['info']['name']) }}", formValues, function(resp) {
+            if (resp) {
+                message(resp["message"], resp["category"]);
+            }
+        });
+    })
 });
 </script>
 {% endblock %}

@@ -265,3 +265,24 @@ def groups(groupname):
         logger.error(str(err))
         return render_template("groups.html", group={})
 
+@app.route("/admin/email/<groupname>", methods=["POST"])
+@auth.admins_only
+def send_email(groupname):
+    try:
+        sender = "noreply@af.uchicago.edu"
+        logger.info("Getting recipients...")
+        recipients = admin.get_email_list(groupname)
+        logger.info(str(recipients))
+        subject = request.form["subject"]
+        body = request.form["body"]
+        logger.info("Sending email...")
+        success = admin.email_users(sender, recipients, subject, body)
+        if success:
+            return jsonify(message="Sent email successfully", category="success")
+        else:
+            return jsonify(message="Error sending email", category="warning")
+    except Exception as err:
+        logger.error(str(err))
+        return jsonify(message="Error sending email", category="warning")
+
+

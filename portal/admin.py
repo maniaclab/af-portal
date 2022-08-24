@@ -3,7 +3,8 @@ from matplotlib.figure import Figure
 from io import BytesIO
 from datetime import datetime
 import pandas as pd
-from portal import logger, connect
+from portal import app, logger, connect
+import requests
 
 def plot_users_over_time():
     usernames = connect.get_group_members("root.atlas-af")
@@ -23,8 +24,30 @@ def plot_users_over_time():
     ax.plot(xvalues, yvalues)
     ax.set_xlabel("Month")
     ax.set_ylabel("Number of users")
-    # ax.set_title('Number of users by month')
     buf = BytesIO()
     fig.savefig(buf, format="png")
     data = base64.b64encode(buf.getbuffer()).decode("ascii")
     return data
+
+def get_email_list(group):
+    group_members = connect.get_group_members(group)
+    profiles = connect.get_user_profiles(group_members)
+    email_list = [profile["email"] for profile in profiles]
+    return email_list
+
+def email_users(sender, recipients, subject, body):
+    logger.info("Sending email...")
+    resp = requests.post("https://api.mailgun.net/v3/api.ci-connect.net/messages",
+        auth=("api", app.config.get("MAILGUN_API_TOKEN")),
+        data={
+            "from": "<" + sender + ">",
+            "to": [sender],
+            "bcc": recipients,
+            "subject": subject,
+            "text": body
+        }
+    )
+    if resp and resp.status_code == 200:
+        logger.info("Sent email with subject %s" %subject)
+        return True
+    return False

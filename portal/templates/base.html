@@ -119,6 +119,7 @@
     </nav>
   </header>
   <div id="loader" class="center"></div> 
+  <div id="messages"></div>
   {% block content %} {% endblock %}
   <footer class="text-center">
     <a href="https://www.uchicago.edu" target="_blank"><img src="{{url_for('static', filename='img/uc-logo.png')}}"></a>
@@ -130,6 +131,10 @@
   function loader() {
     var loader = document.getElementById("loader");
     loader.style.display = "inline";
+  }
+  function message(message, category) {
+    $("#messages").html("<div class='alert alert-" + category + " alert-dismissible'>" + message + "<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button></div>");
+    $("#messages").show();
   }
 </script>
 </html>

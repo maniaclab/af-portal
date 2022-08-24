@@ -73,6 +73,7 @@ span.asterisk {
     height: 70px; 
     animation: spin 1s linear infinite; 
     display: none;
+    z-index: 100;
 }
 
 @keyframes spin { 
@@ -88,4 +89,8 @@ span.asterisk {
     left: 0; 
     right: 0; 
     margin: auto; 
+}
+
+#messages {
+    display: none;
 }
