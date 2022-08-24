@@ -51,7 +51,8 @@ def get_user_profiles(usernames, date_format="%B %m %Y"):
         role = "nonmember"
         if (len(group) == 1):
             role = group[0]["state"]
-        profile = {"username": username, "email": email, "phone": phone, "join_date": join_date, "institution": institution, "name": name, "role": role}
+        group_memberships = data["group_memberships"]
+        profile = {"username": username, "email": email, "phone": phone, "join_date": join_date, "institution": institution, "name": name, "role": role, "group_memberships": group_memberships}
         profiles.append(profile)
     stop = time.time()
     logger.info("The get_user_profiles function has taken %.2f ms", (stop-start)*1000)
