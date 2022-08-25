@@ -227,7 +227,7 @@
                             <td>{{ member["phone"] }}</td>
                             <td>{{ member["institution"] }}</td>
                             <td>
-                                <a class="badge bg-success text-decoration-none" role="button">
+                                <a href="{{ url_for('add_group_member', unix_name=member['username'], group_name=group['info']['name']) }}" class="badge bg-success text-decoration-none" role="button">
                                     <i class="fa-solid fa-circle-plus"></i>
                                     &nbsp; Add
                                 </a>
