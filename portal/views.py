@@ -292,12 +292,11 @@ def send_email(groupname):
         body = request.form["body"]
         success = admin.email_users(sender, recipients, subject, body)
         if success:
-            return jsonify(message="Sent email successfully", category="success")
-        else:
-            return jsonify(message="Error sending email", category="warning")
+            return jsonify(message="Sent email to group %s" %groupname, category="success")
+        return jsonify(message="Error sending email to group %s" %groupname, category="warning")
     except Exception as err:
         logger.error(str(err))
-        return jsonify(message="Error sending email", category="warning")
+        return jsonify(message="Error sending email to group %s" %groupname, category="warning")
 
 @app.route("/groups/<group_name>/add_group_member/<unix_name>")
 @auth.admins_only
@@ -315,17 +314,21 @@ def add_group_member(unix_name, group_name):
             Email: %s
             Institution: %s""" %(approver, unix_name, group_name, profile["unix_name"], profile["name"], profile["email"], profile["institution"])
         admin.email_staff(subject, body)
-        return jsonify(message="Added %s to group %s" %(unix_name, group_name), category="success")
+        flash("Added %s to group %s" %(unix_name, group_name), "success")
+        return redirect(url_for("groups", groupname=group_name))
     except Exception as err:
         logger.error(str(err))
-        return jsonify(message="Error adding %s to group %s" %(unix_name, group_name), category="warning")
+        flash("Error adding %s to group %s" %(unix_name, group_name), "warning")
+        return redirect(url_for("groups", groupname=group_name))
 
 @app.route("/groups/<group_name>/delete_group_member/<unix_name>")
 @auth.admins_only
 def remove_group_member(unix_name, group_name):
     try:
         success = connect.remove_user_from_group(unix_name, group_name)
-        return jsonify(message="Removed %s from group %s" %(unix_name, group_name), category="success")
+        flash("Removed %s from group %s" %(unix_name, group_name), "success")
+        return redirect(url_for("groups", groupname=group_name))
     except Exception as err:
         logger.error(str(err))
-        return jsonify(message="Error removing %s from group %s" %(unix_name, group_name), category="warning")
+        flash("Error removing %s from group %s" %(unix_name, group_name), "warning")
+        return redirect(url_for("groups", groupname=group_name))

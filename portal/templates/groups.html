@@ -111,7 +111,7 @@
                             <td>{{ member["institution"] }}</td>
                             <td><span class="text-primary">{{ member["role"] }}</span></td>
                             <td>
-                                <a href="{{ url_for('remove_group_member', unix_name=member['username'], group_name=group['info']['name']) }}" class="badge bg-danger text-decoration-none" role="button">
+                                <a onclick="loader()" href="{{ url_for('remove_group_member', unix_name=member['username'], group_name=group['info']['name']) }}" class="badge bg-danger text-decoration-none" role="button">
                                     <i class="fa-solid fa-circle-xmark"></i>
                                     &nbsp; Remove
                                 </a>
@@ -144,11 +144,11 @@
                             <td>{{ member["institution"] }}</td>
                             <td><span class="text-warning fw-bold">{{ member["role"] }}</span></td>
                             <td>
-                                <a href="{{ url_for('add_group_member', unix_name=member['username'], group_name=group['info']['name']) }}" class="badge bg-success text-decoration-none" role="button">
+                                <a onclick="loader()" href="{{ url_for('add_group_member', unix_name=member['username'], group_name=group['info']['name']) }}" class="badge bg-success text-decoration-none" role="button">
                                     <i class="fa-regular fa-circle-check"></i>
                                     &nbsp;Approve
                                 </a>
-                                <a href="{{ url_for('remove_group_member', unix_name=member['username'], group_name=group['info']['name']) }}" class="badge bg-danger text-decoration-none" role="button">
+                                <a onclick="loader()" href="{{ url_for('remove_group_member', unix_name=member['username'], group_name=group['info']['name']) }}" class="badge bg-danger text-decoration-none" role="button">
                                     <i class="fa-regular fa-circle-xmark"></i>
                                     &nbsp;Deny
                                 </a>
@@ -227,7 +227,7 @@
                             <td>{{ member["phone"] }}</td>
                             <td>{{ member["institution"] }}</td>
                             <td>
-                                <a href="{{ url_for('add_group_member', unix_name=member['username'], group_name=group['info']['name']) }}" class="badge bg-success text-decoration-none" role="button">
+                                <a onclick="loader()" href="{{ url_for('add_group_member', unix_name=member['username'], group_name=group['info']['name']) }}" class="badge bg-success text-decoration-none" role="button">
                                     <i class="fa-solid fa-circle-plus"></i>
                                     &nbsp; Add
                                 </a>
