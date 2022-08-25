@@ -240,12 +240,12 @@ def user_notebook_metrics():
         flash(str(e), 'warning')
         return render_template("notebook_metrics_for_user.html", notebooks=[])
 
-@app.route("/admin/login_nodes")
+@app.route("/monitoring/login_nodes")
 @auth.admins_only
 def login_nodes():
     return render_template("login_nodes.html")
 
-@app.route("/admin/groups/<groupname>")
+@app.route("/groups/<groupname>")
 @auth.admins_only
 def groups(groupname):
     try:
@@ -282,7 +282,7 @@ def groups(groupname):
         logger.error(str(err))
         return render_template("groups.html", group={})
 
-@app.route("/admin/email/<groupname>", methods=["POST"])
+@app.route("/groups/<groupname>/email", methods=["POST"])
 @auth.admins_only
 def send_email(groupname):
     try:
@@ -299,4 +299,33 @@ def send_email(groupname):
         logger.error(str(err))
         return jsonify(message="Error sending email", category="warning")
 
+@app.route("/groups/<group_name>/add_group_member/<unix_name>")
+@auth.admins_only
+def add_group_member(unix_name, group_name):
+    try:
+        success = connect.add_user_to_group(unix_name, group_name)
+        profile = connect.get_user_profile(unix_name)
+        approver = session["unix_name"]
+        subject = "Account approval"
+        body = """
+            User %s approved a request from %s to join group %s.
 
+            Unix name: %s
+            Full name: %s
+            Email: %s
+            Institution: %s""" %(approver, unix_name, group_name, profile["unix_name"], profile["name"], profile["email"], profile["institution"])
+        admin.email_staff(subject, body)
+        return jsonify(message="Added %s to group %s" %(unix_name, group_name), category="success")
+    except Exception as err:
+        logger.error(str(err))
+        return jsonify(message="Error adding %s to group %s" %(unix_name, group_name), category="warning")
+
+@app.route("/groups/<group_name>/delete_group_member/<unix_name>")
+@auth.admins_only
+def remove_group_member(unix_name, group_name):
+    try:
+        success = connect.remove_user_from_group(unix_name, group_name)
+        return jsonify(message="Removed %s from group %s" %(unix_name, group_name), category="success")
+    except Exception as err:
+        logger.error(str(err))
+        return jsonify(message="Error removing %s from group %s" %(unix_name, group_name), category="warning")

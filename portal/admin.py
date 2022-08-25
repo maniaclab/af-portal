@@ -51,3 +51,8 @@ def email_users(sender, recipients, subject, body):
         logger.info("Sent email with subject %s" %subject)
         return True
     return False
+
+def email_staff(subject, body):
+    sender = "noreply@af.uchicago.edu"
+    recipients = get_email_list("root.atlas-af.staff")
+    return email_users(sender, recipients, subject, body)

@@ -78,7 +78,7 @@ def update_user_profile(unix_name, **kwargs):
         }
     }
     resp = requests.put(base_url + "/v1alpha1/users/" + unix_name, params=params, json=json)
-    if resp.status_code == 200:
+    if resp.status_code == requests.codes.ok:
         logger.info("Updated profile for user %s." %unix_name)
         return True
     return False
@@ -86,7 +86,7 @@ def update_user_profile(unix_name, **kwargs):
 def update_user_institution(unix_name, institution):
     json = {'apiVersion': 'v1alpha1', 'kind': 'User', 'metadata': {'institution': institution}}
     resp = requests.put(base_url + "/v1alpha1/users/" + unix_name, params=params, json=json)
-    if resp.status_code == 200:
+    if resp.status_code == requests.codes.ok:
         logger.info("Updated user %s. Set institution to %s." %(unix_name, institution))
         return True
     return False
@@ -153,3 +153,18 @@ def get_subgroup_requests(groupname):
         raise Exception("Error getting group %s" %groupname)
     subgroups = resp.json()["groups"]
     return subgroups
+
+def add_user_to_group(unix_name, group_name):
+    json = {"apiVersion": "v1alpha1", "group_membership": {"state": "active"}}
+    resp = requests.put(base_url + "/v1alpha1/groups/" + group_name + "/members/" + unix_name, params=params, json=json)
+    if resp.status_code == requests.codes.ok:
+        logger.info("Added user %s to group %s" %(unix_name, group_name))
+        return True
+    return False
+
+def remove_user_from_group(unix_name, group_name):
+    resp = requests.delete(base_url + "/v1alpha1/groups/" + group_name + "/members/" + unix_name, params=params)
+    if resp.status_code == requests.codes.ok:
+        logger.info("Removed user %s from group %s" %(unix_name, group_name))
+        return True
+    return False
