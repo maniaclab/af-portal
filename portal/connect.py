@@ -172,13 +172,13 @@ def remove_user_from_group(unix_name, group_name):
 def approve_subgroup_request(subgroup_name, group_name):
     resp = requests.put(base_url + "/v1alpha1/groups/" + group_name + "/subgroup_requests/" + subgroup_name + "/approve", params=params)
     if resp.status_code == requests.codes.ok:
-        logger.info("Approved subgroup request for subgroup %s in group %s" %(subgroup_name, group_name))
+        logger.info("Approved request for subgroup %s in group %s" %(subgroup_name, group_name))
         return True
     return False
 
 def deny_subgroup_request(subgroup_name, group_name):
     resp = requests.delete(base_url + "/v1alpha1/groups/" + group_name + "/subgroup_requests/" + subgroup_name, params=params)
     if resp.status_code == requests.codes.ok:
-        logger.info("Denied subgroup request for subgroup %s in group %s" %(subgroup_name, group_name))
+        logger.info("Denied request for subgroup %s in group %s" %(subgroup_name, group_name))
         return True
     return False
