@@ -192,6 +192,7 @@
                             <th>Unix name</th>
                             <th>Contact email</th>
                             <th>Description</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -201,6 +202,16 @@
                             <td>{{ subgroup["name"] }}</td>
                             <td>{{ subgroup["email"] }}</td>
                             <td>{{ subgroup["description"] }}</td>
+                            <td>
+                                <a onclick="loader()" href="{{ url_for('approve_subgroup_request', subgroup_name=subgroup['name'], group_name=group['info']['name']) }}" class="badge bg-success text-decoration-none" role="button">
+                                    <i class="fa-regular fa-circle-check"></i>
+                                    &nbsp;Approve
+                                </a>
+                                <a onclick="loader()" href="{{ url_for('deny_subgroup_request', subgroup_name=subgroup['name'], group_name=group['info']['name']) }}" class="badge bg-danger text-decoration-none" role="button">
+                                    <i class="fa-regular fa-circle-xmark"></i>
+                                    &nbsp;Deny
+                                </a>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>

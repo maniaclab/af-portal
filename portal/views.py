@@ -332,3 +332,27 @@ def remove_group_member(unix_name, group_name):
         logger.error(str(err))
         flash("Error removing %s from group %s" %(unix_name, group_name), "warning")
         return redirect(url_for("groups", groupname=group_name))
+
+@app.route("/groups/<group_name>/approve_subgroup_request/<subgroup_name>")
+@auth.admins_only
+def approve_subgroup_request(subgroup_name, group_name):
+    try:
+        success = connect.approve_subgroup_request(subgroup_name, group_name)
+        flash("Approved request for subgroup %s" %subgroup_name, "success")
+        return redirect(url_for("groups", groupname=group_name))
+    except Exception as err:
+        logger.error(str(err))
+        flash("Error approving request for subgroup %s" %subgroup_name, "warning")
+        return redirect(url_for("groups", groupname=group_name))
+
+@app.route("/groups/<group_name>/deny_subgroup_request/<subgroup_name>")
+@auth.admins_only
+def deny_subgroup_request(subgroup_name, group_name):
+    try:
+        success = connect.deny_subgroup_request(subgroup_name, group_name)
+        flash("Denied request for subgroup %s" %subgroup_name, "success")
+        return redirect(url_for("groups", groupname=group_name))
+    except Exception as err:
+        logger.error(str(err))
+        flash("Error denying request for subgroup %s" %subgroup_name, "warning")
+        return redirect(url_for("groups", groupname=group_name))
