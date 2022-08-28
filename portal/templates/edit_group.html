@@ -17,8 +17,8 @@
             <div class="col-lg-6">
                 <form action="{{ url_for('edit_group', group_name=group['name']) }}" method="POST">
                     <div class="mb-2">
-                        <label for="name" class="form-label">Group name:</label>
-                        <input type="text" class="form-control" name="name" value="{{ group['name'] }}" required>
+                        <label for="name" class="form-label">Display name:</label>
+                        <input type="text" class="form-control" name="display-name" value="{{ group['name'] }}" required>
                     </div>
                     <div class="mb-2">
                         <label for="email" class="form-label">Contact email:</label>

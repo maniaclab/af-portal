@@ -182,3 +182,18 @@ def deny_subgroup_request(subgroup_name, group_name):
         logger.info("Denied request for subgroup %s in group %s" %(subgroup_name, group_name))
         return True
     return False
+
+def update_group_info(group_name, **kwargs):
+    json = {
+        "apiVersion": "v1alpha1",
+        "metadata": {
+            "display_name": kwargs["display_name"],
+            "email": kwargs["email"],
+            "phone": kwargs["phone"],
+            "description": kwargs["description"],
+        }
+    }
+    resp = requests.put(base_url + "/v1alpha1/groups/" + group_name, params=params, json=json)
+    if resp.status_code == requests.codes.ok:
+        return True
+    return False

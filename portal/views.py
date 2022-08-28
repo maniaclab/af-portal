@@ -364,6 +364,17 @@ def edit_group(group_name):
         group = connect.get_group_info(group_name)
         if request.method == "GET":
             return render_template("edit_group.html", group=group)
+        elif request.method == "POST":
+            kwargs = {
+                "display_name": request.form["display-name"],
+                "email": request.form["email"],
+                "phone": request.form["phone"],
+                "description": request.form["description"]
+            }
+            connect.update_group_info(group_name, **kwargs)
+            flash("Updated group %s successfully" %group_name, "success")
+            return redirect(url_for("groups", groupname=group_name))
     except Exception as err:
         logger.error(str(err))
+        flash("Error updating group %s" %group_name, "warning")
         return render_template("edit_group.html", group=None)
