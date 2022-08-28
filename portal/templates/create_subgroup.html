@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %} Edit group {% endblock %}
+{% block title %} Create subgroup {% endblock %}
 
 {% block content %}
 <section>
@@ -10,17 +10,21 @@
                 <li class="breadcrumb-item"><a class="text-decoration-none" href="{{ url_for('home') }}">Home</a></li>
                 <li class="breadcrumb-item"><a onclick="loader()" class="text-decoration-none" href="{{ url_for('groups', groupname='root.atlas-af') }}">Groups</a></li>
                 <li class="breadcrumb-item"><a onclick="loader()" class="text-decoration-none" href="{{ url_for('groups', groupname=group['name']) }}">{{ group['name'] }}</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Edit</li>
+                <li class="breadcrumb-item active" aria-current="page">Create subgroup</li>
             </ol>
         </nav>
         <div class="row">
             <div class="col-lg-8 mx-auto">
-                <h4 class="mt-3">Edit group information</h4>
+                <h4 class="mt-3">Create subgroup</h4>
                 <div class="text-success"><hr/></div>
-                <form action="{{ url_for('edit_group', group_name=group['name']) }}" method="POST">
+                <form action="{{ url_for('create_subgroup', group_name=group['name']) }}" method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Short name:</label>
+                        <input type="text" class="form-control" name="short-name" required>
+                    </div>
                     <div class="mb-3">
                         <label for="name" class="form-label">Display name:</label>
-                        <input type="text" class="form-control" name="display-name" value="{{ group['name'] }}" required>
+                        <input type="text" class="form-control" name="display-name" required>
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Contact email:</label>
@@ -32,7 +36,7 @@
                     </div>
                     <div class="mb-4">
                         <label for="description" class="form-label">Description:</label>
-                        <input type="text" class="form-control" name="description" value="{{ group['description'] }}">
+                        <input type="text" class="form-control" name="description" required>
                     </div>
                     <div class="mb-3">
                         <button class="btn btn-primary" type="submit">Submit</button>

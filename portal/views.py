@@ -378,3 +378,15 @@ def edit_group(group_name):
         logger.error(str(err))
         flash("Error updating group %s" %group_name, "warning")
         return render_template("edit_group.html", group=None)
+
+@app.route("/groups/<group_name>/create_subgroup", methods=["GET", "POST"])
+@auth.admins_only
+def create_subgroup(group_name):
+    try:
+        group = connect.get_group_info(group_name)
+        if request.method == "GET":
+            return render_template("create_subgroup.html", group=group)
+    except Exception as err:
+        logger.error(str(err))
+        flash("Error creating subgroup", "warning")
+        return render_template("create_subgroup.html", group=None)
