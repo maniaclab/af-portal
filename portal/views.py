@@ -356,3 +356,14 @@ def deny_subgroup_request(subgroup_name, group_name):
         logger.error(str(err))
         flash("Error denying request for subgroup %s" %subgroup_name, "warning")
         return redirect(url_for("groups", groupname=group_name))
+
+@app.route("/groups/<group_name>/edit", methods=["GET", "POST"])
+@auth.admins_only
+def edit_group(group_name):
+    try:
+        group = connect.get_group_info(group_name)
+        if request.method == "GET":
+            return render_template("edit_group.html", group=group)
+    except Exception as err:
+        logger.error(str(err))
+        return render_template("edit_group.html", group=None)

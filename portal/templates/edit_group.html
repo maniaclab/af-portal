@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %} Edit group {% endblock %}
+
+{% block content %}
+<section>
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a class="text-decoration-none" href="{{ url_for('home') }}">Home</a></li>
+                <li class="breadcrumb-item"><a onclick="loader()" class="text-decoration-none" href="{{ url_for('groups', groupname='root.atlas-af') }}">Groups</a></li>
+                <li class="breadcrumb-item"><a onclick="loader()" class="text-decoration-none" href="{{ url_for('groups', groupname=group['name']) }}">{{ group['name'] }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Edit group</li>
+            </ol>
+        </nav>
+        <div class="row">
+            <div class="col-lg-6">
+                <form action="{{ url_for('edit_group', group_name=group['name']) }}" method="POST">
+                    <div class="mb-2">
+                        <label for="name" class="form-label">Group name:</label>
+                        <input type="text" class="form-control" name="name" value="{{ group['name'] }}" required>
+                    </div>
+                    <div class="mb-2">
+                        <label for="email" class="form-label">Contact email:</label>
+                        <input type="text" class="form-control" name="email" value="{{ group['email'] }}" required>
+                    </div>
+                    <div class="mb-2">
+                        <label for="phone" class="form-label">Contact phone number:</label>
+                        <input type="text" class="form-control" name="phone" value="{{ group['phone'] }}" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="description" class="form-label">Description:</label>
+                        <input type="text" class="form-control" name="description" value="{{ group['description'] }}">
+                    </div>
+                    <div class="mb-2">
+                        <button class="btn btn-sm btn-primary" type="submit">Update group</button>
+                        <a href="{{ url_for('groups', groupname=group['name']) }}" class="btn btn-sm btn-danger" role="button">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
