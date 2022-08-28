@@ -14,7 +14,7 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a class="text-decoration-none" href="{{ url_for('home') }}">Home</a></li>
-                <li class="breadcrumb-item"><a onclick="loader()" class="text-decoration-none" href="{{ url_for('groups', groupname='root.atlas-af') }}">Groups</a></li>
+                <li class="breadcrumb-item"><a onclick="loader()" class="text-decoration-none" href="{{ url_for('groups', group_name='root.atlas-af') }}">Groups</a></li>
                 <li class="breadcrumb-item active" aria-current="page">{{ group["info"]["name"] }}</li>
             </ol>
         </nav>
@@ -172,7 +172,7 @@
                         {% for subgroup in group["subgroups"] %}
                         <tr>
                             <td>
-                                <a onclick="loader()" class="text-decoration-none" href="{{ url_for('groups', groupname=subgroup['name']) }}">
+                                <a onclick="loader()" class="text-decoration-none" href="{{ url_for('groups', group_name=subgroup['name']) }}">
                                     {{ subgroup["display_name"] }}
                                 </a>
                             </td>
@@ -277,7 +277,7 @@ $(document).ready(function() {
     $("form#email").submit(function(event) {
         event.preventDefault();
         var formValues = $(this).serialize();
-        $.post("{{ url_for('send_email', groupname=group['info']['name']) }}", formValues, function(resp) {
+        $.post("{{ url_for('send_email', group_name=group['info']['name']) }}", formValues, function(resp) {
             if (resp) {
                 message(resp["message"], resp["category"]);
             }

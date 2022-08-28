@@ -8,8 +8,8 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a class="text-decoration-none" href="{{ url_for('home') }}">Home</a></li>
-                <li class="breadcrumb-item"><a onclick="loader()" class="text-decoration-none" href="{{ url_for('groups', groupname='root.atlas-af') }}">Groups</a></li>
-                <li class="breadcrumb-item"><a onclick="loader()" class="text-decoration-none" href="{{ url_for('groups', groupname=group['name']) }}">{{ group['name'] }}</a></li>
+                <li class="breadcrumb-item"><a onclick="loader()" class="text-decoration-none" href="{{ url_for('groups', group_name='root.atlas-af') }}">Groups</a></li>
+                <li class="breadcrumb-item"><a onclick="loader()" class="text-decoration-none" href="{{ url_for('groups', group_name=group['name']) }}">{{ group['name'] }}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Create subgroup</li>
             </ol>
         </nav>
@@ -40,7 +40,7 @@
                     </div>
                     <div class="mb-3">
                         <button class="btn btn-primary" type="submit">Submit</button>
-                        <a onclick="loader()" href="{{ url_for('groups', groupname=group['name']) }}" class="btn btn-danger" role="button">Cancel</a>
+                        <a onclick="loader()" href="{{ url_for('groups', group_name=group['name']) }}" class="btn btn-danger" role="button">Cancel</a>
                     </div>
                     <input type="hidden" name="purpose" value="High Energy Physics">
                 </form>

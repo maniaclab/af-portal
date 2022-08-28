@@ -245,9 +245,9 @@ def user_notebook_metrics():
 def login_nodes():
     return render_template("login_nodes.html")
 
-@app.route("/groups/<groupname>")
+@app.route("/groups/<group_name>")
 @auth.admins_only
-def groups(groupname):
+def groups(group_name):
     try:
         start = time.time()
         usernames = connect.get_group_members("root")
@@ -256,7 +256,7 @@ def groups(groupname):
         member_requests = []
         nonmembers = []
         for user in users:
-            group_membership = list(filter(lambda group : group["name"] == groupname, user["group_memberships"]))
+            group_membership = list(filter(lambda group : group["name"] == group_name, user["group_memberships"]))
             if not group_membership:
                 nonmembers.append(user)
             elif group_membership[0]["state"] == "pending":
@@ -264,9 +264,9 @@ def groups(groupname):
                 nonmembers.append(user)
             elif group_membership[0]["state"] in ("admin", "active"):
                 members.append(user)
-        subgroups = connect.get_subgroups(groupname)
-        subgroup_requests = connect.get_subgroup_requests(groupname)
-        group_info = connect.get_group_info(groupname)
+        subgroups = connect.get_subgroups(group_name)
+        subgroup_requests = connect.get_subgroup_requests(group_name)
+        group_info = connect.get_group_info(group_name)
         group = {
             "info": group_info,
             "members": members,
@@ -282,21 +282,21 @@ def groups(groupname):
         logger.error(str(err))
         return render_template("groups.html", group={})
 
-@app.route("/groups/<groupname>/email", methods=["POST"])
+@app.route("/groups/<group_name>/email", methods=["POST"])
 @auth.admins_only
-def send_email(groupname):
+def send_email(group_name):
     try:
         sender = "noreply@af.uchicago.edu"
-        recipients = admin.get_email_list(groupname)
+        recipients = admin.get_email_list(group_name)
         subject = request.form["subject"]
         body = request.form["body"]
         success = admin.email_users(sender, recipients, subject, body)
         if success:
-            return jsonify(message="Sent email to group %s" %groupname, category="success")
-        return jsonify(message="Error sending email to group %s" %groupname, category="warning")
+            return jsonify(message="Sent email to group %s" %group_name, category="success")
+        return jsonify(message="Error sending email to group %s" %group_name, category="warning")
     except Exception as err:
         logger.error(str(err))
-        return jsonify(message="Error sending email to group %s" %groupname, category="warning")
+        return jsonify(message="Error sending email to group %s" %group_name, category="warning")
 
 @app.route("/groups/<group_name>/add_group_member/<unix_name>")
 @auth.admins_only
@@ -315,11 +315,11 @@ def add_group_member(unix_name, group_name):
             Institution: %s""" %(approver, unix_name, group_name, profile["unix_name"], profile["name"], profile["email"], profile["institution"])
         admin.email_staff(subject, body)
         flash("Added %s to group %s" %(unix_name, group_name), "success")
-        return redirect(url_for("groups", groupname=group_name))
+        return redirect(url_for("groups", group_name=group_name))
     except Exception as err:
         logger.error(str(err))
         flash("Error adding %s to group %s" %(unix_name, group_name), "warning")
-        return redirect(url_for("groups", groupname=group_name))
+        return redirect(url_for("groups", group_name=group_name))
 
 @app.route("/groups/<group_name>/delete_group_member/<unix_name>")
 @auth.admins_only
@@ -327,11 +327,11 @@ def remove_group_member(unix_name, group_name):
     try:
         success = connect.remove_user_from_group(unix_name, group_name)
         flash("Removed %s from group %s" %(unix_name, group_name), "success")
-        return redirect(url_for("groups", groupname=group_name))
+        return redirect(url_for("groups", group_name=group_name))
     except Exception as err:
         logger.error(str(err))
         flash("Error removing %s from group %s" %(unix_name, group_name), "warning")
-        return redirect(url_for("groups", groupname=group_name))
+        return redirect(url_for("groups", group_name=group_name))
 
 @app.route("/groups/<group_name>/approve_subgroup_request/<subgroup_name>")
 @auth.admins_only
@@ -339,11 +339,11 @@ def approve_subgroup_request(subgroup_name, group_name):
     try:
         success = connect.approve_subgroup_request(subgroup_name, group_name)
         flash("Approved request for subgroup %s" %subgroup_name, "success")
-        return redirect(url_for("groups", groupname=group_name))
+        return redirect(url_for("groups", group_name=group_name))
     except Exception as err:
         logger.error(str(err))
         flash("Error approving request for subgroup %s" %subgroup_name, "warning")
-        return redirect(url_for("groups", groupname=group_name))
+        return redirect(url_for("groups", group_name=group_name))
 
 @app.route("/groups/<group_name>/deny_subgroup_request/<subgroup_name>")
 @auth.admins_only
@@ -351,11 +351,11 @@ def deny_subgroup_request(subgroup_name, group_name):
     try:
         success = connect.deny_subgroup_request(subgroup_name, group_name)
         flash("Denied request for subgroup %s" %subgroup_name, "success")
-        return redirect(url_for("groups", groupname=group_name))
+        return redirect(url_for("groups", group_name=group_name))
     except Exception as err:
         logger.error(str(err))
         flash("Error denying request for subgroup %s" %subgroup_name, "warning")
-        return redirect(url_for("groups", groupname=group_name))
+        return redirect(url_for("groups", group_name=group_name))
 
 @app.route("/groups/<group_name>/edit", methods=["GET", "POST"])
 @auth.admins_only
@@ -373,7 +373,7 @@ def edit_group(group_name):
             }
             connect.update_group_info(group_name, **kwargs)
             flash("Updated group %s successfully" %group_name, "success")
-            return redirect(url_for("groups", groupname=group_name))
+            return redirect(url_for("groups", group_name=group_name))
     except Exception as err:
         logger.error(str(err))
         flash("Error updating group %s" %group_name, "warning")
@@ -401,8 +401,8 @@ def create_subgroup(group_name):
                 flash("Created subgroup %s" %subgroup_name, "success")
             else:
                 flash("Error creating subgroup %s" %subgroup_name, "warning")
-            return redirect(url_for("groups", groupname=group_name))
+            return redirect(url_for("groups", group_name=group_name))
     except Exception as err:
         logger.error(str(err))
         flash("Error using the create_subgroup feature", "warning")
-        return redirect(url_for("groups", groupname=group_name))
+        return redirect(url_for("groups", group_name=group_name))

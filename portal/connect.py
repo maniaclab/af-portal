@@ -114,23 +114,23 @@ def get_user_groups(unix_name):
     groups.sort(key = lambda group : group["name"])
     return groups
 
-def get_group_info(groupname, date_format="%B %m %Y"):
-    resp = requests.get(base_url + "/v1alpha1/groups/" + groupname, params=params)
+def get_group_info(group_name, date_format="%B %m %Y"):
+    resp = requests.get(base_url + "/v1alpha1/groups/" + group_name, params=params)
     if resp.status_code != 200:
         logger.info(resp.status)
-        raise Exception("Error getting info for group %s" %groupname)
+        raise Exception("Error getting info for group %s" %group_name)
     group = resp.json()["metadata"]
     group["pending"] = str(group["pending"])
     group["creation_date"] = parse(group["creation_date"]).strftime(date_format)
     return group
 
-def get_group_members(groupname):
+def get_group_members(group_name):
     start = time.time()
     usernames = []
-    resp = requests.get(base_url + "/v1alpha1/groups/" + groupname + "/members", params=params)
+    resp = requests.get(base_url + "/v1alpha1/groups/" + group_name + "/members", params=params)
     if resp.status_code != 200:
         logger.info(resp.status)
-        raise Exception("Error getting members for group %s" %groupname)
+        raise Exception("Error getting members for group %s" %group_name)
     for entry in resp.json()["memberships"]:
         username = entry["user_name"]
         usernames.append(username)
@@ -138,19 +138,19 @@ def get_group_members(groupname):
     logger.info("The get_group_members function has taken %.2f ms", (stop-start)*1000)
     return usernames
 
-def get_subgroups(groupname):
-    resp = requests.get(base_url + "/v1alpha1/groups/" + groupname + "/subgroups", params=params)
+def get_subgroups(group_name):
+    resp = requests.get(base_url + "/v1alpha1/groups/" + group_name + "/subgroups", params=params)
     if resp.status_code != 200:
         logger.info(resp.status)
-        raise Exception("Error getting group %s" %groupname)
+        raise Exception("Error getting group %s" %group_name)
     subgroups = resp.json()["groups"]
     return subgroups
 
-def get_subgroup_requests(groupname):
-    resp = requests.get(base_url + "/v1alpha1/groups/" + groupname + "/subgroup_requests", params=params)
+def get_subgroup_requests(group_name):
+    resp = requests.get(base_url + "/v1alpha1/groups/" + group_name + "/subgroup_requests", params=params)
     if resp.status_code != 200:
         logger.info(resp.status)
-        raise Exception("Error getting group %s" %groupname)
+        raise Exception("Error getting group %s" %group_name)
     subgroups = resp.json()["groups"]
     return subgroups
 
