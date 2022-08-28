@@ -386,7 +386,23 @@ def create_subgroup(group_name):
         group = connect.get_group_info(group_name)
         if request.method == "GET":
             return render_template("create_subgroup.html", group=group)
+        elif request.method == "POST":
+            subgroup_name = request.form["short-name"]
+            kwargs = {
+                "name": subgroup_name,
+                "display_name": request.form["display-name"],
+                "purpose": request.form["purpose"],
+                "email": request.form["email"],
+                "phone": request.form["phone"],
+                "description": request.form["description"]
+            }
+            success = connect.create_subgroup(subgroup_name, group_name, **kwargs)
+            if success:
+                flash("Created subgroup %s" %subgroup_name, "success")
+            else:
+                flash("Error creating subgroup %s" %subgroup_name, "warning")
+            return redirect(url_for("groups", groupname=group_name))
     except Exception as err:
         logger.error(str(err))
-        flash("Error creating subgroup", "warning")
-        return render_template("create_subgroup.html", group=None)
+        flash("Error using the create_subgroup feature", "warning")
+        return redirect(url_for("groups", groupname=group_name))

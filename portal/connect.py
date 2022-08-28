@@ -169,6 +169,23 @@ def remove_user_from_group(unix_name, group_name):
         return True
     return False
 
+def create_subgroup(subgroup_name, group_name, **kwargs):
+    json = {
+        "apiVersion": "v1alpha1",
+        "metadata": {
+            "name": kwargs["name"],
+            "display_name": kwargs["display_name"],
+            "purpose": kwargs["purpose"],
+            "email": kwargs["email"],
+            "phone": kwargs["phone"],
+            "description": kwargs["description"]
+        }
+    }
+    resp = requests.put(base_url + "/v1alpha1/groups/" + group_name + "/subgroup_requests/" + subgroup_name, params=params, json=json)
+    if resp.status_code == requests.codes.ok:
+        return True
+    return False
+
 def approve_subgroup_request(subgroup_name, group_name):
     resp = requests.put(base_url + "/v1alpha1/groups/" + group_name + "/subgroup_requests/" + subgroup_name + "/approve", params=params)
     if resp.status_code == requests.codes.ok:
