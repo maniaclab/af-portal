@@ -267,13 +267,16 @@ def groups(group_name):
         subgroups = connect.get_subgroups(group_name)
         subgroup_requests = connect.get_subgroup_requests(group_name)
         group_info = connect.get_group_info(group_name)
+        is_deletable = connect.is_group_deletable(group_name)
         group = {
+            "name": group_name,
             "info": group_info,
             "members": members,
             "member_requests": member_requests,
             "subgroups": subgroups,
             "subgroup_requests": subgroup_requests,
-            "nonmembers": nonmembers
+            "nonmembers": nonmembers,
+            "is_deletable": is_deletable
         }
         stop = time.time()
         logger.info("The groups view function has taken %.2f ms", (stop-start)*1000)
@@ -405,4 +408,20 @@ def create_subgroup(group_name):
     except Exception as err:
         logger.error(str(err))
         flash("Error using the create_subgroup feature", "warning")
+        return redirect(url_for("groups", group_name=group_name))
+
+@app.route("/groups/<group_name>/delete_group")
+@auth.admins_only
+def delete_group(group_name):
+    try:
+        if connect.is_group_deletable(group_name):
+            success = connect.delete_group(group_name)
+            if success:
+                flash("Deleted group %s" %group_name, "success")
+            else:
+                flash("Error deleting group %s" %group_name, "warning")
+        return redirect(url_for("groups", group_name="root.atlas-af"))
+    except Exception as err:
+        logger.error(str(err))
+        flash("Error using the delete_group feature", "warning")
         return redirect(url_for("groups", group_name=group_name))

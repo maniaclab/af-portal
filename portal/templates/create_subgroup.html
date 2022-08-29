@@ -39,7 +39,7 @@
                         <input type="text" class="form-control" name="description" required>
                     </div>
                     <div class="mb-3">
-                        <button class="btn btn-primary" type="submit">Submit</button>
+                        <button onclick="loader()" class="btn btn-primary" type="submit">Submit</button>
                         <a onclick="loader()" href="{{ url_for('groups', group_name=group['name']) }}" class="btn btn-danger" role="button">Cancel</a>
                     </div>
                     <input type="hidden" name="purpose" value="High Energy Physics">

@@ -214,3 +214,24 @@ def update_group_info(group_name, **kwargs):
     if resp.status_code == requests.codes.ok:
         return True
     return False
+
+def is_group_deletable(group_name):
+    return group_name not in (
+        'root', 
+        'root.atlas-af', 
+        'root.atlas-af.staff',
+        'root.atlas-af.uchicago',
+        'root.atlas-ml', 
+        'root.atlas-ml.staff', 
+        'root.iris-hep-ssl',
+        'root.iris-hep-ssl.staff')
+        
+def delete_group(group_name):
+    if is_group_deletable(group_name):
+        try:
+            resp = requests.delete(base_url + "/v1alpha1/groups/" + group_name, params=params)
+            return resp.status_code == requests.codes.ok
+        except Exception as err:
+            logger.info(str(err))
+            return False
+    return False

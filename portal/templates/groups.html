@@ -83,8 +83,11 @@
                         </ul>
                     </div>
                     <div class="card-footer bg-transparent border-top-0">
-                        <a href="{{ url_for('edit_group', group_name=group['info']['name']) }}" class="btn btn-sm btn-primary" href="#" role="button">Edit group</a>
-                        <a href="{{ url_for('create_subgroup', group_name=group['info']['name']) }}" class="btn btn-sm btn-primary" href="#" role="button">Create subgroup</a>
+                        <a href="{{ url_for('edit_group', group_name=group['name']) }}" class="btn btn-sm btn-primary" href="#" role="button">Edit group</a>
+                        <a href="{{ url_for('create_subgroup', group_name=group['name']) }}" class="btn btn-sm btn-primary" href="#" role="button">Create subgroup</a>
+                        {% if group['is_deletable'] %}
+                        <a onclick="loader()" href="{{ url_for('delete_group', group_name=group['name']) }}" class="btn btn-sm btn-danger" href="#" role="button">Delete group</a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -111,7 +114,7 @@
                             <td>{{ member["institution"] }}</td>
                             <td><span class="text-primary">{{ member["role"] }}</span></td>
                             <td>
-                                <a onclick="loader()" href="{{ url_for('remove_group_member', unix_name=member['username'], group_name=group['info']['name']) }}" class="badge bg-danger text-decoration-none" role="button">
+                                <a onclick="loader()" href="{{ url_for('remove_group_member', unix_name=member['username'], group_name=group['name']) }}" class="badge bg-danger text-decoration-none" role="button">
                                     <i class="fa-solid fa-circle-xmark"></i>
                                     &nbsp; Remove
                                 </a>
@@ -144,11 +147,11 @@
                             <td>{{ member["institution"] }}</td>
                             <td><span class="text-warning fw-bold">{{ member["role"] }}</span></td>
                             <td>
-                                <a onclick="loader()" href="{{ url_for('add_group_member', unix_name=member['username'], group_name=group['info']['name']) }}" class="badge bg-success text-decoration-none" role="button">
+                                <a onclick="loader()" href="{{ url_for('add_group_member', unix_name=member['username'], group_name=group['name']) }}" class="badge bg-success text-decoration-none" role="button">
                                     <i class="fa-regular fa-circle-check"></i>
                                     &nbsp;Approve
                                 </a>
-                                <a onclick="loader()" href="{{ url_for('remove_group_member', unix_name=member['username'], group_name=group['info']['name']) }}" class="badge bg-danger text-decoration-none" role="button">
+                                <a onclick="loader()" href="{{ url_for('remove_group_member', unix_name=member['username'], group_name=group['name']) }}" class="badge bg-danger text-decoration-none" role="button">
                                     <i class="fa-regular fa-circle-xmark"></i>
                                     &nbsp;Deny
                                 </a>
@@ -203,11 +206,11 @@
                             <td>{{ subgroup["email"] }}</td>
                             <td>{{ subgroup["description"] }}</td>
                             <td>
-                                <a onclick="loader()" href="{{ url_for('approve_subgroup_request', subgroup_name=subgroup['name'], group_name=group['info']['name']) }}" class="badge bg-success text-decoration-none" role="button">
+                                <a onclick="loader()" href="{{ url_for('approve_subgroup_request', subgroup_name=subgroup['name'], group_name=group['name']) }}" class="badge bg-success text-decoration-none" role="button">
                                     <i class="fa-regular fa-circle-check"></i>
                                     &nbsp;Approve
                                 </a>
-                                <a onclick="loader()" href="{{ url_for('deny_subgroup_request', subgroup_name=subgroup['name'], group_name=group['info']['name']) }}" class="badge bg-danger text-decoration-none" role="button">
+                                <a onclick="loader()" href="{{ url_for('deny_subgroup_request', subgroup_name=subgroup['name'], group_name=group['name']) }}" class="badge bg-danger text-decoration-none" role="button">
                                     <i class="fa-regular fa-circle-xmark"></i>
                                     &nbsp;Deny
                                 </a>
@@ -238,7 +241,7 @@
                             <td>{{ member["phone"] }}</td>
                             <td>{{ member["institution"] }}</td>
                             <td>
-                                <a onclick="loader()" href="{{ url_for('add_group_member', unix_name=member['username'], group_name=group['info']['name']) }}" class="badge bg-success text-decoration-none" role="button">
+                                <a onclick="loader()" href="{{ url_for('add_group_member', unix_name=member['username'], group_name=group['name']) }}" class="badge bg-success text-decoration-none" role="button">
                                     <i class="fa-solid fa-circle-plus"></i>
                                     &nbsp; Add
                                 </a>
@@ -277,7 +280,7 @@ $(document).ready(function() {
     $("form#email").submit(function(event) {
         event.preventDefault();
         var formValues = $(this).serialize();
-        $.post("{{ url_for('send_email', group_name=group['info']['name']) }}", formValues, function(resp) {
+        $.post("{{ url_for('send_email', group_name=group['name']) }}", formValues, function(resp) {
             if (resp) {
                 message(resp["message"], resp["category"]);
             }
