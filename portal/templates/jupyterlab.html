@@ -5,7 +5,6 @@
 {%endblock%}
 
 {% block libraries %}
-<script src="https://unpkg.com/vue@3"></script>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery.dataTables.min.css') }}" />
 <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.dataTables.min.js') }}"></script>
 {% endblock %}
@@ -20,7 +19,7 @@
             </ol>
         </nav>
         <a href="{{ url_for('configure_notebook') }}" class="btn btn-sm btn-primary mb-4">Create notebook</a>
-        <div v-if="notebooks.length > 0" class="fs14">
+        <div class="fs14">
           <table id="notebooks" class="table nowrap w-100">
               <thead class="text-muted">
                 <tr>
@@ -32,115 +31,116 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="notebook in notebooks">
-                    <td v-if="notebook.ready">
-                      <a :href="notebook.url" class="text-decoration-none" target="_blank">
-                        [[ notebook.name ]]
-                      </a>
-                    </td>
-                    <td v-else>[[ notebook.name ]]</td>
-                    <td v-if="notebook.closing">[[ notebook.status ]]</td>
-                    <td v-else>            
-                      <a class="text-decoration-none" data-bs-toggle="collapse" :href="notebook.status_messages_href" role="button" aria-expanded="false" aria-controls="collapseExample">
-                        [[ notebook.status ]]
-                      </a>              
-                      <ul class="collapse list-unstyled mb-0" :id="notebook.status_messages_id">
-                        <li v-for="status_message in notebook.history">[[ status_message ]]</li>
-                      </ul>
-                    </td>
-                    <td>[[ notebook.creation_date ]]</td>
-                    <td>[[ notebook.expiration_date ]]</td>
-                    <td v-if="notebook.closing"><i class='fa-regular fa-trash-can'></i></td>
-                    <td v-else>
-                      <a @click="removeNotebook(notebook)" class="text-decoration-none" role="button">
-                        <i class='fa-regular fa-trash-can'></i>
-                      </a>
-                    </td>
-                </tr>
               </tbody>
           </table>
         </div>
-        <p v-else>You have no notebooks currently running.</p>
     </div>
 </section>
 <script type="text/javascript">
 $(document).ready(function() {
-  const { createApp } = Vue
-
-  createApp({
-    delimiters: ['[[', ']]'],
-    data() {
-      return {
-        notebooks: []
-      }
+  const table = $("#notebooks").DataTable({
+    processing: true,
+    ajax: function (d, cb) {
+      fetch("{{ url_for('get_notebooks') }}")
+        .then(response => response.json())
+        .then(arr => cb({data: arr}));
     },
-    mounted() {
-      var notebooks = {{ notebooks|safe }};
-      this.updateModel(notebooks);
-
-      $("#notebooks").DataTable({
-        columnDefs: [
-          { "targets": 2, type: "date" }, 
-          { "targets": 3, type: "date" }
-        ]
-      });
-
-      if (!this.finishedUpdating())
-        this.makeAjaxRequests();
-    },
-    methods: {
-        updateModel(notebooks) {
-          this.notebooks = [];
-          for (var i = 0; i < notebooks.length; i++) {
-            notebook = {
-              name: notebooks[i].notebook_name,
-              url: notebooks[i].url,
-              status: notebooks[i].status.current,
-              history: notebooks[i].status.history,
-              status_messages_href: "#status_messages_" + notebooks[i].notebook_name,
-              status_messages_id: "status_messages_" + notebooks[i].notebook_name,
-              creation_date: notebooks[i].creation_date,
-              expiration_date: notebooks[i].expiration_date,
-              ready: notebooks[i].status.current == "Ready",
-              closing: notebooks[i].status.current == "Removing notebook..."
-            }
-            this.notebooks[i] = notebook;
+    columns: [
+      { data: "notebook_id" },
+      { data: "status" },
+      { data: "creation_date", type: "date" },
+      { data: "expiration_date", type: "date" },
+      { data: null, orderable: false}
+    ],
+    columnDefs: [
+      {
+        targets: 0,
+        render: function(data, type, row) {
+          if (row.status.current == "Ready") {
+            return "<a href='" + row["url"] + "' class='text-decoration-none' target='_blank'>" + data + "</a>";
           }
+          return data;
         },
-        makeAjaxRequests() {
-            var self = this;
-            var counter = 0;
-            var id = setInterval(function() {
-                if (++counter > 30) {
-                  clearInterval(id);
-                  return;
-                }
-                $.get("{{ url_for('get_notebooks') }}", function(notebooks) {
-                  self.updateModel(notebooks);
-                  if (self.finishedUpdating())
-                    clearInterval(id);
-                });
-            }, 5000);
+        width: "24%"
+      },
+      {
+        targets: 1,
+        render: function(data, type, row) {
+          if (data["history"].length > 0) {
+            let html = "<a class='text-decoration-none' data-bs-toggle='collapse' role='button' aria-expanded='false' aria-controls='" + row.notebook_id + "_status-list' href='#" + row.notebook_id + "_status-list'>";
+              html += data["current"];
+              html += "</a>";
+              html += "<ul class='collapse list-unstyled mb-0' id='" + row.notebook_id + "_status-list'>";
+              for (let i = 0; i < data["history"].length; i++) {
+                html += "<li>" + data["history"][i] + "</li>";
+              }
+              html += "</ul>";
+              return html;
+          }
+          return data["current"];
         },
-        finishedUpdating() {
-          for (var i = 0; i < this.notebooks.length; i++) 
-            if (!this.notebooks[i].ready) 
-              return false;
-          return true;
+        width: "24%"
+      },
+      {
+        targets: 2,
+        width: "24%"
+      },
+      {
+        targets: 3,
+        width: "24%"
+      },
+      {
+        targets: 4,
+        render: function(data, type, row) {
+          if (row.status.current == "Removing notebook...") {
+            return "<i class='fa-regular fa-trash-can'></i>";
+          }
+          return "<a class='text-decoration-none remove-button' style='cursor: pointer'><i class='fa-regular fa-trash-can'></i></a>";
         },
-        removeNotebook(notebook) {
-          var self = this;
-          $.get("{{ request.base_url }}/remove/" + notebook.name, function(resp) {
-            if (resp["success"]) {
-              notebook.status = "Removing notebook...";
-              notebook.closing = true;
-              notebook.ready = false;
-              self.makeAjaxRequests();
-            }
-          });
-        }
+        width: "4%"
+      }
+    ]
+  });
+
+  function allReady(data) {
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].status.current != "Ready") {
+        return false;
+      }
     }
-  }).mount("#jupyterlab");
+    return true;
+  }
+
+  function calculateReloadInterval(data) {
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].status.current == "Pending")
+        return 5000;
+      if (data[i].status.current == "Notebook loading...")
+        return 5000;
+    }
+    return 10000;
+  }
+
+  table.on("xhr", function() {
+    const data = table.ajax.json().data;
+    if (!allReady(data)) {
+      interval = calculateReloadInterval(data);
+      setTimeout(table.ajax.reload, interval);
+    }
+  });
+
+  table.on("click", "a.remove-button", function() {
+    const row = table.row($(this).parents("tr"));
+    const rowData = row.data();
+    $.get("{{request.base_url}}/remove/" + rowData.notebook_id, function(resp) {
+      if (resp["success"]) {
+        rowData.status.current = "Removing notebook...";
+        rowData.status.history = [];
+        row.data(rowData).draw(true);
+        table.ajax.reload();
+      }
+    });
+  });
 });
 </script>
 {% endblock %}

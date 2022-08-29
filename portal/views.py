@@ -130,13 +130,17 @@ def aup():
 @app.route("/jupyter")
 @auth.members_only
 def open_jupyterlab():
+    return render_template("jupyterlab.html")
+
+@app.route("/jupyter/notebooks")
+@auth.members_only
+def get_notebooks():
     try:
         username = session["unix_name"]
         notebooks = jupyterlab.get_notebooks(username)
-        return render_template("jupyterlab.html", notebooks=notebooks)
-    except JupyterLabException as err:
-        flash(str(err), "error")
-        return render_template("jupyterlab.html", notebooks=[])
+        return notebooks
+    except JupyterLabException:
+        return []
 
 @app.route("/jupyter/configure")
 @auth.members_only
@@ -175,16 +179,6 @@ def remove_notebook(notebook):
         return jsonify(success=True)
     except JupyterLabException:
         return jsonify(success=False)
-
-@app.route("/jupyter/notebooks")
-@auth.members_only
-def get_notebooks():
-    try:
-        username = session["unix_name"]
-        notebooks = jupyterlab.get_notebooks(username)
-        return notebooks
-    except JupyterLabException:
-        return []
 
 @app.route("/admin/plot_users_over_time", methods=["GET"])
 @auth.admins_only
