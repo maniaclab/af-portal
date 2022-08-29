@@ -47,7 +47,7 @@ def login():
                 session["role"] = connect.get_user_role(session["unix_name"])
             return redirect(url_for("home"))
     except Exception as err:
-        logger.info(str(err))
+        logger.error(str(err))
         return redirect(url_for("home"))
 
 @app.route("/logout")
@@ -62,7 +62,7 @@ def logout():
         globus_logout_url = ("https://auth.globus.org/v2/web/logout?client=%s&redirect_uri=%s&redirect_name=Simple Portal" %(app.config["CLIENT_ID"], redirect_uri))
         return redirect(globus_logout_url)
     except Exception as err:
-        logger.info(str(err))
+        logger.error(str(err))
         return redirect(url_for("home"))
 
 def is_safe_redirect_url(target):
@@ -88,7 +88,7 @@ def profile():
         profile = connect.get_user_profile(unix_name)
         return render_template("profile.html", profile=profile)
     except Exception as err:
-        logger.info(str(err))
+        logger.error(str(err))
         return render_template("profile.html", profile=None)
 
 @app.route("/profile/edit", methods=["GET", "POST"])
@@ -109,7 +109,7 @@ def edit_profile():
             connect.update_user_profile(unix_name, name=name, phone=phone, institution=institution, email=email, x509_dn=x509_dn, public_key=public_key)
             return redirect(url_for('profile'))
     except Exception as err:
-        logger.info(str(err))
+        logger.error(str(err))
         return redirect(url_for('profile'))
 
 @app.route("/profile/groups")
@@ -120,7 +120,7 @@ def user_groups():
         groups = connect.get_user_groups(unix_name)
         return render_template("user_groups.html", groups=groups)
     except Exception as err:
-        logger.info(str(err))
+        logger.error(str(err))
         return render_template("user_groups.html", groups=[])
 
 @app.route("/aup")
@@ -139,7 +139,8 @@ def get_notebooks():
         username = session["unix_name"]
         notebooks = jupyterlab.get_notebooks(username)
         return notebooks
-    except JupyterLabException:
+    except JupyterLabException as err:
+        logger.error(str(err))
         return []
 
 @app.route("/jupyter/configure")
@@ -187,7 +188,7 @@ def plot_users_over_time():
         data = admin.plot_users_over_time()
         return render_template("plot_users_over_time.html", base64_encoded_image = data)
     except Exception as err:
-        logger.info(str(err))
+        logger.error(str(err))
         return render_template("plot_users_over_time.html", base64_encoded_image = None)
 
 @app.route("/admin/user_info")
@@ -198,7 +199,7 @@ def user_info():
         users = connect.get_user_profiles(usernames, date_format="%m/%d/%Y")
         return render_template("user_info.html", users=users)
     except Exception as err:
-        logger.info(str(err))
+        logger.error(str(err))
         return render_template("user_info.html", users=[])
 
 @app.route("/admin/update_user_institution", methods=["POST"])
@@ -210,7 +211,7 @@ def update_user_institution():
         success = connect.update_user_institution(username, institution)
         return jsonify(success)
     except Exception as err:
-        logger.info(str(err))
+        logger.error(str(err))
         return jsonify(success=False)
 
 @app.route("/admin/notebook_metrics")
