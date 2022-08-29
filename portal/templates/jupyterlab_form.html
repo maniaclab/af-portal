@@ -4,6 +4,10 @@
 Create JupyterLab
 {% endblock %}
 
+{% block libraries %}
+<script type="text/javascript" src="{{ url_for('static', filename='js/jquery.validate.min.js') }}"></script>
+{% endblock %}
+
 {% block content %}
 <section>
     <div class="container">
@@ -19,7 +23,7 @@ Create JupyterLab
             <img id="jupyterlab-logo" class="card-img-top" src="{{url_for('static', filename='img/jupyter-lab-logo.png')}}" alt="JupyterLab">
             <div class="card-body">
                 <h5 class="card-title mb-3">Create a Jupyter notebook with a machine learning setup</h5>
-                <form action="{{ url_for('deploy_notebook') }}" method="POST">
+                <form id="jupyterlab-form" action="{{ url_for('deploy_notebook') }}" method="POST">
                     <div class="row mb-2">
                         <div class="col-sm-3">
                             <label for="notebook-name" class="form-label my-2">Notebook name</label>
@@ -184,16 +188,18 @@ Create JupyterLab
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <p>Users can choose between two images: One with full anaconda
-                            <code>(ivukotic/ml_platform:conda)</code> and one with NVidia GPU and ROOT support
-                            <code>(ivukotic/ml_platform:latest)</code>.
+                        <p>
+                            Users can choose between two images: One with full anaconda <code>(ivukotic/ml_platform:conda)</code> 
+                            and one with NVidia GPU and ROOT support <code>(ivukotic/ml_platform:latest)</code>.
                         </p>
-                        <p>The later has most of the ML packages (Tensorflow, Keras, ScikitLearn, ...) preinstalled, and
-                            a
-                            small tutorial with code examples in <code>/ML_platform_tests/tutorial</code>.</p>
-                        <p>For more information, you can read the <a
-                                href="https://maniaclab.uchicago.edu/af-docs/ml_platform/#selecting-a-number-of-gpu-instances"
-                                target="_blank">AF docs</a>.</p>
+                        <p>
+                            The later has most of the ML packages (Tensorflow, Keras, ScikitLearn, ...) preinstalled, and
+                            a small tutorial with code examples in <code>/ML_platform_tests/tutorial</code>.
+                        </p>
+                        <p>
+                            For more information, you can read the 
+                            <a href="https://maniaclab.uchicago.edu/af-docs/ml_platform/#selecting-a-number-of-gpu-instances" target="_blank">AF docs</a>.
+                        </p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
@@ -205,25 +211,29 @@ Create JupyterLab
 </section>
 <script type="text/javascript">
 $(document).ready(function () {
-    $("#jupyterlab-form").on('keyup change', function () {
-        $('#jupyterlab-form').validate();
-        var valid = $('#jupyterlab-form').valid();
-        $('button[type="submit"]').attr("disabled", !valid);
+    $("#jupyterlab-form").on("keyup change", function () {
+        $("#jupyterlab-form").validate();
+        var valid = $("#jupyterlab-form").valid();
+        $("button[type='submit']").attr("disabled", !valid);
     });
-    $('#notebook-name').on('keydown', function (e) {
+
+    $("#notebook-name").on("keydown", function (e) {
         if (!/[a-zA-Z0-9._-]/.test(e.key)) {
             e.preventDefault();
             e.returnValue = false;
         }
     });
-    $('#gpu-memory-info-icon').click(function () {
-        $('#availableGPUs').modal('show');
+
+    $("#gpu-memory-info-icon").click(function () {
+        $("#availableGPUs").modal("show");
     });
-    $('#gpu-instances-info-icon').click(function () {
-        $('#GPUinstances').modal('show');
+
+    $("#gpu-instances-info-icon").click(function () {
+        $("#GPUinstances").modal("show");
     });
-    $('#docker-image-info-icon').click(function () {
-        $('#dockerImage').modal('show');
+
+    $("#docker-image-info-icon").click(function () {
+        $("#dockerImage").modal("show");
     });
 });
 </script>

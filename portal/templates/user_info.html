@@ -18,8 +18,8 @@
                 <li class="breadcrumb-item active" aria-current="page">User information</li>
             </ol>
         </nav>
-        <div class="my-4">
-            <table class="table table-striped nowrap w-100">
+        <div class="my-4 fs14">
+            <table class="table nowrap w-100">
                 <thead>
                     <tr>
                         <th>Username</th>
@@ -59,12 +59,7 @@ $(document).ready(function() {
     $("table").DataTable({
         lengthMenu: [10, 25, 100, 1000],
         order: [3, "asc"],
-        columnDefs: [ 
-            {
-                "targets": 3, 
-                type: "date"
-            } 
-        ]
+        columnDefs: [{ "targets": 3, type: "date" }]
     });
 });
 </script>
