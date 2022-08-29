@@ -30,8 +30,6 @@
                     <th></th>
                 </tr>
               </thead>
-              <tbody>
-              </tbody>
           </table>
         </div>
     </div>
@@ -40,11 +38,7 @@
 $(document).ready(function() {
   const table = $("#notebooks").DataTable({
     processing: true,
-    ajax: function (d, cb) {
-      fetch("{{ url_for('get_notebooks') }}")
-        .then(response => response.json())
-        .then(arr => cb({data: arr}));
-    },
+    ajax: { url: "{{ url_for('get_notebooks') }}", dataSrc: "notebooks" },
     columns: [
       { data: "notebook_id" },
       { data: "status" },
@@ -112,8 +106,8 @@ $(document).ready(function() {
   }
 
   table.on("xhr", function() {
-    const data = table.ajax.json().data;
-    if (!allReady(data)) {
+    const notebooks = table.ajax.json().notebooks;
+    if (!allReady(notebooks)) {
       setTimeout(table.ajax.reload, 10000);
     }
   });

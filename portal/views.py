@@ -138,10 +138,10 @@ def get_notebooks():
     try:
         username = session["unix_name"]
         notebooks = jupyterlab.get_notebooks(username)
-        return notebooks
+        return {"notebooks": notebooks}
     except JupyterLabException as err:
         logger.error(str(err))
-        return []
+        return {"notebooks": []}
 
 @app.route("/jupyter/configure")
 @auth.members_only
@@ -244,41 +244,68 @@ def login_nodes():
 @auth.admins_only
 def groups(group_name):
     try:
-        start = time.time()
-        usernames = connect.get_group_members("root")
-        users = connect.get_user_profiles(usernames)
-        members = []
-        member_requests = []
-        nonmembers = []
-        for user in users:
-            group_membership = list(filter(lambda group : group["name"] == group_name, user["group_memberships"]))
-            if not group_membership:
-                nonmembers.append(user)
-            elif group_membership[0]["state"] == "pending":
-                member_requests.append(user)
-                nonmembers.append(user)
-            elif group_membership[0]["state"] in ("admin", "active"):
-                members.append(user)
-        subgroups = connect.get_subgroups(group_name)
-        subgroup_requests = connect.get_subgroup_requests(group_name)
-        group_info = connect.get_group_info(group_name)
-        is_deletable = connect.is_group_deletable(group_name)
-        group = {
-            "name": group_name,
-            "info": group_info,
-            "members": members,
-            "member_requests": member_requests,
-            "subgroups": subgroups,
-            "subgroup_requests": subgroup_requests,
-            "nonmembers": nonmembers,
-            "is_deletable": is_deletable
-        }
-        stop = time.time()
-        logger.info("The groups view function has taken %.2f ms", (stop-start)*1000)
+        logger.info("Getting group info...")
+        group = connect.get_group_info(group_name)
+        logger.info("Retrieved group info")
         return render_template("groups.html", group=group)
     except Exception as err:
         logger.error(str(err))
-        return render_template("groups.html", group={})
+        return render_template("groups.html", group=None)
+
+@app.route("/groups/<group_name>/members")
+@auth.admins_only
+def get_group_members(group_name):
+    try:
+        usernames = connect.get_group_members(group_name, states=["active", "admin"])
+        profiles = connect.get_user_profiles(usernames)
+        return {"members": profiles}
+    except Exception as err:
+        logger.error(str(err))
+        return {"members": []}
+
+@app.route("/groups/<group_name>/member_requests")
+@auth.admins_only
+def get_group_member_requests(group_name):
+    try:
+        usernames = connect.get_group_members(group_name, states=["pending"])
+        profiles = connect.get_user_profiles(usernames)
+        return {"member_requests": profiles}
+    except Exception as err:
+        logger.error(str(err))
+        return {"member_requests": []}
+
+@app.route("/groups/<group_name>/subgroups")
+@auth.admins_only
+def get_group_subgroups(group_name):
+    try:
+        subgroups = connect.get_subgroups(group_name)
+        return {"subgroups": subgroups}
+    except Exception as err:
+        logger.error(str(err))
+        return {"subgroups": []}
+
+@app.route("/groups/<group_name>/subgroup_requests")
+@auth.admins_only
+def get_group_subgroup_requests(group_name):
+    try:
+        subgroup_requests = connect.get_subgroup_requests(group_name)
+        return {"subgroup_requests": subgroup_requests}
+    except Exception as err:
+        logger.error(str(err))
+        return {"subgroup_requests": []}
+
+@app.route("/groups/<group_name>/potential_members")
+@auth.admins_only
+def get_group_potential_members(group_name):
+    try:
+        members = connect.get_group_members(group_name, states=["admin", "active"])
+        users = connect.get_group_members("root")
+        potential_members = filter(lambda user : user not in members, users)
+        profiles = connect.get_user_profiles(potential_members)
+        return {"potential_members": profiles}
+    except Exception as err:
+        logger.error(str(err))
+        return {"potential_members": []}
 
 @app.route("/groups/<group_name>/email", methods=["POST"])
 @auth.admins_only

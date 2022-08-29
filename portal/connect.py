@@ -51,8 +51,7 @@ def get_user_profiles(usernames, date_format="%B %m %Y"):
         role = "nonmember"
         if (len(group) == 1):
             role = group[0]["state"]
-        group_memberships = data["group_memberships"]
-        profile = {"username": username, "email": email, "phone": phone, "join_date": join_date, "institution": institution, "name": name, "role": role, "group_memberships": group_memberships}
+        profile = {"username": username, "email": email, "phone": phone, "join_date": join_date, "institution": institution, "name": name, "role": role}
         profiles.append(profile)
     stop = time.time()
     logger.info("The get_user_profiles function has taken %.2f ms", (stop-start)*1000)
@@ -122,10 +121,10 @@ def get_group_info(group_name, date_format="%B %m %Y"):
     group = resp.json()["metadata"]
     group["pending"] = str(group["pending"])
     group["creation_date"] = parse(group["creation_date"]).strftime(date_format)
+    group["is_deletable"] = is_group_deletable(group_name)
     return group
 
-def get_group_members(group_name):
-    start = time.time()
+def get_group_members(group_name, states=["admin", "active", "pending"]):
     usernames = []
     resp = requests.get(base_url + "/v1alpha1/groups/" + group_name + "/members", params=params)
     if resp.status_code != 200:
@@ -133,9 +132,8 @@ def get_group_members(group_name):
         raise Exception("Error getting members for group %s" %group_name)
     for entry in resp.json()["memberships"]:
         username = entry["user_name"]
-        usernames.append(username)
-    stop = time.time()
-    logger.info("The get_group_members function has taken %.2f ms", (stop-start)*1000)
+        if entry["state"] in states:
+            usernames.append(username)
     return usernames
 
 def get_subgroups(group_name):
@@ -225,7 +223,7 @@ def is_group_deletable(group_name):
         'root.atlas-ml.staff', 
         'root.iris-hep-ssl',
         'root.iris-hep-ssl.staff')
-        
+
 def delete_group(group_name):
     if is_group_deletable(group_name):
         try:
