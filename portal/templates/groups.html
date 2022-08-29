@@ -182,7 +182,7 @@
 </section>
 <script type="text/javascript">
 $(document).ready(function() {
-    $("#members-table").DataTable({
+    const membersTable = $("#members-table").DataTable({
         processing: true,
         lengthMenu: [10, 25, 50, 100, 1000],
         ajax: {url: "{{ url_for('get_group_members', group_name=group['name']) }}", dataSrc: "members"},
@@ -209,13 +209,14 @@ $(document).ready(function() {
             {
                 targets: 6,
                 render: function(data, type, row) {
-                    html = "<a class='text-decoration-none badge bg-danger' role='button'>";
+                    html = "<a class='remove-group-member text-decoration-none badge bg-danger' role='button'>";
                     html += "<i class='fa-solid fa-circle-xmark'></i>&nbsp; Remove";
                     html += "</a>";
                     return html;
                 }
             }
-        ]
+        ],
+        order: [5, "desc"]
     });
     $("#member-requests-table").DataTable({
         processing: true,
@@ -311,7 +312,18 @@ $(document).ready(function() {
                     return html;
                 }
             }
-        ]
+        ],
+        order: [5, "desc"]
+    });
+    membersTable.on("click", "a.remove-group-member", function() {
+        const row = membersTable.row($(this).parents("tr"));
+        const username = row.data().username;
+        const url = "{{ request.url_host }}/groups/{{ group['name'] }}/remove_group_member/" + username;
+        $.get(url, function(resp) {
+            if (resp["success"]) {
+                row.remove().draw();
+            }
+        });
     });
     $("form#email").submit(function(event) {
         event.preventDefault();
@@ -321,7 +333,7 @@ $(document).ready(function() {
                 message(resp["message"], resp["category"]);
             }
         });
-    })
+    });
 });
 </script>
 {% endblock %}
