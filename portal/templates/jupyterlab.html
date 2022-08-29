@@ -111,21 +111,10 @@ $(document).ready(function() {
     return true;
   }
 
-  function calculateReloadInterval(data) {
-    for (let i = 0; i < data.length; i++) {
-      if (data[i].status.current == "Pending")
-        return 5000;
-      if (data[i].status.current == "Notebook loading...")
-        return 5000;
-    }
-    return 10000;
-  }
-
   table.on("xhr", function() {
     const data = table.ajax.json().data;
     if (!allReady(data)) {
-      interval = calculateReloadInterval(data);
-      setTimeout(table.ajax.reload, interval);
+      setTimeout(table.ajax.reload, 10000);
     }
   });
 
