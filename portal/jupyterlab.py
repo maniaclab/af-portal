@@ -402,6 +402,6 @@ def get_gpu_request(pod):
     return pod.spec.containers[0].resources.requests["nvidia.com/gpu"]
 
 def get_gpu_memory_request(pod):
-    if "nvidia.com/gpu.memory" in pod.spec.node_selector:
+    if pod.spec.node_selector and "nvidia.com/gpu.memory" in pod.spec.node_selector:
         return str(float(pod.spec.node_selector["nvidia.com/gpu.memory"])/1000) + " GB"
     return "0"
