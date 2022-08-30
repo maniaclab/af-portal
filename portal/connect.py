@@ -22,6 +22,8 @@ def get_user_profile(unix_name, date_format="%B %m %Y"):
         profile = resp["metadata"]
         profile["join_date"] = datetime.strptime(profile["join_date"], "%Y-%b-%d %H:%M:%S.%f %Z").strftime(date_format)
         profile["group_memberships"].sort(key = lambda group : group["name"])
+        role = next(filter(lambda group : group["name"] == "root.atlas-af", profile["group_memberships"]), None)
+        profile["role"] = role["state"] if role else "nonmember"
         return profile
     return None
 

@@ -35,11 +35,25 @@
                 <div class="card h-100">
                     <div class="card-header">Group memberships<i class="fa-solid fa-users float-end"></i></div>
                     <div class="card-body">
+                        {% if profile["role"] in ("pending", "nonmember") %}
+                        <p class="card-text">
+                            Membership status:
+                            {% if profile["role"] == "admin" %}
+                            <span class="text-primary">admin</span>
+                            {% elif profile["role"] == "active" %}
+                            <span class="text-success">active</span>
+                            {% elif profile["role"] == "pending" %}
+                            <span class="text-warning">pending</span>
+                            {% else %}
+                            <span class="text-secondary">nonmember</span>
+                            {% endif %}
+                        </p>
+                        {% elif profile["role"] in ("admin", "active") %}
                         <table class="table table-sm table-borderless">
                             <thead class="text-muted">
                                 <tr>
                                     <td>Group name</td>
-                                    <td>Member status</td>
+                                    <td>Membership status</td>
                                 </tr>
                             </thead>
                             <tbody>
@@ -48,22 +62,27 @@
                                 <tr>
                                     <td>{{ group["name"] }}</td>
                                     <td>
-                                        {% if group["role"] == "admin" %}
-                                        <span class="text-primary">{{ group["role"] }}</span>
-                                        {% elif group["role"] == "active" %}
-                                        <span class="text-success">{{ group["role"] }}</span>
+                                        {% if group["state"] == "admin" %}
+                                        <span class="text-primary">{{ group["state"] }}</span>
+                                        {% elif group["state"] == "active" %}
+                                        <span class="text-success">{{ group["state"] }}</span>
                                         {% else %}
-                                        <span class="text-secondary">{{ group["role"] }}</span>
+                                        <span class="text-secondary">{{ group["state"] }}</span>
                                         {% endif %}
                                     </td>
                                 </tr>
                                 {% endif %}
                                 {% endfor %}
                             </tbody>
-                        </table>             
+                        </table>    
+                        {% endif %}         
                     </div>
                     <div class="card-footer bg-transparent border-top-0">
-                        <a href="{{ url_for('user_groups') }}" type="button" class="btn btn-sm btn-primary">My groups</a>  
+                        {% if profile["role"] == "nonmember" %}
+                        <a class="btn btn-sm btn-primary" role="button">Request membership</a>
+                        {% else %}
+                        <a href="{{ url_for('user_groups') }}" class="btn btn-sm btn-primary" role="button">My groups</a>  
+                        {% endif %}
                     </div>
                 </div>
             </div>
