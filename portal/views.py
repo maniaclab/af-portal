@@ -338,24 +338,20 @@ def add_group_member(unix_name, group_name):
             Full name: %s
             Email: %s
             Institution: %s""" %(approver, unix_name, group_name, profile["unix_name"], profile["name"], profile["email"], profile["institution"])
-        admin.email_staff(subject, body)
-        flash("Added %s to group %s" %(unix_name, group_name), "success")
-        return redirect(url_for("groups", group_name=group_name))
+        # admin.email_staff(subject, body)
+        return jsonify(success=True)
     except Exception as err:
         logger.error(str(err))
-        flash("Error adding %s to group %s" %(unix_name, group_name), "warning")
-        return redirect(url_for("groups", group_name=group_name))
+        return jsonify(success=True)
 
 @app.route("/groups/<group_name>/remove_group_member/<unix_name>")
 @auth.admins_only
 def remove_group_member(unix_name, group_name):
     try:
         success = connect.remove_user_from_group(unix_name, group_name)
-        flash("Removed %s from group %s" %(unix_name, group_name), "success")
         return jsonify(success=True)
     except Exception as err:
         logger.error(str(err))
-        flash("Error removing %s from group %s" %(unix_name, group_name), "warning")
         return jsonify(success=False)
 
 @app.route("/groups/<group_name>/approve_subgroup_request/<subgroup_name>")

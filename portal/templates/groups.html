@@ -209,7 +209,7 @@ $(document).ready(function() {
             {
                 targets: 6,
                 render: function(data, type, row) {
-                    html = "<a class='remove-group-member text-decoration-none badge bg-danger' role='button'>";
+                    html = "<a class='remove-member text-decoration-none badge bg-danger' role='button'>";
                     html += "<i class='fa-solid fa-circle-xmark'></i>&nbsp; Remove";
                     html += "</a>";
                     return html;
@@ -281,7 +281,7 @@ $(document).ready(function() {
             { data: "description" }
         ]
     });
-    $("#potential-members-table").DataTable({
+    const potentialMembersTable = $("#potential-members-table").DataTable({
         processing: true,
         lengthMenu: [10, 25, 50, 100, 1000],
         ajax: {url: "{{ url_for('get_group_potential_members', group_name=group['name']) }}", dataSrc: "potential_members"},
@@ -306,7 +306,7 @@ $(document).ready(function() {
             {
                 targets: 6,
                 render: function(data, type, row) {
-                    html = "<a class='text-decoration-none badge bg-primary' role='button'>";
+                    html = "<a class='add-member text-decoration-none badge bg-primary' role='button'>";
                     html += "<i class='fa-solid fa-circle-plus'></i>&nbsp; Add";
                     html += "</a>";
                     return html;
@@ -315,13 +315,27 @@ $(document).ready(function() {
         ],
         order: [5, "desc"]
     });
-    membersTable.on("click", "a.remove-group-member", function() {
+    membersTable.on("click", "a.remove-member", function() {
         const row = membersTable.row($(this).parents("tr"));
         const username = row.data().username;
         const url = "{{ request.url_host }}/groups/{{ group['name'] }}/remove_group_member/" + username;
         $.get(url, function(resp) {
             if (resp["success"]) {
                 row.remove().draw();
+                potentialMembersTable.ajax.reload();
+                message("Removed " + username + " from group {{ group['name'] }} ", "success");
+            }
+        });
+    });
+    potentialMembersTable.on("click", "a.add-member", function() {
+        const row = potentialMembersTable.row($(this).parents("tr"));
+        const username = row.data().username;
+        const url = "{{ request.url_host }}/groups/{{ group['name'] }}/add_group_member/" + username;
+        $.get(url, function(resp) {
+            if (resp["success"]) {
+                row.remove().draw();
+                membersTable.ajax.reload();
+                message("Added " + username + " to group {{ group['name'] }} ", "success");
             }
         });
     });
