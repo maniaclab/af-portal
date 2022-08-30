@@ -32,7 +32,7 @@
                 <button class="nav-link position-relative" id="member_requests-tab" data-bs-toggle="tab" data-bs-target="#member_requests" type="button" role="tab" aria-controls="member_requests" aria-selected="true">
                     <i class="fa-solid fa-user-group"></i>&nbsp;Member Requests&nbsp;
                     <span class="badge rounded-pill bg-warning">
-                        {{ group["member_requests"]|length }}
+                        <span id="number-of-member-requests">0</span>
                         <span class="visually-hidden">member requests</span>
                     </span>
                 </button>
@@ -46,7 +46,7 @@
                 <button class="nav-link position-relative" id="subgroup_requests-tab" data-bs-toggle="tab" data-bs-target="#subgroup_requests" type="button" role="tab" aria-controls="sugroup_requests" aria-selected="true">
                     <i class="fa-solid fa-diagram-project"></i>&nbsp;Subgroup Requests&nbsp;
                     <span class="badge rounded-pill bg-warning">
-                        {{ group["subgroup_requests"]|length }}
+                        <span id="number-of-subgroup-requests">0</span>
                         <span class="visually-hidden">subgroup requests</span>
                     </span>
                 </button>
@@ -218,7 +218,7 @@ $(document).ready(function() {
         ],
         order: [5, "desc"]
     });
-    $("#member-requests-table").DataTable({
+    const memberRequestsTable = $("#member-requests-table").DataTable({
         processing: true,
         lengthMenu: [10, 25, 50, 100],
         ajax: {url: "{{ url_for('get_group_member_requests', group_name=group['name']) }}", dataSrc: "member_requests"},
@@ -235,24 +235,29 @@ $(document).ready(function() {
             {
                 targets: 5,
                 render: function(data, type, row) {
-                    return "<span class='text-secondary'>" + data + "</span>";
+                    return "<span class='text-warning'>" + data + "</span>";
                 }
             },
             {
                 targets: 6,
                 render: function(data, type, row) {
-                    html = "<a class='text-decoration-none badge bg-success' role='button'>";
+                    html = "<a class='approve-member-request text-decoration-none badge bg-success' role='button'>";
                     html += "<i class='fa-regular fa-circle-check'></i>&nbsp;Approve";
                     html += "</a>";
-                    html += "<a class='text-decoration-none badge bg-danger' role='button'>";
+                    html += "&nbsp;"
+                    html += "<a class='deny-member-request text-decoration-none badge bg-danger' role='button'>";
                     html += "<i class='fa-regular fa-circle-xmark'></i>&nbsp;Deny";
                     html += "</a>";
                     return html;
                 }
             }
-        ]
+        ],
+        "fnInitComplete": function(oSettings, json) {
+            const count = json.member_requests.length;
+            $("#number-of-member-requests").html(count);
+        }
     });
-    $("#subgroups-table").DataTable({
+   const subgroupsTable = $("#subgroups-table").DataTable({
         processing: true,
         lengthMenu: [10, 25, 50, 100],
         ajax: {url: "{{ url_for('get_group_subgroups', group_name=group['name']) }}", dataSrc: "subgroups"},
@@ -270,7 +275,7 @@ $(document).ready(function() {
             }
         ]
     });
-    $("#subgroup-requests-table").DataTable({
+    const subgroupRequestsTable = $("#subgroup-requests-table").DataTable({
         processing: true,
         lengthMenu: [10, 25, 50, 100],
         ajax: {url: "{{ url_for('get_group_subgroup_requests', group_name=group['name']) }}", dataSrc: "subgroup_requests"},
@@ -279,7 +284,11 @@ $(document).ready(function() {
             { data: "name" },
             { data: "email" },
             { data: "description" }
-        ]
+        ],
+        "fnInitComplete": function(oSettings, json) {
+            const count = json.subgroup_requests.length;
+            $("#number-of-subgroup-requests").html(count);
+        }
     });
     const potentialMembersTable = $("#potential-members-table").DataTable({
         processing: true,
@@ -299,7 +308,7 @@ $(document).ready(function() {
                 targets: 5,
                 render: function(data, type, row) {
                     if (data == "pending") 
-                        return "<span class='text-secondary'>" + data + "</span>";
+                        return "<span class='text-warning'>" + data + "</span>";
                     return data;
                 }
             },
@@ -324,6 +333,34 @@ $(document).ready(function() {
                 row.remove().draw();
                 potentialMembersTable.ajax.reload();
                 message("Removed " + username + " from group {{ group['name'] }} ", "success");
+            }
+        });
+    });
+    memberRequestsTable.on("click", "a.approve-member-request", function() {
+        const row = memberRequestsTable.row($(this).parents("tr"));
+        const username = row.data().username;
+        const url = "{{ request.url_host }}/groups/{{ group['name'] }}/approve_member_request/" + username;
+        $.get(url, function(resp) {
+            if (resp["success"]) {
+                row.remove().draw();
+                membersTable.ajax.reload();
+                message("Approved request from " + username + " to join group {{ group['name'] }} ", "success");
+                const count = memberRequestsTable.rows().data().length;
+                $("#number-of-member-requests").html(count);
+            }
+        });
+    });
+    memberRequestsTable.on("click", "a.deny-member-request", function() {
+        const row = memberRequestsTable.row($(this).parents("tr"));
+        const username = row.data().username;
+        const url = "{{ request.url_host }}/groups/{{ group['name'] }}/deny_member_request/" + username;
+        $.get(url, function(resp) {
+            if (resp["success"]) {
+                row.remove().draw();
+                potentialMembersTable.ajax.reload();
+                message("Denied request from " + username + " to join group {{ group['name'] }} ", "success");
+                const count = memberRequestsTable.rows().data().length;
+                $("#number-of-member-requests").html(count);
             }
         });
     });

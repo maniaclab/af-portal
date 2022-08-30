@@ -328,17 +328,6 @@ def send_email(group_name):
 def add_group_member(unix_name, group_name):
     try:
         success = connect.add_user_to_group(unix_name, group_name)
-        profile = connect.get_user_profile(unix_name)
-        approver = session["unix_name"]
-        subject = "Account approval"
-        body = """
-            User %s approved a request from %s to join group %s.
-
-            Unix name: %s
-            Full name: %s
-            Email: %s
-            Institution: %s""" %(approver, unix_name, group_name, profile["unix_name"], profile["name"], profile["email"], profile["institution"])
-        # admin.email_staff(subject, body)
         return jsonify(success=True)
     except Exception as err:
         logger.error(str(err))
@@ -353,6 +342,37 @@ def remove_group_member(unix_name, group_name):
     except Exception as err:
         logger.error(str(err))
         return jsonify(success=False)
+
+@app.route("/groups/<group_name>/approve_member_request/<unix_name>")
+@auth.admins_only
+def approve_member_request(unix_name, group_name):
+    try:
+        success = connect.add_user_to_group(unix_name, group_name)
+        profile = connect.get_user_profile(unix_name)
+        approver = session["unix_name"]
+        subject = "Account approval"
+        body = """
+            User %s approved a request from %s to join group %s.
+
+            Unix name: %s
+            Full name: %s
+            Email: %s
+            Institution: %s""" %(approver, unix_name, group_name, profile["unix_name"], profile["name"], profile["email"], profile["institution"])
+        admin.email_staff(subject, body)
+        return jsonify(success=True)
+    except Exception as err:
+        logger.error(str(err))
+        return jsonify(success=True)
+
+@app.route("/groups/<group_name>/deny_member_request/<unix_name>")
+@auth.admins_only
+def deny_member_request(unix_name, group_name):
+    try:
+        success = connect.remove_user_from_group(unix_name, group_name)
+        return jsonify(success=True)
+    except Exception as err:
+        logger.error(str(err))
+        return jsonify(success=True)
 
 @app.route("/groups/<group_name>/approve_subgroup_request/<subgroup_name>")
 @auth.admins_only
