@@ -37,23 +37,12 @@
               <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" onclick="loader()" href="{{ url_for('groups', group_name='root.atlas-af') }}">Groups</a></li>
                 <li><a class="dropdown-item" href="{{ url_for('user_info') }}">Users</a></li>
-                <li><a onclick="loader()" class="dropdown-item" href="{{ url_for('plot_users_over_time') }}">Plot of users</a></li>
-                <li><a onclick="loader()" class="dropdown-item" href="{{ url_for('notebook_metrics') }}">Notebook metrics</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('notebook_metrics') }}" onclick="loader()">Notebooks</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('plot_users_over_time') }}" onclick="loader()">Registrations</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('login_nodes') }}" onclick="loader()">Nodes</a></li>
               </ul>
             </li>
             {% endif %}
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                aria-expanded="false">
-                Monitoring
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{{ url_for('user_notebook_metrics') }}">Notebook metrics</a></li>
-                {% if session.get("role") == "admin" %}
-                <li><a class="dropdown-item" href="{{ url_for('login_nodes') }}">Login nodes</a></li>
-                {% endif %}
-              </ul>
-            </li>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                 aria-expanded="false">
@@ -61,11 +50,10 @@
               </a>
               <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="{{ url_for('open_jupyterlab') }}">JupyterLab</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('user_notebook_metrics') }}" onclick="loader()">Metrics</a></li>
                 <li><a class="dropdown-item" href="https://coffea.af.uchicago.edu/" target="_blank">Coffea Casa</a></li>
-                <li><a class="dropdown-item" href="https://uproot-atlas.servicex.af.uchicago.edu"
-                    target="_blank">ServiceX for uproot</a></li>
-                <li><a class="dropdown-item" href="https://xaod.servicex.af.uchicago.edu" target="_blank">ServiceX for
-                    xAOD</a></li>
+                <li><a class="dropdown-item" href="https://uproot-atlas.servicex.af.uchicago.edu" target="_blank">ServiceX (uproot)</a></li>
+                <li><a class="dropdown-item" href="https://xaod.servicex.af.uchicago.edu" target="_blank">ServiceX (xAOD)</a></li>
               </ul>
             </li>
             <li class="nav-item dropdown">
