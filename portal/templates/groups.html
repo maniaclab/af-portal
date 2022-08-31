@@ -339,7 +339,7 @@ $(document).ready(function() {
     memberRequestsTable.on("click", "a.approve-member-request", function() {
         const row = memberRequestsTable.row($(this).parents("tr"));
         const username = row.data().username;
-        const url = "{{ request.url_host }}/groups/{{ group['name'] }}/approve_member_request/" + username;
+        const url = "{{ request.url_host }}/groups/{{ group['name'] }}/approve_membership_request/" + username;
         $.get(url, function(resp) {
             if (resp["success"]) {
                 row.remove().draw();
@@ -353,7 +353,7 @@ $(document).ready(function() {
     memberRequestsTable.on("click", "a.deny-member-request", function() {
         const row = memberRequestsTable.row($(this).parents("tr"));
         const username = row.data().username;
-        const url = "{{ request.url_host }}/groups/{{ group['name'] }}/deny_member_request/" + username;
+        const url = "{{ request.url_host }}/groups/{{ group['name'] }}/deny_membership_request/" + username;
         $.get(url, function(resp) {
             if (resp["success"]) {
                 row.remove().draw();

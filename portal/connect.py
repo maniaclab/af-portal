@@ -154,6 +154,14 @@ def get_subgroup_requests(group_name):
     subgroups = resp.json()["groups"]
     return subgroups
 
+def update_user_group_status(unix_name, group_name, status):
+    json = {"apiVersion": "v1alpha1", "group_membership": {"state": status}}
+    resp = requests.put(base_url + "/v1alpha1/groups/" + group_name + "/members/" + unix_name, params=params, json=json)
+    if resp.status_code == requests.codes.ok:
+        logger.info("Set status to %s in group %s for user %s" %(status, group_name, unix_name))
+        return True
+    return False
+
 def add_user_to_group(unix_name, group_name):
     json = {"apiVersion": "v1alpha1", "group_membership": {"state": "active"}}
     resp = requests.put(base_url + "/v1alpha1/groups/" + group_name + "/members/" + unix_name, params=params, json=json)

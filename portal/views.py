@@ -123,6 +123,20 @@ def user_groups():
         logger.error(str(err))
         return render_template("user_groups.html", groups=[])
 
+@app.route("/profile/request_membership/<unix_name>")
+@auth.login_required
+def request_membership(unix_name):
+    try:
+        if connect.update_user_group_status(unix_name, "root.atlas-af", "pending"):
+            flash("Requested membership in the ATLAS Analysis Facility group", "success")
+        else:
+            flash("Unable to request membership in the ATLAS Analysis Facility group", "warning")
+        return redirect(url_for("profile"))
+    except Exception as err:
+        logger.error(str(err))
+        flash("Error requesting membership in the ATLAS Analysis Facility group", "warning")
+        return redirect(url_for("profile"))
+
 @app.route("/aup")
 def aup():
     return render_template("aup.html")
@@ -343,9 +357,9 @@ def remove_group_member(unix_name, group_name):
         logger.error(str(err))
         return jsonify(success=False)
 
-@app.route("/groups/<group_name>/approve_member_request/<unix_name>")
+@app.route("/groups/<group_name>/approve_membership_request/<unix_name>")
 @auth.admins_only
-def approve_member_request(unix_name, group_name):
+def approve_membership_request(unix_name, group_name):
     try:
         success = connect.add_user_to_group(unix_name, group_name)
         profile = connect.get_user_profile(unix_name)
@@ -362,17 +376,17 @@ def approve_member_request(unix_name, group_name):
         return jsonify(success=True)
     except Exception as err:
         logger.error(str(err))
-        return jsonify(success=True)
+        return jsonify(success=False)
 
-@app.route("/groups/<group_name>/deny_member_request/<unix_name>")
+@app.route("/groups/<group_name>/deny_membership_request/<unix_name>")
 @auth.admins_only
-def deny_member_request(unix_name, group_name):
+def deny_membership_request(unix_name, group_name):
     try:
         success = connect.remove_user_from_group(unix_name, group_name)
         return jsonify(success=True)
     except Exception as err:
         logger.error(str(err))
-        return jsonify(success=True)
+        return jsonify(success=False)
 
 @app.route("/groups/<group_name>/approve_subgroup_request/<subgroup_name>")
 @auth.admins_only
