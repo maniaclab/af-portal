@@ -1,13 +1,6 @@
 {%extends "base.html"%}
 
-{%block title%}
-  JupyterLab
-{%endblock%}
-
-{% block libraries %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery.dataTables.min.css') }}" />
-<script type="text/javascript" src="{{ url_for('static', filename='js/jquery.dataTables.min.js') }}"></script>
-{% endblock %}
+{% block title %} JupyterLab {% endblock %}
 
 {% block content %}
 <section id="jupyterlab">
@@ -108,7 +101,7 @@ $(document).ready(function() {
   table.on("xhr", function() {
     const notebooks = table.ajax.json().notebooks;
     if (!allReady(notebooks)) {
-      setTimeout(table.ajax.reload, 10000);
+      setTimeout(table.ajax.reload, 5000);
     }
   });
 

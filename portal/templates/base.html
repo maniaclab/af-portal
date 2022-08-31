@@ -5,11 +5,13 @@
 <head>
   <title>Portal - {% block title %}{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome.all.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery.dataTables.min.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
   <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
-  {% block libraries %} {% endblock %}
+  <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.dataTables.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.validate.min.js') }}"></script>
 </head>
 
 <body>
@@ -138,12 +140,20 @@
   </footer>
 </body>
 <script type="text/javascript">
+
+  /* This function shows the spinning loader icon */
   function loader() {
     var loader = document.getElementById("loader");
     loader.style.display = "inline";
   }
+
+  /* This function shows a flash message */
   function message(message, category) {
     $("#messages").html("<div class='alert alert-" + category + " alert-dismissible'>" + message + "<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button></div>");
   }
+
+  /* This setting disables error alerts in DataTables */
+  $.fn.dataTable.ext.errMode = "none";
+
 </script>
 </html>

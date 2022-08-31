@@ -2,11 +2,6 @@
 
 {% block title %} Groups {% endblock %}
 
-{% block libraries %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery.dataTables.min.css') }}" />
-<script type="text/javascript" src="{{ url_for('static', filename='js/jquery.dataTables.min.js') }}"></script>
-{% endblock %}
-
 {% block content %}
 <section id="groups">
     <div class="container">
@@ -217,6 +212,17 @@ $(document).ready(function() {
             }
         ],
         order: [5, "desc"]
+    }).on("click", "a.remove-member", function() {
+        const row = membersTable.row($(this).parents("tr"));
+        const username = row.data().username;
+        const url = "{{ request.url_host }}/groups/{{ group['name'] }}/remove_group_member/" + username;
+        $.get(url, function(resp) {
+            if (resp["success"]) {
+                row.remove().draw();
+                potentialMembersTable.ajax.reload();
+                message("Removed " + username + " from group {{ group['name'] }} ", "success");
+            }
+        });
     });
     const memberRequestsTable = $("#member-requests-table").DataTable({
         processing: true,
@@ -256,6 +262,32 @@ $(document).ready(function() {
             const count = json.member_requests.length;
             $("#number-of-member-requests").html(count);
         }
+    }).on("click", "a.approve-member-request", function() {
+        const row = memberRequestsTable.row($(this).parents("tr"));
+        const username = row.data().username;
+        const url = "{{ request.url_host }}/groups/{{ group['name'] }}/approve_membership_request/" + username;
+        $.get(url, function(resp) {
+            if (resp["success"]) {
+                row.remove().draw();
+                membersTable.ajax.reload();
+                message("Approved request from " + username + " to join group {{ group['name'] }} ", "success");
+                const count = memberRequestsTable.rows().data().length;
+                $("#number-of-member-requests").html(count);
+            }
+        });
+    }).on("click", "a.deny-member-request", function() {
+        const row = memberRequestsTable.row($(this).parents("tr"));
+        const username = row.data().username;
+        const url = "{{ request.url_host }}/groups/{{ group['name'] }}/deny_membership_request/" + username;
+        $.get(url, function(resp) {
+            if (resp["success"]) {
+                row.remove().draw();
+                potentialMembersTable.ajax.reload();
+                message("Denied request from " + username + " to join group {{ group['name'] }} ", "success");
+                const count = memberRequestsTable.rows().data().length;
+                $("#number-of-member-requests").html(count);
+            }
+        });
     });
    const subgroupsTable = $("#subgroups-table").DataTable({
         processing: true,
@@ -323,48 +355,7 @@ $(document).ready(function() {
             }
         ],
         order: [5, "desc"]
-    });
-    membersTable.on("click", "a.remove-member", function() {
-        const row = membersTable.row($(this).parents("tr"));
-        const username = row.data().username;
-        const url = "{{ request.url_host }}/groups/{{ group['name'] }}/remove_group_member/" + username;
-        $.get(url, function(resp) {
-            if (resp["success"]) {
-                row.remove().draw();
-                potentialMembersTable.ajax.reload();
-                message("Removed " + username + " from group {{ group['name'] }} ", "success");
-            }
-        });
-    });
-    memberRequestsTable.on("click", "a.approve-member-request", function() {
-        const row = memberRequestsTable.row($(this).parents("tr"));
-        const username = row.data().username;
-        const url = "{{ request.url_host }}/groups/{{ group['name'] }}/approve_membership_request/" + username;
-        $.get(url, function(resp) {
-            if (resp["success"]) {
-                row.remove().draw();
-                membersTable.ajax.reload();
-                message("Approved request from " + username + " to join group {{ group['name'] }} ", "success");
-                const count = memberRequestsTable.rows().data().length;
-                $("#number-of-member-requests").html(count);
-            }
-        });
-    });
-    memberRequestsTable.on("click", "a.deny-member-request", function() {
-        const row = memberRequestsTable.row($(this).parents("tr"));
-        const username = row.data().username;
-        const url = "{{ request.url_host }}/groups/{{ group['name'] }}/deny_membership_request/" + username;
-        $.get(url, function(resp) {
-            if (resp["success"]) {
-                row.remove().draw();
-                potentialMembersTable.ajax.reload();
-                message("Denied request from " + username + " to join group {{ group['name'] }} ", "success");
-                const count = memberRequestsTable.rows().data().length;
-                $("#number-of-member-requests").html(count);
-            }
-        });
-    });
-    potentialMembersTable.on("click", "a.add-member", function() {
+    }).on("click", "a.add-member", function() {
         const row = potentialMembersTable.row($(this).parents("tr"));
         const username = row.data().username;
         const url = "{{ request.url_host }}/groups/{{ group['name'] }}/add_group_member/" + username;

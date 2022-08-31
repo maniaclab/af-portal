@@ -485,3 +485,11 @@ def delete_group(group_name):
         logger.error(str(err))
         flash("Error using the delete_group feature", "warning")
         return redirect(url_for("groups", group_name=group_name))
+
+@app.errorhandler(404)
+def not_found(e):
+    return render_template("404.html")
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template("500.html")

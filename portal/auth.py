@@ -31,5 +31,5 @@ def admins_only(fn):
         role = connect.get_user_role(unix_name)
         if role == "admin":
             return fn(*args, **kwargs)
-        return redirect(url_for("home"))
+        return render_template("404.html")
     return decorated_function
