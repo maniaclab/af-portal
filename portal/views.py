@@ -115,13 +115,18 @@ def edit_profile():
 @app.route("/profile/groups")
 @auth.login_required
 def user_groups():
+    return render_template("user_groups.html")
+
+@app.route("/profile/get_user_groups")
+@auth.login_required
+def get_user_groups():
     try:
         unix_name = session["unix_name"]
         groups = connect.get_user_groups(unix_name)
-        return render_template("user_groups.html", groups=groups)
+        return {"groups": groups}
     except Exception as err:
         logger.error(str(err))
-        return render_template("user_groups.html", groups=[])
+        return {"groups": []}
 
 @app.route("/profile/request_membership/<unix_name>")
 @auth.login_required

@@ -18,7 +18,7 @@
             </ol>
         </nav>
         <div class="my-4 fs14">
-            <table class="table nowrap w-100">
+            <table id="user-groups-table" class="table nowrap w-100">
                 <thead>
                     <tr>
                         <th>Group name</th>
@@ -27,33 +27,37 @@
                         <th>Group description</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {% for group in groups %}
-                    <tr>
-                        <td>{{ group["display_name"] }}</td>
-                        <td>{{ group["name"] }}</td>
-                        <td>
-                            {% if group["role"] == "admin" %}
-                            <span class="text-primary">{{ group["role"] }}</span>
-                            {% elif group["role"] == "active" %}
-                            <span class="text-success">{{ group["role"] }}</span>
-                            {% elif group["role"] == "pending" %}
-                            <span class="text-warning">{{ group["role"] }}</span>
-                            {% else %}
-                            <span class="text-secondary">{{ group["role"] }}</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ group["description"] }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
             </table>
         </div>
     </div>
 </section>
 <script type="text/javascript">
 $(document).ready(function() {
-    $("table").DataTable({
+    $("#user-groups-table").DataTable({
+        processing: true,
+        lengthMenu: [25, 50, 100],
+        ajax: { url: "{{ url_for('get_user_groups') }}", dataSrc: "groups" },
+        columns: [
+            { data: "display_name" },
+            { data: "name" },
+            { data: "role" },
+            { data: "description" }
+        ],
+        columnDefs: [
+            { 
+                "targets": 2, 
+                render: function(data, type, row) {
+                    if (data == "admin")
+                        return "<span class='text-primary'>" + data + "</span>";
+                    else if (data == "active")
+                        return "<span class='text-success'>" + data + "</span>";
+                    else if (data == "pending")
+                        return "<span class='text-warning'>" + data + "</span>";
+                    else
+                        return "<span class='text-secondary'>" + data + "</span>";
+                }
+            }
+        ],
         order: [1, "asc"],
     });
 });
