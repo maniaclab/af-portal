@@ -241,5 +241,4 @@ def delete_group(group_name):
             return resp.status_code == requests.codes.ok
         except Exception as err:
             logger.info(str(err))
-            return False
     return False
