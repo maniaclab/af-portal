@@ -38,8 +38,8 @@
 $(document).ready(function() {
     const usersTable = $("#users-table").DataTable({
         processing: true,
-        ajax: {url: "{{ url_for('get_user_profiles') }}", dataSrc: "users"},
         lengthMenu: [10, 25, 100, 1000],
+        ajax: {url: "{{ url_for('get_user_profiles') }}", dataSrc: "users"},
         order: [3, "asc"],
         columns: [
             { data: "username" },
