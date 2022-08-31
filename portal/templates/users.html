@@ -19,7 +19,7 @@
             </ol>
         </nav>
         <div class="my-4 fs14">
-            <table class="table nowrap w-100">
+            <table id="users-table" class="table nowrap w-100">
                 <thead>
                     <tr>
                         <th>Username</th>
@@ -30,36 +30,41 @@
                         <th>Status</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {% for user in users %}
-                    <tr>
-                        <td>{{ user["username"] }}</td>
-                        <td>{{ user["name"] }}</td>
-                        <td>{{ user["email"] }}</td>
-                        <td>{{ user["join_date"] }}</td>
-                        <td>{{ user["institution"] }}</td>
-                        <td>
-                            {% if user["role"] == "admin" %}
-                            <span class="text-primary">{{ user["role"] }}</span>
-                            {% elif user["role"] == "active" %}
-                            <span class="text-success">{{ user["role"] }}</span>
-                            {% else %}
-                            <span class="text-secondary">{{ user["role"] }}</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
             </table>
         </div>
     </div>
 </section>
 <script type="text/javascript">
 $(document).ready(function() {
-    $("table").DataTable({
+    const usersTable = $("#users-table").DataTable({
+        processing: true,
+        ajax: {url: "{{ url_for('get_user_profiles') }}", dataSrc: "users"},
         lengthMenu: [10, 25, 100, 1000],
         order: [3, "asc"],
-        columnDefs: [{ "targets": 3, type: "date" }]
+        columns: [
+            { data: "username" },
+            { data: "name" },
+            { data: "email" },
+            { data: "join_date" },
+            { data: "institution" },
+            { data: "role" }
+        ],
+        columnDefs: [
+            { "targets": 3, type: "date" },
+            { 
+                "targets": 5, 
+                render: function(data, type, row) {
+                    if (data == "admin")
+                        return "<span class='text-primary'>" + data + "</span>";
+                    else if (data == "active")
+                        return "<span class='text-success'>" + data + "</span>";
+                    else if (data == "pending")
+                        return "<span class='text-warning'>" + data + "</span>";
+                    else
+                        return "<span class='text-secondary'>" + data + "</span>";
+                }
+            }
+        ]
     });
 });
 </script>

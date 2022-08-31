@@ -205,16 +205,21 @@ def plot_users_over_time():
         logger.error(str(err))
         return render_template("plot_users_over_time.html", base64_encoded_image = None)
 
-@app.route("/admin/user_info")
+@app.route("/admin/users")
 @auth.admins_only
 def user_info():
+    return render_template("users.html")
+
+@app.route("/admin/get_user_profiles")
+@auth.admins_only
+def get_user_profiles():
     try:
         usernames = connect.get_group_members("root.atlas-af")
         users = connect.get_user_profiles(usernames, date_format="%m/%d/%Y")
-        return render_template("user_info.html", users=users)
+        return {"users": users}
     except Exception as err:
         logger.error(str(err))
-        return render_template("user_info.html", users=[])
+        return {"users": []}
 
 @app.route("/admin/update_user_institution", methods=["POST"])
 @auth.admins_only
@@ -258,9 +263,7 @@ def login_nodes():
 @auth.admins_only
 def groups(group_name):
     try:
-        logger.info("Getting group info...")
         group = connect.get_group_info(group_name)
-        logger.info("Retrieved group info")
         return render_template("groups.html", group=group)
     except Exception as err:
         logger.error(str(err))
