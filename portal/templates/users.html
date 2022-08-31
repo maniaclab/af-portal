@@ -51,8 +51,7 @@ $(document).ready(function() {
         ],
         columnDefs: [
             { "targets": 3, type: "date" },
-            { 
-                "targets": 5, 
+            { "targets": 5, 
                 render: function(data, type, row) {
                     if (data == "admin")
                         return "<span class='text-primary'>" + data + "</span>";
