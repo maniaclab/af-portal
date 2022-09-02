@@ -215,7 +215,7 @@ $(document).ready(function() {
     }).on("click", "a.remove-member", function() {
         const row = membersTable.row($(this).parents("tr"));
         const username = row.data().username;
-        const url = "{{ request.url_host }}/groups/{{ group['name'] }}/remove_group_member/" + username;
+        const url = "{{request.url_root}}/admin/remove_group_member/{{group['name']}}/" + username;
         $.get(url, function(resp) {
             if (resp["success"]) {
                 row.remove().draw();
@@ -265,7 +265,7 @@ $(document).ready(function() {
     }).on("click", "a.approve-member-request", function() {
         const row = memberRequestsTable.row($(this).parents("tr"));
         const username = row.data().username;
-        const url = "{{ request.url_host }}/groups/{{ group['name'] }}/approve_membership_request/" + username;
+        const url = "{{request.url_root}}/admin/approve_membership_request/{{group['name']}}/" + username;
         $.get(url, function(resp) {
             if (resp["success"]) {
                 row.remove().draw();
@@ -278,7 +278,7 @@ $(document).ready(function() {
     }).on("click", "a.deny-member-request", function() {
         const row = memberRequestsTable.row($(this).parents("tr"));
         const username = row.data().username;
-        const url = "{{ request.url_host }}/groups/{{ group['name'] }}/deny_membership_request/" + username;
+        const url = "{{request.url_root}}/admin/deny_membership_request/{{group['name']}}/" + username;
         $.get(url, function(resp) {
             if (resp["success"]) {
                 row.remove().draw();
@@ -302,7 +302,7 @@ $(document).ready(function() {
             { 
                 targets: 0,
                 render: function(data, type, row) {
-                    return "<a href='{{request.url_root}}/groups/" + data + "' class='text-decoration-none'>" + data + "</a>"
+                    return "<a href='{{request.url_root}}/admin/groups/" + data + "' class='text-decoration-none'>" + data + "</a>"
                 }
             }
         ]
@@ -358,7 +358,7 @@ $(document).ready(function() {
     }).on("click", "a.add-member", function() {
         const row = potentialMembersTable.row($(this).parents("tr"));
         const username = row.data().username;
-        const url = "{{ request.url_host }}/groups/{{ group['name'] }}/add_group_member/" + username;
+        const url = "{{request.url_root}}/admin/add_group_member/{{group['name']}}/" + username;
         $.get(url, function(resp) {
             if (resp["success"]) {
                 row.remove().draw();

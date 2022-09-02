@@ -108,7 +108,7 @@ $(document).ready(function() {
   table.on("click", "a.remove-button", function() {
     const row = table.row($(this).parents("tr"));
     const rowData = row.data();
-    $.get("{{request.base_url}}/remove/" + rowData.notebook_id, function(resp) {
+    $.get("{{request.url_root}}/jupyter/remove/" + rowData.notebook_id, function(resp) {
       if (resp["success"]) {
         rowData.status.current = "Removing notebook...";
         rowData.status.history = [];

@@ -173,7 +173,7 @@ def configure_notebook():
 @auth.members_only
 def deploy_notebook():
     try:
-        notebook_name = request.form['notebook-name'].strip()
+        notebook_name = request.form["notebook-name"].strip()
         settings = {
             "globus_id": session["globus_id"],
             "username": session["unix_name"],
@@ -200,7 +200,18 @@ def remove_notebook(notebook):
     except JupyterLabException:
         return jsonify(success=False)
 
-@app.route("/admin/plot_users_over_time", methods=["GET"])
+@app.route("/jupyter/notebook_metrics")
+@auth.members_only
+def user_notebook_metrics():
+    try: 
+        username = session["unix_name"]
+        notebooks = jupyterlab.get_notebooks(username)
+        return render_template("notebook_metrics_for_user.html", notebooks=notebooks)
+    except JupyterLabException as e:
+        flash(str(e), 'warning')
+        return render_template("notebook_metrics_for_user.html", notebooks=[])
+
+@app.route("/admin/plot_users_over_time")
 @auth.admins_only
 def plot_users_over_time():
     try:
@@ -248,23 +259,12 @@ def notebook_metrics():
         flash(str(e), 'warning')
         return render_template("notebook_metrics.html", notebooks=[])
 
-@app.route("/monitoring/notebook_metrics")
-@auth.members_only
-def user_notebook_metrics():
-    try: 
-        username = session["unix_name"]
-        notebooks = jupyterlab.get_notebooks(username)
-        return render_template("notebook_metrics_for_user.html", notebooks=notebooks)
-    except JupyterLabException as e:
-        flash(str(e), 'warning')
-        return render_template("notebook_metrics_for_user.html", notebooks=[])
-
-@app.route("/monitoring/login_nodes")
+@app.route("/admin/login_nodes")
 @auth.admins_only
 def login_nodes():
     return render_template("login_nodes.html")
 
-@app.route("/groups/<group_name>")
+@app.route("/admin/groups/<group_name>")
 @auth.admins_only
 def groups(group_name):
     try:
@@ -274,7 +274,7 @@ def groups(group_name):
         logger.error(str(err))
         return render_template("groups.html", group=None)
 
-@app.route("/groups/<group_name>/members")
+@app.route("/admin/get_group_members/<group_name>")
 @auth.admins_only
 def get_group_members(group_name):
     try:
@@ -285,7 +285,7 @@ def get_group_members(group_name):
         logger.error(str(err))
         return {"members": []}
 
-@app.route("/groups/<group_name>/member_requests")
+@app.route("/admin/get_group_member_requests/<group_name>")
 @auth.admins_only
 def get_group_member_requests(group_name):
     try:
@@ -296,7 +296,7 @@ def get_group_member_requests(group_name):
         logger.error(str(err))
         return {"member_requests": []}
 
-@app.route("/groups/<group_name>/subgroups")
+@app.route("/admin/get_subgroups/<group_name>")
 @auth.admins_only
 def get_group_subgroups(group_name):
     try:
@@ -306,7 +306,7 @@ def get_group_subgroups(group_name):
         logger.error(str(err))
         return {"subgroups": []}
 
-@app.route("/groups/<group_name>/subgroup_requests")
+@app.route("/admin/get_subgroup_requests/<group_name>")
 @auth.admins_only
 def get_group_subgroup_requests(group_name):
     try:
@@ -316,7 +316,7 @@ def get_group_subgroup_requests(group_name):
         logger.error(str(err))
         return {"subgroup_requests": []}
 
-@app.route("/groups/<group_name>/potential_members")
+@app.route("/admin/get_potential_members/<group_name>")
 @auth.admins_only
 def get_group_potential_members(group_name):
     try:
@@ -329,7 +329,7 @@ def get_group_potential_members(group_name):
         logger.error(str(err))
         return {"potential_members": []}
 
-@app.route("/groups/<group_name>/email", methods=["POST"])
+@app.route("/admin/email/<group_name>", methods=["POST"])
 @auth.admins_only
 def send_email(group_name):
     try:
@@ -345,7 +345,7 @@ def send_email(group_name):
         logger.error(str(err))
         return jsonify(message="Error sending email to group %s" %group_name, category="warning")
 
-@app.route("/groups/<group_name>/add_group_member/<unix_name>")
+@app.route("/admin/add_group_member/<group_name>/<unix_name>")
 @auth.admins_only
 def add_group_member(unix_name, group_name):
     try:
@@ -355,7 +355,7 @@ def add_group_member(unix_name, group_name):
         logger.error(str(err))
         return jsonify(success=True)
 
-@app.route("/groups/<group_name>/remove_group_member/<unix_name>")
+@app.route("/admin/remove_group_member/<group_name>/<unix_name>")
 @auth.admins_only
 def remove_group_member(unix_name, group_name):
     try:
@@ -365,7 +365,7 @@ def remove_group_member(unix_name, group_name):
         logger.error(str(err))
         return jsonify(success=False)
 
-@app.route("/groups/<group_name>/approve_membership_request/<unix_name>")
+@app.route("/admin/approve_membership_request/<group_name>/<unix_name>")
 @auth.admins_only
 def approve_membership_request(unix_name, group_name):
     try:
@@ -386,7 +386,7 @@ def approve_membership_request(unix_name, group_name):
         logger.error(str(err))
         return jsonify(success=False)
 
-@app.route("/groups/<group_name>/deny_membership_request/<unix_name>")
+@app.route("/admin/deny_membership_request/<group_name>/<unix_name>")
 @auth.admins_only
 def deny_membership_request(unix_name, group_name):
     try:
@@ -396,7 +396,7 @@ def deny_membership_request(unix_name, group_name):
         logger.error(str(err))
         return jsonify(success=False)
 
-@app.route("/groups/<group_name>/approve_subgroup_request/<subgroup_name>")
+@app.route("/admin/approve_subgroup_request/<group_name>/<subgroup_name>")
 @auth.admins_only
 def approve_subgroup_request(subgroup_name, group_name):
     try:
@@ -408,7 +408,7 @@ def approve_subgroup_request(subgroup_name, group_name):
         flash("Error approving request for subgroup %s" %subgroup_name, "warning")
         return redirect(url_for("groups", group_name=group_name))
 
-@app.route("/groups/<group_name>/deny_subgroup_request/<subgroup_name>")
+@app.route("/admin/deny_subgroup_request/<group_name>/<subgroup_name>")
 @auth.admins_only
 def deny_subgroup_request(subgroup_name, group_name):
     try:
@@ -420,7 +420,7 @@ def deny_subgroup_request(subgroup_name, group_name):
         flash("Error denying request for subgroup %s" %subgroup_name, "warning")
         return redirect(url_for("groups", group_name=group_name))
 
-@app.route("/groups/<group_name>/edit", methods=["GET", "POST"])
+@app.route("/admin/edit_group/<group_name>", methods=["GET", "POST"])
 @auth.admins_only
 def edit_group(group_name):
     try:
@@ -442,7 +442,7 @@ def edit_group(group_name):
         flash("Error updating group %s" %group_name, "warning")
         return render_template("edit_group.html", group=None)
 
-@app.route("/groups/<group_name>/create_subgroup", methods=["GET", "POST"])
+@app.route("/admin/create_subgroup/<group_name>", methods=["GET", "POST"])
 @auth.admins_only
 def create_subgroup(group_name):
     try:
@@ -470,7 +470,7 @@ def create_subgroup(group_name):
         flash("Error using the create_subgroup feature", "warning")
         return redirect(url_for("groups", group_name=group_name))
 
-@app.route("/groups/<group_name>/delete_group")
+@app.route("/admin/delete_group/<group_name>")
 @auth.admins_only
 def delete_group(group_name):
     try:
