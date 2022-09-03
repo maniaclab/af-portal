@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %} Hardware {% endblock %}
+
+{% block body %}
+
+<section>
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a class="text-decoration-none" href="{{ url_for('home') }}">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Hardware</li>
+            </ol>
+        </nav>
+        <div class="col-lg-10 mx-auto mb-5">
+            <table class="table table-borderless">
+                <tr>
+                    <td>We have thirty five compute nodes. Each has:</td>
+                    <td>
+                        <ul class="list-group">
+                            <li class="list-group-item list-group-item-primary">Two AMD EPYC 7402 CPUs at 2.8 GHz with 48 cores and 96 threads</li>
+                            <li class="list-group-item list-group-item-primary">512 GB DDR4 SDRAM</li>
+                            <li class="list-group-item list-group-item-primary">Two 960 GB SSD for disk storage</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>We have seven GPU nodes.</td>
+                    <td>
+                        <ul class="list-group">
+                            <li class="list-group-item list-group-item-info">Each node has many NVIDIA GeForce GTX 1080 Ti GPUs</li>
+                            <li class="list-group-item list-group-item-info">Three nodes have four GPUs</li>
+                            <li class="list-group-item list-group-item-info">Four nodes have seven GPUs</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>We have a Ceph file system.</td>
+                    <td>
+                        <ul class="list-group">
+                            <li class="list-group-item list-group-item-success">Mounted on the /data directory</li>
+                            <li class="list-group-item list-group-item-success">3 PB of spinning disk storage</li>
+                            <li class="list-group-item list-group-item-success">400 TB of SSD storage</li>
+                        </ul>
+                    </td>  
+                </tr>
+                <tr>
+                    <td>We have two network switches.</td>
+                    <td>
+                        <ul class="list-group">
+                            <li class="list-group-item list-group-item-warning">Two Juniper QFX5120 switches</li>
+                            <li class="list-group-item list-group-item-warning">40 Gbps bandwidth each</li>
+                            <li class="list-group-item list-group-item-warning">48 10/25GbE SFP28 ports each</li>
+                        </ul>
+                    </td>  
+                </tr>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

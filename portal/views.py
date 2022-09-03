@@ -13,6 +13,10 @@ def home():
 def about():
     return render_template("about.html")
 
+@app.route("/hardware")
+def hardware():
+    return render_template("hardware.html")
+
 @app.route("/signup")
 def signup():
     return render_template("signup.html")
