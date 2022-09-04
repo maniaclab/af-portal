@@ -30,7 +30,7 @@
 <script type="text/javascript">
 $(document).ready(function() {
   const table = $("#notebooks").DataTable({
-    processing: true,
+    // processing: true,
     ajax: { url: "{{ url_for('get_notebooks') }}", dataSrc: "notebooks" },
     columns: [
       { data: "notebook_id" },
