@@ -19,7 +19,7 @@ def plot_users_over_time():
         month = dates[i].month
         L = list(filter(lambda u : u["join_date"].year < year or (u["join_date"].year == year and u["join_date"].month <= month), users))
         yvalues[i] = len(L)
-    fig = Figure(figsize=(16, 8), dpi=80, tight_layout=True)
+    fig = Figure(figsize=(15, 7), dpi=80, tight_layout=True)
     ax = fig.subplots()
     ax.plot(xvalues, yvalues)
     ax.set_xlabel("Month")

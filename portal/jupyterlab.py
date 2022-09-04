@@ -277,6 +277,7 @@ def supports_image(image):
         "hub.opensciencegrid.org/usatlas/ml-platform:latest",
         "hub.opensciencegrid.org/usatlas/ml-platform:conda",
         "hub.opensciencegrid.org/usatlas/ml-platform:julia",
+        "hub.opensciencegrid.org/usatlas/ml-platform:lava",
         "jupyter/minimal-notebook",
         "jupyter/scipy-notebook",
         "jupyter/datascience-notebook"
