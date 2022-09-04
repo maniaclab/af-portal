@@ -1,6 +1,6 @@
 {% extends "base.html" %}
  
-{% block title %} Notebook metrics {% endblock %}
+{% block title %} Notebooks {% endblock %}
 
 {% block body %}
 <section id="notebook-metrics">
@@ -8,7 +8,7 @@
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb">
           <li class="breadcrumb-item"><a class="text-decoration-none" href="{{ url_for('home') }}">Home</a></li>
-          <li class="breadcrumb-item active" aria-current="page">Notebook metrics</li>
+          <li class="breadcrumb-item active" aria-current="page">Notebooks</li>
       </ol>
     </nav>
     {% if notebooks|length %}
