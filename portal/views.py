@@ -63,7 +63,7 @@ def logout():
             client.oauth2_revoke_token(token)
         session.clear()
         redirect_uri = url_for("home", _external=True)
-        globus_logout_url = ("https://auth.globus.org/v2/web/logout?client=%s&redirect_uri=%s&redirect_name=Simple Portal" %(app.config["CLIENT_ID"], redirect_uri))
+        globus_logout_url = ("https://auth.globus.org/v2/web/logout?client=%s&redirect_uri=%s&redirect_name=AF Portal" %(app.config["CLIENT_ID"], redirect_uri))
         return redirect(globus_logout_url)
     except Exception as err:
         logger.error(str(err))
