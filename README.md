@@ -25,6 +25,11 @@ To run the webapp locally, you can use this file (run_local.py):
     from portal import app
 
     if __name__ == "__main__":
-        app.run(host="localhost", port="8080", ssl_context=('./ssl/cert.pem', './ssl/key.pem'), debug=True)
+        app.run(host="localhost", port="8080", debug=True)
 
-For this code to work, you'll need an ssl folder and a TLS key and certificate. One way to generate these files is using the openssl command-line program.
+To run this file, type
+
+    source venv/bin/activate
+    (venv) python run_local.py
+
+Then point your browser to http://localhost:8080 to start using the webapp.
