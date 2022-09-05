@@ -52,7 +52,7 @@ def login():
             return redirect(url_for("home"))
     except Exception as err:
         logger.error(str(err))
-        return redirect(url_for("home"))
+        return render_template("500.html")
 
 @app.route("/logout")
 @auth.login_required
@@ -67,7 +67,7 @@ def logout():
         return redirect(globus_logout_url)
     except Exception as err:
         logger.error(str(err))
-        return redirect(url_for("home"))
+        return render_template("500.html")
 
 def is_safe_redirect_url(target):
   host_url = urlparse(request.host_url)
@@ -93,7 +93,7 @@ def profile():
         return render_template("profile.html", profile=profile)
     except Exception as err:
         logger.error(str(err))
-        return render_template("profile.html", profile=None)
+        return render_template("500.html")
 
 @app.route("/profile/edit", methods=["GET", "POST"])
 @auth.login_required
@@ -111,10 +111,10 @@ def edit_profile():
             x509_dn = request.form["X.509_DN"]
             public_key = request.form["public_key"]
             connect.update_user_profile(unix_name, name=name, phone=phone, institution=institution, email=email, x509_dn=x509_dn, public_key=public_key)
-            return redirect(url_for('profile'))
+            return redirect(url_for("profile"))
     except Exception as err:
         logger.error(str(err))
-        return redirect(url_for('profile'))
+        return render_template("500.html")
 
 @app.route("/profile/groups")
 @auth.login_required
@@ -143,8 +143,7 @@ def request_membership(unix_name):
         return redirect(url_for("profile"))
     except Exception as err:
         logger.error(str(err))
-        flash("Error requesting membership in the ATLAS Analysis Facility group", "warning")
-        return redirect(url_for("profile"))
+        return render_template("500.html")
 
 @app.route("/aup")
 def aup():
@@ -211,9 +210,9 @@ def user_notebook_metrics():
         username = session["unix_name"]
         notebooks = jupyterlab.get_notebooks(username)
         return render_template("notebook_metrics_for_user.html", notebooks=notebooks)
-    except JupyterLabException as e:
-        flash(str(e), 'warning')
-        return render_template("notebook_metrics_for_user.html", notebooks=[])
+    except JupyterLabException as err:
+        logger.error(str(err))
+        return render_template("500.html")
 
 @app.route("/admin/plot_users_over_time")
 @auth.admins_only
@@ -259,9 +258,9 @@ def notebook_metrics():
     try: 
         notebooks = jupyterlab.get_all_notebooks()
         return render_template("notebook_metrics.html", notebooks=notebooks)
-    except JupyterLabException as e:
-        flash(str(e), 'warning')
-        return render_template("notebook_metrics.html", notebooks=[])
+    except JupyterLabException as err:
+        logger.error(str(err))
+        return render_template("500.html")
 
 @app.route("/admin/login_nodes")
 @auth.admins_only
@@ -276,7 +275,7 @@ def groups(group_name):
         return render_template("groups.html", group=group)
     except Exception as err:
         logger.error(str(err))
-        return render_template("groups.html", group=None)
+        return render_template("404.html")
 
 @app.route("/admin/get_group_members/<group_name>")
 @auth.admins_only
@@ -409,8 +408,7 @@ def approve_subgroup_request(subgroup_name, group_name):
         return redirect(url_for("groups", group_name=group_name))
     except Exception as err:
         logger.error(str(err))
-        flash("Error approving request for subgroup %s" %subgroup_name, "warning")
-        return redirect(url_for("groups", group_name=group_name))
+        return render_template("500.html")
 
 @app.route("/admin/deny_subgroup_request/<group_name>/<subgroup_name>")
 @auth.admins_only
@@ -421,8 +419,7 @@ def deny_subgroup_request(subgroup_name, group_name):
         return redirect(url_for("groups", group_name=group_name))
     except Exception as err:
         logger.error(str(err))
-        flash("Error denying request for subgroup %s" %subgroup_name, "warning")
-        return redirect(url_for("groups", group_name=group_name))
+        return render_template("500.html")
 
 @app.route("/admin/edit_group/<group_name>", methods=["GET", "POST"])
 @auth.admins_only
@@ -443,8 +440,7 @@ def edit_group(group_name):
             return redirect(url_for("groups", group_name=group_name))
     except Exception as err:
         logger.error(str(err))
-        flash("Error updating group %s" %group_name, "warning")
-        return render_template("edit_group.html", group=None)
+        return render_template("500.html")
 
 @app.route("/admin/create_subgroup/<group_name>", methods=["GET", "POST"])
 @auth.admins_only
@@ -471,8 +467,7 @@ def create_subgroup(group_name):
             return redirect(url_for("groups", group_name=group_name))
     except Exception as err:
         logger.error(str(err))
-        flash("Error using the create_subgroup feature", "warning")
-        return redirect(url_for("groups", group_name=group_name))
+        return render_template("500.html")
 
 @app.route("/admin/delete_group/<group_name>")
 @auth.admins_only
@@ -487,8 +482,7 @@ def delete_group(group_name):
         return redirect(url_for("groups", group_name="root.atlas-af"))
     except Exception as err:
         logger.error(str(err))
-        flash("Error using the delete_group feature", "warning")
-        return redirect(url_for("groups", group_name=group_name))
+        return render_template("500.html")
 
 @app.errorhandler(404)
 def not_found(e):
