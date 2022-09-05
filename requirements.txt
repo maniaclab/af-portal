@@ -1,23 +1,23 @@
-# A popular Python web framework
+# Flask is our web framework.
 Flask                       
 
-# A WTForms library for Flask, that adds CSRF protection, form validation, form rendering, and other features
+# This package integrates WTForms with Flask. We use flask_wtf for its CSRF protection feature.
 flask_wtf   
 
-# A Markdown extension for the Jinja templating engine. Allows Markdown to be embedded in templates. 
+# This package adds a Markdown extension to our Jinja environment, which allows us to write Markdown in our templates.
 jinja2_markdown             
 
-# The Python Globus SDK, which we use to authenticate users based on their institutional login or their Globus ID              
+# We use the Globus Python SDK to authenticate users based on their instutitional login or their Globus ID.         
 globus-sdk==1.7.1 
 
-# A Python binding for the Kubernetes client, which gives us an interface similar to kubectl
+# This package is a Python binding for the Kubernetes client, which has an interface similar to kubectl.
 kubernetes   
 
-# A Python library for parsing YAML files into objects
+# This package has functions that let us parse YAML files into Python objects.
 pyyaml                      
 
-# We use Matplotlib for data visualization                
+# We use Matplotlib for data visualization.          
 matplotlib                  
 
-# We use Pandas for data analysis
+# We use Pandas because it has some utility functions that we use in combination with Matplotlib. 
 pandas                     
