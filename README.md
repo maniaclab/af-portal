@@ -20,6 +20,8 @@ In order to set up the webapp, and run it locally, you need a portal.conf config
 
 You can run the webapp in a virtual environment, and install the requirements in a virtual environment. The command to create a virtual environment is `python -m venv venv`. The command to activate the virtual environment is `source venv/bin/activate`. Then you can install the requirements with the command `pip install -r requirements.txt`. This installs all the Python packages that are needed by the webapp.
 
+## Running the webapp
+
 To run the webapp locally, you can use this file (run_local.py):
 
     from portal import app
