@@ -19,5 +19,5 @@ pyyaml
 # We use Matplotlib for data visualization                
 matplotlib                  
 
-# We use Pandas for data manipulation and data analysis
+# We use Pandas for data analysis
 pandas                     
