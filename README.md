@@ -18,7 +18,7 @@ We use the globus_sdk Python package to authenticate users. We authenticate user
 
 In order to set up the webapp, and run it locally, you need a portal.conf configuration file that is properly filled out. This configuration file contains the globus app ID, the connect API endpoint, and the location of the kubeconfig file. You also need a kubeconfig file, at the location indicated by portal.conf, that points to our Kubernetes cluster.
 
-You can run the webapp in a virtual environment, and install the requirements in a virtual environment. The command to create a virtual environment is `python -m venv venv*`. The command to activate the virtual environment is `source venv/bin/activate`. Then you can install the requirements with the command `pip install -r requirements.txt`. This installs all the Python packages that are needed by the webapp.
+You can run the webapp in a virtual environment, and install the requirements in a virtual environment. The command to create a virtual environment is `python -m venv venv`. The command to activate the virtual environment is `source venv/bin/activate`. Then you can install the requirements with the command `pip install -r requirements.txt`. This installs all the Python packages that are needed by the webapp.
 
 To run the webapp locally, you can use this file (run_local.py):
 
