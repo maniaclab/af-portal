@@ -12,7 +12,7 @@ On the backend we use a Python binding for the Kubernetes client. This helps us 
 
 ## Authentication
 
-We use the globus_sdk Python package to authenticate users. We authenticate users based on their institutional login or their globus ID. We have decorator functions in auth.py that restricts access to certain web services based on a user's privileges (admin, member, nonmember).
+We use the globus_sdk Python package to authenticate users. We authenticate users based on their institutional login or their globus ID. We have decorator functions in auth.py that restrict access to certain web services based on a user's privileges (admin, member, nonmember).
 
 ## Setup
 
