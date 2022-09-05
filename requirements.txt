@@ -7,7 +7,7 @@ flask_wtf
 # This package adds a Markdown extension to our Jinja environment, which allows us to write Markdown in our templates.
 jinja2_markdown             
 
-# We use the Globus Python SDK to authenticate users based on their instutitional login or their Globus ID.         
+# We use the Globus Python SDK to authenticate users based on their institutional login or their Globus ID.         
 globus-sdk==1.7.1 
 
 # This package is a Python binding for the Kubernetes client, which has an interface similar to kubectl.
