@@ -8,6 +8,7 @@
         <div class="row">
             <div class="col-lg-6">
                 <form action="{{ url_for('edit_profile') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <div class="mb-2">
                         <label for="name" class="form-label">Name <span class="asterisk">*</span></label>
                         <input type="text" class="form-control" name="name" value="{{ profile['name'] }}" required>

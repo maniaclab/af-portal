@@ -18,6 +18,7 @@
                 <h4 class="mt-3">Edit group information</h4>
                 <div class="text-success"><hr/></div>
                 <form action="{{ url_for('edit_group', group_name=group['name']) }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <div class="mb-3">
                         <label for="name" class="form-label">Display name:</label>
                         <input type="text" class="form-control" name="display-name" value="{{ group['name'] }}" required>

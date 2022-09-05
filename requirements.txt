@@ -1,7 +1,23 @@
-Flask                       # Flask web framework   
-jinja2_markdown             # Markdown extension
-globus-sdk==1.7.1           # Globus SDK for login/signup
-pyyaml                      # For parsing YAML strings into objects
-kubernetes                  # Python binding for Kubernetes client
-matplotlib                  # For visualizing data as graphs
-pandas                      # For data manipulation
+# A popular Python web framework
+Flask                       
+
+# A WTForms library for Flask, that adds CSRF protection, form validation, form rendering, and other features
+flask_wtf   
+
+# A Markdown extension for the Jinja templating engine. Allows Markdown to be embedded in templates. 
+jinja2_markdown             
+
+# The Python Globus SDK, which we use to authenticate users based on their institutional login or their Globus ID              
+globus-sdk==1.7.1 
+
+# A Python binding for the Kubernetes client, which gives us an interface similar to kubectl
+kubernetes   
+
+# A Python library for parsing YAML files into objects
+pyyaml                      
+
+# We use Matplotlib for data visualization                
+matplotlib                  
+
+# We use Pandas for data manipulation and data analysis
+pandas                     

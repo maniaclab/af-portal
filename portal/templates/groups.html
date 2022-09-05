@@ -156,6 +156,7 @@
             </div>
             <div class="tab-pane fade col-lg-8 mx-auto" id="email" role="tabpanel" aria-labelledby="email-tab">
                 <form id="email">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <div class="mb-3">
                         <h5>Send an email to the {{ group["display_name"] }} users</h5> 
                     </div>

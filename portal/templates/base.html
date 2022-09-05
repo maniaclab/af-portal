@@ -128,20 +128,28 @@
   </footer>
 </body>
 <script type="text/javascript">
-
-  /* This function shows the spinning loader icon */
+  /* Show the spinning loader icon */
   function loader() {
     var loader = document.getElementById("loader");
     loader.style.display = "inline";
   }
 
-  /* This function shows a flash message */
+  /* Show a flash message */
   function message(message, category) {
     $("#messages").html("<div class='alert alert-" + category + " alert-dismissible'>" + message + "<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button></div>");
   }
 
-  /* This setting disables error alerts in DataTables */
+  /* Disable error alerts in DataTables */
   $.fn.dataTable.ext.errMode = "none";
 
+  /* Set the CSRF token for Ajax requests and add CSRF protection */
+  var csrf_token = "{{ csrf_token() }}";
+  $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+          if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+              xhr.setRequestHeader("X-CSRFToken", csrf_token);
+          }
+      }
+  });
 </script>
 </html>
