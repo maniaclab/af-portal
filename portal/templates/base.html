@@ -142,7 +142,7 @@
   /* Disable error alerts in DataTables */
   $.fn.dataTable.ext.errMode = "none";
 
-  /* Set the CSRF token for Ajax requests and add CSRF protection */
+  /* Set the CSRF token for Ajax requests */
   var csrf_token = "{{ csrf_token() }}";
   $.ajaxSetup({
       beforeSend: function(xhr, settings) {
