@@ -20,48 +20,48 @@
                 <form id="jupyterlab-form" action="{{ url_for('deploy_notebook') }}" method="POST">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <div class="row mb-2">
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
                             <label for="notebook-name" class="form-label my-2">Notebook name</label>
                         </div>
-                        <div class="col-sm-9">
+                        <div class="col-sm-8">
                             <input id="notebook-name" type="text" class="form-control" name="notebook-name" value="{{ notebook_name }}" required/>
                         </div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
                             <label for="cpu" class="form-label my-2">CPU cores</label>
                         </div>
-                        <div class="col-sm-9">
+                        <div class="col-sm-8">
                             <input type="number" class="form-control" name="cpu" min=1 max=4 value=1 required/>
                         </div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-sm-3">                       
+                        <div class="col-sm-4">                       
                             <label for="memory" class="form-label my-2">Memory</label>
                         </div>
-                        <div class="col-sm-9">                           
+                        <div class="col-sm-8">                           
                             <input type="number" class="form-control" name="memory" min=1 max=32 value=2 required/>
                         </div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-sm-3">  
+                        <div class="col-sm-4">  
                             <label for="gpu" class="form-label my-2">
                                 GPU instances
                                 <a href="#" id="gpu-instances-info-icon"><i class="fas fa-info-circle"></i></a>
                             </label>
                         </div>
-                        <div class="col-sm-9">  
+                        <div class="col-sm-8">  
                            <input type="number" class="form-control" name="gpu" min=0 max=4 value=0 required/>
                         </div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
                             <label for="gpu-memory" class="form-label my-2">
-                                GPU memory
+                                GPU memory (MB)
                                 <a href="#" id="gpu-memory-info-icon"><i class="fas fa-info-circle"></i></a>
                             </label>
                         </div>
-                        <div class="col-sm-9">
+                        <div class="col-sm-8">
                             <select name="gpu-memory" class="form-control">
                                 <option value="4864">4864</option>
                                 <option value="40536">40536</option>
@@ -72,25 +72,25 @@
                         </div>                      
                     </div>
                     <div class="row mb-2">
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
                             <label for="duration" class="form-label my-2">Duration (hours)</label>
                         </div>
-                        <div class="col-sm-9">
+                        <div class="col-sm-8">
                             <input type="number" name="duration" class="form-control col" min=1 max=168 value=8 required/>
                         </div>
                     </div>
                     <div class="row mb-4">
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
                             <label for="image" class="form-label my-2">
                                 Image
                                 <a href="#" id="docker-image-info-icon"><i class="fas fa-info-circle"></i></a>
                             </label>
                         </div>
-                        <div class="col-sm-9">
+                        <div class="col-sm-8">
                             <select name="image" class="form-control">
-                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:latest">hub.opensciencegrid.org/usatlas/ml-platform:latest</option>
-                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:conda">hub.opensciencegrid.org/usatlas/ml-platform:conda</option>
-                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:julia">hub.opensciencegrid.org/usatlas/ml-platform:julia</option>
+                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:latest">ml-platform:latest</option>
+                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:conda">ml-platform:conda</option>
+                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:julia">ml-platform:julia</option>
                                 <!-- <option value="hub.opensciencegrid.org/usatlas/ml-platform:lava">hub.opensciencegrid.org/usatlas/ml-platform:lava</option> -->
                             </select>
                         </div>
@@ -110,7 +110,7 @@
                         <p>Please select one of the following GPUs in the HTML dropdown.</p>
                         <table class="table table-hover table-bordered">
                             <tr>
-                                <th>Type</th>
+                                <th>Product</th>
                                 <th>Count</th>
                                 <th>Memory (MB)</th>
                             </tr>
