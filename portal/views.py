@@ -168,9 +168,14 @@ def get_notebooks():
 @app.route("/jupyter/configure")
 @auth.members_only
 def configure_notebook():
-    username = session["unix_name"]
-    notebook_name = jupyterlab.generate_notebook_name(username)
-    return render_template("jupyterlab_form.html", notebook_name=notebook_name)
+    try:
+        username = session["unix_name"]
+        notebook_name = jupyterlab.generate_notebook_name(username)
+        gpu_products = jupyterlab.get_gpu_products()
+        return render_template("jupyterlab_form.html", notebook_name=notebook_name, gpu_products=gpu_products)
+    except Exception as err:
+        logger.error(str(err))
+        return render_template("500.html")
 
 @app.route("/jupyter/deploy", methods=["POST"])
 @auth.members_only

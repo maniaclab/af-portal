@@ -8,6 +8,9 @@ metadata:
     owner: {{username}}
     globus-id: {{globus_id}}
     time2delete: ttl-{{hours}}
+    {% if gpu_request %}
+    gpu-memory: "{{gpu_memory}}"
+    {% endif %}
   name: {{notebook_id}}
   namespace: {{namespace}}
 spec:

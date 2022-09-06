@@ -406,3 +406,26 @@ def get_gpu_memory_request(pod):
     if pod.spec.node_selector and "nvidia.com/gpu.memory" in pod.spec.node_selector:
         return str(float(pod.spec.node_selector["nvidia.com/gpu.memory"])/1000) + " GB"
     return "0"
+
+def get_gpu_products():
+    gpus = dict()
+    api = client.CoreV1Api()
+    nodes = api.list_node(label_selector="gpu=true")
+    for node in nodes.items:
+        labels = node.metadata.labels
+        product = labels["nvidia.com/gpu.product"]
+        memory = labels["nvidia.com/gpu.memory"]
+        if product not in gpus:
+            count = int(labels["nvidia.com/gpu.count"])
+            gpus[product] = {"product": product, "memory": memory, "count": count, "available": 0} 
+        else:
+            assert gpus[product]["memory"] == memory, "GPU %s does not have a unique memory size" %product
+            gpus[product]["count"] += int(labels["nvidia.com/gpu.count"])
+        pods = api.list_namespaced_pod(namespace=namespace, label_selector="gpu-memory=%s" %memory).items
+        count = gpus[product]["count"]
+        busy = 0 
+        for pod in pods:
+            busy += int(get_gpu_request(pod))
+        if count - busy > 0:
+            gpus[product]["available"] = count - busy
+    return list(gpus.values())
