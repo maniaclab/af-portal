@@ -35,8 +35,8 @@
                 Admin
               </a>
               <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" onclick="loader()" href="{{ url_for('groups', group_name='root.atlas-af') }}">Groups</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('user_info') }}">Users</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('groups', group_name='root.atlas-af') }}" onclick="loader()">Groups</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('user_info') }}" onclick="loader()" >Users</a></li>
                 <li><a class="dropdown-item" href="{{ url_for('notebook_metrics') }}" onclick="loader()">Notebooks</a></li>
                 <li><a class="dropdown-item" href="{{ url_for('plot_users_over_time') }}" onclick="loader()">Registrations</a></li>
                 <li><a class="dropdown-item" href="{{ url_for('login_nodes') }}" onclick="loader()">Login nodes</a></li>
