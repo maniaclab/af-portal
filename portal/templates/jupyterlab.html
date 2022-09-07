@@ -30,8 +30,8 @@
 <script type="text/javascript">
 $(document).ready(function() {
   const table = $("#notebooks").DataTable({
-    // processing: true,
-    ajax: { url: "{{ url_for('get_notebooks') }}", dataSrc: "notebooks" },
+    processing: true,
+    ajax: { url: "{{ url_for('get_notebooks') }}", dataSrc: "notebooks"},
     columns: [
       { data: "notebook_id" },
       { data: "status" },
@@ -70,10 +70,18 @@ $(document).ready(function() {
       },
       {
         targets: 2,
+        render: function(data, type, row) {
+          const date = new Date(data);
+          return date.toLocaleString();
+        },
         width: "24%"
       },
       {
         targets: 3,
+        render: function(data, type, row) {
+          const date = new Date(data);
+          return date.toLocaleString();
+        },
         width: "24%"
       },
       {
@@ -87,25 +95,19 @@ $(document).ready(function() {
         width: "4%"
       }
     ]
-  });
-
-  function allReady(data) {
-    for (let i = 0; i < data.length; i++) {
-      if (data[i].status.current != "Ready") {
-        return false;
+  }).on("xhr", function() {
+    const notebooks = table.ajax.json().notebooks;
+    let ready = true;
+    for (let i = 0; i < notebooks.length; i++) {
+      if (notebooks[i].status.current != "Ready") {
+        ready = false;
+        break;
       }
     }
-    return true;
-  }
-
-  table.on("xhr", function() {
-    const notebooks = table.ajax.json().notebooks;
-    if (!allReady(notebooks)) {
-      setTimeout(table.ajax.reload, 5000);
+    if (!ready) {
+      setTimeout(table.ajax.reload, 10000);
     }
-  });
-
-  table.on("click", "a.remove-button", function() {
+  }).on("click", "a.remove-button", function() {
     const row = table.row($(this).parents("tr"));
     const rowData = row.data();
     $.get("{{request.url_root}}/jupyter/remove/" + rowData.notebook_id, function(resp) {
