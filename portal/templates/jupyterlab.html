@@ -55,14 +55,14 @@ $(document).ready(function() {
         render: function(data, type, row) {
           if (data["history"].length > 0) {
             let html = "<a class='text-decoration-none' data-bs-toggle='collapse' role='button' aria-expanded='false' aria-controls='" + row.notebook_id + "_status-list' href='#" + row.notebook_id + "_status-list'>";
-              html += data["current"];
-              html += "</a>";
-              html += "<ul class='collapse list-unstyled mb-0' id='" + row.notebook_id + "_status-list'>";
-              for (let i = 0; i < data["history"].length; i++) {
-                html += "<li>" + data["history"][i] + "</li>";
-              }
-              html += "</ul>";
-              return html;
+            html += data["current"];
+            html += "</a>";
+            html += "<ul class='collapse list-unstyled mb-0' id='" + row.notebook_id + "_status-list'>";
+            for (let i = 0; i < data["history"].length; i++) {
+              html += "<li>" + data["history"][i] + "</li>";
+            }
+            html += "</ul>";
+            return html;
           }
           return data["current"];
         },
