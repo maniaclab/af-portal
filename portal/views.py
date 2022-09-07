@@ -196,7 +196,7 @@ def deploy_notebook():
             "duration": int(request.form['duration'])}
         jupyterlab.create_notebook(notebook_name, **settings)
     except JupyterLabException as err:
-        flash(str(err), "error")
+        flash(str(err), "warning")
     return redirect(url_for("open_jupyterlab"))
 
 @app.route("/jupyter/remove/<notebook>")
