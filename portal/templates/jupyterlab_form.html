@@ -63,11 +63,9 @@
                         </div>
                         <div class="col-sm-8">
                             <select name="gpu-memory" class="form-control">
-                                <option value="4864">4864</option>
-                                <option value="40536">40536</option>
-                                <option value="11019">11019</option>
-                                <option value="11178">11178</option>
-                                <option value="16160">16160</option>
+                                {% for gpu in gpu_products %}
+                                <option value="{{ gpu['memory'] }}">{{ gpu["memory"] }}</option>
+                                {% endfor %}
                             </select>
                         </div>                      
                     </div>
