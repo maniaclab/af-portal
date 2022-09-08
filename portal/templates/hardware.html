@@ -28,12 +28,9 @@
                     <td>We have 7 GPU nodes.</td>
                     <td>
                         <ul class="list-unstyled mb-0">
-                            <li>We offer four NVIDIA-A100-SXM4 GPU instances.</li>
-                            <li>We offer eight NVIDIA-GeForce-RTX-2080-Ti GPU instances.</li>
-                            <li>We offer eight NVIDIA-GeForce-GTX-1080-Ti GPU instances.</li>
-                            <li>We offer four Tesla-V100-PCIE GPU instances.</li>
-                            <li>We offer twenty-eight MIG instances for the NVIDIA-A100-SXM4 GPU model.</li>
-                            <li>Users can accelerate their notebooks by requesting GPU instances from a GPU node.</li>
+                            <li>Users can accelerate their notebooks by requesting GPUs from a GPU node.</li>
+                            <li>We have a variety of GPU choices.</li>
+                            <li>You can see a table of our GPU choices <a id="gpu-products-link" class="text-decoration-none" role="button">here.</a></li>
                         </ul>
                     </td>
                 </tr>
@@ -60,5 +57,48 @@
             </table>
         </div>
     </div>
+    <div id="gpuProducts" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="max-width: 600px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">GPU Instances</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Here is a table of our GPU instances.</p>
+                    <table class="table table-hover table-bordered nowrap w-100">
+                        <thead>
+                            <tr>
+                                <th>GPU Instance</th>
+                                <th>Count</th>
+                                <th>Avail.</th>
+                                <th>Memory (MB)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for gpu in gpu_products %}
+                            <tr>
+                                <td>{{ gpu["product"] }}</td>
+                                <td>{{ gpu["count"] }}</td>
+                                <td>{{ gpu["available"] }}</td>
+                                <td>{{ gpu["memory"] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
+<script type="text/javascript">
+$(document).ready(function() {
+    $("#gpu-products-link").click(function () {
+        $("#gpuProducts").modal("show");
+    });
+});    
+</script>
 {% endblock %}

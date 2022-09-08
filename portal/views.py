@@ -15,7 +15,8 @@ def about():
 
 @app.route("/hardware")
 def hardware():
-    return render_template("hardware.html")
+    gpu_products = jupyterlab.get_gpu_products()
+    return render_template("hardware.html", gpu_products=gpu_products)
 
 @app.route("/signup")
 def signup():
