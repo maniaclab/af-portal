@@ -3,7 +3,6 @@ from datetime import datetime
 import requests
 import json
 from dateutil.parser import parse
-import time
 
 base_url = app.config["CONNECT_API_ENDPOINT"]
 token = app.config["CONNECT_API_TOKEN"]
@@ -31,7 +30,6 @@ def get_multiplex(json):
     return requests.post(base_url + "/v1alpha1/multiplex", params=params, json=json).json()
 
 def get_user_profiles(usernames, date_format="%B %m %Y"):
-    start = time.time()
     profiles = []
     multiplex = {}
     for username in usernames:
@@ -54,8 +52,6 @@ def get_user_profiles(usernames, date_format="%B %m %Y"):
             role = group[0]["state"]
         profile = {"username": username, "email": email, "phone": phone, "join_date": join_date, "institution": institution, "name": name, "role": role}
         profiles.append(profile)
-    stop = time.time()
-    logger.info("The get_user_profiles function has taken %.2f ms", (stop-start)*1000)
     return profiles 
 
 def get_user_role(unix_name):
