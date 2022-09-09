@@ -263,7 +263,7 @@ def update_user_institution():
 @auth.admins_only
 def notebook_metrics():
     try: 
-        notebooks = jupyterlab.get_all_notebooks()
+        notebooks = jupyterlab.get_notebooks()
         return render_template("notebook_metrics.html", notebooks=notebooks)
     except JupyterLabException as err:
         logger.error(str(err))

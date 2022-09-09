@@ -46,8 +46,8 @@ def start_notebook_maintenance():
             for pod in pods:
                 notebook_name = pod.metadata.name
                 exp_date = get_expiration_date(pod)
-                curr_time = datetime.datetime.now(timezone.utc)
-                if exp_date and exp_date < curr_time:
+                now = datetime.datetime.now(timezone.utc)
+                if exp_date and exp_date < now:
                     logger.info("Notebook %s has expired" %notebook_name)
                     remove_notebook(notebook_name)                        
             time.sleep(1800)
@@ -65,41 +65,10 @@ def create_notebook(notebook_name, **kwargs):
     create_secret(notebook_name, **kwargs)
     logger.info("Created notebook %s" %notebook_name)
 
-def get_notebooks(username):
+def get_notebooks(username=None):
     api = client.CoreV1Api()
-    user_pods = api.list_namespaced_pod(namespace, label_selector=f"k8s-app=jupyterlab,owner={username}").items
-    notebooks = []
-    for pod in user_pods:
-        notebook_id = pod.metadata.name
-        notebook_name = pod.metadata.labels["notebook-name"]
-        status = get_notebook_status(pod)
-        url = get_url(pod)
-        creation_date = pod.metadata.creation_timestamp
-        expiration_date = get_expiration_date(pod)
-        memory_request = get_memory_request(pod)
-        cpu_request = get_cpu_request(pod)
-        gpu_request = get_gpu_request(pod)
-        gpu_memory_request = get_gpu_memory_request(pod)
-        hours_remaining = get_hours_remaining(pod)
-        notebooks.append({
-            'notebook_id': notebook_id, 
-            'notebook_name': notebook_name,
-            'namespace': namespace, 
-            'username': username,
-            'status': status,
-            'url': url,
-            'creation_date': creation_date.isoformat() if creation_date else "",
-            'expiration_date': expiration_date.isoformat() if expiration_date else "",
-            'memory_request': memory_request,
-            'cpu_request': cpu_request,
-            'gpu_request': gpu_request,
-            'gpu_memory_request': gpu_memory_request,
-            'hours_remaining': hours_remaining}) 
-    return notebooks
-
-def get_all_notebooks():
-    api = client.CoreV1Api()
-    pods = api.list_namespaced_pod(namespace, label_selector="k8s-app=jupyterlab").items
+    label_selector = "k8s-app=jupyterlab,owner=%s" %username if username else "k8s-app=jupyterlab"
+    pods = api.list_namespaced_pod(namespace, label_selector=label_selector).items
     notebooks = []
     for pod in pods:
         notebook_id = pod.metadata.name
@@ -127,7 +96,7 @@ def get_all_notebooks():
             'cpu_request': cpu_request,
             'gpu_request': gpu_request,
             'gpu_memory_request': gpu_memory_request,
-            'hours_remaining': hours_remaining})
+            'hours_remaining': hours_remaining}) 
     return notebooks
 
 def remove_notebook(notebook_name):
@@ -272,12 +241,12 @@ def create_pvc_if_needed(username):
         logger.info("Created persistent volume claim for user %s" %username)
 
 def get_expiration_date(pod):
-    creation_ts = pod.metadata.creation_timestamp
+    creation_date = pod.metadata.creation_timestamp
     duration = pod.metadata.labels["time2delete"]
     pattern = re.compile(r"ttl-\d+")
     if pattern.match(duration):
         hours = int(duration.split("-")[1])
-        expiration_date = creation_ts + datetime.timedelta(hours=hours)
+        expiration_date = creation_date + datetime.timedelta(hours=hours)
         return expiration_date
     return None
 
@@ -306,28 +275,28 @@ def get_gpu_memory_request(pod):
 def get_notebook_status(pod):
     if pod.metadata.deletion_timestamp:
         return {"current": "Removing notebook...", "history": []}
-    notebook_status = {"current": pod.status.phase, "history": []}
-    messages = ["", "", "", ""]
+    current = pod.status.phase
+    history = ["", "", "", ""]
     for cond in pod.status.conditions:
-        if cond.type == "PodScheduled" and cond.status == "True":
-            messages[0] = 'Pod scheduled.'
-        elif cond.type == "Initialized" and cond.status == "True":
-            messages[1] = "Pod initialized."
-        elif cond.type == "Ready" and cond.status == "True":
-            messages[2] = "Pod ready."
-        elif cond.type == "ContainersReady" and cond.status == "True":
-            messages[3] = "Containers ready."    
-    notebook_status["history"] = list(filter(None, messages))
+        if cond.type == "PodScheduled":
+            history[0] = "Pod scheduled." if cond.status else "Unable to schedule pod."
+        if cond.type == "Initialized":
+            history[1] = "Pod initialized." if cond.status else "Unable to initialize pod."
+        if cond.type == "Ready":
+            history[2] = "Pod ready." if cond.status else "Pod not ready."
+        if cond.type == "ContainersReady":
+            history[3] = "Container ready." if cond.status else "Container not ready."
+    history = list(filter(None, history))
     if pod.status.phase == "Running":
         api = client.CoreV1Api()
         log = api.read_namespaced_pod_log(pod.metadata.name, namespace=namespace)
         if re.search("Jupyter Notebook.*is running at", log) or re.search("Jupyter Server.*is running at", log):
-            notebook_status["current"] = "Ready"
-            notebook_status["history"].append("Jupyter notebook server started.")
+            current = "Ready"
+            history.append("Jupyter notebook started.")
         else:
-            notebook_status["current"] = "Notebook loading..."
-            notebook_status["history"].append("Waiting for Jupyter notebook server...")      
-    return notebook_status
+            current = "Starting notebook..."
+            history.append("Starting Jupyter notebook...")      
+    return {"current": current, "history": history}
 
 def get_url(pod):
     if pod.metadata.deletion_timestamp:
