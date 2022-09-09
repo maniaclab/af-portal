@@ -44,12 +44,12 @@ def start_notebook_maintenance():
             api = client.CoreV1Api()
             pods = api.list_namespaced_pod(namespace, label_selector="k8s-app=jupyterlab").items
             for pod in pods:
-                notebook_id = pod.metadata.name
+                notebook_name = pod.metadata.name
                 exp_date = get_expiration_date(pod)
                 curr_time = datetime.datetime.now(timezone.utc)
                 if exp_date and exp_date < curr_time:
-                    logger.info("Notebook %s has expired" %notebook_id)
-                    remove_notebook(notebook_id)                        
+                    logger.info("Notebook %s has expired" %notebook_name)
+                    remove_notebook(notebook_name)                        
             time.sleep(1800)
     threading.Thread(target=clean).start()
     logger.info("Started notebook maintenance")
@@ -130,7 +130,8 @@ def get_all_notebooks():
             'hours_remaining': hours_remaining})
     return notebooks
 
-def remove_notebook(notebook_id):
+def remove_notebook(notebook_name):
+    notebook_id = notebook_name.lower()
     core_v1_api = client.CoreV1Api()
     networking_v1_api = client.NetworkingV1Api()
     core_v1_api.delete_namespaced_pod(notebook_id, namespace)
