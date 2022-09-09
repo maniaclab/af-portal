@@ -57,17 +57,13 @@ def start_notebook_maintenance():
 # The main interface of the module
 def create_notebook(notebook_name, **kwargs):
     validate(notebook_name, **kwargs)
-
     token_bytes = os.urandom(32)
     kwargs["token"] = b64encode(token_bytes).decode()
-    logger.info("The token for %s is %s" %(notebook_name, kwargs["token"]))
-
     create_pod(notebook_name, **kwargs)
     create_service(notebook_name, **kwargs)
     create_ingress(notebook_name, **kwargs)
     create_secret(notebook_name, **kwargs)
-
-    logger.info('Created notebook %s' %notebook_name)
+    logger.info("Created notebook %s" %notebook_name)
 
 def get_notebooks(username):
     user_pods = get_user_pods(username)
@@ -154,7 +150,6 @@ def get_notebook_status(pod):
     pod_status = get_pod_status(pod)
     if pod_status == "Closing":
         return {"current": "Removing notebook...", "history": []}
-
     messages = ["", "", "", ""]
     for cond in pod.status.conditions:
         if cond.type == "PodScheduled" and cond.status == "True":
@@ -164,11 +159,9 @@ def get_notebook_status(pod):
         elif cond.type == "Ready" and cond.status == "True":
             messages[2] = "Pod ready."
         elif cond.type == "ContainersReady" and cond.status == "True":
-            messages[3] = "Containers ready."
-        
+            messages[3] = "Containers ready."    
     notebook_status["current"] = pod_status
     notebook_status["history"] = list(filter(None, messages))
-
     if pod_status == "Running":
         log = get_pod_log(pod)
         if re.search("Jupyter Notebook.*is running at", log) or re.search("Jupyter Server.*is running at", log):
@@ -177,11 +170,9 @@ def get_notebook_status(pod):
         else:
             notebook_status["current"] = "Notebook loading..."
             notebook_status["history"].append("Waiting for Jupyter notebook server...")
-
     cert_status = get_certificate_status(pod)
     if cert_status != "Ready":
         notebook_status["current"] = "Waiting for certificate..."        
-
     return notebook_status
 
 # Helper functions
@@ -271,11 +262,6 @@ def get_token(notebook_name):
 
 def supported_images():
     return [
-        "ivukotic/ml_platform:latest", 
-        "ivukotic/ml_platform:conda", 
-        "ivukotic/ml_julia:latest",
-        "ivukotic/ml_platform_auto:latest", 
-        "ivukotic/ml_platform_auto:conda", 
         "hub.opensciencegrid.org/usatlas/ml-platform:latest",
         "hub.opensciencegrid.org/usatlas/ml-platform:conda",
         "hub.opensciencegrid.org/usatlas/ml-platform:julia",
@@ -290,35 +276,24 @@ def notebook_id_available(notebook_name):
 def validate(notebook_name, **kwargs):
     if " " in notebook_name:
         raise JupyterLabException("The notebook name cannot have any whitespace.")
-
     if len(notebook_name) > 30:
         raise JupyterLabException("The notebook name cannot exceed 30 characters.")
-
     k8s_charset = set(string.ascii_lowercase + string.ascii_uppercase + string.digits + "_" + "-" + ".")
-
     if not set(notebook_name) <= k8s_charset:
         raise JupyterLabException("Valid characters are [a-zA-Z0-9._-]")
-
     if not notebook_id_available(notebook_name.lower()):
         raise JupyterLabException("The name %s is already taken." %notebook_name)   
-
     if kwargs["image"] not in supported_images():
         raise JupyterLabException("Docker image %s is not supported." %kwargs["image"])
-
     if kwargs["cpu_request"] < 1 or kwargs["cpu_request"] > 4:
         raise JupyterLabException("The request of %d CPUs is outside the bounds [1, 4]." %kwargs["cpu_request"])
-
     if kwargs["memory_request"] < 0 or kwargs["memory_request"] > 16:
         return JupyterLabException("The request of %d GB is outside the bounds [1, 16]." %kwargs["memory_request"])
-
     if kwargs["gpu_request"] < 0 or kwargs["gpu_request"] > 7:
         raise JupyterLabException("The request of %d GPUs is outside the bounds [0, 7]." %kwargs["gpu_request"])
-
     gpu_product = get_gpu_product(kwargs["gpu_memory"])
-
     if not gpu_product:
         raise JupyterLabException("The GPU product is not supported")
-
     if gpu_product["available"] < kwargs["gpu_request"]:
         raise JupyterLabException("The %s MB GPU does not have %s instances available." %(kwargs["gpu_memory"], kwargs["gpu_request"]))
 
