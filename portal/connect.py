@@ -226,8 +226,10 @@ def is_group_deletable(group_name):
         'root.atlas-af.uchicago',
         'root.atlas-ml', 
         'root.atlas-ml.staff', 
-        'root.iris-hep-ssl',
-        'root.iris-hep-ssl.staff')
+        'root.iris-hep-ml',
+        'root.iris-hep-ml.staff',
+        'root.osg',
+        'root.osg.login-nodes')
 
 def delete_group(group_name):
     if is_group_deletable(group_name):
