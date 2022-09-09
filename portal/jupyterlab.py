@@ -152,6 +152,13 @@ def generate_notebook_name(username):
             return notebook_name
     return None
 
+def supported_images():
+    return [
+        "hub.opensciencegrid.org/usatlas/ml-platform:latest",
+        "hub.opensciencegrid.org/usatlas/ml-platform:conda",
+        "hub.opensciencegrid.org/usatlas/ml-platform:julia",
+        "hub.opensciencegrid.org/usatlas/ml-platform:lava"]
+
 def get_gpu_products():
     gpus = dict()
     api = client.CoreV1Api()
@@ -173,36 +180,6 @@ def get_gpu_products():
             gpus[memory]["available"] = 0
     return sorted(gpus.values(), key=lambda gpu:gpu["memory"])
 
-def get_gpu_product(memory):
-    gpu = dict()
-    api = client.CoreV1Api()
-    nodes = api.list_node(label_selector="nvidia.com/gpu.memory=%s" %memory)
-    for node in nodes.items:
-        labels = node.metadata.labels
-        product = labels["nvidia.com/gpu.product"]
-        count = int(labels["nvidia.com/gpu.count"])
-        if not gpu:
-            gpu["product"] = product
-            gpu["memory"] = memory
-            gpu["count"] = count
-            gpu["available"] = count
-        else:
-            gpu["count"] += count
-            gpu["available"] += count
-        pods = api.list_namespaced_pod(namespace=namespace, field_selector="spec.nodeName=%s" %node.metadata.name).items
-        requests = reduce(operator.add, map(lambda pod : get_gpu_request(pod), pods), 0)
-        gpu["available"] -= requests
-        if gpu["available"] < 0:
-            gpu["available"] = 0
-    return gpu
-
-def supported_images():
-    return [
-        "hub.opensciencegrid.org/usatlas/ml-platform:latest",
-        "hub.opensciencegrid.org/usatlas/ml-platform:conda",
-        "hub.opensciencegrid.org/usatlas/ml-platform:julia",
-        "hub.opensciencegrid.org/usatlas/ml-platform:lava"]
-
 def validate(notebook_name, **kwargs):
     if " " in notebook_name:
         raise JupyterLabException("The notebook name cannot have any whitespace.")
@@ -221,7 +198,8 @@ def validate(notebook_name, **kwargs):
         return JupyterLabException("The request of %d GB is outside the bounds [1, 16]." %kwargs["memory_request"])
     if kwargs["gpu_request"] < 0 or kwargs["gpu_request"] > 7:
         raise JupyterLabException("The request of %d GPUs is outside the bounds [0, 7]." %kwargs["gpu_request"])
-    gpu_product = get_gpu_product(kwargs["gpu_memory"])
+    gpu_products = get_gpu_products()
+    gpu_product = next(filter(lambda gpu : gpu["memory"] == kwargs["gpu_memory"], gpu_products), None)
     if not gpu_product:
         raise JupyterLabException("The GPU product is not supported")
     if gpu_product["available"] < kwargs["gpu_request"]:
@@ -351,6 +329,8 @@ def get_notebook_status(pod):
     return notebook_status
 
 def get_url(pod):
+    if pod.metadata.deletion_timestamp:
+        return None
     notebook_id = pod.metadata.name
     api = client.NetworkingV1Api()
     ingress = api.read_namespaced_ingress(notebook_id, namespace)
