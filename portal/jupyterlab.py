@@ -74,10 +74,10 @@ def get_notebooks(username):
     notebooks = []
     for pod in user_pods:
         notebook_id = pod.metadata.name
-        notebook_name = get_notebook_name(pod)
+        notebook_name = pod.metadata.labels["notebook-name"]
         status = get_notebook_status(pod)
         url = get_url(pod)
-        creation_date = get_creation_date(pod)
+        creation_date = pod.metadata.creation_timestamp
         expiration_date = get_expiration_date(pod)
         memory_request = get_memory_request(pod)
         cpu_request = get_cpu_request(pod)
@@ -105,11 +105,11 @@ def get_all_notebooks():
     notebooks = []
     for pod in pods:
         notebook_id = pod.metadata.name
-        notebook_name = get_notebook_name(pod)
-        username = get_owner(pod)
+        notebook_name = pod.metadata.labels["notebook-name"]
+        username = pod.metadata.labels["owner"]
         status = get_notebook_status(pod)
         url = get_url(pod)
-        creation_date = get_creation_date(pod)
+        creation_date = pod.metadata.creation_timestamp
         expiration_date = get_expiration_date(pod)
         memory_request = get_memory_request(pod)
         cpu_request = get_cpu_request(pod)
@@ -322,9 +322,6 @@ def validate(notebook_name, **kwargs):
     if gpu_product["available"] < kwargs["gpu_request"]:
         raise JupyterLabException("The %s MB GPU does not have %s instances available." %(kwargs["gpu_memory"], kwargs["gpu_request"]))
 
-def get_creation_date(pod):
-    return pod.metadata.creation_timestamp
-
 def get_expiration_date(pod):
     creation_ts = pod.metadata.creation_timestamp
     duration = pod.metadata.labels["time2delete"]
@@ -364,12 +361,6 @@ def get_certificate_status(pod):
             else:
                 return "Not ready"
     return "Unknown"
-
-def get_notebook_name(pod):
-    return pod.metadata.labels["notebook-name"]
-
-def get_owner(pod):
-    return pod.metadata.labels["owner"]
 
 def get_url(pod):
     if get_pod_status(pod) == "Closing":
