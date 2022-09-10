@@ -8,16 +8,15 @@ metadata:
     owner: {{username}}
     globus-id: {{globus_id}}
     time2delete: ttl-{{hours}}
-    {% if gpu_request %}
-    gpu-memory: "{{gpu_memory}}"
-    {% endif %}
   name: {{notebook_id}}
   namespace: {{namespace}}
 spec:
-  {% if gpu_request %}
   nodeSelector:
+    {% if gpu_request %}
     nvidia.com/gpu.memory: "{{gpu_memory}}"
-  {% endif %}
+    {% else %}
+    hyperconverged: "true"
+    {% endif %}
   containers:
   - name: {{notebook_id}}
     args:
