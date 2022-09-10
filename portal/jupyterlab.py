@@ -50,7 +50,7 @@ def start_notebook_maintenance():
     threading.Thread(target=clean).start()
     logger.info("Started notebook maintenance")
 
-# The main interface
+# The main interface of the module
 def create_notebook(notebook_name, **kwargs):
     validate(notebook_name, **kwargs)
     token_bytes = os.urandom(32)
