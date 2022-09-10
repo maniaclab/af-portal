@@ -17,16 +17,13 @@ from portal import app, logger
 from functools import reduce
 import operator
 
-# Here are some Kubernetes settings from our portal.conf file
 config_file = app.config.get("KUBECONFIG")
 namespace = app.config.get("NAMESPACE")
 domain_name = app.config.get("DOMAIN_NAME")
 
-# This exception provides the user with a detailed error message
 class JupyterLabException(Exception):
     pass
 
-# This function loads the kubeconfig file at the first HTTP request, before the request is processed
 @app.before_first_request
 def load_kube_config():
     if config_file:
@@ -36,7 +33,6 @@ def load_kube_config():
         config.load_kube_config()
         logger.info("Loaded default kubeconfig file")
 
-# This function starts a thread that checks for expired notebooks and removes them
 @app.before_first_request
 def start_notebook_maintenance():
     def clean():
@@ -54,7 +50,7 @@ def start_notebook_maintenance():
     threading.Thread(target=clean).start()
     logger.info("Started notebook maintenance")
 
-# The main interface of the module
+# The main interface
 def create_notebook(notebook_name, **kwargs):
     validate(notebook_name, **kwargs)
     token_bytes = os.urandom(32)
