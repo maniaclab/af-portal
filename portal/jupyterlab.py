@@ -264,7 +264,9 @@ def get_cpu_request(pod):
 
 def get_gpu_request(pod):
     requests = pod.spec.containers[0].resources.requests
-    return int(requests["nvidia.com/gpu"]) if "nvidia.com/gpu" in requests else 0
+    if requests and "nvidia.com/gpu" in requests:
+        return int(requests["nvidia.com/gpu"]) 
+    return 0
     
 def get_gpu_memory_request(pod):
     if pod.spec.node_selector:
@@ -279,13 +281,13 @@ def get_notebook_status(pod):
     history = ["", "", "", ""]
     for cond in pod.status.conditions:
         if cond.type == "PodScheduled":
-            history[0] = "Pod scheduled." if cond.status else "Unable to schedule pod."
+            history[0] = "Pod scheduled." if cond.status == "True" else "Unable to schedule pod."
         if cond.type == "Initialized":
-            history[1] = "Pod initialized." if cond.status else "Unable to initialize pod."
+            history[1] = "Pod initialized." if cond.status == "True" else "Unable to initialize pod."
         if cond.type == "Ready":
-            history[2] = "Pod ready." if cond.status else "Pod not ready."
+            history[2] = "Pod ready." if cond.status == "True" else "Pod not ready."
         if cond.type == "ContainersReady":
-            history[3] = "Container ready." if cond.status else "Container not ready."
+            history[3] = "Container ready." if cond.status == "True" else "Container not ready."
     history = list(filter(None, history))
     if pod.status.phase == "Running":
         api = client.CoreV1Api()
