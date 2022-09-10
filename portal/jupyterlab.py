@@ -280,14 +280,16 @@ def get_notebook_status(pod):
     current = pod.status.phase
     history = ["", "", "", ""]
     for cond in pod.status.conditions:
-        if cond.type == "PodScheduled":
-            history[0] = "Pod scheduled." if cond.status == "True" else "Unable to schedule pod."
-        if cond.type == "Initialized":
-            history[1] = "Pod initialized." if cond.status == "True" else "Unable to initialize pod."
-        if cond.type == "Ready":
-            history[2] = "Pod ready." if cond.status == "True" else "Pod not ready."
-        if cond.type == "ContainersReady":
-            history[3] = "Container ready." if cond.status == "True" else "Container not ready."
+        if cond.type == "PodScheduled" and cond.status == "True":
+            history[0] = "Pod scheduled." 
+        elif cond.type == "PodScheduled" and cond.status == "False":
+            history[0] = "Unable to schedule pod."
+        elif cond.type == "Initialized" and cond.status == "True":
+            history[1] = "Pod initialized." 
+        elif cond.type == "Ready" and cond.status == "True":
+            history[2] = "Pod ready." 
+        elif cond.type == "ContainersReady" and cond.status == "True":
+            history[3] = "Container ready."
     history = list(filter(None, history))
     if pod.status.phase == "Running":
         api = client.CoreV1Api()
