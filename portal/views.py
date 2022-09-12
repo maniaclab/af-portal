@@ -14,8 +14,12 @@ def about():
 
 @app.route("/hardware")
 def hardware():
-    gpus = jupyterlab.get_gpus()
-    return render_template("hardware.html", gpus=gpus)
+    try:
+        gpus = jupyterlab.get_gpus()
+        return render_template("hardware.html", gpus=gpus)
+    except Exception as err:
+        logger.error(str(err))
+        return render_template("500.html")
 
 @app.route("/signup")
 def signup():
