@@ -146,7 +146,7 @@ def supported_images():
         "hub.opensciencegrid.org/usatlas/ml-platform:julia",
         "hub.opensciencegrid.org/usatlas/ml-platform:lava"]
 
-def get_gpus():
+def get_gpus(as_dict=False):
     gpus = dict()
     api = client.CoreV1Api()
     nodes = api.list_node(label_selector="gpu=true")
@@ -164,6 +164,8 @@ def get_gpus():
         for pod in pods:
             gpu_requests += int(pod.spec.containers[0].resources.requests.get("nvidia.com/gpu", 0))
         gpus[memory]["available"] = max(gpus[memory]["available"] - gpu_requests, 0)
+    if as_dict:
+        return gpus
     return sorted(gpus.values(), key=lambda gpu:gpu["memory"])
 
 def validate(notebook_name, **kwargs):
@@ -184,8 +186,7 @@ def validate(notebook_name, **kwargs):
         return JupyterLabException("The request of %d GB is outside the bounds [1, 16]." %kwargs["memory_request"])
     if kwargs["gpu_request"] < 0 or kwargs["gpu_request"] > 7:
         raise JupyterLabException("The request of %d GPUs is outside the bounds [0, 7]." %kwargs["gpu_request"])
-    gpus = get_gpus()
-    gpu = next(filter(lambda gpu : gpu["memory"] == kwargs["gpu_memory"], gpus), None)
+    gpu = get_gpus(as_dict=True).get(kwargs["gpu_memory"], None)
     if not gpu:
         raise JupyterLabException("The GPU product is not supported")
     if gpu["available"] < kwargs["gpu_request"]:
