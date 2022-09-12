@@ -73,7 +73,6 @@
                                 <li><span class="text-muted">Created:</span> [[ format_date(notebook.creation_date) ]]</li>
                                 <li><span class="text-muted">Expires:</span> [[ format_date(notebook.expiration_date) ]]</li>
                                 <li><span class="text-muted">Image:</span> [[ notebook.image ]]</li>
-                                <li v-if="notebook.status == 'Ready'"><span class="text-muted">URL:</span> <a :href="[[ notebook.url ]]" class="text-decoration-none" target="_blank">[[ notebook.notebook_name ]]</a></li>
                             </ul>
                         </div>
                     </div>

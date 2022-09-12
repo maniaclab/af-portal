@@ -101,7 +101,6 @@ def get_notebook(notebook_name):
         "node_selector": pod.spec.node_selector,
         "events": get_events(pod),
         "log": log,
-        "url": get_url(pod),
         "creation_date": pod.metadata.creation_timestamp.isoformat(),
         "expiration_date": get_expiration_date(pod).isoformat(),
         "requests": get_requests(pod),
