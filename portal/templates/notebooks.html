@@ -175,44 +175,44 @@
     </div>
 </section>
 <script>
-    $(document).ready(function () {
-        const { createApp } = Vue
+$(document).ready(function () {
+    const { createApp } = Vue
 
-        createApp({
-            delimiters: ["[[", "]]"],
-            data() {
-                return {
-                    selected: null,
-                    list: null,
-                    notebook: null
-                }
-            },
-            async mounted() {
+    createApp({
+        delimiters: ["[[", "]]"],
+        data() {
+            return {
+                selected: null,
+                list: null,
+                notebook: null
+            }
+        },
+        async mounted() {
+            const response = await fetch("{{ url_for('list_notebooks') }}");
+            const json = await response.json();
+            this.list = json.notebooks;
+        },
+        methods: {
+            async refresh() {
+                loader(true);
                 const response = await fetch("{{ url_for('list_notebooks') }}");
                 const json = await response.json();
                 this.list = json.notebooks;
-            },
-            methods: {
-                async refresh() {
-                    loader(true);
-                    const response = await fetch("{{ url_for('list_notebooks') }}");
+                if (this.selected && this.list.indexOf(this.selected.toString()) >= 0) {
+                    const response = await fetch("{{request.url_root}}/admin/get_notebook/" + this.selected.toString());
                     const json = await response.json();
-                    this.list = json.notebooks;
-                    if (this.selected && this.list.indexOf(this.selected.toString()) >= 0) {
-                        const response = await fetch("{{request.url_root}}/jupyter/get_notebook/" + this.selected.toString());
-                        const json = await response.json();
-                        if (json.error)
-                            flash(json.error, "warning");
-                        if (json.notebook)
-                            this.notebook = json.notebook;
-                    }
-                    loader(false);
-                },
-                format_date(iso_string) {
-                    return new Date(iso_string).toLocaleString();
+                    if (json.error)
+                        flash(json.error, "warning");
+                    if (json.notebook)
+                        this.notebook = json.notebook;
                 }
+                loader(false);
+            },
+            format_date(iso_string) {
+                return new Date(iso_string).toLocaleString();
             }
-        }).mount('#notebooks')
-    });
+        }
+    }).mount('#notebooks')
+});
 </script>
 {% endblock %}
