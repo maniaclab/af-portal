@@ -14,8 +14,6 @@ from datetime import timezone
 from jinja2 import Environment, FileSystemLoader
 from kubernetes import client, config
 from portal import app, logger
-from functools import reduce
-import operator
 
 config_file = app.config.get("KUBECONFIG")
 namespace = app.config.get("NAMESPACE")
@@ -191,9 +189,8 @@ def validate(notebook_name, **kwargs):
     if not gpu:
         raise JupyterLabException("The GPU product is not supported")
     if gpu["available"] < kwargs["gpu_request"]:
-        instances = str(kwargs["gpu_request"])
-        instances += " instance" if kwargs["gpu_request"] == 1 else " instances"
-        raise JupyterLabException("The %s does not have %s available." %(gpu["product"], instances))
+        raise JupyterLabException("The %s does not have %s %s available." 
+            %(gpu["product"], kwargs["gpu_request"], "instance" if kwargs["gpu_request"] == 1 else "instances"))
 
 # Helper functions
 def create_pod(notebook_name, **kwargs):
