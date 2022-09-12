@@ -3,7 +3,6 @@ from flask import session, request, render_template, url_for, redirect, jsonify,
 import globus_sdk
 from urllib.parse import urlparse, urljoin
 from portal.jupyterlab import JupyterLabException
-import time
 
 @app.route("/")
 def home():
