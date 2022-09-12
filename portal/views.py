@@ -230,9 +230,8 @@ def deploy_notebook():
 @auth.members_only
 def remove_notebook(notebook):
     try:
-        username = session["unix_name"]
         pod = jupyterlab.get_pod(notebook)
-        if username == pod.metadata.labels["owner"]:
+        if pod.metadata.labels["owner"] == session["unix_name"]: 
             jupyterlab.remove_notebook(notebook)
             return jsonify(success=True, message="Notebook %s was deleted." %notebook)
     except Exception as err:
