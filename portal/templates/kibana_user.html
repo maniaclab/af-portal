@@ -1,14 +1,14 @@
 {% extends "base.html" %}
  
-{% block title %} Notebooks {% endblock %}
+{% block title %} Kibana {% endblock %}
 
 {% block body %}
-<section id="notebook-metrics-for-user">
+<section>
   <div class="container">
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb">
           <li class="breadcrumb-item"><a class="text-decoration-none" href="{{ url_for('home') }}">Home</a></li>
-          <li class="breadcrumb-item active" aria-current="page">Notebooks</li>
+          <li class="breadcrumb-item active" aria-current="page">Kibana</li>
       </ol>
     </nav>
     {% if notebooks|length %}
@@ -20,7 +20,7 @@
           <th>Memory request</th>
           <th>CPU request</th>
           <th>GPU request</th>
-          <th>GPU memory request</th>
+          <th>GPU memory</th>
           <th>Hours remaining</th>
         </tr>
       </thead>
@@ -29,10 +29,10 @@
         <tr>
           <td>{{ notebook.notebook_name }}</td>
           <td>{{ notebook.username }}</td>
-          <td>{{ notebook.memory_request }}</td>
-          <td>{{ notebook.cpu_request }}</td>
-          <td>{{ notebook.gpu_request }}</td>
-          <td>{{ notebook.gpu_memory_request }}</td>
+          <td>{{ notebook.requests.memory }}</td>
+          <td>{{ notebook.requests.cpu }}</td>
+          <td>{{ notebook.requests.gpu }}</td>
+          <td>{{ notebook.gpu.memory | default("0 GB") }}</td>
           <td>{{ notebook.hours_remaining }}</td>
         </tr>
         {% endfor %}

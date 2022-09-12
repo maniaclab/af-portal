@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block title %} Notebooks {% endblock %}
+
+{% block assets %}
+<script src="https://unpkg.com/vue@3"></script>
+{% endblock %}
+
+{% block body %}
+<section id="notebooks">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a class="text-decoration-none" href="{{ url_for('home') }}">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Notebooks</li>
+            </ol>
+        </nav>
+        <form v-if="list" class="mt-3 mb-4">
+            <label for="select-notebook" class="form-label d-inline-block">Choose a notebook:</label>
+            <select v-model="selected" @change="refresh" id="select-notebook" class="form-select d-inline-block ms-3" style="max-width: 250px;">
+                <option v-for="name in list" :value="[[ name ]]">[[ name ]]</option>
+            </select>
+            <div class="d-inline-block ms-3">
+                <a @click="refresh" class="text-primary" class="text-decoration-none" role="button"><i class="fa-solid fa-arrows-rotate"></i></a>
+            </div>
+        </form>
+        <div v-if="notebook" id="notebook">
+            <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="notebook-tab" data-bs-toggle="tab" data-bs-target="#notebook-tab-pane"
+                        type="button" role="tab" aria-controls="notebook-tab-pane" aria-selected="true">
+                        <i class="fa-solid fa-book-open-reader"></i>&nbsp;Notebook
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pod-tab" data-bs-toggle="tab" data-bs-target="#pod-tab-pane"
+                        type="button" role="tab" aria-controls="pod-tab-pane" aria-selected="false">
+                        <i class="fa-solid fa-database"></i>&nbsp;Pod
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="resources-tab" data-bs-toggle="tab" data-bs-target="#resources-tab-pane"
+                        type="button" role="tab" aria-controls="resources-tab-pane" aria-selected="false">
+                        <i class="fa-solid fa-circle-nodes"></i>&nbsp;Resources
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="events-tab" data-bs-toggle="tab" data-bs-target="#events-tab-pane"
+                        type="button" role="tab" aria-controls="events-tab-pane" aria-selected="false">
+                        <i class="fa-solid fa-list"></i>&nbsp;Events
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="log-tab" data-bs-toggle="tab" data-bs-target="#log-tab-pane"
+                        type="button" role="tab" aria-controls="log-tab-pane" aria-selected="false">
+                        <i class="fa-solid fa-book"></i>&nbsp;Log
+                    </button>
+                </li>
+            </ul>
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="notebook-tab-pane" role="tabpanel" aria-labelledby="notebook-tab"
+                    tabindex="0">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            Notebook
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li><span class="text-muted">Notebook:</span> [[ notebook.notebook_name ]]</li>
+                                <li><span class="text-muted">Namespace:</span> [[ notebook.namespace ]]</li>
+                                <li><span class="text-muted">Owner:</span> [[ notebook.username ]]</li>
+                                <li><span class="text-muted">Status:</span> [[ notebook.status ]]</li>
+                                <li><span class="text-muted">Created:</span> [[ format_date(notebook.creation_date) ]]</li>
+                                <li><span class="text-muted">Expires:</span> [[ format_date(notebook.expiration_date) ]]</li>
+                                <li><span class="text-muted">Image:</span> [[ notebook.image ]]</li>
+                                <li v-if="notebook.status == 'Ready'"><span class="text-muted">URL:</span> <a :href="[[ notebook.url ]]" class="text-decoration-none" target="_blank">[[ notebook.notebook_name ]]</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="pod-tab-pane" role="tabpanel" aria-labelledby="pod-tab" tabindex="0">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            Pod
+                        </div>
+                        <div class="card-body">
+                            <div>
+                                <ul class="list-unstyled">
+                                    <li><span class="text-muted">Pod:</span> [[ notebook.notebook_id ]]</li>
+                                    <li><span class="text-muted">Status:</span> [[ notebook.pod_status ]]</li>
+                                    <li v-if="notebook.node"><span class="text-muted">Node:</span> [[ notebook.node ]]</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <span class="text-primary">Conditions</span>
+                                <ul class="list-unstyled">
+                                    <li v-for="cond in notebook.conditions">
+                                        <span class="text-muted">[[ cond.type ]]:</span> [[ cond.status ]] <span class="text-muted float-end">[[ format_date(cond.timestamp) ]]</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div v-if="notebook.node_selector">
+                                <span class="text-primary">Node selector</span>
+                                <ul class="list-unstyled">
+                                    <li v-for="(value, key) in notebook.node_selector">
+                                        <span class="text-muted">[[ key ]]:</span> [[ notebook.node_selector[key] ]] 
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="resources-tab-pane" role="tabpanel" aria-labelledby="resources-tab" tabindex="0">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            Resources
+                        </div>
+                        <div class="card-body">
+                            <div>
+                                <span class="text-primary">Requests</span>
+                                <ul class="list-unstyled">
+                                    <li><span class="text-muted">Memory:</span> [[ notebook.requests.memory ]]</li>
+                                    <li><span class="text-muted">CPU:</span> [[ notebook.requests.cpu ]]</li>
+                                    <li><span class="text-muted">GPU:</span> [[ notebook.requests.gpu ]]</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <span class="text-primary">Limits</span>
+                                <ul class="list-unstyled">
+                                    <li><span class="text-muted">Memory:</span> [[ notebook.limits.memory ]]</li>
+                                    <li><span class="text-muted">CPU:</span> [[ notebook.limits.cpu ]]</li>
+                                    <li><span class="text-muted">GPU:</span> [[ notebook.limits.gpu ]]</li>
+                                </ul>
+                            </div>
+                            <div v-if="notebook.gpu">
+                                <span class="text-primary">GPU</span>
+                                <ul class="list-unstyled">
+                                    <li><span class="text-muted">Product:</span> [[ notebook.gpu.product ]]</li>
+                                    <li><span class="text-muted">Memory:</span> [[ notebook.gpu.memory ]]</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="events-tab-pane" role="tabpanel" aria-labelledby="events-tab" tabindex="0">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            Events
+                        </div>
+                        <div class="card-body">
+                            <ul v-if="notebook.events.length > 0" class="list-unstyled">
+                                <li v-for="event in notebook.events">
+                                    [[ event.message ]] 
+                                    <span class="text-muted float-end">[[ format_date(event.timestamp) ]]</span>                                    
+                                </li>
+                            </ul>
+                            <p v-else>There are no events for this pod.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="log-tab-pane" role="tabpanel" aria-labelledby="log-tab" tabindex="0">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            Log
+                        </div>
+                        <div class="card-body">
+                            <div v-if="notebook.log" class="form-floating">
+                                <textarea class="form-control h-100" rows="16" readonly>[[ notebook.log ]]</textarea>
+                            </div>  
+                            <p v-else>The pod does not have a log.</p>    
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    $(document).ready(function () {
+        const { createApp } = Vue
+
+        createApp({
+            delimiters: ["[[", "]]"],
+            data() {
+                return {
+                    selected: null,
+                    list: null,
+                    notebook: null
+                }
+            },
+            async mounted() {
+                const response = await fetch("{{ url_for('list_notebooks') }}");
+                const json = await response.json();
+                this.list = json.notebooks;
+            },
+            methods: {
+                async refresh() {
+                    loader(true);
+                    const response = await fetch("{{ url_for('list_notebooks') }}");
+                    const json = await response.json();
+                    this.list = json.notebooks;
+                    if (this.selected && this.list.indexOf(this.selected.toString()) >= 0) {
+                        const response = await fetch("{{request.url_root}}/jupyter/get_notebook/" + this.selected.toString());
+                        const json = await response.json();
+                        if (json.error)
+                            flash(json.error, "warning");
+                        if (json.notebook)
+                            this.notebook = json.notebook;
+                    }
+                    loader(false);
+                },
+                format_date(iso_string) {
+                    return new Date(iso_string).toLocaleString();
+                }
+            }
+        }).mount('#notebooks')
+    });
+</script>
+{% endblock %}

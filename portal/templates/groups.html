@@ -155,7 +155,7 @@
                 </table>
             </div>
             <div class="tab-pane fade col-lg-8 mx-auto" id="email" role="tabpanel" aria-labelledby="email-tab">
-                <form id="email">
+                <form action="{{ url_for('send_email', group_name=group['name']) }}" id="email">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <div class="mb-3">
                         <h5>Send an email to the {{ group["display_name"] }} users</h5> 
@@ -217,11 +217,11 @@ $(document).ready(function() {
         const row = membersTable.row($(this).parents("tr"));
         const username = row.data().username;
         const url = "{{request.url_root}}/admin/remove_group_member/{{group['name']}}/" + username;
-        $.get(url, function(resp) {
-            if (resp["success"]) {
+        fetch(url).then(resp => resp.json()).then(resp => {
+            if (resp.success) {
                 row.remove().draw();
                 potentialMembersTable.ajax.reload();
-                message("Removed " + username + " from group {{ group['name'] }} ", "success");
+                flash("Removed " + username + " from group {{ group['name'] }} ", "success");
             }
         });
     });
@@ -267,11 +267,11 @@ $(document).ready(function() {
         const row = memberRequestsTable.row($(this).parents("tr"));
         const username = row.data().username;
         const url = "{{request.url_root}}/admin/approve_membership_request/{{group['name']}}/" + username;
-        $.get(url, function(resp) {
-            if (resp["success"]) {
+        fetch(url).then(resp => resp.json()).then(resp => {
+            if (resp.success) {
                 row.remove().draw();
                 membersTable.ajax.reload();
-                message("Approved request from " + username + " to join group {{ group['name'] }} ", "success");
+                flash("Approved request from " + username + " to join group {{ group['name'] }} ", "success");
                 const count = memberRequestsTable.rows().data().length;
                 $("#number-of-member-requests").html(count);
             }
@@ -280,11 +280,11 @@ $(document).ready(function() {
         const row = memberRequestsTable.row($(this).parents("tr"));
         const username = row.data().username;
         const url = "{{request.url_root}}/admin/deny_membership_request/{{group['name']}}/" + username;
-        $.get(url, function(resp) {
-            if (resp["success"]) {
+        fetch(url).then(resp => resp.json()).then(resp => {
+            if (resp.success) {
                 row.remove().draw();
                 potentialMembersTable.ajax.reload();
-                message("Denied request from " + username + " to join group {{ group['name'] }} ", "success");
+                flash("Denied request from " + username + " to join group {{ group['name'] }} ", "success");
                 const count = memberRequestsTable.rows().data().length;
                 $("#number-of-member-requests").html(count);
             }
@@ -360,21 +360,19 @@ $(document).ready(function() {
         const row = potentialMembersTable.row($(this).parents("tr"));
         const username = row.data().username;
         const url = "{{request.url_root}}/admin/add_group_member/{{group['name']}}/" + username;
-        $.get(url, function(resp) {
-            if (resp["success"]) {
+        fetch(url).then(resp => resp.json()).then(resp => {
+            if (resp.success) {
                 row.remove().draw();
                 membersTable.ajax.reload();
-                message("Added " + username + " to group {{ group['name'] }} ", "success");
+                flash("Added " + username + " to group {{ group['name'] }} ", "success");
             }
         });
     });
     $("form#email").submit(function(event) {
         event.preventDefault();
-        var formValues = $(this).serialize();
-        $.post("{{ url_for('send_email', group_name=group['name']) }}", formValues, function(resp) {
-            if (resp) {
-                message(resp["message"], resp["category"]);
-            }
+        var formData = new FormData(this);
+        fetch(this.action, {method: "POST", body: formData}).then(resp => resp.json()).then(resp => {
+            flash(resp.message, resp.success ? "success" : "warning");
         });
     });
 });

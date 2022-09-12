@@ -15,8 +15,8 @@ def about():
 
 @app.route("/hardware")
 def hardware():
-    gpu_products = jupyterlab.get_gpu_products()
-    return render_template("hardware.html", gpu_products=gpu_products)
+    gpus = jupyterlab.get_gpus()
+    return render_template("hardware.html", gpus=gpus)
 
 @app.route("/signup")
 def signup():
@@ -128,10 +128,10 @@ def get_user_groups():
     try:
         unix_name = session["unix_name"]
         groups = connect.get_user_groups(unix_name)
-        return {"groups": groups}
+        return jsonify(groups=groups)
     except Exception as err:
         logger.error(str(err))
-        return {"groups": []}
+        return jsonify(groups=[], error="There was an error getting user groups.")
 
 @app.route("/profile/request_membership/<unix_name>")
 @auth.login_required
@@ -155,16 +155,41 @@ def aup():
 def open_jupyterlab():
     return render_template("jupyterlab.html")
 
-@app.route("/jupyter/notebooks")
+@app.route("/jupyter/get_notebooks")
 @auth.members_only
 def get_notebooks():
     try:
         username = session["unix_name"]
         notebooks = jupyterlab.get_notebooks(username)
-        return {"notebooks": notebooks}
-    except JupyterLabException as err:
+        return jsonify(notebooks=notebooks)
+    except Exception as err:
         logger.error(str(err))
-        return {"notebooks": []}
+        return jsonify(notebooks=[], error="There was an error getting user notebooks.")
+
+@app.route("/jupyter/get_notebook/<notebook_name>")
+@auth.admins_only
+def get_notebook(notebook_name):
+    try:
+        notebook = jupyterlab.get_notebook(notebook_name)
+        return jsonify(notebook=notebook)
+    except Exception as err:
+        logger.error(str(err))
+        return jsonify(notebook=None, error="There was an error getting notebook %s." %notebook_name)
+
+@app.route("/jupyter/list_notebooks")
+@auth.admins_only
+def list_notebooks():
+    try:
+        notebooks = jupyterlab.list_notebooks()
+        return jsonify(notebooks=notebooks)
+    except Exception as err:
+        logger.error(str(err))
+        return jsonify(notebooks=[], error="There was an error listing notebooks.")
+
+@app.route("/admin/notebooks")
+@auth.admins_only
+def open_notebooks():
+    return render_template("notebooks.html")
 
 @app.route("/jupyter/configure")
 @auth.members_only
@@ -172,8 +197,8 @@ def configure_notebook():
     try:
         username = session["unix_name"]
         notebook_name = jupyterlab.generate_notebook_name(username)
-        gpu_products = jupyterlab.get_gpu_products()
-        return render_template("jupyterlab_form.html", notebook_name=notebook_name, gpu_products=gpu_products)
+        gpus = jupyterlab.get_gpus()
+        return render_template("jupyterlab_form.html", notebook_name=notebook_name, gpus=gpus)
     except Exception as err:
         logger.error(str(err))
         return render_template("500.html")
@@ -205,19 +230,23 @@ def deploy_notebook():
 @auth.members_only
 def remove_notebook(notebook):
     try:
-        jupyterlab.remove_notebook(notebook)
-        return jsonify(success=True)
-    except JupyterLabException:
-        return jsonify(success=False)
+        username = session["unix_name"]
+        pod = jupyterlab.get_pod(notebook)
+        if username == pod.metadata.labels["owner"]:
+            jupyterlab.remove_notebook(notebook)
+            return jsonify(success=True, message="Notebook %s was deleted." %notebook)
+    except Exception as err:
+        logger.error(str(err))
+    return jsonify(success=False)
 
-@app.route("/jupyter/notebook_metrics")
+@app.route("/kibana")
 @auth.members_only
-def user_notebook_metrics():
+def kibana_user():
     try: 
         username = session["unix_name"]
         notebooks = jupyterlab.get_notebooks(username)
-        return render_template("notebook_metrics_for_user.html", notebooks=notebooks)
-    except JupyterLabException as err:
+        return render_template("kibana_user.html", notebooks=notebooks)
+    except Exception as err:
         logger.error(str(err))
         return render_template("500.html")
 
@@ -229,7 +258,7 @@ def plot_users_over_time():
         return render_template("plot_users_over_time.html", base64_encoded_image = data)
     except Exception as err:
         logger.error(str(err))
-        return render_template("plot_users_over_time.html", base64_encoded_image = None)
+        return render_template("500.html")
 
 @app.route("/admin/users")
 @auth.admins_only
@@ -242,10 +271,10 @@ def get_user_profiles():
     try:
         usernames = connect.get_group_members("root.atlas-af")
         users = connect.get_user_profiles(usernames, date_format="%m/%d/%Y")
-        return {"users": users}
+        return jsonify(users=users)
     except Exception as err:
         logger.error(str(err))
-        return {"users": []}
+        return jsonify(error="There was an error getting user profiles.")
 
 @app.route("/admin/update_user_institution", methods=["POST"])
 @auth.admins_only
@@ -253,19 +282,20 @@ def update_user_institution():
     try:
         username = request.form['username']
         institution = request.form['institution']
-        success = connect.update_user_institution(username, institution)
-        return jsonify(success)
+        if connect.update_user_institution(username, institution):
+            return jsonify(success=True, message="Updated user institution")
+        return jsonify(success=False, message="Unable to update user institution") 
     except Exception as err:
         logger.error(str(err))
-        return jsonify(success=False)
+        return jsonify(success=False, message="There was an error updating the user institution")
 
-@app.route("/admin/notebook_metrics")
+@app.route("/admin/kibana")
 @auth.admins_only
-def notebook_metrics():
+def kibana_admin():
     try: 
         notebooks = jupyterlab.get_notebooks()
-        return render_template("notebook_metrics.html", notebooks=notebooks)
-    except JupyterLabException as err:
+        return render_template("kibana_admin.html", notebooks=notebooks)
+    except Exception as err:
         logger.error(str(err))
         return render_template("500.html")
 
@@ -290,10 +320,10 @@ def get_group_members(group_name):
     try:
         usernames = connect.get_group_members(group_name, states=["active", "admin"])
         profiles = connect.get_user_profiles(usernames)
-        return {"members": profiles}
+        return jsonify(members=profiles)
     except Exception as err:
         logger.error(str(err))
-        return {"members": []}
+        return jsonify(error="There was an error getting member profiles.")
 
 @app.route("/admin/get_group_member_requests/<group_name>")
 @auth.admins_only
@@ -301,30 +331,30 @@ def get_group_member_requests(group_name):
     try:
         usernames = connect.get_group_members(group_name, states=["pending"])
         profiles = connect.get_user_profiles(usernames)
-        return {"member_requests": profiles}
+        return jsonify(member_requests=profiles)
     except Exception as err:
         logger.error(str(err))
-        return {"member_requests": []}
+        return jsonify(error="There was an error getting member requests.")
 
 @app.route("/admin/get_subgroups/<group_name>")
 @auth.admins_only
 def get_group_subgroups(group_name):
     try:
         subgroups = connect.get_subgroups(group_name)
-        return {"subgroups": subgroups}
+        return jsonify(subgroups=subgroups)
     except Exception as err:
         logger.error(str(err))
-        return {"subgroups": []}
+        return jsonify(error="There was an error getting subgroups.")
 
 @app.route("/admin/get_subgroup_requests/<group_name>")
 @auth.admins_only
 def get_group_subgroup_requests(group_name):
     try:
         subgroup_requests = connect.get_subgroup_requests(group_name)
-        return {"subgroup_requests": subgroup_requests}
+        return jsonify(subgroup_requests=subgroup_requests)
     except Exception as err:
         logger.error(str(err))
-        return {"subgroup_requests": []}
+        return jsonify(error="There was an error getting subgroup requests.")
 
 @app.route("/admin/get_potential_members/<group_name>")
 @auth.admins_only
@@ -334,10 +364,10 @@ def get_group_potential_members(group_name):
         users = connect.get_group_members("root")
         potential_members = filter(lambda user : user not in members, users)
         profiles = connect.get_user_profiles(potential_members)
-        return {"potential_members": profiles}
+        return jsonify(potential_members=profiles)
     except Exception as err:
         logger.error(str(err))
-        return {"potential_members": []}
+        return jsonify(error="There was an error getting potential members.")
 
 @app.route("/admin/email/<group_name>", methods=["POST"])
 @auth.admins_only
@@ -347,13 +377,12 @@ def send_email(group_name):
         recipients = admin.get_email_list(group_name)
         subject = request.form["subject"]
         body = request.form["body"]
-        success = admin.email_users(sender, recipients, subject, body)
-        if success:
-            return jsonify(message="Sent email to group %s" %group_name, category="success")
-        return jsonify(message="Error sending email to group %s" %group_name, category="warning")
+        if admin.email_users(sender, recipients, subject, body):
+            return jsonify(success=True, message="Sent email to group %s" %group_name)
+        return jsonify(success=False, message="Unable to send email to group %s" %group_name)
     except Exception as err:
         logger.error(str(err))
-        return jsonify(message="Error sending email to group %s" %group_name, category="warning")
+        return jsonify(success=False, message="Error sending email to group %s" %group_name)
 
 @app.route("/admin/add_group_member/<group_name>/<unix_name>")
 @auth.admins_only

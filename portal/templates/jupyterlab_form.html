@@ -63,7 +63,7 @@
                         </div>
                         <div class="col-sm-8">
                             <select name="gpu-memory" class="form-control">
-                                {% for gpu in gpu_products %}
+                                {% for gpu in gpus %}
                                 <option value="{{ gpu['memory'] }}">{{ gpu["memory"] }}</option>
                                 {% endfor %}
                             </select>
@@ -93,7 +93,7 @@
                             </select>
                         </div>
                     </div>
-                    <button onclick="loader()" class="btn btn-primary" type="submit">Create notebook</button>
+                    <button class="btn btn-primary" type="submit" onclick="loader(true)">Create notebook</button>
                 </form>
             </div>
         </div>
@@ -116,7 +116,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for gpu in gpu_products %}
+                                {% for gpu in gpus %}
                                 <tr>
                                     <td>{{ gpu["product"] }}</td>
                                     <td>{{ gpu["count"] }}</td>

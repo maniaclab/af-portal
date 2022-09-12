@@ -11,7 +11,7 @@
                 <li class="breadcrumb-item active" aria-current="page">JupyterLab</li>
             </ol>
         </nav>
-        <a href="{{ url_for('configure_notebook') }}" class="btn btn-sm btn-primary mb-4">Create notebook</a>
+        <a href="{{ url_for('configure_notebook') }}" class="btn btn-sm btn-primary mb-4" onclick="loader(true)">Create notebook</a>
         <div class="fs14">
           <table id="notebooks" class="table nowrap w-100">
               <thead class="text-muted">
@@ -43,7 +43,7 @@ $(document).ready(function() {
       {
         targets: 0,
         render: function(data, type, row) {
-          if (row.status.current == "Ready") {
+          if (row.status == "Ready") {
             return "<a href='" + row["url"] + "' class='text-decoration-none' target='_blank'>" + data + "</a>";
           }
           return data;
@@ -53,18 +53,30 @@ $(document).ready(function() {
       {
         targets: 1,
         render: function(data, type, row) {
-          if (data["history"].length > 0) {
-            let html = "<a class='text-decoration-none' data-bs-toggle='collapse' role='button' aria-expanded='false' aria-controls='" + row.notebook_id + "_status-list' href='#" + row.notebook_id + "_status-list'>";
-            html += data["current"];
-            html += "</a>";
-            html += "<ul class='collapse list-unstyled mb-0' id='" + row.notebook_id + "_status-list'>";
-            for (let i = 0; i < data["history"].length; i++) {
-              html += "<li>" + data["history"][i] + "</li>";
-            }
-            html += "</ul>";
-            return html;
+          if (data == "Removing notebook...") 
+            return data;
+          let html = "<a class='text-decoration-none' data-bs-toggle='collapse' role='button' aria-expanded='false' aria-controls='" + row.notebook_id + "_status-list' href='#" + row.notebook_id + "_status-list'>";
+          html += data;
+          html += "</a>";
+          html += "<ul class='collapse list-unstyled mb-0' id='" + row.notebook_id + "_status-list'>";
+          for (let condition of row["conditions"]) {
+            if (condition["type"] == "PodScheduled" && condition["status"] == "True")
+              html += "<li>Pod scheduled.</li>";
+            else if (condition["type"] == "PodScheduled" && condition["status"] == "False")
+              html += "<li>Unable to schedule pod.</li>";
+            else if (condition["type"] == "Initialized" && condition["status"] == "True")
+              html += "<li>Pod initialized.</li>";
+            else if (condition["type"] == "Ready" && condition["status"] == "True")
+              html += "<li>Pod ready.</li>";
+            else if (condition["type"] == "ContainersReady" && condition["status"] == "True")
+              html += "<li>Container ready.</li>";
           }
-          return data["current"];
+          if (data == "Starting notebook...")
+            html += "<li>Starting Jupyter notebook...</li>";
+          else if (data == "Ready")
+            html += "<li>Jupyter notebook started.</li>";
+          html += "</ul>";
+          return html;
         },
         width: "24%"
       },
@@ -87,7 +99,7 @@ $(document).ready(function() {
       {
         targets: 4,
         render: function(data, type, row) {
-          if (row.status.current == "Removing notebook...") {
+          if (row.status == "Removing notebook...") {
             return "<i class='fa-regular fa-trash-can'></i>";
           }
           return "<a class='text-decoration-none remove-button' style='cursor: pointer'><i class='fa-regular fa-trash-can'></i></a>";
@@ -99,7 +111,7 @@ $(document).ready(function() {
     const notebooks = table.ajax.json().notebooks;
     let ready = true;
     for (let i = 0; i < notebooks.length; i++) {
-      if (notebooks[i].status.current != "Ready") {
+      if (notebooks[i].status != "Ready") {
         ready = false;
         break;
       }
@@ -110,10 +122,9 @@ $(document).ready(function() {
   }).on("click", "a.remove-button", function() {
     const row = table.row($(this).parents("tr"));
     const rowData = row.data();
-    $.get("{{request.url_root}}/jupyter/remove/" + rowData.notebook_id, function(resp) {
-      if (resp["success"]) {
-        rowData.status.current = "Removing notebook...";
-        rowData.status.history = [];
+    fetch("{{request.url_root}}/jupyter/remove/" + rowData.notebook_id).then(resp => resp.json()).then(resp => {
+      if (resp.success) {
+        rowData.status = "Removing notebook...";
         row.data(rowData).draw(true);
         table.ajax.reload();
       }
