@@ -150,12 +150,12 @@ def request_membership(unix_name):
 def aup():
     return render_template("aup.html")
 
-@app.route("/jupyter")
+@app.route("/jupyterlab")
 @auth.members_only
 def open_jupyterlab():
     return render_template("jupyterlab.html")
 
-@app.route("/jupyter/get_notebooks")
+@app.route("/jupyterlab/get_notebooks")
 @auth.members_only
 def get_notebooks():
     try:
@@ -166,32 +166,7 @@ def get_notebooks():
         logger.error(str(err))
         return jsonify(notebooks=[], error="There was an error getting user notebooks.")
 
-@app.route("/jupyter/get_notebook/<notebook_name>")
-@auth.admins_only
-def get_notebook(notebook_name):
-    try:
-        notebook = jupyterlab.get_notebook(notebook_name)
-        return jsonify(notebook=notebook)
-    except Exception as err:
-        logger.error(str(err))
-        return jsonify(notebook=None, error="There was an error getting notebook %s." %notebook_name)
-
-@app.route("/jupyter/list_notebooks")
-@auth.admins_only
-def list_notebooks():
-    try:
-        notebooks = jupyterlab.list_notebooks()
-        return jsonify(notebooks=notebooks)
-    except Exception as err:
-        logger.error(str(err))
-        return jsonify(notebooks=[], error="There was an error listing notebooks.")
-
-@app.route("/admin/notebooks")
-@auth.admins_only
-def open_notebooks():
-    return render_template("notebooks.html")
-
-@app.route("/jupyter/configure")
+@app.route("/jupyterlab/configure")
 @auth.members_only
 def configure_notebook():
     try:
@@ -203,7 +178,7 @@ def configure_notebook():
         logger.error(str(err))
         return render_template("500.html")
 
-@app.route("/jupyter/deploy", methods=["POST"])
+@app.route("/jupyterlab/deploy", methods=["POST"])
 @auth.members_only
 def deploy_notebook():
     try:
@@ -226,7 +201,7 @@ def deploy_notebook():
         return redirect(url_for("configure_notebook"))
     return redirect(url_for("open_jupyterlab"))
 
-@app.route("/jupyter/remove/<notebook>")
+@app.route("/jupyterlab/remove/<notebook>")
 @auth.members_only
 def remove_notebook(notebook):
     try:
@@ -249,15 +224,30 @@ def kibana_user():
         logger.error(str(err))
         return render_template("500.html")
 
-@app.route("/admin/plot_users_over_time")
+@app.route("/admin/notebooks")
 @auth.admins_only
-def plot_users_over_time():
+def open_notebooks():
+    return render_template("notebooks.html")
+
+@app.route("/admin/list_notebooks")
+@auth.admins_only
+def list_notebooks():
     try:
-        data = admin.plot_users_over_time()
-        return render_template("plot_users_over_time.html", base64_encoded_image = data)
+        notebooks = jupyterlab.list_notebooks()
+        return jsonify(notebooks=notebooks)
     except Exception as err:
         logger.error(str(err))
-        return render_template("500.html")
+        return jsonify(notebooks=[], error="There was an error listing notebooks.")
+
+@app.route("/admin/get_notebook/<notebook_name>")
+@auth.admins_only
+def get_notebook(notebook_name):
+    try:
+        notebook = jupyterlab.get_notebook(notebook_name)
+        return jsonify(notebook=notebook)
+    except Exception as err:
+        logger.error(str(err))
+        return jsonify(notebook=None, error="There was an error getting notebook %s." %notebook_name)    
 
 @app.route("/admin/users")
 @auth.admins_only
@@ -288,6 +278,16 @@ def update_user_institution():
         logger.error(str(err))
         return jsonify(success=False, message="There was an error updating the user institution")
 
+@app.route("/admin/plot_users_over_time")
+@auth.admins_only
+def plot_users_over_time():
+    try:
+        data = admin.plot_users_over_time()
+        return render_template("plot_users_over_time.html", base64_encoded_image = data)
+    except Exception as err:
+        logger.error(str(err))
+        return render_template("500.html")
+
 @app.route("/admin/kibana")
 @auth.admins_only
 def kibana_admin():
@@ -297,11 +297,6 @@ def kibana_admin():
     except Exception as err:
         logger.error(str(err))
         return render_template("500.html")
-
-@app.route("/admin/login_nodes")
-@auth.admins_only
-def login_nodes():
-    return render_template("login_nodes.html")
 
 @app.route("/admin/groups/<group_name>")
 @auth.admins_only
@@ -518,6 +513,11 @@ def delete_group(group_name):
     except Exception as err:
         logger.error(str(err))
         return render_template("500.html")
+
+@app.route("/admin/login_nodes")
+@auth.admins_only
+def login_nodes():
+    return render_template("login_nodes.html")
 
 @app.errorhandler(404)
 def not_found(e):

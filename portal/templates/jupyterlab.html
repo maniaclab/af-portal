@@ -122,7 +122,7 @@ $(document).ready(function() {
   }).on("click", "a.remove-button", function() {
     const row = table.row($(this).parents("tr"));
     const rowData = row.data();
-    fetch("{{request.url_root}}/jupyter/remove/" + rowData.notebook_id).then(resp => resp.json()).then(resp => {
+    fetch("{{request.url_root}}/jupyterlab/remove/" + rowData.notebook_id).then(resp => resp.json()).then(resp => {
       if (resp.success) {
         rowData.status = "Removing notebook...";
         row.data(rowData).draw(true);
