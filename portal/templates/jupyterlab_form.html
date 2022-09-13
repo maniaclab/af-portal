@@ -21,7 +21,7 @@
             <img id="jupyterlab-logo" class="card-img-top" src="{{url_for('static', filename='img/jupyter-lab-logo.png')}}" alt="JupyterLab">
             <div class="card-body">
                 <h5 class="card-title mb-3">Create a Jupyter notebook with a machine learning setup</h5>
-                <form id="configure-form" @change="validateForm()" action="{{ url_for('deploy_notebook') }}" method="POST">
+                <form id="configure" @change="validateForm()" action="{{ url_for('deploy_notebook') }}" method="POST">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <div class="row mb-2">
                         <div class="col-sm-4">
@@ -205,10 +205,10 @@ $(document).ready(function() {
             }
         },
         async mounted() {
-            this.validateForm();
             const response = await fetch("{{ url_for('get_gpus') }}");
-            const json = await response.json()
-            this.gpus = json.gpus
+            const json = await response.json();
+            this.gpus = json.gpus;
+            this.validateForm();
         },
         methods: {
             handleNameChange(event) {
@@ -218,9 +218,8 @@ $(document).ready(function() {
                 }
             },
             validateForm() {
-                console.log("Validate form called.");
-                $("#configure-form").validate();
-                this.valid = $("#configure-form").valid();
+                $("#configure").validate();
+                this.valid = $("#configure").valid() && this.gpus;
             }
         }
     }).mount("#jupyterlab-form");
