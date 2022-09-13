@@ -78,7 +78,7 @@ def get_notebooks(username=None):
             "expiration_date": get_expiration_date(pod).isoformat(),
             "requests": get_requests(pod),
             "limits": get_limits(pod),
-            "gpu": get_gpu_model(pod),
+            "gpu": get_gpu_product(pod),
             "hours_remaining": get_hours_remaining(pod)}) 
     return notebooks
 
@@ -103,7 +103,7 @@ def get_notebook(notebook_name):
         "expiration_date": get_expiration_date(pod).isoformat(),
         "requests": get_requests(pod),
         "limits": get_limits(pod),
-        "gpu": get_gpu_model(pod),
+        "gpu": get_gpu_product(pod),
         "hours_remaining": get_hours_remaining(pod),
     }
     return notebook
@@ -312,7 +312,7 @@ def get_limits(pod):
         hash_map["gpu"] = int(limits.get("nvidia.com/gpu", 0))
     return hash_map
 
-def get_gpu_model(pod):
+def get_gpu_product(pod):
     if pod.spec.node_name:
         requests = pod.spec.containers[0].resources.requests
         if int(requests.get("nvidia.com/gpu", 0)) > 0:
