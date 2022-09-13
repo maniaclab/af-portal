@@ -18,9 +18,8 @@
             </ol>
         </nav>
         <div class="card col-sm-6 mx-auto">
-            <img id="jupyterlab-logo" class="card-img-top" src="{{url_for('static', filename='img/jupyter-lab-logo.png')}}" alt="JupyterLab">
+            <div class="card-header">Create a Jupyter notebook with a machine learning setup</div>
             <div class="card-body">
-                <p class="card-title mb-3 text-muted">Create a Jupyter notebook with a machine learning setup</p>
                 <form id="configure" @change="validateForm" action="{{ url_for('deploy_notebook') }}" method="POST">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <div class="row mb-2">
@@ -105,7 +104,7 @@
                             </select>
                         </div>
                     </div>
-                    <button class="btn btn-primary" type="submit" :disabled="!valid" onclick="loader(true)">Create notebook</button>
+                    <button class="btn btn-sm btn-primary" type="submit" :disabled="!valid" onclick="loader(true)">Create notebook</button>
                 </form>
             </div>
         </div>
