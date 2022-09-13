@@ -2,8 +2,12 @@
 
 {% block title %} Hardware {% endblock %}
 
+{% block assets %}
+<script src="https://unpkg.com/vue@3"></script>
+{% endblock %}
+
 {% block body %}
-<section>
+<section id="hardware">
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
@@ -30,7 +34,7 @@
                         <ul class="list-unstyled mb-0">
                             <li>Users can accelerate their notebooks by requesting GPUs from a GPU node.</li>
                             <li>We have a variety of GPU choices.</li>
-                            <li>You can see a table of our GPU choices <a id="gpu-products-link" class="text-decoration-none" role="button">here.</a></li>
+                            <li>You can see a table of our GPU choices <a class="text-decoration-none" data-bs-toggle="modal" href="#gpu-products" role="button">here.</a></li>
                         </ul>
                     </td>
                 </tr>
@@ -57,14 +61,14 @@
             </table>
         </div>
     </div>
-    <div id="gpuProducts" class="modal fade" role="dialog">
+    <div id="gpu-products" class="modal fade" role="dialog">
         <div class="modal-dialog" style="max-width: 600px">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">GPU Products</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+                <div v-if="gpus" class="modal-body">
                     <p>Here is a table of our GPU products.</p>
                     <table class="table table-hover table-bordered nowrap w-100">
                         <thead>
@@ -76,16 +80,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for gpu in gpus %}
-                            <tr>
-                                <td>{{ gpu["product"] }}</td>
-                                <td>{{ gpu["count"] }}</td>
-                                <td>{{ gpu["available"] }}</td>
-                                <td>{{ gpu["memory"] }}</td>
+                            <tr v-for="gpu in gpus">
+                                <td>[[ gpu.product ]]</td>
+                                <td>[[ gpu.count ]]</td>
+                                <td>[[ gpu.available ]]</td>
+                                <td>[[ gpu.memory ]]</td>
                             </tr>
-                            {% endfor %}
                         </tbody>
                     </table>
+                </div>
+                <div v-else class="modal-body">
+                    Loading...
+                    <span class="spinner-border spinner-border-sm text-dark ms-2" role="status"></span>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
@@ -96,9 +102,21 @@
 </section>
 <script type="text/javascript">
 $(document).ready(function() {
-    $("#gpu-products-link").click(function () {
-        $("#gpuProducts").modal("show");
-    });
+    const { createApp } = Vue
+
+    createApp({
+        delimiters: ["[[", "]]"],
+        data() {
+            return {
+                gpus: null
+            }
+        },
+        async mounted() {
+            const response = await fetch("{{ url_for('get_gpus') }}");
+            const json = await response.json()
+            this.gpus = json.gpus
+        }
+    }).mount("#hardware");
 });    
 </script>
 {% endblock %}

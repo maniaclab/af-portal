@@ -14,12 +14,16 @@ def about():
 
 @app.route("/hardware")
 def hardware():
+    return render_template("hardware.html")
+
+@app.route("/hardware/gpus")
+def get_gpus():
     try:
         gpus = jupyterlab.get_gpus()
-        return render_template("hardware.html", gpus=gpus)
+        return jsonify(gpus=gpus)
     except Exception as err:
         logger.error(str(err))
-        return render_template("500.html")
+        return jsonify(gpus=[], error="There was an error getting GPU product information.")
 
 @app.route("/signup")
 def signup():
@@ -175,8 +179,7 @@ def configure_notebook():
     try:
         username = session["unix_name"]
         notebook_name = jupyterlab.generate_notebook_name(username)
-        gpus = jupyterlab.get_gpus()
-        return render_template("jupyterlab_form.html", notebook_name=notebook_name, gpus=gpus)
+        return render_template("jupyterlab_form.html", notebook_name=notebook_name)
     except Exception as err:
         logger.error(str(err))
         return render_template("500.html")

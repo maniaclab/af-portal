@@ -78,7 +78,7 @@ def get_notebooks(username=None):
             "expiration_date": get_expiration_date(pod).isoformat(),
             "requests": get_requests(pod),
             "limits": get_limits(pod),
-            "gpu": get_gpu(pod),
+            "gpu": get_gpu_model(pod),
             "hours_remaining": get_hours_remaining(pod)}) 
     return notebooks
 
@@ -103,7 +103,7 @@ def get_notebook(notebook_name):
         "expiration_date": get_expiration_date(pod).isoformat(),
         "requests": get_requests(pod),
         "limits": get_limits(pod),
-        "gpu": get_gpu(pod),
+        "gpu": get_gpu_model(pod),
         "hours_remaining": get_hours_remaining(pod),
     }
     return notebook
@@ -146,7 +146,7 @@ def supported_images():
         "hub.opensciencegrid.org/usatlas/ml-platform:julia",
         "hub.opensciencegrid.org/usatlas/ml-platform:lava"]
 
-def get_gpus(as_dict=False):
+def get_gpus():
     gpus = dict()
     api = client.CoreV1Api()
     nodes = api.list_node(label_selector="gpu=true")
@@ -159,14 +159,34 @@ def get_gpus(as_dict=False):
         else:
             gpus[memory]["count"] += count
             gpus[memory]["available"] += count 
-        gpu_requests = 0
-        pods = api.list_namespaced_pod(namespace=namespace, field_selector="spec.nodeName=%s" %node.metadata.name).items
+        pods = api.list_pod_for_all_namespaces(field_selector="spec.nodeName=%s" %node.metadata.name).items
         for pod in pods:
-            gpu_requests += int(pod.spec.containers[0].resources.requests.get("nvidia.com/gpu", 0))
-        gpus[memory]["available"] = max(gpus[memory]["available"] - gpu_requests, 0)
-    if as_dict:
-        return gpus
+            requests = pod.spec.containers[0].resources.requests
+            if requests:
+                gpus[memory]["available"] -= int(requests.get("nvidia.com/gpu", 0))
+        gpus[memory]["available"] = max(gpus[memory]["available"], 0)
     return sorted(gpus.values(), key=lambda gpu:gpu["memory"])
+
+def get_gpu(memory):
+    gpu = dict()
+    api = client.CoreV1Api()
+    nodes=api.list_node(label_selector="gpu=true,nvidia.com/gpu.memory=%s" %memory)
+    for node in nodes.items:
+        if gpu:
+            gpu["count"] += int(node.metadata.labels["nvidia.com/gpu.count"])
+            gpu["available"] = gpu["count"]
+        else:
+            gpu["product"] = node.metadata.labels["nvidia.com/gpu.product"]
+            gpu["memory"] = int(node.metadata.labels["nvidia.com/gpu.memory"])
+            gpu["count"] = int(node.metadata.labels["nvidia.com/gpu.count"])
+            gpu["available"] = gpu["count"]
+        pods = api.list_pod_for_all_namespaces(field_selector="spec.nodeName=%s" %node.metadata.name).items
+        for pod in pods:
+            requests = pod.spec.containers[0].resources.requests
+            if requests:
+                gpu["available"] -= int(requests.get("nvidia.com/gpu", 0))
+                gpu["available"] = max(gpu["available"], 0)
+    return gpu
 
 def validate(notebook_name, **kwargs):
     if " " in notebook_name:
@@ -186,7 +206,7 @@ def validate(notebook_name, **kwargs):
         return JupyterLabException("The request of %d GB is outside the bounds [1, 16]." %kwargs["memory_request"])
     if kwargs["gpu_request"] < 0 or kwargs["gpu_request"] > 7:
         raise JupyterLabException("The request of %d GPUs is outside the bounds [0, 7]." %kwargs["gpu_request"])
-    gpu = get_gpus(as_dict=True).get(kwargs["gpu_memory"], None)
+    gpu = get_gpu(kwargs["gpu_memory"])
     if not gpu:
         raise JupyterLabException("The GPU product is not supported")
     if gpu["available"] < kwargs["gpu_request"]:
@@ -292,7 +312,7 @@ def get_limits(pod):
         hash_map["gpu"] = int(limits.get("nvidia.com/gpu", 0))
     return hash_map
 
-def get_gpu(pod):
+def get_gpu_model(pod):
     if pod.spec.node_name:
         requests = pod.spec.containers[0].resources.requests
         if int(requests.get("nvidia.com/gpu", 0)) > 0:
@@ -306,7 +326,8 @@ def get_gpu(pod):
 def get_notebook_status(pod):
     if pod.metadata.deletion_timestamp:
         return "Removing notebook..."
-    if pod.status.phase == "Running":
+    ready = next(filter(lambda c : c.type == "Ready" and c.status == "True", pod.status.conditions), None)
+    if ready:
         api = client.CoreV1Api()
         log = api.read_namespaced_pod_log(pod.metadata.name, namespace=namespace)
         if re.search("Jupyter Notebook.*is running at", log) or re.search("Jupyter Server.*is running at", log):
