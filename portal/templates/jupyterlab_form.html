@@ -21,14 +21,14 @@
             <img id="jupyterlab-logo" class="card-img-top" src="{{url_for('static', filename='img/jupyter-lab-logo.png')}}" alt="JupyterLab">
             <div class="card-body">
                 <h5 class="card-title mb-3">Create a Jupyter notebook with a machine learning setup</h5>
-                <form id="configure" @change="validateForm()" action="{{ url_for('deploy_notebook') }}" method="POST">
+                <form id="configure" @change="validateForm" action="{{ url_for('deploy_notebook') }}" method="POST">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <div class="row mb-2">
                         <div class="col-sm-4">
                             <label for="notebook-name" class="form-label my-2">Notebook name</label>
                         </div>
                         <div class="col-sm-8">
-                            <input id="notebook-name" type="text" class="form-control" name="notebook-name" value="{{ notebook_name }}" @keydown="handleNameChange" required/>
+                            <input id="notebook-name" type="text" class="form-control" name="notebook-name" value="{{ notebook_name }}" @keydown="keyDown" required/>
                         </div>
                     </div>
                     <div class="row mb-2">
@@ -60,7 +60,7 @@
                            <input v-model="instances" type="number" class="form-control" name="gpu" id="gpu" min="0" max="4" value="0" required/>
                         </div>
                     </div>
-                    <div v-if="gpus" v-show="instances > 0" class="row mb-2">
+                    <div v-show="instances > 0" class="row mb-2">
                         <div class="col-sm-4">
                             <label for="gpu-memory" class="form-label my-2">
                                 GPU memory (MB)
@@ -71,7 +71,11 @@
                         </div>
                         <div class="col-sm-8">
                             <select name="gpu-memory" class="form-control">
-                                <option v-for="gpu in gpus" :value="gpu.memory">[[ gpu.memory ]]</option>
+                                <option value="4864">4864</option>
+                                <option value="11019">11019</option>
+                                <option value="11178">11178</option>
+                                <option value="16160">16160</option>
+                                <option value="40536">40536</option>
                             </select>
                         </div>                      
                     </div>
@@ -205,13 +209,13 @@ $(document).ready(function() {
             }
         },
         async mounted() {
+            this.validateForm();
             const response = await fetch("{{ url_for('get_gpus') }}");
             const json = await response.json();
             this.gpus = json.gpus;
-            this.validateForm();
         },
         methods: {
-            handleNameChange(event) {
+            keyDown(event) {
                 if (!/[a-zA-Z0-9._-]/.test(event.key)) {
                     event.preventDefault();
                     event.returnValue = false;
@@ -219,7 +223,7 @@ $(document).ready(function() {
             },
             validateForm() {
                 $("#configure").validate();
-                this.valid = $("#configure").valid() && this.gpus;
+                this.valid = $("#configure").valid();
             }
         }
     }).mount("#jupyterlab-form");
