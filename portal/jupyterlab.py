@@ -62,14 +62,14 @@ def create_notebook(notebook_name, **kwargs):
 def get_notebooks(username=None):
     notebooks = []
     api = client.CoreV1Api()
-    label_selector = "k8s-app=jupyterlab,owner=%s" %username if username else "k8s-app=jupyterlab"
+    label_selector = "k8s-app in (jupyterlab, privatejupyter),owner=%s" %username if username else "k8s-app in (jupyterlab, privatejupyter)"
     pods = api.list_namespaced_pod(namespace, label_selector=label_selector).items 
     for pod in pods:
         notebooks.append({
             "notebook_id": pod.metadata.name, 
-            "notebook_name": pod.metadata.labels["notebook-name"],
+            "notebook_name": pod.metadata.labels.get("notebook-name") or pod.metadata.labels.get("display-name"),
             "namespace": namespace, 
-            "username": pod.metadata.labels["owner"],
+            "username": pod.metadata.labels.get("owner"),
             "status": get_notebook_status(pod),
             "pod_status": pod.status.phase,
             "conditions": get_conditions(pod),
@@ -88,9 +88,9 @@ def get_notebook(notebook_name):
     log = api.read_namespaced_pod_log(name=notebook_name, namespace=namespace)
     notebook = {
         "notebook_id": pod.metadata.name,
-        "notebook_name": pod.metadata.labels["notebook-name"],
+        "notebook_name": pod.metadata.labels.get("notebook-name") or pod.metadata.labels.get("display-name"),
         "namespace": namespace,
-        "username": pod.metadata.labels["owner"],
+        "username": pod.metadata.labels.get("owner"),
         "image": pod.spec.containers[0].image,
         "node": pod.spec.node_name,
         "status": get_notebook_status(pod),
@@ -111,7 +111,7 @@ def get_notebook(notebook_name):
 def list_notebooks():
     notebooks = []
     api = client.CoreV1Api()
-    pods = api.list_namespaced_pod(namespace=namespace, label_selector="k8s-app=jupyterlab").items
+    pods = api.list_namespaced_pod(namespace=namespace, label_selector="k8s-app in (jupyterlab, privatejupyter)").items
     for pod in pods:
         notebooks.append(pod.metadata.name)
     return notebooks
