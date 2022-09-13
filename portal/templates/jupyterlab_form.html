@@ -18,7 +18,7 @@
             </ol>
         </nav>
         <div class="card col-sm-6 mx-auto">
-            <div class="card-header">Create a Jupyter notebook with a machine learning setup</div>
+            <div class="card-header">Configure a Jupyter notebook with a machine learning setup</div>
             <div class="card-body">
                 <form id="configure" @change="validateForm" action="{{ url_for('deploy_notebook') }}" method="POST">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
