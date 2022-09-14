@@ -18,7 +18,14 @@
             </ol>
         </nav>
         <div class="card col-sm-6 mx-auto">
-            <div class="card-header">Configure a Jupyter notebook</div>
+            <div class="card-header">
+                Configure a Jupyter notebook
+                <small>
+                    <a class="text-decoration-none" data-bs-toggle="modal" href="#instructions" role="button">
+                        (instructions)
+                    </a>
+                </small>
+            </div>
             <div class="card-body">
                 <form id="configure" @change="validateForm" action="{{ url_for('deploy_notebook') }}" method="POST">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
@@ -59,7 +66,7 @@
                            <input v-model="instances" type="number" class="form-control" name="gpu" id="gpu" min="0" max="4" value="0" required/>
                         </div>
                     </div>
-                    <div v-show="instances > 0" class="row mb-2">
+                    <div class="row mb-2">
                         <div class="col-sm-4">
                             <label for="gpu-memory" class="form-label my-2">
                                 GPU memory (MB)
@@ -108,6 +115,23 @@
                 </form>
             </div>
         </div>
+        <div id="instructions" class="modal fade" role="dialog">
+            <div class="modal-dialog" style="max-width: 600px">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Instructions</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Please configure a notebook by filling out the form fields.</p>
+                        <p>If you would like to request a GPU, please make sure the GPU is available, by clicking on the icon next to GPU memory.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div id="gpu-memory" class="modal fade" role="dialog">
             <div class="modal-dialog" style="max-width: 600px">
                 <div class="modal-content">
@@ -116,11 +140,11 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div v-if="gpus" class="modal-body">
-                        <p>Here is a table of our GPU products.</p>
+                        <p>Here is a table of our GPUs and their availability.</p>
                         <table class="table table-hover table-bordered nowrap w-100">
                             <thead>
                                 <tr>
-                                    <th>GPU Product</th>
+                                    <th>GPU</th>
                                     <th>Count</th>
                                     <th>Avail.</th>
                                     <th>Memory (MB)</th>
@@ -178,11 +202,11 @@
                     </div>
                     <div class="modal-body">
                         <p>
-                            Users can choose between two images: One with full anaconda <code>(ivukotic/ml_platform:conda)</code> 
+                            Users can choose between two images: one with full anaconda <code>(ivukotic/ml_platform:conda)</code> 
                             and one with NVidia GPU and ROOT support <code>(ivukotic/ml_platform:latest)</code>.
                         </p>
                         <p>
-                            The later has most of the ML packages (Tensorflow, Keras, ScikitLearn, ...) preinstalled, and
+                            The latter has most of the ML packages (Tensorflow, Keras, ScikitLearn, etc.) preinstalled, and
                             a small tutorial with code examples in <code>/ML_platform_tests/tutorial</code>.
                         </p>
                     </div>
