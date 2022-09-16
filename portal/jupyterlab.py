@@ -17,7 +17,7 @@ from portal import app, logger
 
 namespace = app.config["NAMESPACE"]
 
-class Notebook():
+class Notebook:
     def __init__(self):
         self.id = None
         self.name = None
