@@ -33,7 +33,7 @@ $(document).ready(function() {
     processing: true,
     ajax: { url: "{{ url_for('get_notebooks') }}", dataSrc: "notebooks"},
     columns: [
-      { data: "notebook_id" },
+      { data: "id" },
       { data: "status" },
       { data: "creation_date", type: "date" },
       { data: "expiration_date", type: "date" },
@@ -55,10 +55,10 @@ $(document).ready(function() {
         render: function(data, type, row) {
           if (data == "Removing notebook...") 
             return data;
-          let html = "<a class='text-decoration-none' data-bs-toggle='collapse' role='button' aria-expanded='false' aria-controls='" + row.notebook_id + "_status-list' href='#" + row.notebook_id + "_status-list'>";
+          let html = "<a class='text-decoration-none' data-bs-toggle='collapse' role='button' aria-expanded='false' aria-controls='" + row.id + "_status-list' href='#" + row.id + "_status-list'>";
           html += data;
           html += "</a>";
-          html += "<ul class='collapse list-unstyled mb-0' id='" + row.notebook_id + "_status-list'>";
+          html += "<ul class='collapse list-unstyled mb-0' id='" + row.id + "_status-list'>";
           for (let condition of row["conditions"]) {
             if (condition["type"] == "PodScheduled" && condition["status"] == "True")
               html += "<li>Pod scheduled.</li>";
@@ -122,7 +122,7 @@ $(document).ready(function() {
   }).on("click", "a.remove-button", function() {
     const row = table.row($(this).parents("tr"));
     const rowData = row.data();
-    fetch("{{request.url_root}}/jupyterlab/remove/" + rowData.notebook_id).then(resp => resp.json()).then(resp => {
+    fetch("{{request.url_root}}/jupyterlab/remove/" + rowData.id).then(resp => resp.json()).then(resp => {
       if (resp.success) {
         rowData.status = "Removing notebook...";
         row.data(rowData).draw(true);

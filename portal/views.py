@@ -2,7 +2,7 @@ from portal import app, auth, logger, connect, jupyterlab, admin
 from flask import session, request, render_template, url_for, redirect, jsonify, flash
 import globus_sdk
 from urllib.parse import urlparse, urljoin
-from portal.jupyterlab import JupyterLabException
+from portal.jupyterlab import Notebook, InvalidNotebookError
 
 @app.route("/")
 def home():
@@ -167,7 +167,7 @@ def open_jupyterlab():
 def get_notebooks():
     try:
         username = session["unix_name"]
-        notebooks = jupyterlab.get_notebooks(username)
+        notebooks = jupyterlab.get_notebooks(owner=username)
         return jsonify(notebooks=notebooks)
     except Exception as err:
         logger.error(str(err))
@@ -188,21 +188,18 @@ def configure_notebook():
 @auth.members_only
 def deploy_notebook():
     try:
-        notebook_name = request.form["notebook-name"].strip()
-        settings = {
-            "globus_id": session["globus_id"],
-            "username": session["unix_name"],
-            "cpu_request": int(request.form["cpu"]),
-            "cpu_limit": int(request.form["cpu"])*2,
-            "memory_request": int(request.form['memory']),
-            "memory_limit": int(request.form['memory'])*2,  
-            "gpu_request": int(request.form['gpu']),
-            "gpu_limit": int(request.form['gpu']),
-            "gpu_memory": int(request.form['gpu-memory']),
-            "image": request.form['image'],
-            "duration": int(request.form['duration'])}
-        jupyterlab.create_notebook(notebook_name, **settings)
-    except JupyterLabException as err:
+        notebook = Notebook()
+        notebook.name = request.form["notebook-name"].strip()
+        notebook.id = notebook.name.lower()
+        notebook.owner = session["unix_name"]
+        notebook.globus_id = session["globus_id"]
+        notebook.requests = dict(cpu=int(request.form["cpu"]), memory=int(request.form["memory"]), gpu=int(request.form["gpu"]))
+        notebook.limits = dict(cpu=notebook.requests["cpu"]*2, memory=notebook.requests["memory"]*2, gpu=notebook.requests["gpu"])
+        notebook.gpu = dict(memory=int(request.form["gpu-memory"]))
+        notebook.image = request.form["image"]
+        notebook.hours_remaining = int(request.form["duration"])
+        jupyterlab.deploy_notebook(notebook)
+    except InvalidNotebookError as err:
         flash(str(err), "warning")
         return redirect(url_for("configure_notebook"))
     return redirect(url_for("open_jupyterlab"))

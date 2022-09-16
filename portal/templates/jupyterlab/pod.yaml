@@ -5,7 +5,7 @@ metadata:
     k8s-app: jupyterlab
     notebook-id: {{notebook_id}}
     notebook-name: {{notebook_name}}
-    owner: {{username}}
+    owner: {{owner}}
     globus-id: {{globus_id}}
     time2delete: ttl-{{hours}}
   name: {{notebook_id}}

@@ -27,8 +27,8 @@
       <tbody>
         {% for notebook in notebooks %}
         <tr>
-          <td>{{ notebook.notebook_name }}</td>
-          <td>{{ notebook.username }}</td>
+          <td>{{ notebook.name }}</td>
+          <td>{{ notebook.owner }}</td>
           <td>{{ notebook.requests.memory }}</td>
           <td>{{ notebook.requests.cpu }}</td>
           <td>{{ notebook.requests.gpu }}</td>

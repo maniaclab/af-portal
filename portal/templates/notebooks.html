@@ -66,9 +66,9 @@
                         </div>
                         <div class="card-body">
                             <ul class="list-unstyled">
-                                <li><span class="text-muted">Notebook:</span> [[ notebook.notebook_name ]]</li>
+                                <li><span class="text-muted">Notebook:</span> [[ notebook.name ]]</li>
                                 <li><span class="text-muted">Namespace:</span> [[ notebook.namespace ]]</li>
-                                <li><span class="text-muted">Owner:</span> [[ notebook.username ]]</li>
+                                <li><span class="text-muted">Owner:</span> [[ notebook.owner ]]</li>
                                 <li><span class="text-muted">Status:</span> [[ notebook.status ]]</li>
                                 <li><span class="text-muted">Created:</span> [[ format_date(notebook.creation_date) ]]</li>
                                 <li><span class="text-muted">Expires:</span> [[ format_date(notebook.expiration_date) ]]</li>
@@ -85,7 +85,7 @@
                         <div class="card-body">
                             <div>
                                 <ul class="list-unstyled">
-                                    <li><span class="text-muted">Pod:</span> [[ notebook.notebook_id ]]</li>
+                                    <li><span class="text-muted">Pod:</span> [[ notebook.id ]]</li>
                                     <li><span class="text-muted">Status:</span> [[ notebook.pod_status ]]</li>
                                     <li v-if="notebook.node"><span class="text-muted">Node:</span> [[ notebook.node ]]</li>
                                 </ul>

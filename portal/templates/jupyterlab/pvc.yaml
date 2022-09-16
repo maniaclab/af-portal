@@ -3,8 +3,8 @@ kind: PersistentVolumeClaim
 metadata:
   labels:
       k8s-app: jupyterlab
-      owner: {{username}}
-  name: {{username}}-cephfs-pvc
+      owner: {{owner}}
+  name: {{owner}}-cephfs-pvc
   namespace: {{namespace}}
 spec:
   accessModes:

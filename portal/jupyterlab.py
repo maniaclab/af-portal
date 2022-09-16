@@ -15,15 +15,39 @@ from jinja2 import Environment, FileSystemLoader
 from kubernetes import client, config
 from portal import app, logger
 
-config_file = app.config.get("KUBECONFIG")
-namespace = app.config.get("NAMESPACE")
-domain_name = app.config.get("DOMAIN_NAME")
+namespace = app.config["NAMESPACE"]
 
-class JupyterLabException(Exception):
+class Notebook():
+    def __init__(self):
+        self.id = None
+        self.name = None
+        self.namespace = namespace
+        self.domain_name = app.config["DOMAIN_NAME"]
+        self.owner = None
+        self.globus_id = None
+        self.image = None
+        self.node = None
+        self.status = None
+        self.pod_status = None
+        self.conditions = None
+        self.events = None
+        self.node_selector = None
+        self.requests = None
+        self.limits = None
+        self.gpu = None
+        self.log = None
+        self.url = None
+        self.creation_date = None
+        self.expiration_date = None
+        self.hours_remaining = None
+        self.token = None
+
+class InvalidNotebookError(Exception):
     pass
 
 @app.before_first_request
 def load_kube_config():
+    config_file = app.config.get("KUBECONFIG")
     if config_file:
         config.load_kube_config(config_file=config_file)
         logger.info("Loaded kubeconfig from file %s" %config_file)
@@ -49,64 +73,62 @@ def start_notebook_maintenance():
     logger.info("Started notebook maintenance")
 
 # The main interface of the module
-def create_notebook(notebook_name, **kwargs):
-    validate(notebook_name, **kwargs)
+def deploy_notebook(notebook):
+    validate(notebook)
     token_bytes = os.urandom(32)
-    kwargs["token"] = b64encode(token_bytes).decode()
-    create_pod(notebook_name, **kwargs)
-    create_service(notebook_name, **kwargs)
-    create_ingress(notebook_name, **kwargs)
-    create_secret(notebook_name, **kwargs)
-    logger.info("Created notebook %s" %notebook_name)
+    notebook.token = b64encode(token_bytes).decode()
+    create_pod(notebook)
+    create_service(notebook)
+    create_ingress(notebook)
+    create_secret(notebook)
+    logger.info("Deployed notebook %s" %notebook.name)
 
-def get_notebooks(username=None):
+def get_notebooks(owner=None):
     notebooks = []
     api = client.CoreV1Api()
-    label_selector = "k8s-app in (jupyterlab, privatejupyter),owner=%s" %username if username else "k8s-app in (jupyterlab, privatejupyter)"
+    label_selector = "k8s-app in (jupyterlab, privatejupyter),owner=%s" %owner if owner else "k8s-app in (jupyterlab, privatejupyter)"
     pods = api.list_namespaced_pod(namespace, label_selector=label_selector).items 
     for pod in pods:
-        notebooks.append({
-            "notebook_id": pod.metadata.name, 
-            "notebook_name": pod.metadata.labels.get("notebook-name") or pod.metadata.labels.get("display-name"),
-            "namespace": namespace, 
-            "username": pod.metadata.labels.get("owner"),
-            "status": get_notebook_status(pod),
-            "pod_status": pod.status.phase,
-            "conditions": get_conditions(pod),
-            "url": get_url(pod),
-            "creation_date": pod.metadata.creation_timestamp.isoformat(),
-            "expiration_date": get_expiration_date(pod).isoformat(),
-            "requests": get_requests(pod),
-            "limits": get_limits(pod),
-            "gpu": get_basic_gpu_info(pod),
-            "hours_remaining": get_hours_remaining(pod)}) 
+        notebook = Notebook()
+        notebook.id = pod.metadata.name
+        notebook.name = pod.metadata.labels.get("notebook-name") or pod.metadata.labels.get("display-name")
+        notebook.owner = pod.metadata.labels.get("owner")
+        notebook.status = get_notebook_status(pod)
+        notebook.pod_status = pod.status.phase
+        notebook.conditions = get_conditions(pod)
+        notebook.requests = get_requests(pod)
+        notebook.limits = get_limits(pod)
+        notebook.gpu = get_basic_gpu_info(pod)
+        notebook.url = get_url(pod)
+        notebook.creation_date = pod.metadata.creation_timestamp.isoformat()
+        notebook.expiration_date = get_expiration_date(pod).isoformat()
+        notebook.hours_remaining = get_hours_remaining(pod)
+        notebooks.append(notebook.__dict__)
     return notebooks
 
 def get_notebook(notebook_name):
     api = client.CoreV1Api()
-    pod = api.read_namespaced_pod(name=notebook_name, namespace=namespace)
-    log = api.read_namespaced_pod_log(name=notebook_name, namespace=namespace)
-    notebook = {
-        "notebook_id": pod.metadata.name,
-        "notebook_name": pod.metadata.labels.get("notebook-name") or pod.metadata.labels.get("display-name"),
-        "namespace": namespace,
-        "username": pod.metadata.labels.get("owner"),
-        "image": pod.spec.containers[0].image,
-        "node": pod.spec.node_name,
-        "status": get_notebook_status(pod),
-        "pod_status": pod.status.phase,
-        "conditions": get_conditions(pod),
-        "node_selector": pod.spec.node_selector,
-        "events": get_events(pod),
-        "log": log,
-        "creation_date": pod.metadata.creation_timestamp.isoformat(),
-        "expiration_date": get_expiration_date(pod).isoformat(),
-        "requests": get_requests(pod),
-        "limits": get_limits(pod),
-        "gpu": get_basic_gpu_info(pod),
-        "hours_remaining": get_hours_remaining(pod),
-    }
-    return notebook
+    pod = api.read_namespaced_pod(name=notebook_name.lower(), namespace=namespace)
+    notebook = Notebook()
+    notebook.id = pod.metadata.name
+    notebook.name = pod.metadata.labels.get("notebook-name") or pod.metadata.labels.get("display-name")
+    notebook.owner = pod.metadata.labels.get("owner")
+    notebook.image = pod.spec.containers[0].image
+    notebook.node = pod.spec.node_name
+    notebook.status = get_notebook_status(pod)
+    notebook.pod_status = pod.status.phase
+    notebook.conditions = get_conditions(pod)
+    notebook.events = get_events(pod)
+    notebook.node_selector = pod.spec.node_selector
+    notebook.requests = get_requests(pod)
+    notebook.limits = get_limits(pod)
+    notebook.gpu = get_basic_gpu_info(pod)
+    notebook.log = api.read_namespaced_pod_log(name=notebook_name.lower(), namespace=namespace)
+    notebook.url = get_url(pod)
+    notebook.creation_date = pod.metadata.creation_timestamp.isoformat()
+    notebook.expiration_date = get_expiration_date(pod).isoformat()
+    notebook.hours_remaining = get_hours_remaining(pod)
+    return notebook.__dict__
 
 def list_notebooks():
     notebooks = []
@@ -132,9 +154,9 @@ def notebook_name_available(notebook_name):
     pods = core_v1_api.list_namespaced_pod(namespace, label_selector="notebook-id={0}".format(notebook_id))
     return len(pods.items) == 0
 
-def generate_notebook_name(username):
+def generate_notebook_name(owner):
     for i in range(1, 20):
-        notebook_name = f"{username}-notebook-{i}"
+        notebook_name = f"{owner}-notebook-{i}"
         if notebook_name_available(notebook_name):
             return notebook_name
     return None
@@ -154,32 +176,32 @@ def get_gpus():
         product = node.metadata.labels["nvidia.com/gpu.product"]
         memory = int(node.metadata.labels["nvidia.com/gpu.memory"])
         count = int(node.metadata.labels["nvidia.com/gpu.count"])
-        if memory not in gpus:
-            gpus[memory] = {"product": product, "memory": memory, "count": count, "available": count} 
+        if product not in gpus:
+            gpus[product] = dict(product=product, memory=memory, count=count, available=count)
         else:
-            gpus[memory]["count"] += count
-            gpus[memory]["available"] += count 
+            gpus[product]["count"] += count
+            gpus[product]["available"] += count 
+        gpu = gpus[product]
         pods = api.list_pod_for_all_namespaces(field_selector="spec.nodeName=%s" %node.metadata.name).items
         for pod in pods:
             requests = pod.spec.containers[0].resources.requests
             if requests:
-                gpus[memory]["available"] -= int(requests.get("nvidia.com/gpu", 0))
-        gpus[memory]["available"] = max(gpus[memory]["available"], 0)
-    return sorted(gpus.values(), key=lambda gpu:gpu["memory"])
+                gpu["available"] -= int(requests.get("nvidia.com/gpu", 0))
+        gpu["available"] = max(gpu["available"], 0)
+    return sorted(gpus.values(), key=lambda gpu : gpu["memory"])
 
 def get_gpu(memory):
     gpu = dict()
     api = client.CoreV1Api()
     nodes=api.list_node(label_selector="gpu=true,nvidia.com/gpu.memory=%s" %memory)
     for node in nodes.items:
-        if gpu:
-            gpu["count"] += int(node.metadata.labels["nvidia.com/gpu.count"])
-            gpu["available"] = gpu["count"]
-        else:
-            gpu["product"] = node.metadata.labels["nvidia.com/gpu.product"]
-            gpu["memory"] = int(node.metadata.labels["nvidia.com/gpu.memory"])
-            gpu["count"] = int(node.metadata.labels["nvidia.com/gpu.count"])
-            gpu["available"] = gpu["count"]
+        product = node.metadata.labels["nvidia.com/gpu.product"]
+        memory = int(node.metadata.labels["nvidia.com/gpu.memory"])
+        count = int(node.metadata.labels["nvidia.com/gpu.count"])
+        if not gpu:
+            gpu = dict(product=product, memory=memory, count=count, available=count)
+        gpu["count"] += count
+        gpu["available"] += count
         pods = api.list_pod_for_all_namespaces(field_selector="spec.nodeName=%s" %node.metadata.name).items
         for pod in pods:
             requests = pod.spec.containers[0].resources.requests
@@ -188,85 +210,89 @@ def get_gpu(memory):
                 gpu["available"] = max(gpu["available"], 0)
     return gpu
 
-def validate(notebook_name, **kwargs):
-    if " " in notebook_name:
-        raise JupyterLabException("The notebook name cannot have any whitespace.")
-    if len(notebook_name) > 30:
-        raise JupyterLabException("The notebook name cannot exceed 30 characters.")
+def validate(notebook):
+    if " " in notebook.name:
+        raise InvalidNotebookError("The notebook name cannot have any whitespace.")
+    if len(notebook.name) > 30:
+        raise InvalidNotebookError("The notebook name cannot exceed 30 characters.")
     k8s_charset = set(string.ascii_lowercase + string.ascii_uppercase + string.digits + "_" + "-" + ".")
-    if not set(notebook_name) <= k8s_charset:
-        raise JupyterLabException("Valid characters are [a-zA-Z0-9._-]")
-    if not notebook_name_available(notebook_name):
-        raise JupyterLabException("The name %s is already taken." %notebook_name)   
-    if kwargs["image"] not in supported_images():
-        raise JupyterLabException("Docker image %s is not supported." %kwargs["image"])
-    if kwargs["cpu_request"] < 1 or kwargs["cpu_request"] > 4:
-        raise JupyterLabException("The request of %d CPUs is outside the bounds [1, 4]." %kwargs["cpu_request"])
-    if kwargs["memory_request"] < 0 or kwargs["memory_request"] > 16:
-        return JupyterLabException("The request of %d GB is outside the bounds [1, 16]." %kwargs["memory_request"])
-    if kwargs["gpu_request"] < 0 or kwargs["gpu_request"] > 7:
-        raise JupyterLabException("The request of %d GPUs is outside the bounds [0, 7]." %kwargs["gpu_request"])
-    gpu = get_gpu(kwargs["gpu_memory"])
+    if not set(notebook.name) <= k8s_charset:
+        raise InvalidNotebookError("Valid characters are [a-zA-Z0-9._-]")
+    if not notebook_name_available(notebook.name):
+        raise InvalidNotebookError("The name %s is already taken." %notebook.name)   
+    if notebook.image not in supported_images():
+        raise InvalidNotebookError("Docker image %s is not supported." %notebook.image)
+    if notebook.requests["cpu"] < 1 or notebook.requests["cpu"] > 4:
+        raise InvalidNotebookError("The request of %d CPUs is outside the bounds [1, 4]." %notebook.requests["cpu"])
+    if notebook.requests["memory"] < 0 or notebook.requests["memory"] > 16:
+        return InvalidNotebookError("The request of %d GB is outside the bounds [1, 16]." %notebook.requests["memory"])
+    if notebook.requests["gpu"] < 0 or notebook.requests["gpu"] > 7:
+        raise InvalidNotebookError("The request of %d GPUs is outside the bounds [0, 7]." %notebook.requests["gpu"])
+    gpu = get_gpu(notebook.gpu["memory"])
     if not gpu:
-        raise JupyterLabException("The GPU product is not supported")
-    if gpu["available"] < kwargs["gpu_request"]:
-        raise JupyterLabException("The %s does not have %s %s available." 
-            %(gpu["product"], kwargs["gpu_request"], "instance" if kwargs["gpu_request"] == 1 else "instances"))
+        raise InvalidNotebookError("The GPU product is not supported")
+    if gpu["available"] < notebook.requests["gpu"]:
+        word = "instance" if notebook.requests["gpu"] == 1 else "instances"
+        raise InvalidNotebookError("The %s has only %s %s available." %(notebook.product, notebook.gpu_request, word))
+
+def get_pod(pod_name):
+    api = client.CoreV1Api()
+    return api.read_namespaced_pod(name=pod_name, namespace=namespace)
 
 # Helper functions
-def create_pod(notebook_name, **kwargs):
+def create_pod(notebook):
     api = client.CoreV1Api()
     templates = Environment(loader=FileSystemLoader("portal/templates/jupyterlab"))
     template = templates.get_template("pod.yaml")
     pod = yaml.safe_load(template.render(
-        notebook_id=notebook_name.lower(), 
-        notebook_name=notebook_name,
-        namespace=namespace, 
-        username=kwargs["username"],
-        globus_id=kwargs["globus_id"], 
-        token=kwargs["token"], 
-        cpu_request=kwargs["cpu_request"],
-        cpu_limit=kwargs["cpu_limit"], 
-        memory_request=f'{kwargs["memory_request"]}Gi',
-        memory_limit=f'{kwargs["memory_limit"]}Gi', 
-        gpu_request=kwargs["gpu_request"],
-        gpu_limit=kwargs["gpu_limit"],
-        gpu_memory=kwargs["gpu_memory"],
-        image=kwargs["image"], 
-        hours=kwargs["duration"]))                           
+        notebook_id=notebook.id, 
+        notebook_name=notebook.name,
+        namespace=notebook.namespace, 
+        owner=notebook.owner,
+        globus_id=notebook.globus_id, 
+        token=notebook.token, 
+        cpu_request=notebook.requests["cpu"],
+        memory_request=f"{notebook.requests['memory']}Gi",
+        gpu_request=notebook.requests["gpu"],
+        cpu_limit=notebook.limits["cpu"], 
+        memory_limit=f"{notebook.limits['memory']}Gi", 
+        gpu_limit=notebook.limits["gpu"],
+        gpu_memory=notebook.gpu["memory"],
+        image=notebook.image, 
+        hours=notebook.hours_remaining))                           
     api.create_namespaced_pod(namespace=namespace, body=pod)
 
-def create_service(notebook_name, **kwargs):
+def create_service(notebook):
     api = client.CoreV1Api()
     templates = Environment(loader=FileSystemLoader("portal/templates/jupyterlab"))
     template = templates.get_template("service.yaml")
     service = yaml.safe_load(template.render(
-        notebook_id=notebook_name.lower(),
+        notebook_id=notebook.id,
         namespace=namespace, 
-        image=kwargs["image"]))
+        image=notebook.image))
     api.create_namespaced_service(namespace=namespace, body=service)
 
-def create_ingress(notebook_name, **kwargs):
+def create_ingress(notebook):
     api = client.NetworkingV1Api()
     templates = Environment(loader=FileSystemLoader("portal/templates/jupyterlab"))
     template = templates.get_template("ingress.yaml")
     ingress = yaml.safe_load(template.render(
-        notebook_id=notebook_name.lower(),
+        notebook_id=notebook.id,
         namespace=namespace, 
-        domain_name=domain_name, 
-        username=kwargs["username"], 
-        image=kwargs["image"]))
+        domain_name=app.config["DOMAIN_NAME"], 
+        owner=notebook.owner, 
+        image=notebook.image))
     api.create_namespaced_ingress(namespace=namespace, body=ingress)
 
-def create_secret(notebook_name, **kwargs):
+def create_secret(notebook):
     api = client.CoreV1Api()
     templates = Environment(loader=FileSystemLoader("portal/templates/jupyterlab"))
     template = templates.get_template("secret.yaml")
     sec = yaml.safe_load(template.render(
-        notebook_id=notebook_name.lower(), 
+        notebook_id=notebook.id, 
         namespace=namespace, 
-        username=kwargs["username"], 
-        token=kwargs["token"]))
+        owner=notebook.owner, 
+        token=notebook.token))
     api.create_namespaced_secret(namespace=namespace, body=sec)
 
 def create_pvc_if_needed(username):
@@ -359,7 +385,3 @@ def get_url(pod):
     api = client.CoreV1Api()
     token = api.read_namespaced_secret(notebook_id, namespace).data["token"]
     return "https://" + ingress.spec.rules[0].host + "?" + urllib.parse.urlencode({"token": token})
-
-def get_pod(pod_name):
-    api = client.CoreV1Api()
-    return api.read_namespaced_pod(name=pod_name, namespace=namespace)
