@@ -189,15 +189,15 @@ def configure_notebook():
 def deploy_notebook():
     try:
         notebook = Notebook()
-        notebook.name = request.form["notebook-name"].strip()
-        notebook.id = notebook.name.lower()
-        notebook.owner = session["unix_name"]
-        notebook.globus_id = session["globus_id"]
-        notebook.requests = dict(cpu=int(request.form["cpu"]), memory=int(request.form["memory"]), gpu=int(request.form["gpu"]))
-        notebook.limits = dict(cpu=notebook.requests["cpu"]*2, memory=notebook.requests["memory"]*2, gpu=notebook.requests["gpu"])
-        notebook.gpu = dict(memory=int(request.form["gpu-memory"]))
-        notebook.image = request.form["image"]
-        notebook.hours_remaining = int(request.form["duration"])
+        notebook['name'] = request.form["notebook-name"].strip()
+        notebook['id'] = notebook['name'].lower()
+        notebook['owner'] = session["unix_name"]
+        notebook['globus_id'] = session["globus_id"]
+        notebook['requests'] = dict(cpu=int(request.form["cpu"]), memory=int(request.form["memory"]), gpu=int(request.form["gpu"]))
+        notebook['limits'] = dict(cpu=notebook['requests']['cpu']*2, memory=notebook['requests']['memory']*2, gpu=notebook['requests']['gpu'])
+        notebook['gpu'] = dict(memory=int(request.form["gpu-memory"]))
+        notebook['image'] = request.form["image"]
+        notebook['hours_remaining'] = int(request.form["duration"])
         jupyterlab.deploy_notebook(notebook)
     except InvalidNotebookError as err:
         flash(str(err), "warning")
