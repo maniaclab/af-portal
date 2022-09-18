@@ -5,31 +5,31 @@ from portal import connect, logger
 def login_required(fn):
     @wraps(fn)
     def decorated_function(*args, **kwargs):
-        if not session.get("is_authenticated"):
-            return redirect(url_for("login", next=request.url))
+        if not session.get('is_authenticated'):
+            return redirect(url_for('login', next=request.url))
         return fn(*args, **kwargs)
     return decorated_function
 
 def members_only(fn):
     @wraps(fn)
     def decorated_function(*args, **kwargs):
-        if not session.get("is_authenticated"):
-            return redirect(url_for("login", next=request.url))
-        unix_name = session.get("unix_name")
+        if not session.get('is_authenticated'):
+            return redirect(url_for('login', next=request.url))
+        unix_name = session.get('unix_name')
         role = connect.get_user_role(unix_name)
-        if role in ("admin", "active"):
+        if role in ('admin', 'active'):
             return fn(*args, **kwargs)
-        return render_template("request_membership.html", role=role)
+        return render_template('request_membership.html', role=role)
     return decorated_function
 
 def admins_only(fn):
     @wraps(fn)
     def decorated_function(*args, **kwargs):
-        if not session.get("is_authenticated"):
-            return redirect(url_for("login", next=request.url))
-        unix_name = session.get("unix_name")
+        if not session.get('is_authenticated'):
+            return redirect(url_for('login', next=request.url))
+        unix_name = session.get('unix_name')
         role = connect.get_user_role(unix_name)
-        if role == "admin":
+        if role == 'admin':
             return fn(*args, **kwargs)
-        return render_template("404.html")
+        return render_template('404.html')
     return decorated_function
