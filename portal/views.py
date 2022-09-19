@@ -96,8 +96,8 @@ def get_safe_redirect():
 @auth.login_required
 def profile():
     try:
-        if 'unix_name' in session:
-            unix_name = session['unix_name']
+        unix_name = session.get('unix_name', None)
+        if unix_name:
             profile = connect.get_user_profile(unix_name)
             return render_template('profile.html', profile=profile)
         return render_template('create_profile.html')

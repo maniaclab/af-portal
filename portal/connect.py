@@ -24,7 +24,7 @@ def get_user_profile(unix_name, date_format='%B %m %Y'):
         role = next(filter(lambda group : group['name'] == 'root.atlas-af', profile['group_memberships']), None)
         profile['role'] = role['state'] if role else 'nonmember'
         return profile
-    return None
+    raise Exception('Unable to find a profile for user %s' %unix_name)
 
 def get_multiplex(json):
     return requests.post(base_url + '/v1alpha1/multiplex', params=params, json=json).json()
