@@ -120,8 +120,6 @@ def create_profile():
             profile['institution'] = request.form['institution']
             profile['email'] = request.form['email']
             profile['public_key'] = request.form['public_key']
-            profile['superuser'] = False
-            profile['service_account'] = False
             if connect.create_user_profile(**profile):
                 session.update(
                     unix_name = profile['unix_name'],
@@ -130,15 +128,14 @@ def create_profile():
                     email = profile['email'],
                     institution = profile['institution']
                 )
-                logger.info('Created profile for user %s' %session['unix_name'])
                 connect.update_user_group_status(session['unix_name'], 'root.atlas-af', 'pending')
                 flash('Successfully created profile', 'success')
             else:
-                logger.info('Unable to create profile for user %s' %session['name'])
                 flash('Unable to create profile', 'warning')
             return redirect(url_for('profile'))
         except Exception as e:
-            logger.error('There was an error while trying to create a profile for user %s\n%s' %(session['name'], str(e)))
+            logger.error('There was an error while trying to create a profile for user %s' %session['name'])
+            logger.error(str(e))
             return render_template('500.html')
 
 @app.route('/profile/edit', methods=['GET', 'POST'])
@@ -157,9 +154,13 @@ def edit_profile():
             profile['email'] = request.form['email']
             profile['x509_dn'] = request.form['X.509_DN']
             profile['public_key'] = request.form['public_key']
-            connect.update_user_profile(unix_name, **profile)
+            if connect.update_user_profile(unix_name, **profile):
+                flash('Successfully updated profile', 'success')
+            else:
+                flash('Unable to update profile', 'warning')
             return redirect(url_for('profile'))
     except Exception as err:
+        logger.error('There was an error while trying to update the profile of user %s' %session['unix_name'])
         logger.error(str(err))
         return render_template('500.html')
 
@@ -374,7 +375,7 @@ def get_group_member_requests(group_name):
         return jsonify(member_requests=profiles)
     except Exception as err:
         logger.error(str(err))
-        return jsonify(error='There was an error getting member requests.')
+        return jsonify(member_requests=[], error='There was an error getting member requests.')
 
 @app.route('/admin/get_subgroups/<group_name>')
 @auth.admins_only
@@ -384,7 +385,7 @@ def get_group_subgroups(group_name):
         return jsonify(subgroups=subgroups)
     except Exception as err:
         logger.error(str(err))
-        return jsonify(error='There was an error getting subgroups.')
+        return jsonify(subgroups=[], error='There was an error getting subgroups.')
 
 @app.route('/admin/get_subgroup_requests/<group_name>')
 @auth.admins_only
@@ -394,7 +395,7 @@ def get_group_subgroup_requests(group_name):
         return jsonify(subgroup_requests=subgroup_requests)
     except Exception as err:
         logger.error(str(err))
-        return jsonify(error='There was an error getting subgroup requests.')
+        return jsonify(subgroup_requests=[], error='There was an error getting subgroup requests.')
 
 @app.route('/admin/get_potential_members/<group_name>')
 @auth.admins_only
@@ -407,7 +408,7 @@ def get_group_potential_members(group_name):
         return jsonify(potential_members=profiles)
     except Exception as err:
         logger.error(str(err))
-        return jsonify(error='There was an error getting potential members.')
+        return jsonify(potential_members=[], error='There was an error getting potential members.')
 
 @app.route('/admin/email/<group_name>', methods=['POST'])
 @auth.admins_only
@@ -421,6 +422,7 @@ def send_email(group_name):
             return jsonify(success=True, message='Sent email to group %s' %group_name)
         return jsonify(success=False, message='Unable to send email to group %s' %group_name)
     except Exception as err:
+        logger.error('Error sending email to group %s' %group_name)
         logger.error(str(err))
         return jsonify(success=False, message='Error sending email to group %s' %group_name)
 
@@ -429,7 +431,7 @@ def send_email(group_name):
 def add_group_member(unix_name, group_name):
     try:
         success = connect.add_user_to_group(unix_name, group_name)
-        return jsonify(success=True)
+        return jsonify(success=success)
     except Exception as err:
         logger.error(str(err))
         return jsonify(success=True)
@@ -439,7 +441,7 @@ def add_group_member(unix_name, group_name):
 def remove_group_member(unix_name, group_name):
     try:
         success = connect.remove_user_from_group(unix_name, group_name)
-        return jsonify(success=True)
+        return jsonify(success=success)
     except Exception as err:
         logger.error(str(err))
         return jsonify(success=False)
@@ -506,12 +508,15 @@ def edit_group(group_name):
             return render_template('edit_group.html', group=group)
         elif request.method == 'POST':
             group = dict()
+            group['group_name'] = group_name
             group['display_name'] = request.form['display-name'],
             group['email'] = request.form['email'],
             group['phone'] = request.form['phone'],
             group['description'] = request.form['description']
-            connect.update_group_info(group_name, **group)
-            flash('Updated group %s successfully' %group_name, 'success')
+            if connect.update_group_info(**group):
+                flash('Updated group %s successfully' %group_name, 'success')
+            else:
+                flash('Unable to update group %s' %group_name, 'warning')
             return redirect(url_for('groups', group_name=group_name))
     except Exception as err:
         logger.error(str(err))

@@ -36,6 +36,7 @@ def get_email_list(group):
     return email_list
 
 def email_users(sender, recipients, subject, body):
+    logger.info('Sending email...')
     resp = requests.post('https://api.mailgun.net/v3/api.ci-connect.net/messages',
         auth=('api', app.config.get('MAILGUN_API_TOKEN')),
         data={
@@ -46,7 +47,11 @@ def email_users(sender, recipients, subject, body):
             'text': body
         }
     )
-    return resp.status_code == requests.codes.ok
+    if resp.status_code == requests.codes.ok:
+        logger.info('Sent email with subject %s' %subject)
+        return True
+    logger.info('Unable to send email with subject %s' %subject)
+    return False
 
 def email_staff(subject, body):
     sender = 'noreply@af.uchicago.edu'
