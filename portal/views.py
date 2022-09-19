@@ -148,13 +148,14 @@ def edit_profile():
             return render_template('edit_profile.html', profile=profile)
         if request.method == 'POST':
             profile = dict()
+            profile['unix_name'] = unix_name
             profile['name'] = request.form['name']
             profile['phone'] = request.form['phone']
             profile['institution'] = request.form['institution']
             profile['email'] = request.form['email']
             profile['x509_dn'] = request.form['X.509_DN']
             profile['public_key'] = request.form['public_key']
-            if connect.update_user_profile(unix_name, **profile):
+            if connect.update_user_profile(**profile):
                 flash('Successfully updated profile', 'success')
             else:
                 flash('Unable to update profile', 'warning')
