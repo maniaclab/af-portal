@@ -134,7 +134,7 @@ def create_profile():
                 flash('Unable to create profile', 'warning')
             return redirect(url_for('profile'))
         except Exception as e:
-            logger.error('There was an error while trying to create a profile for user %s' %session['name'])
+            logger.error('There was an error trying to create a profile for user %s' %session['name'])
             logger.error(str(e))
             return render_template('500.html')
 
