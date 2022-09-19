@@ -71,6 +71,7 @@ def get_notebooks(owner=None):
         notebook = dict()
         notebook['id'] = pod.metadata.name
         notebook['name'] = pod.metadata.labels.get('notebook-name') or pod.metadata.labels.get('display-name')
+        notebook['namespace'] = namespace
         notebook['owner'] = pod.metadata.labels.get('owner')
         notebook['status'] = get_notebook_status(pod)
         notebook['pod_status'] = pod.status.phase
@@ -91,6 +92,7 @@ def get_notebook(notebook_name):
     notebook = dict()
     notebook['id'] = pod.metadata.name
     notebook['name'] = pod.metadata.labels.get('notebook-name') or pod.metadata.labels.get('display-name')
+    notebook['namespace'] = namespace
     notebook['owner'] = pod.metadata.labels.get('owner')
     notebook['image'] = pod.spec.containers[0].image
     notebook['node'] = pod.spec.node_name
