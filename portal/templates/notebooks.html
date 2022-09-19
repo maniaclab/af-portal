@@ -90,13 +90,14 @@
                                     <li v-if="notebook.node"><span class="text-muted">Node:</span> [[ notebook.node ]]</li>
                                 </ul>
                             </div>
-                            <div>
+                            <div class="mb-3">
                                 <span class="text-primary">Conditions</span>
-                                <ul class="list-unstyled">
-                                    <li v-for="cond in notebook.conditions">
-                                        <span class="text-muted">[[ cond.type ]]:</span> [[ cond.status ]] <span class="text-muted float-end">[[ format_date(cond.timestamp) ]]</span>
-                                    </li>
-                                </ul>
+                                <table>
+                                    <tr v-for="cond in notebook.conditions">
+                                        <td><span class="text-muted">[[ cond.type ]]:</span> [[ cond.status ]]</td>
+                                        <td><span class="text-muted ms-5">[[ format_date(cond.timestamp) ]]</span></td>
+                                    </tr>
+                                </table>
                             </div>
                             <div v-if="notebook.node_selector">
                                 <span class="text-primary">Node selector</span>
