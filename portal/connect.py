@@ -137,6 +137,23 @@ def get_group_info(group_name, date_format='%B %m %Y'):
     group['is_deletable'] = is_group_deletable(group_name)
     return group
 
+def update_group_info(group_name, display_name, email, phone, description):
+    json = {
+        'apiVersion': 'v1alpha1',
+        'metadata': {
+            'display_name': display_name,
+            'email': email,
+            'phone': phone,
+            'description': description,
+        }
+    }
+    resp = requests.put(base_url + '/v1alpha1/groups/' + group_name, params=params, json=json)
+    if resp.status_code == requests.codes.ok:
+        logger.info('Updated info for group %s' %group_name)
+        return True
+    logger.error('Unable to update info for group %s' %group_name)
+    return False
+
 def get_group_members(group_name, states=['admin', 'active', 'pending']):
     usernames = []
     resp = requests.get(base_url + '/v1alpha1/groups/' + group_name + '/members', params=params)
@@ -147,20 +164,6 @@ def get_group_members(group_name, states=['admin', 'active', 'pending']):
         if entry['state'] in states:
             usernames.append(username)
     return usernames
-
-def get_subgroups(group_name):
-    resp = requests.get(base_url + '/v1alpha1/groups/' + group_name + '/subgroups', params=params)
-    if resp.status_code != 200:
-        raise Exception('Error getting group %s' %group_name)
-    subgroups = resp.json()['groups']
-    return subgroups
-
-def get_subgroup_requests(group_name):
-    resp = requests.get(base_url + '/v1alpha1/groups/' + group_name + '/subgroup_requests', params=params)
-    if resp.status_code != 200:
-        raise Exception('Error getting group %s' %group_name)
-    subgroups = resp.json()['groups']
-    return subgroups
 
 def update_user_group_status(unix_name, group_name, status):
     json = {'apiVersion': 'v1alpha1', 'group_membership': {'state': status}}
@@ -179,6 +182,13 @@ def remove_user_from_group(unix_name, group_name):
     logger.error('Unable to remove user %s from group %s' %(unix_name, group_name))
     return False
 
+def get_subgroups(group_name):
+    resp = requests.get(base_url + '/v1alpha1/groups/' + group_name + '/subgroups', params=params)
+    if resp.status_code != 200:
+        raise Exception('Error getting group %s' %group_name)
+    subgroups = resp.json()['groups']
+    return subgroups
+
 def create_subgroup(subgroup_name, display_name, group_name, email, phone, description, purpose):
     json = {
         'apiVersion': 'v1alpha1',
@@ -196,39 +206,6 @@ def create_subgroup(subgroup_name, display_name, group_name, email, phone, descr
         logger.info('Created subgroup %s in group %s', subgroup_name, group_name)
         return True
     logger.error('Unable to create subgroup %s in group %s' %(subgroup_name, group_name))
-    return False
-
-def approve_subgroup_request(subgroup_name, group_name):
-    resp = requests.put(base_url + '/v1alpha1/groups/' + group_name + '/subgroup_requests/' + subgroup_name + '/approve', params=params)
-    if resp.status_code == requests.codes.ok:
-        logger.info('Approved request for subgroup %s in group %s' %(subgroup_name, group_name))
-        return True
-    logger.error('Unable to approve a request for subgroup %s in group %s' %(subgroup_name, group_name))
-    return False
-
-def deny_subgroup_request(subgroup_name, group_name):
-    resp = requests.delete(base_url + '/v1alpha1/groups/' + group_name + '/subgroup_requests/' + subgroup_name, params=params)
-    if resp.status_code == requests.codes.ok:
-        logger.info('Denied request for subgroup %s in group %s' %(subgroup_name, group_name))
-        return True
-    logger.error('Unable to deny a request for subgroup %s in group %s' %(subgroup_name, group_name))
-    return False
-
-def update_group_info(group_name, display_name, email, phone, description):
-    json = {
-        'apiVersion': 'v1alpha1',
-        'metadata': {
-            'display_name': display_name,
-            'email': email,
-            'phone': phone,
-            'description': description,
-        }
-    }
-    resp = requests.put(base_url + '/v1alpha1/groups/' + group_name, params=params, json=json)
-    if resp.status_code == requests.codes.ok:
-        logger.info('Updated info for group %s' %group_name)
-        return True
-    logger.error('Unable to update info for group %s' %group_name)
     return False
 
 def is_group_deletable(group_name):

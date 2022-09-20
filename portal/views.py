@@ -306,19 +306,6 @@ def get_user_profiles():
         logger.error(str(err))
         return jsonify(error='There was an error getting user profiles.')
 
-@app.route('/admin/update_user_institution', methods=['POST'])
-@auth.admins_only
-def update_user_institution():
-    try:
-        username = request.form['username']
-        institution = request.form['institution']
-        if connect.update_user_institution(username, institution):
-            return jsonify(success=True, message='Updated user institution')
-        return jsonify(success=False, message='Unable to update user institution') 
-    except Exception as err:
-        logger.error(str(err))
-        return jsonify(success=False, message='There was an error updating the user institution')
-
 @app.route('/admin/plot_users_over_time')
 @auth.admins_only
 def plot_users_over_time():
@@ -380,16 +367,6 @@ def get_group_subgroups(group_name):
     except Exception as err:
         logger.error(str(err))
         return jsonify(subgroups=[], error='There was an error getting subgroups.')
-
-@app.route('/admin/get_subgroup_requests/<group_name>')
-@auth.admins_only
-def get_group_subgroup_requests(group_name):
-    try:
-        subgroup_requests = connect.get_subgroup_requests(group_name)
-        return jsonify(subgroup_requests=subgroup_requests)
-    except Exception as err:
-        logger.error(str(err))
-        return jsonify(subgroup_requests=[], error='There was an error getting subgroup requests.')
 
 @app.route('/admin/get_potential_members/<group_name>')
 @auth.admins_only
@@ -470,28 +447,6 @@ def deny_membership_request(unix_name, group_name):
     except Exception as err:
         logger.error(str(err))
         return jsonify(success=False)
-
-@app.route('/admin/approve_subgroup_request/<group_name>/<subgroup_name>')
-@auth.admins_only
-def approve_subgroup_request(subgroup_name, group_name):
-    try:
-        success = connect.approve_subgroup_request(subgroup_name, group_name)
-        flash('Approved request for subgroup %s' %subgroup_name, 'success')
-        return redirect(url_for('groups', group_name=group_name))
-    except Exception as err:
-        logger.error(str(err))
-        return render_template('500.html')
-
-@app.route('/admin/deny_subgroup_request/<group_name>/<subgroup_name>')
-@auth.admins_only
-def deny_subgroup_request(subgroup_name, group_name):
-    try:
-        success = connect.deny_subgroup_request(subgroup_name, group_name)
-        flash('Denied request for subgroup %s' %subgroup_name, 'success')
-        return redirect(url_for('groups', group_name=group_name))
-    except Exception as err:
-        logger.error(str(err))
-        return render_template('500.html')
 
 @app.route('/admin/edit_group/<group_name>', methods=['GET', 'POST'])
 @auth.admins_only
