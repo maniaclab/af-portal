@@ -171,15 +171,6 @@ def update_user_group_status(unix_name, group_name, status):
     logger.error('Unable to update status for user %s in group %s' %(unix_name, group_name))
     return False
 
-def add_user_to_group(unix_name, group_name):
-    json = {'apiVersion': 'v1alpha1', 'group_membership': {'state': 'active'}}
-    resp = requests.put(base_url + '/v1alpha1/groups/' + group_name + '/members/' + unix_name, params=params, json=json)
-    if resp.status_code == requests.codes.ok:
-        logger.info('Added user %s to group %s' %(unix_name, group_name))
-        return True
-    logger.error('Unable to add user %s to group %s' %(unix_name, group_name))
-    return False
-
 def remove_user_from_group(unix_name, group_name):
     resp = requests.delete(base_url + '/v1alpha1/groups/' + group_name + '/members/' + unix_name, params=params)
     if resp.status_code == requests.codes.ok:

@@ -424,7 +424,7 @@ def send_email(group_name):
 @auth.admins_only
 def add_group_member(unix_name, group_name):
     try:
-        success = connect.add_user_to_group(unix_name, group_name)
+        success = connect.update_user_group_status(unix_name, group_name, 'active')
         return jsonify(success=success)
     except Exception as err:
         logger.error(str(err))
@@ -444,7 +444,7 @@ def remove_group_member(unix_name, group_name):
 @auth.admins_only
 def approve_membership_request(unix_name, group_name):
     try:
-        success = connect.add_user_to_group(unix_name, group_name)
+        success = connect.update_user_group_status(unix_name, group_name, 'active')
         profile = connect.get_user_profile(unix_name)
         approver = session['unix_name']
         subject = 'Account approval'
