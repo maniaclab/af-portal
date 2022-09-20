@@ -154,7 +154,7 @@ def edit_profile():
                 flash('Unable to update profile', 'warning')
             return redirect(url_for('profile'))
     except Exception as err:
-        logger.error('There was an error while trying to update the profile of user %s' %session['unix_name'])
+        logger.error('There was an error trying to update the profile of user %s' %session['unix_name'])
         logger.error(str(err))
         return render_template('500.html')
 
