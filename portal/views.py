@@ -112,23 +112,17 @@ def create_profile():
         return render_template('create_profile.html')
     if request.method == 'POST':
         try:
-            profile = dict()
-            profile['globus_id'] = session['globus_id']
-            profile['unix_name'] = request.form['unix_name']
-            profile['name'] = request.form['name']
-            profile['phone'] = request.form['phone']
-            profile['institution'] = request.form['institution']
-            profile['email'] = request.form['email']
-            profile['public_key'] = request.form['public_key']
-            if connect.create_user_profile(**profile):
-                session.update(
-                    unix_name = profile['unix_name'],
-                    name = profile['name'],
-                    phone = profile['phone'],
-                    email = profile['email'],
-                    institution = profile['institution']
-                )
-                connect.update_user_group_status(session['unix_name'], 'root.atlas-af', 'pending')
+            globus_id = session['globus_id']
+            unix_name = request.form['unix_name'].strip()
+            name = request.form['name'].strip()
+            email = request.form['email'].strip()
+            phone = request.form['phone'].strip()
+            institution = request.form['institution'].strip()
+            public_key = request.form['public_key'].strip()
+            if connect.create_user_profile(globus_id=globus_id, unix_name=unix_name, name=name, email=email,
+                    phone=phone, institution=institution, public_key=public_key):
+                session.update(unix_name=unix_name, name=name, phone=phone, email=email, institution=institution)
+                connect.update_user_group_status(unix_name, 'root.atlas-af', 'pending')
                 flash('Successfully created profile', 'success')
             else:
                 flash('Unable to create profile', 'warning')
@@ -147,15 +141,15 @@ def edit_profile():
             profile = connect.get_user_profile(unix_name)
             return render_template('edit_profile.html', profile=profile)
         if request.method == 'POST':
-            profile = dict()
-            profile['unix_name'] = unix_name
-            profile['name'] = request.form['name']
-            profile['phone'] = request.form['phone']
-            profile['institution'] = request.form['institution']
-            profile['email'] = request.form['email']
-            profile['x509_dn'] = request.form['X.509_DN']
-            profile['public_key'] = request.form['public_key']
-            if connect.update_user_profile(**profile):
+            name = request.form['name'].strip()
+            email = request.form['email'].strip()
+            phone = request.form['phone'].strip()
+            institution = request.form['institution'].strip()
+            x509_dn = request.form['X.509_DN'].strip()
+            public_key = request.form['public_key'].strip()
+            logger.info('Updating profile...')
+            if connect.update_user_profile(unix_name, name=name, email=email, phone=phone, institution=institution, 
+                    x509_dn=x509_dn, public_key=public_key):
                 flash('Successfully updated profile', 'success')
             else:
                 flash('Unable to update profile', 'warning')

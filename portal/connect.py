@@ -84,9 +84,10 @@ def create_user_profile(globus_id, unix_name, name, email, phone, institution, p
     logger.error('Unable to create profile for %s' %name)
     return False
 
-def update_user_profile(unix_name, name, email, phone, institution, public_key, x509_dn):
+def update_user_profile(unix_name, name=None, email=None, phone=None, institution=None, public_key=None, x509_dn=None):
     json = {
-        'apiVersion': 'v1alpha1',
+        'apiVersion': 'v1alpha1', 
+        'kind': 'User', 
         'metadata': {
             'name': name,
             'email': email,
@@ -95,21 +96,12 @@ def update_user_profile(unix_name, name, email, phone, institution, public_key, 
             'public_key': public_key,
             'X.509_DN': x509_dn
         }
-    }
+    }    
     resp = requests.put(base_url + '/v1alpha1/users/' + unix_name, params=params, json=json)
     if resp.status_code == requests.codes.ok:
         logger.info('Updated profile for user %s' %unix_name)
         return True
     logger.error('Unable to update profile for user %s' %unix_name)
-    return False
-
-def update_user_institution(unix_name, institution):
-    json = {'apiVersion': 'v1alpha1', 'kind': 'User', 'metadata': {'institution': institution}}
-    resp = requests.put(base_url + '/v1alpha1/users/' + unix_name, params=params, json=json)
-    if resp.status_code == requests.codes.ok:
-        logger.info('Set institution to %s for user %s' %(institution, unix_name))
-        return True
-    logger.error('Unable to update institution for user %s' %unix_name)
     return False
 
 def get_user_groups(unix_name):
