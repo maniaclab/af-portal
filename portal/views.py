@@ -3,6 +3,7 @@ from flask import session, request, render_template, url_for, redirect, jsonify,
 import globus_sdk
 from urllib.parse import urlparse, urljoin
 from portal.jupyterlab import InvalidNotebookError
+from portal.connect import InvalidProfileError
 
 @app.route('/')
 def home():
@@ -125,13 +126,11 @@ def create_profile():
                 session.update(unix_name=unix_name, name=name, phone=phone, email=email, institution=institution)
                 connect.update_user_group_status(unix_name, 'root.atlas-af', 'pending')
                 flash('Successfully created profile', 'success')
-            else:
-                flash('Unable to create profile', 'warning')
-            return redirect(url_for('profile'))
-        except Exception as e:
-            logger.error('There was an error trying to create a profile for user %s' %session['name'])
-            logger.error(str(e))
-            return render_template('500.html')
+                return redirect(url_for('profile'))
+            flash('Unable to create profile', 'warning')
+        except InvalidProfileError as err:
+            flash(str(err), 'warning')
+        return redirect(url_for('create_profile'))
 
 @app.route('/profile/edit', methods=['GET', 'POST'])
 @auth.login_required

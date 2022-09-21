@@ -7,7 +7,10 @@ from dateutil.parser import parse
 base_url = app.config['CONNECT_API_ENDPOINT']
 token = app.config['CONNECT_API_TOKEN']
 params = {'token': token}
-        
+
+class InvalidProfileError(Exception):
+    pass
+
 def find_user(globus_id):
     params = {'token': token, 'globus_id': globus_id}
     resp = requests.get(base_url + '/v1alpha1/find_user', params=params).json()
@@ -50,6 +53,9 @@ def get_user_profiles(usernames, date_format='%B %m %Y'):
     return profiles 
 
 def create_user_profile(globus_id, unix_name, name, email, phone, institution, public_key):
+    if unix_name is None or name is None or email is None or phone is None or institution is None:
+        logger.error('Error trying to create a profile: user must fill out all of the required fields.')
+        raise InvalidProfileError('Please fill out all of the required fields.')
     json = {
         'apiVersion': 'v1alpha1',
         'metadata': {
