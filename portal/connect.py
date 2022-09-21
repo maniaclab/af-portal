@@ -52,10 +52,28 @@ def get_user_profiles(usernames, date_format='%B %m %Y'):
         profiles.append(profile)
     return profiles 
 
-def create_user_profile(globus_id, unix_name, name, email, phone, institution, public_key):
-    if unix_name is None or name is None or email is None or phone is None or institution is None:
-        logger.error('Error trying to create a profile: user must fill out all of the required fields.')
+def validate_user_profile(globus_id, unix_name, name, email, phone, institution, public_key):
+    if globus_id is None:
+        logger.error('Error trying to create a profile: user does not have a Globus ID.')
+        raise InvalidProfileError('Unable to create profile. Your account does not have an associated globus ID.')
+    if unix_name is None:
+        logger.error('Error trying to create a profile: user must provide a unix name.')
         raise InvalidProfileError('Please fill out all of the required fields.')
+    if name is None:
+        logger.error('Error trying to create a profile: user must provide a name.')
+        raise InvalidProfileError('Please fill out all of the required fields.')
+    if email is None:
+        logger.error('Error trying to create a profile: user must provide an email.')
+        raise InvalidProfileError('Please fill out all of the required fields.')
+    if phone is None:
+        logger.error('Error trying to create a profile: user must provide a phone number.')
+        raise InvalidProfileError('Please fill out all of the required fields.')
+    if institution is None:
+        logger.error('Error trying to create a profile: user must provide an institution.')
+        raise InvalidProfileError('Please fill out all of the required fields.')
+
+def create_user_profile(globus_id, unix_name, name, email, phone, institution, public_key):
+    validate_user_profile(globus_id, unix_name, name, email, phone, institution, public_key)
     json = {
         'apiVersion': 'v1alpha1',
         'metadata': {
