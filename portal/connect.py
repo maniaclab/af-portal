@@ -26,9 +26,6 @@ def get_user_profile(unix_name, date_format='%B %m %Y'):
         return profile
     return None
 
-def get_multiplex(json):
-    return requests.post(base_url + '/v1alpha1/multiplex', params=params, json=json).json()
-
 def get_user_profiles(usernames, date_format='%B %m %Y'):
     profiles = []
     multiplex = {}
@@ -107,11 +104,14 @@ def get_user_groups(unix_name):
         states[group_name] = state
         query = '/v1alpha1/groups/' + group_name+ '?token=' + token
         multiplex[query] = {'method': 'GET'}
-    resp = get_multiplex(multiplex)
+    resp = requests.post(base_url + '/v1alpha1/multiplex', params=params, json=multiplex)
+    if resp.status_code != requests.codes.ok:
+        raise Exception('Error getting groups for user %s' %unix_name)
+    resp = resp.json()
     groups = []
-    for query in resp:
-        if resp[query]['status'] == 200:
-            group = json.loads(resp[query]['body'])['metadata']
+    for entry in resp:
+        if resp[entry]['status'] == 200:
+            group = json.loads(resp[entry]['body'])['metadata']
             group_name = group['name']
             group['role'] = states[group_name]
             groups.append(group)
