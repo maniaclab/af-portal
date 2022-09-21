@@ -32,7 +32,7 @@ def get_user_profiles(usernames, date_format='%B %m %Y'):
     for username in usernames:
         multiplex['/v1alpha1/users/' + username + '?token=' + token] = {'method': 'GET'}
     resp = requests.post(base_url + '/v1alpha1/multiplex', params=params, json=multiplex)
-    if resp.status_code != 200:
+    if resp.status_code != requests.codes.ok:
         raise Exception('Error getting user profiles')
     resp = resp.json()
     for entry in resp:
@@ -110,7 +110,7 @@ def get_user_groups(unix_name):
     resp = resp.json()
     groups = []
     for entry in resp:
-        if resp[entry]['status'] == 200:
+        if resp[entry]['status'] == requests.codes.ok:
             group = json.loads(resp[entry]['body'])['metadata']
             group_name = group['name']
             group['role'] = states[group_name]
@@ -120,7 +120,7 @@ def get_user_groups(unix_name):
 
 def get_group_info(group_name, date_format='%B %m %Y'):
     resp = requests.get(base_url + '/v1alpha1/groups/' + group_name, params=params)
-    if resp.status_code != 200:
+    if resp.status_code != requests.codes.ok:
         raise Exception('Error getting info for group %s' %group_name)
     group = resp.json()['metadata']
     group['pending'] = str(group['pending'])
@@ -148,7 +148,7 @@ def update_group_info(group_name, display_name, email, phone, description):
 def get_group_members(group_name, states=['admin', 'active', 'pending']):
     usernames = []
     resp = requests.get(base_url + '/v1alpha1/groups/' + group_name + '/members', params=params)
-    if resp.status_code != 200:
+    if resp.status_code != requests.codes.ok:
         raise Exception('Error getting members for group %s' %group_name)
     for entry in resp.json()['memberships']:
         username = entry['user_name']
@@ -175,7 +175,7 @@ def remove_user_from_group(unix_name, group_name):
 
 def get_subgroups(group_name):
     resp = requests.get(base_url + '/v1alpha1/groups/' + group_name + '/subgroups', params=params)
-    if resp.status_code != 200:
+    if resp.status_code != requests.codes.ok:
         raise Exception('Error getting group %s' %group_name)
     subgroups = resp.json()['groups']
     return subgroups
