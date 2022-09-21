@@ -146,7 +146,7 @@ def edit_profile():
             institution = request.form['institution'].strip()
             x509_dn = request.form['X.509_DN'].strip()
             public_key = request.form['public_key'].strip()
-            if connect.update_user_profile(unix_name, name=name, email=email, phone=phone, institution=institution, x509_dn=x509_dn, public_key=public_key):
+            if connect.update_user_profile(unix_name=unix_name, name=name, email=email, phone=phone, institution=institution, x509_dn=x509_dn, public_key=public_key):
                 flash('Successfully updated profile', 'success')
                 return redirect(url_for('profile'))
     except Exception as err:

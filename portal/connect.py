@@ -72,7 +72,7 @@ def create_user_profile(globus_id, unix_name, name, email, phone, institution, p
     logger.error('Unable to create profile for %s' %name)
     return False
 
-def update_user_profile(unix_name, name=None, email=None, phone=None, institution=None, public_key=None, x509_dn=None):
+def update_user_profile(unix_name, name, email, phone, institution, public_key, x509_dn):
     json = {
         'apiVersion': 'v1alpha1', 
         'kind': 'User', 
