@@ -83,11 +83,12 @@ def create_user_profile(globus_id, unix_name, name, email, phone, institution, p
             'institution': institution,
             'email': email,
             'phone': phone,
-            'public_key': public_key,
             'superuser': False,
             'service_account': False
         }
     }
+    if public_key:
+        json['metadata']['public_key'] = public_key
     resp = requests.post(base_url + '/v1alpha1/users', params=params, json=json)
     if resp.status_code == requests.codes.ok:
         logger.info('Created profile for user %s' %unix_name)
