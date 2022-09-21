@@ -56,7 +56,8 @@ def login():
             user = connect.find_user(session['globus_id'])
             if user:
                 session['unix_name'] = user['unix_name']
-                session['role'] = connect.get_user_role(session['unix_name'])
+                profile = connect.get_user_profile(session['unix_name'])
+                session['role'] = profile['role']
             return redirect(url_for('home'))
     except Exception as err:
         logger.error(str(err))

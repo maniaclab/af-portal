@@ -21,8 +21,8 @@ def get_user_profile(unix_name, date_format='%B %m %Y'):
         profile = resp['metadata']
         profile['join_date'] = datetime.strptime(profile['join_date'], '%Y-%b-%d %H:%M:%S.%f %Z').strftime(date_format)
         profile['group_memberships'].sort(key = lambda group : group['name'])
-        role = next(filter(lambda group : group['name'] == 'root.atlas-af', profile['group_memberships']), None)
-        profile['role'] = role['state'] if role else 'nonmember'
+        af_group = next(filter(lambda group : group['name'] == 'root.atlas-af', profile['group_memberships']), None)
+        profile['role'] = af_group['state'] if af_group else 'nonmember'
         return profile
     raise Exception('Unable to find a profile for user %s' %unix_name)
 
@@ -46,20 +46,11 @@ def get_user_profiles(usernames, date_format='%B %m %Y'):
         join_date = parse(data['join_date']).strftime(date_format) if date_format else parse(data['join_date']) 
         institution = data['institution']
         name = data['name']
-        group = list(filter(lambda group : group['name'] == 'root.atlas-af', data['group_memberships']))
-        role = 'nonmember'
-        if (len(group) == 1):
-            role = group[0]['state']
+        af_group = next(filter(lambda group : group['name'] == 'root.atlas-af', data['group_memberships']), None)
+        role = af_group['state'] if af_group else 'nonmember'
         profile = {'username': username, 'email': email, 'phone': phone, 'join_date': join_date, 'institution': institution, 'name': name, 'role': role}
         profiles.append(profile)
     return profiles 
-
-def get_user_role(unix_name):
-    profile = get_user_profile(unix_name)
-    group = list(filter(lambda group : group['name'] == 'root.atlas-af', profile['group_memberships']))
-    if len(group) == 0:
-        return 'nonmember'
-    return group[0]['state']
 
 def create_user_profile(globus_id, unix_name, name, email, phone, institution, public_key):
     json = {

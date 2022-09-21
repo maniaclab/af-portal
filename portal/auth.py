@@ -16,8 +16,9 @@ def members_only(fn):
         if not session.get('is_authenticated'):
             return redirect(url_for('login', next=request.url))
         unix_name = session.get('unix_name')
-        role = connect.get_user_role(unix_name)
-        if role in ('admin', 'active'):
+        profile = connect.get_user_profile(unix_name)
+        role = profile['role']
+        if role == 'admin' or role == 'active':
             return fn(*args, **kwargs)
         return render_template('request_membership.html', role=role)
     return decorated_function
@@ -28,7 +29,8 @@ def admins_only(fn):
         if not session.get('is_authenticated'):
             return redirect(url_for('login', next=request.url))
         unix_name = session.get('unix_name')
-        role = connect.get_user_role(unix_name)
+        profile = connect.get_user_profile(unix_name)
+        role = profile['role']
         if role == 'admin':
             return fn(*args, **kwargs)
         return render_template('404.html')
