@@ -57,7 +57,7 @@ def login():
             if user:
                 session['unix_name'] = user['unix_name']
                 profile = connect.get_user_profile(session['unix_name'])
-                session['role'] = profile['role']
+                session['role'] = profile['role'] if profile else 'nonmember'
             return redirect(url_for('home'))
     except Exception as err:
         logger.error(str(err))

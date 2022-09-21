@@ -17,6 +17,8 @@ def members_only(fn):
             return redirect(url_for('login', next=request.url))
         unix_name = session.get('unix_name')
         profile = connect.get_user_profile(unix_name)
+        if not profile:
+            return render_template('create_profile.html')
         role = profile['role']
         if role == 'admin' or role == 'active':
             return fn(*args, **kwargs)
@@ -30,7 +32,7 @@ def admins_only(fn):
             return redirect(url_for('login', next=request.url))
         unix_name = session.get('unix_name')
         profile = connect.get_user_profile(unix_name)
-        role = profile['role']
+        role = profile['role'] if profile else 'nonmember'
         if role == 'admin':
             return fn(*args, **kwargs)
         return render_template('404.html')
