@@ -53,7 +53,7 @@ def get_user_profiles(usernames, date_format='%B %m %Y'):
     return profiles 
 
 def create_user_profile(globus_id, unix_name, name, email, phone, institution, public_key):
-    if (unix_name is None) or (name is None) or (institution is None) or (email is None) or (phone is None):
+    if unix_name is None or name is None or institution is None or email is None or phone is None:
         logger.error('Error trying to create a profile: user must fill out all of the required fields.')
         raise InvalidProfileError('Please fill out all of the required fields.')
     json = {
