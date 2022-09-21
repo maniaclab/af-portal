@@ -11,27 +11,27 @@
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <div class="mb-2">
                         <label for="name" class="form-label">Name <span class="asterisk">*</span></label>
-                        <input type="text" class="form-control" name="name" value="{{ session['name'] }}" required>
+                        <input type="text" class="form-control" name="name" value="{{ session['name'] }}" maxlength="50" required>
                     </div>
                     <div class="mb-2">
                         <label for="name" class="form-label">Unix name <span class="asterisk">*</span></label>
-                        <input type="text" class="form-control" name="unix_name" id="unix_name" required>
+                        <input type="text" class="form-control" name="unix_name" id="unix_name" maxlength="30" required>
                     </div>
                     <div class="mb-2">
                         <label for="name" class="form-label">Institution <span class="asterisk">*</span></label>
-                        <input type="text" class="form-control" name="institution" value="{{ session['institution'] }}" required>
+                        <input type="text" class="form-control" name="institution" value="{{ session['institution'] }}" maxlength="100" required>
                     </div>
                     <div class="mb-2">
                         <label for="email" class="form-label">Email <span class="asterisk">*</span> (please use institutional email)</label>
-                        <input type="text" class="form-control" name="email" value="{{ session['email'] }}" required>
+                        <input type="text" class="form-control" name="email" id="email" value="{{ session['email'] }}" maxlength="50" required>
                     </div>
                     <div class="mb-2">
                         <label for="phone" class="form-label">Phone <span class="asterisk">*</span></label>
-                        <input type="text" class="form-control" name="phone" required>
+                        <input type="text" class="form-control" name="phone" maxlength="30" required>
                     </div>
                     <div class="mb-4">
                         <label for="public_key" class="form-label">SSH public key</label>
-                        <textarea class="form-control" name="public_key" rows="5"></textarea>
+                        <textarea class="form-control" name="public_key" rows="5" maxlength="1000"></textarea>
                     </div>
                     <div class="mb-2">
                         <button class="btn btn-sm btn-primary" type="submit">Create profile</button>
@@ -88,8 +88,14 @@
 </section>
 <script type="text/javascript">
 $(document).ready(function() {
-    $("#unix_name").on("keydown", function(event) {
+    $("#unix_name").on("keypress", function(event) {
         if (!/[a-zA-Z0-9._-]/.test(event.key)) {
+            event.preventDefault();
+            event.returnValue = false;
+        }
+    });
+    $("#email").on("keypress", function(event) {
+        if (event.keyCode == 32) {
             event.preventDefault();
             event.returnValue = false;
         }

@@ -11,27 +11,27 @@
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <div class="mb-2">
                         <label for="name" class="form-label">Name <span class="asterisk">*</span></label>
-                        <input type="text" class="form-control" name="name" value="{{ profile['name'] }}" required>
+                        <input type="text" class="form-control" name="name" value="{{ profile['name'] }}" maxlength="50" required>
                     </div>
                     <div class="mb-2">
                         <label for="name" class="form-label">Institution <span class="asterisk">*</span></label>
-                        <input type="text" class="form-control" name="institution" value="{{ profile['institution'] }}" required>
+                        <input type="text" class="form-control" name="institution" value="{{ profile['institution'] }}" maxlength="100" required>
                     </div>
                     <div class="mb-2">
                         <label for="email" class="form-label">Email <span class="asterisk">*</span> (please use institutional email)</label>
-                        <input type="text" class="form-control" name="email" value="{{ profile['email'] }}" required>
+                        <input type="text" class="form-control" name="email" id="email" value="{{ profile['email'] }}" maxlength="50" required>
                     </div>
                     <div class="mb-2">
                         <label for="phone" class="form-label">Phone <span class="asterisk">*</span></label>
-                        <input type="text" class="form-control" name="phone" value="{{ profile['phone'] }}" required>
+                        <input type="text" class="form-control" name="phone" value="{{ profile['phone'] }}" maxlength="30" required>
                     </div>
                     <div class="mb-2">
                         <label for="X.509_DN" class="form-label">X.509 distinguished name</label>
-                        <input type="text" class="form-control" name="X.509_DN" value="{{ profile['X.509_DN'] }}">
+                        <input type="text" class="form-control" name="X.509_DN" value="{{ profile['X.509_DN'] }}" maxlength="50">
                     </div>
                     <div class="mb-4">
                         <label for="public_key" class="form-label">SSH public key</label>
-                        <textarea class="form-control" name="public_key" rows="5">{{ profile['public_key'] }}</textarea>
+                        <textarea class="form-control" name="public_key" rows="5" maxlength="1000">{{ profile['public_key'] }}</textarea>
                     </div>
                     <div class="mb-2">
                         <button class="btn btn-sm btn-primary" type="submit">Update profile</button>
@@ -87,4 +87,14 @@
         </div>
     </div>
 </section>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#email").on("keypress", function(event) {
+            if (event.keyCode == 32) {
+                event.preventDefault();
+                event.returnValue = false;
+            }
+        });
+    });
+    </script>
 {% endblock %}
