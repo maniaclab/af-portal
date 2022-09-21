@@ -146,12 +146,9 @@ def edit_profile():
             institution = request.form['institution'].strip()
             x509_dn = request.form['X.509_DN'].strip()
             public_key = request.form['public_key'].strip()
-            if connect.update_user_profile(unix_name, name=name, email=email, phone=phone, institution=institution, 
-                    x509_dn=x509_dn, public_key=public_key):
+            if connect.update_user_profile(unix_name, name=name, email=email, phone=phone, institution=institution, x509_dn=x509_dn, public_key=public_key):
                 flash('Successfully updated profile', 'success')
-            else:
-                flash('Unable to update profile', 'warning')
-            return redirect(url_for('profile'))
+                return redirect(url_for('profile'))
     except Exception as err:
         logger.error('There was an error trying to update the profile of user %s' %session['unix_name'])
         logger.error(str(err))
