@@ -16,9 +16,9 @@ def members_only(fn):
         if not session.get('is_authenticated'):
             return redirect(url_for('login', next=request.url))
         unix_name = session.get('unix_name')
+        if not unix_name:
+            return redirect(url_for('create_profile'))
         profile = connect.get_user_profile(unix_name)
-        if not profile:
-            return render_template('create_profile.html')
         role = profile['role']
         if role == 'admin' or role == 'active':
             return fn(*args, **kwargs)
@@ -31,9 +31,10 @@ def admins_only(fn):
         if not session.get('is_authenticated'):
             return redirect(url_for('login', next=request.url))
         unix_name = session.get('unix_name')
-        profile = connect.get_user_profile(unix_name)
-        role = profile['role'] if profile else 'nonmember'
-        if role == 'admin':
-            return fn(*args, **kwargs)
+        if unix_name:
+            profile = connect.get_user_profile(unix_name)
+            role = profile['role'] if profile else 'nonmember'
+            if role == 'admin':
+                return fn(*args, **kwargs)
         return render_template('404.html')
     return decorated_function
