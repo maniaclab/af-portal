@@ -18,16 +18,16 @@
                         <input type="text" class="form-control" name="unix_name" required>
                     </div>
                     <div class="mb-2">
-                        <label for="phone" class="form-label">Phone <span class="asterisk">*</span></label>
-                        <input type="text" class="form-control" name="phone" required>
-                    </div>
-                    <div class="mb-2">
                         <label for="name" class="form-label">Institution <span class="asterisk">*</span></label>
                         <input type="text" class="form-control" name="institution" value="{{ session['institution'] }}" required>
                     </div>
                     <div class="mb-2">
                         <label for="email" class="form-label">Email <span class="asterisk">*</span> (please use institutional email)</label>
                         <input type="text" class="form-control" name="email" value="{{ session['email'] }}" required>
+                    </div>
+                    <div class="mb-2">
+                        <label for="phone" class="form-label">Phone <span class="asterisk">*</span></label>
+                        <input type="text" class="form-control" name="phone" required>
                     </div>
                     <div class="mb-4">
                         <label for="public_key" class="form-label">SSH public key</label>

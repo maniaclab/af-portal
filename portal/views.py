@@ -110,6 +110,8 @@ def profile():
 @app.route('/profile/create', methods=['GET', 'POST'])
 @auth.login_required
 def create_profile():
+    if session.get('unix_name', None):
+        return redirect(url_for('profile'))
     if request.method == 'GET':
         return render_template('create_profile.html')
     if request.method == 'POST':
@@ -121,8 +123,7 @@ def create_profile():
             phone = request.form['phone'].strip()
             institution = request.form['institution'].strip()
             public_key = request.form['public_key'].strip()
-            if connect.create_user_profile(globus_id=globus_id, unix_name=unix_name, name=name, email=email,
-                    phone=phone, institution=institution, public_key=public_key):
+            if connect.create_user_profile(globus_id=globus_id, unix_name=unix_name, name=name, email=email, phone=phone, institution=institution, public_key=public_key):
                 session.update(unix_name=unix_name, name=name, phone=phone, email=email, institution=institution)
                 connect.update_user_group_status(unix_name, 'root.atlas-af', 'pending')
                 flash('Successfully created profile', 'success')
