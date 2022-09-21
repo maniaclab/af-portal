@@ -110,8 +110,6 @@ def profile():
 @app.route('/profile/create', methods=['GET', 'POST'])
 @auth.login_required
 def create_profile():
-    if session.get('unix_name', None):
-        return redirect(url_for('profile'))
     if request.method == 'GET':
         return render_template('create_profile.html')
     if request.method == 'POST':

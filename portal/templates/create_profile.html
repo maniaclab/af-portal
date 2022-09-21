@@ -15,7 +15,7 @@
                     </div>
                     <div class="mb-2">
                         <label for="name" class="form-label">Unix name <span class="asterisk">*</span></label>
-                        <input type="text" class="form-control" name="unix_name" required>
+                        <input type="text" class="form-control" name="unix_name" id="unix_name" required>
                     </div>
                     <div class="mb-2">
                         <label for="name" class="form-label">Institution <span class="asterisk">*</span></label>
@@ -86,4 +86,14 @@
         </div>
     </div>
 </section>
+<script type="text/javascript">
+$(document).ready(function() {
+    $("#unix_name").on("keydown", function(event) {
+        if (!/[a-zA-Z0-9._-]/.test(event.key)) {
+            event.preventDefault();
+            event.returnValue = false;
+        }
+    });
+});
+</script>
 {% endblock %}
