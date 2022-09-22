@@ -301,7 +301,7 @@ def get_user_profiles():
         return jsonify(users=users)
     except Exception as err:
         logger.error(str(err))
-        return jsonify(error='There was an error getting user profiles.')
+        return jsonify(users=[], error='There was an error getting user profiles.')
 
 @app.route('/admin/plot_users_over_time')
 @auth.admins_only
@@ -342,7 +342,7 @@ def get_group_members(group_name):
         return jsonify(members=profiles)
     except Exception as err:
         logger.error(str(err))
-        return jsonify(error='There was an error getting member profiles.')
+        return jsonify(members=[], error='There was an error getting member profiles.')
 
 @app.route('/admin/get_group_member_requests/<group_name>')
 @auth.admins_only
