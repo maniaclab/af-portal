@@ -88,13 +88,13 @@
     </div>
 </section>
 <script type="text/javascript">
-    $(document).ready(function() {
-        $("#email").on("keypress", function(event) {
-            if (event.keyCode == 32) {
-                event.preventDefault();
-                event.returnValue = false;
-            }
-        });
+$(document).ready(function() {
+    $("#email").on("keypress", function(event) {
+        if (event.keyCode == 32) {
+            event.preventDefault();
+            event.returnValue = false;
+        }
     });
-    </script>
+});
+</script>
 {% endblock %}
