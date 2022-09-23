@@ -56,6 +56,7 @@ def login():
             user = connect.find_user(session['globus_id'])
             if user:
                 session['unix_name'] = user['unix_name']
+                session['unix_id'] = user['unix_id']
                 profile = connect.get_user_profile(session['unix_name'])
                 session['role'] = profile['role'] if profile else 'nonmember'
             return redirect(url_for('home'))
@@ -224,6 +225,9 @@ def deploy_notebook():
         notebook['notebook_id'] = notebook['notebook_name'].lower()
         notebook['image'] = request.form['image']
         notebook['owner'] = session['unix_name']
+        notebook['owner_uid'] = session['unix_id']
+        notebook['connect_group'] = "atlas-af"
+        notebook['connect_gid'] = connect.get_group_gid("atlas-af")
         notebook['globus_id'] = session['globus_id']
         notebook['cpu_request'] = int(request.form['cpu'])
         notebook['memory_request'] = int(request.form['memory'])

@@ -220,3 +220,10 @@ def delete_group(group_name):
             return True
         logger.error('Unable to remove group %s' %group_name)
     return False
+
+
+def get_group_gid(group_name):
+    resp = requests.get(base_url + "/v1alpha/groups/" + group_name, params=params)
+    if resp.status_code != requests.codes.ok:
+        raise Exception("Error getting group %s" % group_name)
+    subgroups = resp.json()["metadata"]["unix_id"]

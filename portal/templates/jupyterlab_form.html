@@ -108,7 +108,16 @@
                                 <option value="hub.opensciencegrid.org/usatlas/ml-platform:conda">ml-platform:conda</option>
                                 <option value="hub.opensciencegrid.org/usatlas/ml-platform:julia">ml-platform:julia</option>
                                 <option value="hub.opensciencegrid.org/usatlas/ml-platform:lava">ml-platform:lava</option>
+                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:lava">ml-platform:centos7-experimental</option>
                             </select>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-sm-4">
+                            <label for="cvmfs" class="form-label my-2">Include ATLAS CVMFS</label>
+                        </div>
+                        <div class="col-sm-8">
+                            <input type="checkbox" name="cvmfs" class="form-control col" required/>
                         </div>
                     </div>
                     <button class="btn btn-sm btn-primary" type="submit" :disabled="!valid" onclick="loader(true)">Create notebook</button>

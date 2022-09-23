@@ -48,13 +48,13 @@ def start_notebook_maintenance():
     logger.info('Started notebook maintenance')
 
 # The main interface of the module
-def deploy_notebook(notebook_id, notebook_name, image, owner, globus_id, 
+def deploy_notebook(notebook_id, notebook_name, image, owner, owner_uid, connect_group, connect_gid, globus_id, cvmfs,
                     cpu_request, memory_request, gpu_request, cpu_limit, memory_limit, gpu_limit, 
                     gpu_memory, hours_remaining):
     validate(notebook_name, image, cpu_request, memory_request, gpu_request, cpu_limit, memory_limit, gpu_limit, gpu_memory)
     token_bytes = os.urandom(32)
     token = b64encode(token_bytes).decode()
-    create_pod(notebook_id, notebook_name, image, owner, globus_id, 
+    create_pod(notebook_id, notebook_name, image, owner, owner_uid, connect_group, connect_gid, globus_id, cvmfs,
                 cpu_request, memory_request, gpu_request, cpu_limit, memory_limit, gpu_limit, gpu_memory, 
                 hours_remaining, token)
     create_service(notebook_id, image)
