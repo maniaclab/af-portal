@@ -320,8 +320,10 @@ def kibana_admin():
         notebooks = jupyterlab.get_notebooks()
         return render_template('kibana_admin.html', notebooks=notebooks)
     except Exception as err:
+        logger.error('There was an error retrieving notebooks.')
         logger.error(str(err))
-        return render_template('500.html')
+        flash('There was an error retrieving notebooks.', 'warning')
+        return render_template('kibana_admin.html', notebooks=[], error=True)
 
 @app.route('/admin/groups/<group_name>')
 @auth.admins_only
