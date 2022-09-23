@@ -522,5 +522,5 @@ def internal_server_error(e):
 
 @app.after_request
 def add_header(response):
-    response.cache_control.max_age = 3600
+    response.cache_control.max_age = 0
     return response
