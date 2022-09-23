@@ -32,8 +32,12 @@ spec:
           key: token
     - name: OWNER
       value: {{owner}}
+    - name: OWNER_UID
+      value: "{{owner_uid}}"
     - name: CONNECT_GROUP
-      value: atlas-af
+      value: {{connect_group}}
+    - name: CONNECT_GID
+      value: "{{connect_gid}}"
     image: {{image}}
     imagePullPolicy: Always
     ports:
@@ -53,8 +57,18 @@ spec:
       - name: ceph-data
         mountPath: /data
         subPath: data
+      {% if cvmfs %}
+      - name: cvmfs
+        mountPath: /cvmfs
+        mountPropagation: HostToContainer
+      {% endif %}
   restartPolicy: Always
   volumes:
+    {% if cvmfs %}
+    - name: cvmfs
+      hostPath:
+        path: /cvmfs
+    {% endif %}
     - name: nfs-home
       nfs: 
         server: nfs.af.uchicago.edu
