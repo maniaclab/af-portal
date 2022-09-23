@@ -1,23 +1,8 @@
-# Flask is our web framework.
-Flask                       
-
-# This package integrates WTForms with Flask. We use flask_wtf for its CSRF protection feature.
-flask_wtf   
-
-# This package adds a Markdown extension to our Jinja environment, which allows us to write Markdown in our templates.
-jinja2_markdown             
-
-# We use the Globus Python SDK to authenticate users based on their institutional login or their Globus ID.         
-globus-sdk==1.7.1 
-
-# This package is a Python binding for the Kubernetes client, which has an interface similar to kubectl.
-kubernetes   
-
-# This package has functions that let us parse YAML files into Python objects.
-pyyaml                      
-
-# We use Matplotlib for data visualization.          
-matplotlib                  
-
-# We use Pandas because it has some utility functions that we use in combination with Matplotlib. 
-pandas                     
+Flask               # Flask is our web framework.                    
+flask_wtf           # We use flask_wtf for its CSRF protection feature
+jinja2_markdown     # This Jinja extension lets us write Markdown in our templates.              
+globus-sdk==1.7.1   # Lets us authenticate users based on their institutional login or their Globus ID.
+kubernetes          # A Python binding for the Kubernetes client. It is a lot like kubectl.   
+pyyaml              # Lets us parse YAML files into Python dictionaries.                             
+matplotlib          # We use Matplotlib for data visualization.                  
+pandas              # We use pandas because it has some useful functions for working with data.                  
