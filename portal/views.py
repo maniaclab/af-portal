@@ -519,3 +519,8 @@ def not_found(e):
 @app.errorhandler(500)
 def internal_server_error(e):
     return render_template('500.html')
+
+@app.after_request
+def add_header(response):
+    response.cache_control.max_age = 0
+    return response
