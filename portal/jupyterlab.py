@@ -68,22 +68,25 @@ def get_notebooks(owner=None):
     label_selector = 'k8s-app in (jupyterlab, privatejupyter),owner=%s' %owner if owner else 'k8s-app in (jupyterlab, privatejupyter)'
     pods = api.list_namespaced_pod(namespace, label_selector=label_selector).items 
     for pod in pods:
-        notebook = dict()
-        notebook['id'] = pod.metadata.name
-        notebook['name'] = pod.metadata.labels.get('notebook-name') or pod.metadata.labels.get('display-name')
-        notebook['namespace'] = namespace
-        notebook['owner'] = pod.metadata.labels.get('owner')
-        notebook['status'] = get_notebook_status(pod)
-        notebook['pod_status'] = pod.status.phase
-        notebook['conditions'] = get_conditions(pod)
-        notebook['requests'] = get_requests(pod)
-        notebook['limits'] = get_limits(pod)
-        notebook['gpu'] = get_basic_gpu_info(pod)
-        notebook['url'] = get_url(pod)
-        notebook['creation_date'] = pod.metadata.creation_timestamp.isoformat()
-        notebook['expiration_date'] = get_expiration_date(pod).isoformat()
-        notebook['hours_remaining'] = get_hours_remaining(pod)
-        notebooks.append(notebook)
+        try:
+            notebook = dict()
+            notebook['id'] = pod.metadata.name
+            notebook['name'] = pod.metadata.labels.get('notebook-name') or pod.metadata.labels.get('display-name')
+            notebook['namespace'] = namespace
+            notebook['owner'] = pod.metadata.labels.get('owner')
+            notebook['status'] = get_notebook_status(pod)
+            notebook['pod_status'] = pod.status.phase
+            notebook['conditions'] = get_conditions(pod)
+            notebook['requests'] = get_requests(pod)
+            notebook['limits'] = get_limits(pod)
+            notebook['gpu'] = get_basic_gpu_info(pod)
+            notebook['url'] = get_url(pod)
+            notebook['creation_date'] = pod.metadata.creation_timestamp.isoformat()
+            notebook['expiration_date'] = get_expiration_date(pod).isoformat()
+            notebook['hours_remaining'] = get_hours_remaining(pod)
+            notebooks.append(notebook)
+        except Exception as err:
+            logger.error('Error adding notebook %s to notebook array.\n%s' %(pod.metadata.name, str(err)))
     return notebooks
 
 def get_notebook(notebook_name):
