@@ -1,8 +1,8 @@
-from portal import app, auth, logger, connect, jupyterlab, admin
+from portal import app, auth, logger, connect, jupyterlab, admin, forms
+from portal.forms import InvalidFormError
 from flask import session, request, render_template, url_for, redirect, jsonify, flash
 import globus_sdk
 from urllib.parse import urlparse, urljoin
-from portal.jupyterlab import InvalidNotebookError
 
 @app.route('/')
 def home():
@@ -217,6 +217,7 @@ def configure_notebook():
 
 @app.route('/jupyterlab/deploy', methods=['POST'])
 @auth.members_only
+@forms.valid_notebook
 def deploy_notebook():
     try:
         notebook = dict()
@@ -234,7 +235,7 @@ def deploy_notebook():
         notebook['gpu_memory'] = int(request.form['gpu-memory'])
         notebook['hours_remaining'] = int(request.form['duration'])
         jupyterlab.deploy_notebook(**notebook)
-    except InvalidNotebookError as err:
+    except InvalidFormError as err:
         flash(str(err), 'warning')
         return redirect(url_for('configure_notebook'))
     return redirect(url_for('open_jupyterlab'))

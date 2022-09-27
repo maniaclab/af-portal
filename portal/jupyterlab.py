@@ -1,5 +1,5 @@
-# This module supports the JupyterLab service
-# It has a main interface near the top, and helper functions below the main interface
+# This module supports the JupyterLab service.
+# It has a main interface near the top, and helper functions below the main interface.
 
 import yaml
 import time
@@ -7,7 +7,6 @@ import datetime
 import threading
 import os
 import re
-import string
 import urllib
 from base64 import b64encode
 from datetime import timezone
@@ -16,9 +15,6 @@ from kubernetes import client, config
 from portal import app, logger
 
 namespace = app.config['NAMESPACE']
-
-class InvalidNotebookError(Exception):
-    pass
 
 @app.before_first_request
 def load_kube_config():
@@ -51,9 +47,7 @@ def start_notebook_maintenance():
 def deploy_notebook(notebook_id, notebook_name, image, owner, globus_id, 
                     cpu_request, memory_request, gpu_request, cpu_limit, memory_limit, gpu_limit, 
                     gpu_memory, hours_remaining):
-    validate(notebook_name, image, cpu_request, memory_request, gpu_request, cpu_limit, memory_limit, gpu_limit, gpu_memory)
-    token_bytes = os.urandom(32)
-    token = b64encode(token_bytes).decode()
+    token = b64encode(os.urandom(32)).decode()
     create_pod(notebook_id, notebook_name, image, owner, globus_id, 
                 cpu_request, memory_request, gpu_request, cpu_limit, memory_limit, gpu_limit, gpu_memory, 
                 hours_remaining, token)
@@ -146,11 +140,8 @@ def generate_notebook_name(owner):
     return None
 
 def supported_images():
-    return [
-        'hub.opensciencegrid.org/usatlas/ml-platform:latest',
-        'hub.opensciencegrid.org/usatlas/ml-platform:conda',
-        'hub.opensciencegrid.org/usatlas/ml-platform:julia',
-        'hub.opensciencegrid.org/usatlas/ml-platform:lava']
+    return ['hub.opensciencegrid.org/usatlas/ml-platform:latest', 'hub.opensciencegrid.org/usatlas/ml-platform:conda',
+            'hub.opensciencegrid.org/usatlas/ml-platform:julia', 'hub.opensciencegrid.org/usatlas/ml-platform:lava']
 
 def get_gpus():
     gpus = dict()
@@ -193,31 +184,6 @@ def get_gpu(memory):
                 gpu['available'] -= int(requests.get('nvidia.com/gpu', 0))
                 gpu['available'] = max(gpu['available'], 0)
     return gpu
-
-def validate(notebook_name, image, cpu_request, memory_request, gpu_request, cpu_limit, memory_limit, gpu_limit, gpu_memory):
-    if ' ' in notebook_name:
-        raise InvalidNotebookError('The notebook name cannot have any whitespace.')
-    if len(notebook_name) > 30:
-        raise InvalidNotebookError('The notebook name cannot exceed 30 characters.')
-    k8s_charset = set(string.ascii_lowercase + string.ascii_uppercase + string.digits + '_' + '-' + '.')
-    if not set(notebook_name) <= k8s_charset:
-        raise InvalidNotebookError('Valid characters are [a-zA-Z0-9._-]')
-    if not notebook_name_available(notebook_name):
-        raise InvalidNotebookError('The name %s is already taken.' %notebook_name)   
-    if image not in supported_images():
-        raise InvalidNotebookError('Docker image %s is not supported.' %image)
-    if cpu_request < 1 or cpu_request > 4:
-        raise InvalidNotebookError('The request of %d CPUs is outside the bounds [1, 4].' %cpu_request)
-    if memory_request < 0 or memory_request > 16:
-        return InvalidNotebookError('The request of %d GB is outside the bounds [1, 16].' %memory_request)
-    if gpu_request < 0 or gpu_request > 7:
-        raise InvalidNotebookError('The request of %d GPUs is outside the bounds [0, 7].' %gpu_request)
-    gpu = get_gpu(gpu_memory)
-    if not gpu:
-        raise InvalidNotebookError('The GPU product is not supported')
-    if gpu['available'] < gpu_request:
-        str = 'instance' if gpu_request == 1 else 'instances'
-        raise InvalidNotebookError('The %s has only %s %s available.' %(gpu['product'], gpu_request, str))
 
 def get_pod(pod_name):
     api = client.CoreV1Api()
