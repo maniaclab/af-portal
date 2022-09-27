@@ -75,8 +75,8 @@
                     </div>
                 </div>
             </div>
-            <div class="tab-pane fade" id="members" role="tabpanel" aria-labelledby="members-tab">
-                <table id="members-table" class="table nowrap w-100 fs14">
+            <div class="tab-pane fade fs14" id="members" role="tabpanel" aria-labelledby="members-tab">
+                <table id="members-table" class="table nowrap w-100">
                     <thead>
                         <tr>
                             <th>Username</th>
@@ -90,8 +90,8 @@
                     </thead>
                 </table>
             </div>
-            <div class="tab-pane fade" id="member_requests" role="tabpanel" aria-labelledby="member_requests-tab">
-                <table id="member-requests-table" class="table nowrap w-100 fs14">
+            <div class="tab-pane fade fs14" id="member_requests" role="tabpanel" aria-labelledby="member_requests-tab">
+                <table id="member-requests-table" class="table nowrap w-100">
                     <thead>
                         <tr>
                             <th>Username</th>
@@ -105,8 +105,8 @@
                     </thead>
                 </table>
             </div>
-            <div class="tab-pane fade" id="subgroups" role="tabpanel" aria-labelledby="subgroups-tab">
-                <table id="subgroups-table" class="table nowrap w-100 fs14">
+            <div class="tab-pane fade fs14" id="subgroups" role="tabpanel" aria-labelledby="subgroups-tab">
+                <table id="subgroups-table" class="table nowrap w-100">
                     <thead>
                         <tr>
                             <th>Name</th>
@@ -117,8 +117,8 @@
                     </thead>
                 </table>
             </div>
-            <div class="tab-pane fade" id="add_members" role="tabpanel" aria-labelledby="add_members-tab">
-                <table id="potential-members-table" class="table nowrap w-100 fs14">
+            <div class="tab-pane fade fs14" id="add_members" role="tabpanel" aria-labelledby="add_members-tab">
+                <table id="potential-members-table" class="table nowrap w-100">
                     <thead>
                         <tr>
                             <th>Username</th>
@@ -136,7 +136,7 @@
                 <form action="{{ url_for('send_email', group_name=group['name']) }}" id="email">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <div class="mb-3">
-                        <h5>Send an email to the {{ group["display_name"] }} users</h5> 
+                        <h6>Send an email to the {{ group["display_name"] }} users</h6> 
                     </div>
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control" name="subject" id="subject" placeholder="Subject">
