@@ -247,15 +247,6 @@ def create_secret(notebook_id, owner, token):
         token=token))
     api.create_namespaced_secret(namespace=namespace, body=sec)
 
-def create_pvc_if_needed(username):
-    api = client.CoreV1Api()
-    templates = Environment(loader=FileSystemLoader('portal/templates/jupyterlab'))
-    if len(api.list_namespaced_persistent_volume_claim(namespace, label_selector=f'owner={username}').items) == 0:
-        template = templates.get_template('pvc.yaml')
-        pvc = yaml.safe_load(template.render(username=username, namespace=namespace))
-        api.create_namespaced_persistent_volume_claim(namespace=namespace, body=pvc)
-        logger.info('Created persistent volume claim for user %s' %username)
-
 def get_expiration_date(pod):
     creation_date = pod.metadata.creation_timestamp
     duration = pod.metadata.labels['time2delete']
