@@ -1,6 +1,6 @@
 from flask import  session, request, redirect, render_template, url_for
 from functools import wraps
-from portal import connect, logger
+from portal import connect
 
 def login_required(fn):
     @wraps(fn)
