@@ -44,6 +44,6 @@ def valid_notebook(fn):
             if gpu_available == 1:
                 raise InvalidFormError('The %s has only 1 instance available.' %gpu_product)
             if gpu_available > 1:
-                raise InvalidFormError('The %s has only %s instances available.' %(gpu_product, gpu_request))
+                raise InvalidFormError('The %s has only %s instances available.' %(gpu_product, gpu_available))
         return fn(*args, **kwargs)
     return decorated_function
