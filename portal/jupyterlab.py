@@ -1,4 +1,4 @@
-# This module supports the JupyterLab service.
+# This module supports the JupyterLab service
 
 import yaml
 import time
@@ -78,6 +78,7 @@ def start_notebook_maintenance():
 # 'hours_remaining': 168
 # }
 # deploy_notebook(**settings)
+
 def deploy_notebook(**settings):
     settings['namespace'] = namespace
     settings['token'] = b64encode(os.urandom(32)).decode()
