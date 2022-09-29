@@ -1,5 +1,4 @@
 # This module supports the JupyterLab service.
-# It has a main interface near the top, and helper functions below the main interface.
 
 import yaml
 import time
@@ -15,26 +14,6 @@ from kubernetes import client, config
 from portal import app, logger
 
 namespace = app.config['NAMESPACE']
-
-# These are the notebook settings passed to deploy_notebook. All fields are required.
-# Default settings can be overwritten and customized.
-class NotebookSettings(dict):
-    def __init__(self):
-        self['namespace'] = 'af-jupyter'
-        self['notebook_name'] = None
-        self['notebook_id'] = None
-        self['image'] = 'ml-platform:latest'
-        self['owner'] = None
-        self['owner_uid'] = None
-        self['globus_id'] = None
-        self['cpu_request'] = 1
-        self['memory_request'] = '1Gi'
-        self['gpu_request'] = 0
-        self['cpu_limit'] = 2
-        self['memory_limit'] = '2Gi'
-        self['gpu_limit'] = 0
-        self['gpu_memory'] = 4864
-        self['hours_remaining'] = 12
 
 @app.before_first_request
 def load_kube_config():
@@ -63,8 +42,44 @@ def start_notebook_maintenance():
     threading.Thread(target=clean).start()
     logger.info('Started notebook maintenance')
 
-# The main interface of the module
+# The following settings are required by the deploy_notebook method:
+#
+# notebook_name: (string) The display name of the notebook
+# notebook_id: (string) A unique name for the notebook
+# image: (string) The Docker image that will be run in the pod's container
+# owner: (string) The username of the notebook's owner 
+# owner_uid: (integer) The numeric ID of the notebook's owner 
+# globus_id: (string) The Globus ID of the notebook's owner
+# cpu_request: (integer) The number of CPU cores to request from the k8s cluster
+# cpu_limit: (integer) The max number of CPU cores that can be allocated to this pod
+# memory_request: (string) The amount of memory to request from the k8s cluster (e.g. '1Gi')
+# memory_limit: (string) The max amount of memory that can be allocated to this pod
+# gpu_request: (integer) The number of GPU instances to request from the k8s cluster
+# gpu_limit: (integer) The max number of GPU instances that can be allocated to this pod
+# gpu_memory: (integer) Selects a GPU product based on its memory, in megabytes (e.g. 4864)
+# hours_remaining: (integer) The duration of the notebook in hours
+#
+# Example:
+#
+# settings = {
+# 'notebook_name': 'MyNotebook',
+# 'notebook_id': 'mynotebook',
+# 'image': 'ml-platform:latest',
+# 'owner': 'myusername',
+# 'owner_uid': 2468,
+# 'globus_id': 'alphanumeric string with hyphens',
+# 'cpu_request': 1,
+# 'cpu_limit': 2,
+# 'memory_request': '1Gi',
+# 'memory_limit': '2Gi',
+# 'gpu_request': 1,
+# 'gpu_limit': 1,
+# 'gpu_memory': 4864,
+# 'hours_remaining': 168
+# }
+# deploy_notebook(**settings)
 def deploy_notebook(**settings):
+    settings['namespace'] = namespace
     settings['token'] = b64encode(os.urandom(32)).decode()
     create_pod(**settings)
     create_service(**settings)
@@ -206,7 +221,6 @@ def get_pod(pod_name):
     api = client.CoreV1Api()
     return api.read_namespaced_pod(name=pod_name, namespace=namespace)
 
-# Helper functions
 def create_pod(**settings):
     api = client.CoreV1Api()
     templates = Environment(loader=FileSystemLoader('portal/templates/jupyterlab'))

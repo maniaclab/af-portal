@@ -221,7 +221,7 @@ def configure_notebook():
 @forms.valid_notebook
 def deploy_notebook():
     try:
-        settings = jupyterlab.NotebookSettings()
+        settings = dict()
         settings['notebook_name'] = request.form['notebook-name'].strip()
         settings['notebook_id'] = settings['notebook_name'].lower()
         settings['image'] = request.form['image']
