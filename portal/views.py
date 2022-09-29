@@ -1,5 +1,4 @@
 from portal import app, auth, logger, connect, jupyterlab, admin, forms
-from portal.forms import InvalidFormError
 from flask import session, request, render_template, url_for, redirect, jsonify, flash
 import globus_sdk
 from urllib.parse import urlparse, urljoin
@@ -55,13 +54,14 @@ def login():
             )
             user = connect.find_user(session['globus_id'])
             if user:
-                session['unix_name'] = user['unix_name']
-                profile = connect.get_user_profile(session['unix_name'])
+                profile = connect.get_user_profile(user['unix_name'])
+                session['unix_name'] = profile['unix_name']
+                session['unix_id'] = profile['unix_id']
                 session['role'] = profile['role'] if profile else 'nonmember'
             return redirect(url_for('home'))
     except Exception as err:
         logger.error(str(err))
-        return render_template('500.html')
+        return render_template('500.html', error_message='There was an error attempting to login.')
 
 @app.route('/logout')
 @auth.login_required
@@ -76,7 +76,7 @@ def logout():
         return redirect(globus_logout_url)
     except Exception as err:
         logger.error(str(err))
-        return render_template('500.html')
+        return render_template('500.html', error_message='There was an error attempting to logout.')
 
 def is_safe_redirect_url(target):
   host_url = urlparse(request.host_url)
@@ -104,7 +104,7 @@ def profile():
         return render_template('create_profile.html')
     except Exception as err:
         logger.error(str(err))
-        return render_template('500.html')
+        return render_template('500.html', error_message='There was an error retrieving the user profile.')
 
 @app.route('/profile/create', methods=['GET', 'POST'])
 @auth.login_required
@@ -182,7 +182,8 @@ def request_membership(unix_name):
         return redirect(url_for('profile'))
     except Exception as err:
         logger.error(str(err))
-        return render_template('500.html')
+        flash('Error requesting membership in the ATLAS Analysis Facility group', 'warning')
+        return redirect(url_for('profile'))
 
 @app.route('/aup')
 def aup():
@@ -213,30 +214,32 @@ def configure_notebook():
         return render_template('jupyterlab_form.html', notebook_name=notebook_name)
     except Exception as err:
         logger.error(str(err))
-        return render_template('500.html')
+        return render_template('jupyterlab_form.html', notebook_name=None)
 
 @app.route('/jupyterlab/deploy', methods=['POST'])
 @auth.members_only
 @forms.valid_notebook
 def deploy_notebook():
     try:
-        notebook = dict()
-        notebook['notebook_name'] = request.form['notebook-name'].strip()
-        notebook['notebook_id'] = notebook['notebook_name'].lower()
-        notebook['image'] = request.form['image']
-        notebook['owner'] = session['unix_name']
-        notebook['globus_id'] = session['globus_id']
-        notebook['cpu_request'] = int(request.form['cpu'])
-        notebook['memory_request'] = int(request.form['memory'])
-        notebook['gpu_request'] = int(request.form['gpu'])
-        notebook['cpu_limit'] = notebook['cpu_request'] * 2
-        notebook['memory_limit'] = notebook['memory_request'] * 2
-        notebook['gpu_limit'] = notebook['gpu_request']
-        notebook['gpu_memory'] = int(request.form['gpu-memory'])
-        notebook['hours_remaining'] = int(request.form['duration'])
-        jupyterlab.deploy_notebook(**notebook)
-    except InvalidFormError as err:
-        flash(str(err), 'warning')
+        settings = jupyterlab.NotebookSettings()
+        settings['notebook_name'] = request.form['notebook-name'].strip()
+        settings['notebook_id'] = settings['notebook_name'].lower()
+        settings['image'] = request.form['image']
+        settings['owner'] = session['unix_name']
+        settings['owner_uid'] = session.get('unix_id', -1)
+        settings['globus_id'] = session['globus_id']
+        settings['cpu_request'] = int(request.form['cpu'])
+        settings['memory_request'] = '{}Gi'.format(int(request.form['memory']))
+        settings['gpu_request'] = int(request.form['gpu'])
+        settings['cpu_limit'] = settings['cpu_request'] * 2
+        settings['memory_limit'] = '{}Gi'.format(int(request.form['memory'])*2)
+        settings['gpu_limit'] = settings['gpu_request']
+        settings['gpu_memory'] = int(request.form['gpu-memory'])
+        settings['hours_remaining'] = int(request.form['duration'])
+        jupyterlab.deploy_notebook(**settings)
+    except Exception as err:
+        logger.error(str(err))
+        flash('There was an error deploying the notebook', 'warning')
         return redirect(url_for('configure_notebook'))
     return redirect(url_for('open_jupyterlab'))
 
@@ -261,7 +264,7 @@ def kibana_user():
         return render_template('kibana_user.html', notebooks=notebooks)
     except Exception as err:
         logger.error(str(err))
-        return render_template('500.html')
+        return render_template('500.html', error_message='There was an error retrieving user notebooks.')
 
 @app.route('/admin/notebooks')
 @auth.admins_only
@@ -312,7 +315,7 @@ def plot_users_over_time():
         return render_template('plot_users_over_time.html', base64_encoded_image = data)
     except Exception as err:
         logger.error(str(err))
-        return render_template('500.html')
+        return render_template('500.html', error_message='There was an error generating the graph of user registrations.')
 
 @app.route('/admin/kibana')
 @auth.admins_only
@@ -467,7 +470,7 @@ def edit_group(group_name):
             return redirect(url_for('groups', group_name=group_name))
     except Exception as err:
         logger.error(str(err))
-        return render_template('500.html')
+        return render_template('500.html', error_message='There was an error updating the group information.')
 
 @app.route('/admin/create_subgroup/<group_name>', methods=['GET', 'POST'])
 @auth.admins_only
@@ -493,7 +496,8 @@ def create_subgroup(group_name):
             return redirect(url_for('groups', group_name=group_name))
     except Exception as err:
         logger.error(str(err))
-        return render_template('500.html')
+        flash('Error creating subgroup %s' %subgroup_name, 'warning')
+        return redirect(url_for('groups', group_name=group_name))
 
 @app.route('/admin/delete_group/<group_name>')
 @auth.admins_only
@@ -502,11 +506,12 @@ def delete_group(group_name):
         if connect.delete_group(group_name):
             flash('Deleted group %s' %group_name, 'success')
         else:
-            flash('Error deleting group %s' %group_name, 'warning')
+            flash('Unable to delete group %s' %group_name, 'warning')
         return redirect(url_for('groups', group_name='root.atlas-af'))
     except Exception as err:
         logger.error(str(err))
-        return render_template('500.html')
+        flash('Error deleting group %s' %group_name, 'warning')
+        return redirect(url_for('groups', group_name='root.atlas-af'))
 
 @app.route('/admin/login_nodes')
 @auth.admins_only

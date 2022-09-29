@@ -7,7 +7,7 @@ metadata:
     notebook-name: {{notebook_name}}
     owner: {{owner}}
     globus-id: {{globus_id}}
-    time2delete: ttl-{{hours}}
+    time2delete: ttl-{{hours_remaining}}
   name: {{notebook_id}}
   namespace: {{namespace}}
 spec:
@@ -32,8 +32,12 @@ spec:
           key: token
     - name: OWNER
       value: {{owner}}
+    - name: OWNER_UID
+      value: "{{owner_uid}}"
     - name: CONNECT_GROUP
       value: atlas-af
+    - name: CONNECT_GID
+      value: "5741"
     image: {{image}}
     imagePullPolicy: Always
     ports:
@@ -53,6 +57,9 @@ spec:
       - name: ceph-data
         mountPath: /data
         subPath: data
+      - name: cvmfs
+        mountPath: /cvmfs
+        mountPropagation: HostToContainer
   restartPolicy: Always
   volumes:
     - name: nfs-home
@@ -68,3 +75,6 @@ spec:
         user: admin
         secretRef:
           name: ceph-secret
+    - name: cvmfs
+      hostPath:
+        path: /cvmfs

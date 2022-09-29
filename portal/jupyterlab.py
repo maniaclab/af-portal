@@ -16,6 +16,26 @@ from portal import app, logger
 
 namespace = app.config['NAMESPACE']
 
+# These are the notebook settings passed to deploy_notebook. All fields are required.
+# Default settings can be overwritten and customized.
+class NotebookSettings(dict):
+    def __init__(self):
+        self['namespace'] = 'af-jupyter'
+        self['notebook_name'] = None
+        self['notebook_id'] = None
+        self['image'] = 'ml-platform:latest'
+        self['owner'] = None
+        self['owner_uid'] = None
+        self['globus_id'] = None
+        self['cpu_request'] = 1
+        self['memory_request'] = '1Gi'
+        self['gpu_request'] = 0
+        self['cpu_limit'] = 2
+        self['memory_limit'] = '2Gi'
+        self['gpu_limit'] = 0
+        self['gpu_memory'] = 4864
+        self['hours_remaining'] = 12
+
 @app.before_first_request
 def load_kube_config():
     config_file = app.config.get('KUBECONFIG')
@@ -44,17 +64,13 @@ def start_notebook_maintenance():
     logger.info('Started notebook maintenance')
 
 # The main interface of the module
-def deploy_notebook(notebook_id, notebook_name, image, owner, globus_id, 
-                    cpu_request, memory_request, gpu_request, cpu_limit, memory_limit, gpu_limit, 
-                    gpu_memory, hours_remaining):
-    token = b64encode(os.urandom(32)).decode()
-    create_pod(notebook_id, notebook_name, image, owner, globus_id, 
-                cpu_request, memory_request, gpu_request, cpu_limit, memory_limit, gpu_limit, gpu_memory, 
-                hours_remaining, token)
-    create_service(notebook_id, image)
-    create_ingress(notebook_id, owner, image)
-    create_secret(notebook_id, owner, token)
-    logger.info('Deployed notebook %s' %notebook_name)
+def deploy_notebook(**settings):
+    settings['token'] = b64encode(os.urandom(32)).decode()
+    create_pod(**settings)
+    create_service(**settings)
+    create_ingress(**settings)
+    create_secret(**settings)
+    logger.info('Deployed notebook %s' %settings['notebook_name'])
 
 def get_notebooks(owner=None):
     notebooks = []
@@ -141,7 +157,8 @@ def generate_notebook_name(owner):
 
 def supported_images():
     return ('hub.opensciencegrid.org/usatlas/ml-platform:latest', 'hub.opensciencegrid.org/usatlas/ml-platform:conda', 
-            'hub.opensciencegrid.org/usatlas/ml-platform:julia', 'hub.opensciencegrid.org/usatlas/ml-platform:lava')
+            'hub.opensciencegrid.org/usatlas/ml-platform:julia', 'hub.opensciencegrid.org/usatlas/ml-platform:lava',
+            'hub.opensciencegrid.org/usatlas/ml-platform:centos7-experimental')
 
 def get_gpus():
     gpus = dict()
@@ -190,61 +207,44 @@ def get_pod(pod_name):
     return api.read_namespaced_pod(name=pod_name, namespace=namespace)
 
 # Helper functions
-def create_pod(notebook_id, notebook_name, image, owner, globus_id, 
-                cpu_request, memory_request, gpu_request, cpu_limit, memory_limit, gpu_limit, gpu_memory, 
-                hours_remaining, token):
+def create_pod(**settings):
     api = client.CoreV1Api()
     templates = Environment(loader=FileSystemLoader('portal/templates/jupyterlab'))
     template = templates.get_template('pod.yaml')
-    pod = yaml.safe_load(template.render(
-        notebook_id=notebook_id, 
-        notebook_name=notebook_name,
-        namespace=namespace, 
-        owner=owner,
-        globus_id=globus_id, 
-        token=token, 
-        cpu_request=cpu_request,
-        memory_request=f'{memory_request}Gi',
-        gpu_request=gpu_request,
-        cpu_limit=cpu_limit, 
-        memory_limit=f'{memory_limit}Gi', 
-        gpu_limit=gpu_limit,
-        gpu_memory=gpu_memory,
-        image=image, 
-        hours=hours_remaining))                           
+    pod = yaml.safe_load(template.render(**settings))                           
     api.create_namespaced_pod(namespace=namespace, body=pod)
 
-def create_service(notebook_id, image):
+def create_service(**settings):
     api = client.CoreV1Api()
     templates = Environment(loader=FileSystemLoader('portal/templates/jupyterlab'))
     template = templates.get_template('service.yaml')
     service = yaml.safe_load(template.render(
-        notebook_id=notebook_id,
+        notebook_id=settings['notebook_id'],
         namespace=namespace, 
-        image=image))
+        image=settings['image']))
     api.create_namespaced_service(namespace=namespace, body=service)
 
-def create_ingress(notebook_id, owner, image):
+def create_ingress(**settings):
     api = client.NetworkingV1Api()
     templates = Environment(loader=FileSystemLoader('portal/templates/jupyterlab'))
     template = templates.get_template('ingress.yaml')
     ingress = yaml.safe_load(template.render(
-        notebook_id=notebook_id,
+        notebook_id=settings['notebook_id'],
         namespace=namespace, 
         domain_name=app.config['DOMAIN_NAME'], 
-        owner=owner, 
-        image=image))
+        owner=settings['owner'], 
+        image=settings['image']))
     api.create_namespaced_ingress(namespace=namespace, body=ingress)
 
-def create_secret(notebook_id, owner, token):
+def create_secret(**settings):
     api = client.CoreV1Api()
     templates = Environment(loader=FileSystemLoader('portal/templates/jupyterlab'))
     template = templates.get_template('secret.yaml')
     sec = yaml.safe_load(template.render(
-        notebook_id=notebook_id, 
+        notebook_id=settings['notebook_id'], 
         namespace=namespace, 
-        owner=owner, 
-        token=token))
+        owner=settings['owner'], 
+        token=settings['token']))
     api.create_namespaced_secret(namespace=namespace, body=sec)
 
 def get_expiration_date(pod):

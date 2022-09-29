@@ -6,7 +6,11 @@
 <section>
     <div class="container text-center">
         <h1 class="display-6 my-4">500 Internal Server Error</h1>
-        <p>Sorry, there was an internal server error.</p>
+        {% if error_message %}
+        <p>{{ error_message }}</p>
+        {% else %}
+        <p>Sorry, there was an error.</p>
+        {% endif %}
         <p>Click <a href="{{ url_for('home') }}" class="text-decoration-none">here</a> to go to the home page.</p>
     </div>
 </section>
