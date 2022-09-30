@@ -1,4 +1,5 @@
-# This module supports the JupyterLab service
+# This module supports the JupyterLab service.
+# The main interface is near the top, and below the main interface are helper functions.
 import yaml
 import time
 import datetime
@@ -41,7 +42,9 @@ def start_notebook_maintenance():
     threading.Thread(target=clean).start()
     logger.info('Started notebook maintenance')
 
-# The following settings are required by the deploy_notebook method:
+# Function description: Deploys a Jupyter notebook on our Kubernetes cluster.
+# Function parameters:
+# (All parameters below are required.)
 #
 # notebook_name: (string) The display name of the notebook
 # notebook_id: (string) A unique name for the notebook
@@ -77,7 +80,6 @@ def start_notebook_maintenance():
 # 'hours_remaining': 168
 # }
 # deploy_notebook(**settings)
-
 def deploy_notebook(**settings):
     settings['namespace'] = namespace
     settings['token'] = b64encode(os.urandom(32)).decode()
@@ -87,36 +89,31 @@ def deploy_notebook(**settings):
     create_secret(**settings)
     logger.info('Deployed notebook %s' %settings['notebook_name'])
 
-def get_notebooks(owner=None):
-    notebooks = []
+# Function description: Looks up a notebook by name or by pod. Returns a dict.
+# Function parameters:
+# (Either a name or a pod is required to look up a notebook.)
+#
+# name: (string) The name of the notebook
+# pod: (object) The pod object retrieved with the kubernetes client
+# log: (boolean) When log is True, the function returns the pod log
+# url: (boolean) When url is True, the function returns the notebook URL
+# 
+# Example #1:
+#
+# notebook = get_notebook(name='example-notebook')
+#
+# Example #2:
+#
+# pod = get_pod('example-notebook')
+# notebook = get_notebook(pod=pod)
+#
+# Example #3:
+#
+# notebook = get_notebook(name='example-notebook', log=True, url=True)
+def get_notebook(name=None, pod=None, log=False, url=False):
     api = client.CoreV1Api()
-    label_selector = 'k8s-app in (jupyterlab, privatejupyter),owner=%s' %owner if owner else 'k8s-app in (jupyterlab, privatejupyter)'
-    pods = api.list_namespaced_pod(namespace, label_selector=label_selector).items 
-    for pod in pods:
-        try:
-            notebook = dict()
-            notebook['id'] = pod.metadata.name
-            notebook['name'] = pod.metadata.labels.get('notebook-name') or pod.metadata.labels.get('display-name')
-            notebook['namespace'] = namespace
-            notebook['owner'] = pod.metadata.labels.get('owner')
-            notebook['status'] = get_notebook_status(pod)
-            notebook['pod_status'] = pod.status.phase
-            notebook['conditions'] = get_conditions(pod)
-            notebook['requests'] = get_requests(pod)
-            notebook['limits'] = get_limits(pod)
-            notebook['gpu'] = get_basic_gpu_info(pod)
-            notebook['url'] = get_url(pod)
-            notebook['creation_date'] = pod.metadata.creation_timestamp.isoformat()
-            notebook['expiration_date'] = get_expiration_date(pod).isoformat()
-            notebook['hours_remaining'] = get_hours_remaining(pod)
-            notebooks.append(notebook)
-        except Exception as err:
-            logger.error('Error adding notebook %s to notebook array.\n%s' %(pod.metadata.name, str(err)))
-    return notebooks
-
-def get_notebook(notebook_name):
-    api = client.CoreV1Api()
-    pod = api.read_namespaced_pod(name=notebook_name.lower(), namespace=namespace)
+    if pod is None:
+        pod = api.read_namespaced_pod(name=name.lower(), namespace=namespace)
     notebook = dict()
     notebook['id'] = pod.metadata.name
     notebook['name'] = pod.metadata.labels.get('notebook-name') or pod.metadata.labels.get('display-name')
@@ -124,29 +121,51 @@ def get_notebook(notebook_name):
     notebook['owner'] = pod.metadata.labels.get('owner')
     notebook['image'] = pod.spec.containers[0].image
     notebook['node'] = pod.spec.node_name
+    notebook['node_selector'] = pod.spec.node_selector
     notebook['status'] = get_notebook_status(pod)
     notebook['pod_status'] = pod.status.phase
     notebook['conditions'] = get_conditions(pod)
     notebook['events'] = get_events(pod)
-    notebook['node_selector'] = pod.spec.node_selector
     notebook['requests'] = get_requests(pod)
     notebook['limits'] = get_limits(pod)
     notebook['gpu'] = get_basic_gpu_info(pod)
-    notebook['log'] = api.read_namespaced_pod_log(name=notebook_name.lower(), namespace=namespace)
-    notebook['url'] = get_url(pod)
     notebook['creation_date'] = pod.metadata.creation_timestamp.isoformat()
     notebook['expiration_date'] = get_expiration_date(pod).isoformat()
     notebook['hours_remaining'] = get_hours_remaining(pod)
+    if log:
+        notebook['log'] = api.read_namespaced_pod_log(name=name.lower(), namespace=namespace)
+    if url:
+        notebook['url'] = get_url(pod)
     return notebook
 
+# Function description: Retrieves the notebooks for a specific owner, or for all users. Returns an array of dicts.
+# Function parameters:
+#
+# owner: (string) The username of the owner. When no owner is supplied, the function returns all notebooks for all users.
+def get_notebooks(owner=None):
+    notebooks = []
+    api = client.CoreV1Api()
+    label_selector = 'k8s-app=jupyterlab,owner=%s' %owner if owner else 'k8s-app=jupyterlab'
+    pods = api.list_namespaced_pod(namespace, label_selector=label_selector).items 
+    for pod in pods:
+        try:
+            notebook = get_notebook(pod=pod, url=True)
+            notebooks.append(notebook)
+        except Exception as err:
+            logger.error('Error adding notebook %s to array.' %pod.metadata.name)
+            logger.error(str(err))
+    return notebooks
+
+# Returns a list of the names of all notebooks in the namespace.
 def list_notebooks():
     notebooks = []
     api = client.CoreV1Api()
-    pods = api.list_namespaced_pod(namespace=namespace, label_selector='k8s-app in (jupyterlab, privatejupyter)').items
+    pods = api.list_namespaced_pod(namespace=namespace, label_selector='k8s-app=jupyterlab').items
     for pod in pods:
         notebooks.append(pod.metadata.name)
     return notebooks
 
+# Removes a notebook from the namespace, and all Kubernetes objects associated with the notebook.
 def remove_notebook(notebook_name):
     notebook_id = notebook_name.lower()
     core_v1_api = client.CoreV1Api()
@@ -157,12 +176,14 @@ def remove_notebook(notebook_name):
     core_v1_api.delete_namespaced_secret(notebook_id, namespace)
     logger.info('Removed notebook %s from namespace %s' %(notebook_id, namespace))
 
+# Returns a boolean indicating whether a notebook name is available for use.
 def notebook_name_available(notebook_name):
     notebook_id = notebook_name.lower()
     core_v1_api = client.CoreV1Api()
     pods = core_v1_api.list_namespaced_pod(namespace, label_selector='notebook-id={0}'.format(notebook_id))
     return len(pods.items) == 0
 
+# Returns a default notebook name that is available for use, e.g. testuser-notebook-3.
 def generate_notebook_name(owner):
     for i in range(1, 20):
         notebook_name = f'{owner}-notebook-{i}'
@@ -170,11 +191,13 @@ def generate_notebook_name(owner):
             return notebook_name
     return None
 
+# Returns a tuple of Docker images that are supported by the JupyterLab service.
 def supported_images():
     return ('hub.opensciencegrid.org/usatlas/ml-platform:latest', 'hub.opensciencegrid.org/usatlas/ml-platform:conda', 
             'hub.opensciencegrid.org/usatlas/ml-platform:julia', 'hub.opensciencegrid.org/usatlas/ml-platform:lava',
             'hub.opensciencegrid.org/usatlas/ml-platform:centos7-experimental')
 
+# Returns an array of GPU products and their availability.
 def get_gpus():
     gpus = dict()
     api = client.CoreV1Api()
@@ -197,6 +220,7 @@ def get_gpus():
         gpu['available'] = max(gpu['available'], 0)
     return sorted(gpus.values(), key=lambda gpu : gpu['memory'])
 
+# Looks up a GPU product by its memory size. Returns its product info and availability.
 def get_gpu(memory):
     gpu = dict()
     api = client.CoreV1Api()
@@ -220,6 +244,8 @@ def get_gpu(memory):
 def get_pod(pod_name):
     api = client.CoreV1Api()
     return api.read_namespaced_pod(name=pod_name, namespace=namespace)
+
+# Below are helper functions used by the main interface.
 
 def create_pod(**settings):
     api = client.CoreV1Api()

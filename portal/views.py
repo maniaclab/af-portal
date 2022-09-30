@@ -285,7 +285,7 @@ def list_notebooks():
 @auth.admins_only
 def get_notebook(notebook_name):
     try:
-        notebook = jupyterlab.get_notebook(notebook_name)
+        notebook = jupyterlab.get_notebook(name=notebook_name, log=True)
         return jsonify(notebook=notebook)
     except Exception as err:
         logger.error(str(err))
