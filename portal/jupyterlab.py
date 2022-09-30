@@ -128,15 +128,25 @@ def get_notebook(name=None, pod=None, log=False, url=False):
     notebook['pod_status'] = pod.status.phase
     notebook['conditions'] = get_conditions(pod)
     notebook['events'] = get_events(pod)
-    notebook['requests'] = get_requests(pod)
-    notebook['limits'] = get_limits(pod)
     notebook['gpu'] = get_basic_gpu_info(pod)
     notebook['creation_date'] = pod.metadata.creation_timestamp.isoformat()
     notebook['expiration_date'] = get_expiration_date(pod).isoformat()
     notebook['hours_remaining'] = get_hours_remaining(pod)
-    if log:
+    requests = pod.spec.containers[0].resources.requests
+    notebook['requests'] = {
+        'memory': requests['memory'][:-2] + ' GB',
+        'cpu': int(requests['cpu']),
+        'gpu': int(requests['nvidia.com/gpu'])
+    }
+    limits = pod.spec.containers[0].resources.limits
+    notebook['limits'] = {
+        'memory': limits['memory'][:-2] + ' GB',
+        'cpu': int(limits['cpu']),
+        'gpu': int(limits['nvidia.com/gpu'])
+    }
+    if log is True:
         notebook['log'] = api.read_namespaced_pod_log(name=name.lower(), namespace=namespace)
-    if url:
+    if url is True:
         notebook['url'] = get_url(pod)
     return notebook
 
@@ -156,8 +166,8 @@ def get_notebook(name=None, pod=None, log=False, url=False):
 def get_notebooks(owner=None):
     notebooks = []
     api = client.CoreV1Api()
-    label_selector = 'k8s-app=jupyterlab,owner=%s' %owner if owner else 'k8s-app=jupyterlab'
-    pods = api.list_namespaced_pod(namespace, label_selector=label_selector).items 
+    selector = 'k8s-app=jupyterlab' if owner is None else 'k8s-app=jupyterlab,owner=%s' %owner
+    pods = api.list_namespaced_pod(namespace, label_selector=selector).items 
     for pod in pods:
         try:
             notebook = get_notebook(pod=pod, url=True)
@@ -310,25 +320,8 @@ def get_expiration_date(pod):
 
 def get_hours_remaining(pod):
     exp_date = get_expiration_date(pod)
-    now_date = datetime.datetime.now(timezone.utc)
-    diff = exp_date - now_date
+    diff = exp_date - datetime.datetime.now(timezone.utc)
     return int(diff.total_seconds() / 3600)
-
-def get_requests(pod):
-    requests = pod.spec.containers[0].resources.requests
-    return {
-        'cpu': int(requests.get('cpu', 0)),
-        'memory': requests.get('memory', '0Gi')[:-2] + ' GB',
-        'gpu': int(requests.get('nvidia.com/gpu', 0))
-    }
-
-def get_limits(pod):
-    limits = pod.spec.containers[0].resources.limits
-    return {
-        'cpu': int(limits.get('cpu', 0)),
-        'memory': limits.get('memory', '0Gi')[:-2] + ' GB',
-        'gpu': int(limits.get('nvidia.com/gpu', 0))
-    }
 
 def get_basic_gpu_info(pod):
     if pod.spec.node_name:
