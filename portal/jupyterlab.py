@@ -145,6 +145,14 @@ def get_notebook(name=None, pod=None, log=False, url=False):
 # Function parameters:
 #
 # owner: (string) The username of the owner. When owner is None, the function returns all notebooks for all users.
+#
+# Example #1:
+# 
+# notebooks = get_notebooks(owner='testuser2468') # returns all notebooks for user testuser2468
+#
+# Example #2:
+#
+# notebooks = get_notebooks() # returns all notebooks for all users
 def get_notebooks(owner=None):
     notebooks = []
     api = client.CoreV1Api()
