@@ -374,8 +374,6 @@ def get_url(pod):
     if pod.metadata.deletion_timestamp:
         return None
     notebook_id = pod.metadata.name
-    api = client.NetworkingV1Api()
-    ingress = api.read_namespaced_ingress(notebook_id, namespace)
     api = client.CoreV1Api()
     token = api.read_namespaced_secret(notebook_id, namespace).data['token']
-    return 'https://' + ingress.spec.rules[0].host + '?' + urllib.parse.urlencode({'token': token})
+    return 'https://%s.%s?%s' %(notebook_id, app.config['DOMAIN_NAME'], urllib.parse.urlencode({'token': token}))
