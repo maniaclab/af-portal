@@ -94,7 +94,7 @@ def deploy_notebook(**settings):
 # (Either a name or a pod is required to look up a notebook.)
 #
 # name: (string) The name of the notebook
-# pod: (object) The pod object retrieved with the kubernetes client
+# pod: (object) The pod object returned by the kubernetes client
 # log: (boolean) When log is True, the function returns the pod log
 # url: (boolean) When url is True, the function returns the notebook URL
 # 
