@@ -43,6 +43,7 @@ def start_notebook_maintenance():
     logger.info('Started notebook maintenance')
 
 # Function description: Deploys a Jupyter notebook on our Kubernetes cluster.
+#
 # Function parameters:
 # (All parameters below are required.)
 #
@@ -90,6 +91,7 @@ def deploy_notebook(**settings):
     logger.info('Deployed notebook %s' %settings['notebook_name'])
 
 # Function description: Looks up a notebook by name or by pod. Returns a dict.
+#
 # Function parameters:
 # (Either a name or a pod is required to look up a notebook.)
 #
@@ -139,9 +141,10 @@ def get_notebook(name=None, pod=None, log=False, url=False):
     return notebook
 
 # Function description: Retrieves the notebooks for a specific owner, or for all users. Returns an array of dicts.
+#
 # Function parameters:
 #
-# owner: (string) The username of the owner. When no owner is supplied, the function returns all notebooks for all users.
+# owner: (string) The username of the owner. When owner is None, the function returns all notebooks for all users.
 def get_notebooks(owner=None):
     notebooks = []
     api = client.CoreV1Api()
