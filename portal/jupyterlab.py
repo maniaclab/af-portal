@@ -316,23 +316,19 @@ def get_hours_remaining(pod):
 
 def get_requests(pod):
     requests = pod.spec.containers[0].resources.requests
-    if requests:
-        return {
-            'cpu': int(requests.get('cpu', 0)),
-            'memory': requests.get('memory', '0Gi')[:-2] + ' GB',
-            'gpu': int(requests.get('nvidia.com/gpu', 0))
-        }
-    return None
+    return {
+        'cpu': int(requests.get('cpu', 0)),
+        'memory': requests.get('memory', '0Gi')[:-2] + ' GB',
+        'gpu': int(requests.get('nvidia.com/gpu', 0))
+    }
 
 def get_limits(pod):
     limits = pod.spec.containers[0].resources.limits
-    if limits:
-        return {
-            'cpu': int(limits.get('cpu', 0)),
-            'memory': limits.get('memory', '0Gi')[:-2] + ' GB',
-            'gpu': int(limits.get('nvidia.com/gpu', 0))
-        }
-    return None
+    return {
+        'cpu': int(limits.get('cpu', 0)),
+        'memory': limits.get('memory', '0Gi')[:-2] + ' GB',
+        'gpu': int(limits.get('nvidia.com/gpu', 0))
+    }
 
 def get_basic_gpu_info(pod):
     if pod.spec.node_name:
