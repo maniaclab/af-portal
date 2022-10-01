@@ -32,8 +32,8 @@ def valid_notebook(fn):
                 raise InvalidFormError('Docker image %s is not supported.' %image)
             if cpu_request < 1 or cpu_request > 4:
                 raise InvalidFormError('The request of %d CPUs is outside the bounds [1, 4].' %cpu_request)
-            if memory_request < 0 or memory_request > 16:
-                raise InvalidFormError('The request of %d GB is outside the bounds [1, 16].' %memory_request)
+            if memory_request < 0 or memory_request > 32:
+                raise InvalidFormError('The request of %d GB is outside the bounds [1, 32].' %memory_request)
             if gpu_request < 0 or gpu_request > 7:
                 raise InvalidFormError('The request of %d GPUs is outside the bounds [0, 7].' %gpu_request)
             gpu = jupyterlab.get_gpu(gpu_memory_request)

@@ -132,18 +132,8 @@ def get_notebook(name=None, pod=None, log=False, url=False):
     notebook['creation_date'] = pod.metadata.creation_timestamp.isoformat()
     notebook['expiration_date'] = get_expiration_date(pod).isoformat()
     notebook['hours_remaining'] = get_hours_remaining(pod)
-    requests = pod.spec.containers[0].resources.requests
-    notebook['requests'] = {
-        'memory': requests['memory'][:-2] + ' GB',
-        'cpu': int(requests['cpu']),
-        'gpu': int(requests['nvidia.com/gpu'])
-    }
-    limits = pod.spec.containers[0].resources.limits
-    notebook['limits'] = {
-        'memory': limits['memory'][:-2] + ' GB',
-        'cpu': int(limits['cpu']),
-        'gpu': int(limits['nvidia.com/gpu'])
-    }
+    notebook['requests'] = get_requests(pod)
+    notebook['limits'] = get_limits(pod)
     if log is True:
         notebook['log'] = api.read_namespaced_pod_log(name=name.lower(), namespace=namespace)
     if url is True:
@@ -323,6 +313,22 @@ def get_hours_remaining(pod):
     exp_date = get_expiration_date(pod)
     diff = exp_date - datetime.datetime.now(timezone.utc)
     return int(diff.total_seconds() / 3600)
+
+def get_requests(pod):
+    requests = pod.spec.containers[0].resources.requests
+    return {
+        'memory': requests['memory'][:-2] + ' GB',
+        'cpu': int(requests['cpu']),
+        'gpu': int(requests['nvidia.com/gpu'])
+    }
+
+def get_limits(pod):
+    limits = pod.spec.containers[0].resources.limits
+    return {
+        'memory': limits['memory'][:-2] + ' GB',
+        'cpu': int(limits['cpu']),
+        'gpu': int(limits['nvidia.com/gpu'])
+    }
 
 def get_basic_gpu_info(pod):
     if pod.spec.node_name:
