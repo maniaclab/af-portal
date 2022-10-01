@@ -126,8 +126,8 @@ def deploy_notebook(**settings):
 #
 # name: (string) The name of the notebook
 # pod: (object) The pod object returned by the kubernetes client
-# log: (boolean) When log is True, the function returns the pod log
-# url: (boolean) When url is True, the function returns the notebook URL
+# log: (boolean) When log is True, the pod log is included in the dict that gets returned
+# url: (boolean) When url is True, the notebook URL is included in the dict that gets returned
 # 
 # Example #1:
 #
