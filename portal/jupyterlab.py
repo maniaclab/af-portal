@@ -107,7 +107,7 @@ def start_notebook_maintenance():
     threading.Thread(target=clean).start()
     logger.info('Started notebook maintenance')
 
-# Function description: Deploys a Jupyter notebook on our Kubernetes cluster.
+# Deploys a Jupyter notebook on our Kubernetes cluster.
 #
 # Function parameters:
 # (All parameters below are required.)
@@ -151,7 +151,7 @@ def deploy_notebook(**settings):
     api.create_namespaced_ingress(namespace=namespace, body=ingress)
     logger.info('Deployed notebook %s' %settings['notebook_name'])
 
-# Function description: Looks up a notebook by name or by pod. Returns a dict.
+# Looks up a notebook by name or by pod. Returns a dict.
 #
 # Function parameters:
 # (Either a name or a pod is required to look up a notebook.)
@@ -188,7 +188,7 @@ def get_notebook(name=None, pod=None, log=False, url=False):
         notebook['url'] = get_url(pod)
     return notebook
 
-# Function description: Retrieves the notebooks for a specific owner, or for all users. Returns an array of dicts.
+# Retrieves a user's notebooks, or the notebooks for all users. Returns an array of dicts.
 #
 # Function parameters:
 #
@@ -271,7 +271,7 @@ def get_gpus():
         gpu['available'] = max(gpu['available'], 0)
     return sorted(gpus.values(), key=lambda gpu : gpu['memory'])
 
-# Looks up a GPU product by its memory size. Returns its product info and availability.
+# Looks up a GPU product by its memory size. Returns a dict containing its product info and availability.
 def get_gpu(memory):
     gpu = dict()
     api = client.CoreV1Api()
