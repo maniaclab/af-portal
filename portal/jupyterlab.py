@@ -1,5 +1,18 @@
-# This module supports the JupyterLab service.
-# The main interface is near the top, and below the main interface are helper functions.
+# This module supports the JupyterLab service
+# 
+# Functionality:
+# 1. The deploy_notebook method lets a user deploy a notebook onto our Kubernetes cluster
+# 2. The get_notebook function lets a user get data for a single notebook
+# 3. The get_notebooks function lets a user get data for all of a user's notebooks
+# 4. The remove_notebook function lets a user remove a notebook
+# 5. The list_notebook function returns a list of the names of all currently running notebooks
+# 6. The get_gpus function returns GPU info for all of our GPU products
+#
+# Before the first HTTP request is processed, the module loads the kubeconfig file specified in portal.conf,
+# and it also starts a notebook maintenance thread for removing expired notebooks.
+#
+# Near the end of the file are helper functions used by the get_notebook function to extract notebook data.
+# The main interface of the module is near the top.
 import yaml
 import time
 import datetime
@@ -83,11 +96,27 @@ def start_notebook_maintenance():
 # deploy_notebook(**settings)
 def deploy_notebook(**settings):
     settings['namespace'] = namespace
+    settings['domain_name'] = app.config['DOMAIN_NAME']
     settings['token'] = b64encode(os.urandom(32)).decode()
-    create_pod(**settings)
-    create_service(**settings)
-    create_ingress(**settings)
-    create_secret(**settings)
+    templates = Environment(loader=FileSystemLoader('portal/templates/jupyterlab'))
+    api = client.CoreV1Api()
+    # Create a pod for the notebook (the notebook runs as a container inside the pod)
+    template = templates.get_template('pod.yaml')
+    pod = yaml.safe_load(template.render(**settings))  
+    api.create_namespaced_pod(namespace=namespace, body=pod)
+    # Create a service for the pod
+    template = templates.get_template('service.yaml')
+    service = yaml.safe_load(template.render(**settings))
+    api.create_namespaced_service(namespace=namespace, body=service)
+    # Store the JupyterLab token in a secret
+    template = templates.get_template('secret.yaml')
+    secret = yaml.safe_load(template.render(**settings))
+    api.create_namespaced_secret(namespace=namespace, body=secret)
+    # Create an ingress for the service (gives the notebook its own domain name and public key certificate)
+    api = client.NetworkingV1Api()
+    template = templates.get_template('ingress.yaml')
+    ingress = yaml.safe_load(template.render(**settings))
+    api.create_namespaced_ingress(namespace=namespace, body=ingress)
     logger.info('Deployed notebook %s' %settings['notebook_name'])
 
 # Function description: Looks up a notebook by name or by pod. Returns a dict.
@@ -257,47 +286,8 @@ def get_pod(pod_name):
     api = client.CoreV1Api()
     return api.read_namespaced_pod(name=pod_name, namespace=namespace)
 
-# Below are helper functions used by the main interface.
-
-def create_pod(**settings):
-    api = client.CoreV1Api()
-    templates = Environment(loader=FileSystemLoader('portal/templates/jupyterlab'))
-    template = templates.get_template('pod.yaml')
-    pod = yaml.safe_load(template.render(**settings))                           
-    api.create_namespaced_pod(namespace=namespace, body=pod)
-
-def create_service(**settings):
-    api = client.CoreV1Api()
-    templates = Environment(loader=FileSystemLoader('portal/templates/jupyterlab'))
-    template = templates.get_template('service.yaml')
-    service = yaml.safe_load(template.render(
-        notebook_id=settings['notebook_id'],
-        namespace=namespace, 
-        image=settings['image']))
-    api.create_namespaced_service(namespace=namespace, body=service)
-
-def create_ingress(**settings):
-    api = client.NetworkingV1Api()
-    templates = Environment(loader=FileSystemLoader('portal/templates/jupyterlab'))
-    template = templates.get_template('ingress.yaml')
-    ingress = yaml.safe_load(template.render(
-        notebook_id=settings['notebook_id'],
-        namespace=namespace, 
-        domain_name=app.config['DOMAIN_NAME'], 
-        owner=settings['owner'], 
-        image=settings['image']))
-    api.create_namespaced_ingress(namespace=namespace, body=ingress)
-
-def create_secret(**settings):
-    api = client.CoreV1Api()
-    templates = Environment(loader=FileSystemLoader('portal/templates/jupyterlab'))
-    template = templates.get_template('secret.yaml')
-    sec = yaml.safe_load(template.render(
-        notebook_id=settings['notebook_id'], 
-        namespace=namespace, 
-        owner=settings['owner'], 
-        token=settings['token']))
-    api.create_namespaced_secret(namespace=namespace, body=sec)
+# Below are helper functions that are used by get_notebook
+# These functions help extract data for a notebook
 
 def get_expiration_date(pod):
     creation_date = pod.metadata.creation_timestamp
