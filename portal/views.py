@@ -530,3 +530,8 @@ def internal_server_error(e):
 def add_header(response):
     response.cache_control.max_age = 0
     return response
+
+@app.before_first_request
+def initialize_jupyterlab():
+    jupyterlab.load_kube_config()
+    jupyterlab.start_notebook_maintenance()

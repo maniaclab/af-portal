@@ -1,18 +1,72 @@
 # This module supports the JupyterLab service
 # 
 # Functionality:
-# 1. The deploy_notebook method lets a user deploy a notebook onto our Kubernetes cluster
-# 2. The get_notebook function lets a user get data for a single notebook
-# 3. The get_notebooks function lets a user get data for all of a user's notebooks
-# 4. The remove_notebook function lets a user remove a notebook
-# 5. The list_notebook function returns a list of the names of all currently running notebooks
-# 6. The get_gpus function returns GPU info for all of our GPU products
+# =============== 
 #
-# Before the first HTTP request is processed, the module loads the kubeconfig file specified in portal.conf,
-# and it also starts a notebook maintenance thread for removing expired notebooks.
+# 1. The load_kube_config method loads a kubeconfig file (either the file specified or ~/.kube/config)
+# 2. The start_notebook_maintenance method starts a thread for removing expired notebooks
+# 3. The deploy_notebook method lets a user deploy a notebook onto our Kubernetes cluster
+# 4. The get_notebook function lets a user get data for a single notebook
+# 5. The get_notebooks function lets a user get data for all of a user's notebooks
+# 6. The remove_notebook function lets a user remove a notebook
+# 7. The list_notebook function returns a list of the names of all currently running notebooks
+# 8. The get_gpus function returns GPU info for all of our GPU products 
 #
-# Near the end of the file are helper functions used by the get_notebook function to extract notebook data.
-# The main interface of the module is near the top.
+# Dependencies:
+# =============== 
+# 
+# 1. A portal.conf configuration file (af-portal/portal/secrets/portal.conf)
+# 2. A kubeconfig file (either a file specified in portal.conf, or a file at the default location, ~/.kube/config)
+#
+# Example usage:
+# =============== 
+#
+# Example #1:
+#
+# cd <path>/<to>/af-portal
+# python 
+# >>> from portal import jupyterlab
+# >>> from pprint import pprint
+# >>> jupyterlab.load_kube_config()
+# >>> notebook = jupyterlab.get_notebook('example-notebook-1')
+# >>> pprint(notebook)
+#
+# Example #2:
+#
+# cd <path>/<to>/af-portal
+# python 
+# >>> from portal import jupyterlab
+# >>> from pprint import pprint
+# >>> jupyterlab.load_kube_config()
+# >>> notebooks = jupyterlab.get_notebooks('my-username')
+# >>> pprint(notebooks)
+#
+# Example #3:
+#
+# cd <path>/<to>/af-portal
+# python 
+# >>> from portal import jupyterlab
+# >>> from pprint import pprint
+# >>> jupyterlab.load_kube_config()
+# >>> settings = {
+# 'notebook_name': 'MyNotebook',
+# 'notebook_id': 'mynotebook',
+# 'image': 'ml-platform:latest',
+# 'owner': 'myusername',
+# 'owner_uid': 2468,
+# 'globus_id': 'alphanumeric string with hyphens',
+# 'cpu_request': 1,
+# 'cpu_limit': 2,
+# 'memory_request': '1Gi',
+# 'memory_limit': '2Gi',
+# 'gpu_request': 1,
+# 'gpu_limit': 1,
+# 'gpu_memory': 4864,
+# 'hours_remaining': 168
+# }
+# >>> jupyterlab.deploy_notebook(**settings)
+# >>> notebook = jupyterlab.get_notebook('mynotebook', url=True)
+# >>> pprint(notebook)
 import yaml
 import time
 import datetime
@@ -28,7 +82,6 @@ from portal import app, logger
 
 namespace = app.config['NAMESPACE']
 
-@app.before_first_request
 def load_kube_config():
     config_file = app.config.get('KUBECONFIG')
     if config_file:
@@ -38,7 +91,6 @@ def load_kube_config():
         config.load_kube_config()
         logger.info('Loaded default kubeconfig file')
 
-@app.before_first_request
 def start_notebook_maintenance():
     def clean():
         while True:
@@ -74,26 +126,6 @@ def start_notebook_maintenance():
 # gpu_limit: (integer) The max number of GPU instances that can be allocated to this pod
 # gpu_memory: (integer) Selects a GPU product based on its memory, in megabytes (e.g. 4864)
 # hours_remaining: (integer) The duration of the notebook in hours
-#
-# Example:
-#
-# settings = {
-# 'notebook_name': 'MyNotebook',
-# 'notebook_id': 'mynotebook',
-# 'image': 'ml-platform:latest',
-# 'owner': 'myusername',
-# 'owner_uid': 2468,
-# 'globus_id': 'alphanumeric string with hyphens',
-# 'cpu_request': 1,
-# 'cpu_limit': 2,
-# 'memory_request': '1Gi',
-# 'memory_limit': '2Gi',
-# 'gpu_request': 1,
-# 'gpu_limit': 1,
-# 'gpu_memory': 4864,
-# 'hours_remaining': 168
-# }
-# deploy_notebook(**settings)
 def deploy_notebook(**settings):
     settings['namespace'] = namespace
     settings['domain_name'] = app.config['DOMAIN_NAME']
@@ -128,19 +160,6 @@ def deploy_notebook(**settings):
 # pod: (object) The pod object returned by the kubernetes client
 # log: (boolean) When log is True, the pod log is included in the dict that gets returned
 # url: (boolean) When url is True, the notebook URL is included in the dict that gets returned
-# 
-# Example #1:
-#
-# notebook = get_notebook(name='example-notebook')
-#
-# Example #2:
-#
-# pod = get_pod('example-notebook')
-# notebook = get_notebook(pod=pod)
-#
-# Example #3:
-#
-# notebook = get_notebook(name='example-notebook', log=True, url=True)
 def get_notebook(name=None, pod=None, log=False, url=False):
     api = client.CoreV1Api()
     if pod is None:
@@ -174,14 +193,6 @@ def get_notebook(name=None, pod=None, log=False, url=False):
 # Function parameters:
 #
 # owner: (string) The username of the owner. When owner is None, the function returns all notebooks for all users.
-#
-# Example #1:
-# 
-# notebooks = get_notebooks(owner='testuser2468') # returns all notebooks for user testuser2468
-#
-# Example #2:
-#
-# notebooks = get_notebooks() # returns all notebooks for all users
 def get_notebooks(owner=None):
     notebooks = []
     api = client.CoreV1Api()
