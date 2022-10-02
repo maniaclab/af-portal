@@ -209,6 +209,7 @@ def get_notebooks(owner=None):
     Retrieves a user's notebooks, or the notebooks for all users. Returns an array of dicts.
 
     Function parameters:
+    (The owner parameter is optional.)
 
     owner: (string) The username of the owner. When owner is None, the function returns all notebooks for all users.
     '''
