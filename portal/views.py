@@ -527,7 +527,7 @@ def internal_server_error(e):
     return render_template('500.html')
 
 @app.after_request
-def add_header(response):
+def add_cache_control(response):
     response.cache_control.max_age = 0
     return response
 
