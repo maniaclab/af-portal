@@ -36,12 +36,14 @@ def valid_notebook(fn):
                 raise InvalidFormError('The request of %d GB is outside the bounds [1, 32].' %memory_request)
             if gpu_request < 0 or gpu_request > 7:
                 raise InvalidFormError('The request of %d GPUs is outside the bounds [0, 7].' %gpu_request)
-            gpu = jupyterlab.get_gpu(gpu_memory_request)
-            if not gpu:
+            gpus = jupyterlab.get_gpu_info(memory=gpu_memory_request)
+            if not gpus:
                 raise InvalidFormError('The GPU product is not supported.')
-            gpu_product = gpu['product']
-            gpu_available = gpu['available']
+            gpu_product = gpus[0]['product']
+            gpu_available = gpus[0]['available']
             if gpu_available < gpu_request:
+                if gpu_available == 0:
+                    raise InvalidFormError('The %s is currently not available' %gpu_product)
                 if gpu_available == 1:
                     raise InvalidFormError('The %s has only 1 instance available.' %gpu_product)
                 if gpu_available > 1:

@@ -18,7 +18,7 @@ def hardware():
 @app.route('/hardware/gpus')
 def get_gpus():
     try:
-        gpus = jupyterlab.get_gpus()
+        gpus = jupyterlab.get_gpu_info()
         return jsonify(gpus=gpus)
     except Exception as err:
         logger.error(str(err))

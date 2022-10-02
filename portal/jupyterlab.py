@@ -11,7 +11,7 @@ Functionality:
 5. The get_notebooks function lets a user get data for all of a user's notebooks
 6. The remove_notebook function lets a user remove a notebook
 7. The list_notebook function returns a list of the names of all currently running notebooks
-8. The get_gpus function returns GPU info for all of our GPU products 
+8. The get_gpu_info function lets a user get info about GPU products
 
 Dependencies:
 =============== 
@@ -90,7 +90,7 @@ from base64 import b64encode
 from datetime import timezone
 from jinja2 import Environment, FileSystemLoader
 from kubernetes import client, config
-from portal import app, logger
+from portal import app, logger, utils
 
 namespace = app.config['NAMESPACE']
 
@@ -192,12 +192,12 @@ def get_notebook(name=None, pod=None, log=False, url=False):
     notebook['pod_status'] = pod.status.phase
     notebook['conditions'] = get_conditions(pod)
     notebook['events'] = get_events(pod)
-    notebook['gpu'] = get_basic_gpu_info(pod)
     notebook['creation_date'] = pod.metadata.creation_timestamp.isoformat()
     notebook['expiration_date'] = get_expiration_date(pod).isoformat()
     notebook['hours_remaining'] = get_hours_remaining(pod)
     notebook['requests'] = get_requests(pod)
     notebook['limits'] = get_limits(pod)
+    notebook['gpu'] = get_basic_gpu_info(pod)
     if log is True:
         notebook['log'] = api.read_namespaced_pod_log(name=name.lower(), namespace=namespace)
     if url is True:
@@ -266,11 +266,26 @@ def supported_images():
             'hub.opensciencegrid.org/usatlas/ml-platform:julia', 'hub.opensciencegrid.org/usatlas/ml-platform:lava',
             'hub.opensciencegrid.org/usatlas/ml-platform:centos7-experimental')
 
-def get_gpus():
-    ''' Returns an array of GPU products and their availability. '''
+def get_gpu_info(product=None, memory=None):
+    ''' 
+    Looks up a GPU by its product name or its memory cache size.
+    Called without arguments, gets info on all GPU products.
+    Returns the GPU info in an array of dicts.
+    
+    Function parameters:
+    (All three parameters are optional.)
+
+    product: (string) The GPU product name
+    memory: (int) The GPU memory cache size in megabytes (e.g. 40536)
+    '''
     gpus = dict()
     api = client.CoreV1Api()
-    nodes = api.list_node(label_selector='gpu=true')
+    if product:
+        nodes = api.list_node(label_selector='gpu=true,nvidia.com/gpu.product=%s' %product)
+    elif memory:
+        nodes = api.list_node(label_selector='gpu=true,nvidia.com/gpu.memory=%s' %memory)
+    else: 
+        nodes = api.list_node(label_selector='gpu=true') 
     for node in nodes.items:
         product = node.metadata.labels['nvidia.com/gpu.product']
         memory = int(node.metadata.labels['nvidia.com/gpu.memory'])
@@ -288,28 +303,6 @@ def get_gpus():
                 gpu['available'] -= int(requests.get('nvidia.com/gpu', 0))
         gpu['available'] = max(gpu['available'], 0)
     return sorted(gpus.values(), key=lambda gpu : gpu['memory'])
-
-def get_gpu(memory):
-    ''' Looks up a GPU product by its memory size. Returns a dict containing its product info and availability. '''
-    gpu = dict()
-    api = client.CoreV1Api()
-    nodes=api.list_node(label_selector='gpu=true,nvidia.com/gpu.memory=%s' %memory)
-    for node in nodes.items:
-        product = node.metadata.labels['nvidia.com/gpu.product']
-        memory = int(node.metadata.labels['nvidia.com/gpu.memory'])
-        count = int(node.metadata.labels['nvidia.com/gpu.count'])
-        if not gpu:
-            gpu = dict(product=product, memory=memory, count=count, available=count)
-        else:
-            gpu['count'] += count
-            gpu['available'] += count
-        pods = api.list_pod_for_all_namespaces(field_selector='spec.nodeName=%s' %node.metadata.name).items
-        for pod in pods:
-            requests = pod.spec.containers[0].resources.requests
-            if requests:
-                gpu['available'] -= int(requests.get('nvidia.com/gpu', 0))
-                gpu['available'] = max(gpu['available'], 0)
-    return gpu
 
 def get_pod(pod_name):
     api = client.CoreV1Api()
