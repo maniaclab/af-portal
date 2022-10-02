@@ -69,7 +69,7 @@ python
 >>> notebook = jupyterlab.get_notebook('mynotebook', url=True)
 >>> pprint(notebook)
 
-Example #4
+Example #4:
 
 cd <path>/<to>/af-portal
 python 
