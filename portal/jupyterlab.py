@@ -273,7 +273,7 @@ def get_gpu_info(product=None, memory=None):
     Returns the GPU info in an array of dicts.
     
     Function parameters:
-    (All three parameters are optional.)
+    (Both parameters are optional.)
 
     product: (string) The GPU product name
     memory: (int) The GPU memory cache size in megabytes (e.g. 40536)
