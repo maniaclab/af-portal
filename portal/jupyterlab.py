@@ -294,8 +294,8 @@ def get_gpu_availability(product=None, memory=None):
             i. Add up all the pod requests for this GPU
         d. To calculate availability, subtract the total number of requests for this GPU from the total number of instances
            <Number of available GPU instances> = <Number of GPU instances> - <Number of GPU requests>
-    4. Transform the hash map into a list. Sort the list. Return the sorted list of dicts. 
-       Each entry in the list gives the availability of a unique GPU product.
+    4. Get the hash map values as a list. Sort the list. Each entry in the list gives the availability of a unique GPU product.
+       Return the sorted list of dicts. 
     '''
     gpus = dict()
     api = client.CoreV1Api()
