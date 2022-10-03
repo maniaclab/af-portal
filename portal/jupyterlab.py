@@ -11,7 +11,7 @@ Functionality:
 5. The get_notebooks function lets a user get data for all of a user's notebooks
 6. The remove_notebook function lets a user remove a notebook
 7. The list_notebook function returns a list of the names of all currently running notebooks
-8. The get_gpu_info function lets a user get info about GPU products
+8. The get_gpu_availability function lets a user know which GPU products are available for use.
 
 Dependencies:
 =============== 
@@ -197,7 +197,7 @@ def get_notebook(name=None, pod=None, log=False, url=False):
     notebook['hours_remaining'] = get_hours_remaining(pod)
     notebook['requests'] = get_requests(pod)
     notebook['limits'] = get_limits(pod)
-    notebook['gpu'] = get_basic_gpu_info(pod)
+    notebook['gpu'] = get_gpu_info(pod)
     if log is True:
         notebook['log'] = api.read_namespaced_pod_log(name=name.lower(), namespace=namespace)
     if url is True:
@@ -267,11 +267,11 @@ def supported_images():
             'hub.opensciencegrid.org/usatlas/ml-platform:julia', 'hub.opensciencegrid.org/usatlas/ml-platform:lava',
             'hub.opensciencegrid.org/usatlas/ml-platform:centos7-experimental')
 
-def get_gpu_info(product=None, memory=None):
+def get_gpu_availability(product=None, memory=None):
     ''' 
-    Looks up a GPU by its product name or its memory cache size.
-    Called without arguments, gets info on all GPU products.
-    Returns the GPU info in an array of dicts.
+    Looks up a GPU product by its product name or memory cache size, and gets its availability.
+    When this function is called without arguments, it gets the availability of every GPU product.
+    Returns an array of dicts.
     
     Function parameters:
     (Both parameters are optional.)
@@ -343,7 +343,7 @@ def get_limits(pod):
         'gpu': int(limits['nvidia.com/gpu'])
     }
 
-def get_basic_gpu_info(pod):
+def get_gpu_info(pod):
     if pod.spec.node_name:
         requests = pod.spec.containers[0].resources.requests
         if int(requests.get('nvidia.com/gpu', 0)) > 0:

@@ -10,14 +10,14 @@ def timer(fn):
     Example (taken from jupyterlab.py):
 
     @utils.timer
-    def get_gpu_info(product=None, memory=None):
+    def get_gpu_availability(product=None, memory=None):
         ...
 
     @utils.timer
     def get_notebooks(owner=None)
         ...
 
-    gpus = jupyterlab.get_gpu_info()
+    gpus = jupyterlab.get_gpu_availability()
     notebooks = jupyterlab.get_notebooks('testuser')
     '''
     @wraps(fn)
