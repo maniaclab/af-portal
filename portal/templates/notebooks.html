@@ -119,17 +119,17 @@
                             <div>
                                 <span class="text-primary">Requests</span>
                                 <ul class="list-unstyled">
-                                    <li><span class="text-muted">Memory:</span> [[ notebook.requests.memory ]]</li>
-                                    <li><span class="text-muted">CPU:</span> [[ notebook.requests.cpu ]]</li>
-                                    <li><span class="text-muted">GPU:</span> [[ notebook.requests.gpu ]]</li>
+                                    <li><span class="text-muted">Memory:</span> [[ notebook.requests['memory'] ]]</li>
+                                    <li><span class="text-muted">CPU:</span> [[ notebook.requests['cpu'] ]]</li>
+                                    <li><span class="text-muted">GPU:</span> [[ notebook.requests['nvidia.com/gpu'] ]]</li>
                                 </ul>
                             </div>
                             <div>
                                 <span class="text-primary">Limits</span>
                                 <ul class="list-unstyled">
-                                    <li><span class="text-muted">Memory:</span> [[ notebook.limits.memory ]]</li>
-                                    <li><span class="text-muted">CPU:</span> [[ notebook.limits.cpu ]]</li>
-                                    <li><span class="text-muted">GPU:</span> [[ notebook.limits.gpu ]]</li>
+                                    <li><span class="text-muted">Memory:</span> [[ notebook.limits['memory'] ]]</li>
+                                    <li><span class="text-muted">CPU:</span> [[ notebook.limits['cpu'] ]]</li>
+                                    <li><span class="text-muted">GPU:</span> [[ notebook.limits['nvidia.com/gpu'] ]]</li>
                                 </ul>
                             </div>
                             <div v-if="notebook.gpu">

@@ -209,8 +209,8 @@ def get_notebook(name=None, pod=None, log=False, url=False):
     notebook['creation_date'] = pod.metadata.creation_timestamp.isoformat()
     notebook['expiration_date'] = get_expiration_date(pod).isoformat()
     notebook['hours_remaining'] = get_hours_remaining(pod)
-    notebook['requests'] = get_requests(pod)
-    notebook['limits'] = get_limits(pod)
+    notebook['requests'] = pod.spec.containers[0].resources.requests
+    notebook['limits'] = pod.spec.containers[0].resources.limits
     notebook['gpu'] = get_gpu_info(pod)
     if log is True:
         notebook['log'] = api.read_namespaced_pod_log(name=name.lower(), namespace=namespace)
@@ -252,19 +252,19 @@ def list_notebooks():
 def remove_notebook(notebook_name):
     ''' Removes a notebook from the namespace, and all Kubernetes objects associated with the notebook. '''
     notebook_id = notebook_name.lower()
-    core_v1_api = client.CoreV1Api()
-    core_v1_api.delete_namespaced_pod(notebook_id, namespace)
-    core_v1_api.delete_namespaced_service(notebook_id, namespace)
-    core_v1_api.delete_namespaced_secret(notebook_id, namespace)
-    networking_v1_api = client.NetworkingV1Api()
-    networking_v1_api.delete_namespaced_ingress(notebook_id, namespace)
+    api = client.CoreV1Api()
+    api.delete_namespaced_pod(notebook_id, namespace)
+    api.delete_namespaced_service(notebook_id, namespace)
+    api.delete_namespaced_secret(notebook_id, namespace)
+    api = client.NetworkingV1Api()
+    api.delete_namespaced_ingress(notebook_id, namespace)
     logger.info('Removed notebook %s from namespace %s' %(notebook_id, namespace))
 
 def notebook_name_available(notebook_name):
     ''' Returns a boolean indicating whether a notebook name is available for use. '''
     notebook_id = notebook_name.lower()
-    core_v1_api = client.CoreV1Api()
-    pods = core_v1_api.list_namespaced_pod(namespace, label_selector='notebook-id={0}'.format(notebook_id))
+    api = client.CoreV1Api()
+    pods = api.list_namespaced_pod(namespace, label_selector='notebook-id={0}'.format(notebook_id))
     return len(pods.items) == 0
 
 def generate_notebook_name(owner):
@@ -356,33 +356,13 @@ def get_hours_remaining(pod):
     diff = exp_date - datetime.datetime.now(timezone.utc)
     return int(diff.total_seconds() / 3600)
 
-def get_requests(pod):
-    requests = pod.spec.containers[0].resources.requests
-    if requests:
-        return {
-            'memory': requests['memory'][:-2] + ' GB',
-            'cpu': int(requests['cpu']),
-            'gpu': int(requests['nvidia.com/gpu'])
-        }
-    return None
-
-def get_limits(pod):
-    limits = pod.spec.containers[0].resources.limits
-    if limits:
-        return {
-            'memory': limits['memory'][:-2] + ' GB',
-            'cpu': int(limits['cpu']),
-            'gpu': int(limits['nvidia.com/gpu'])
-        }
-    return None
-
 def get_gpu_info(pod):
     if pod.spec.node_name:
         api = client.CoreV1Api()
         node = api.read_node(pod.spec.node_name)
         if node.metadata.labels.get('gpu') == 'true':
             product = node.metadata.labels['nvidia.com/gpu.product']
-            memory = str(float(node.metadata.labels['nvidia.com/gpu.memory'])/1000) + ' GB'
+            memory = node.metadata.labels['nvidia.com/gpu.memory'] + 'Mi'
             return {'product': product, 'memory':  memory}
     return None
 

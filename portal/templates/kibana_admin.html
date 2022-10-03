@@ -29,10 +29,10 @@
         <tr>
           <td>{{ notebook.name }}</td>
           <td>{{ notebook.owner }}</td>
-          <td>{{ notebook.requests.memory }}</td>
-          <td>{{ notebook.requests.cpu }}</td>
-          <td>{{ notebook.requests.gpu }}</td>
-          <td>{{ notebook.gpu.memory | default("0 GB") }}</td>
+          <td>{{ notebook.requests['memory'] }}</td>
+          <td>{{ notebook.requests['cpu'] }}</td>
+          <td>{{ notebook.requests['nvidia.com/gpu'] | default('0') }}</td>
+          <td>{{ notebook.gpu.memory | default('0Mi') }}</td>
           <td>{{ notebook.hours_remaining }}</td>
         </tr>
         {% endfor %}
