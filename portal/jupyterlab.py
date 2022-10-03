@@ -10,7 +10,7 @@ Functionality:
 4. The get_notebook function lets a user get data for a single notebook
 5. The get_notebooks function lets a user get data for all of a user's notebooks
 6. The remove_notebook function lets a user remove a notebook
-7. The list_notebook function returns a list of the names of all currently running notebooks
+7. The list_notebooks function returns a list of the names of all currently running notebooks
 8. The get_gpu_availability function lets a user know which GPU products are available for use.
 
 Dependencies:
