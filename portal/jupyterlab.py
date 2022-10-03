@@ -271,13 +271,32 @@ def get_gpu_availability(product=None, memory=None):
     ''' 
     Looks up a GPU product by its product name or memory cache size, and gets its availability.
     When this function is called without arguments, it gets the availability of every GPU product.
-    Returns an array of dicts.
+    Returns a list of dicts.
     
     Function parameters:
     (Both parameters are optional.)
 
     product: (string) The GPU product name
     memory: (int) The GPU memory cache size in megabytes (e.g. 40536)
+
+    Algorithm for getting GPU availability:
+    1. Create a hash map of GPUs grouped by their product name.
+    2. Get a set of Kubernetes nodes that have GPU support.
+        a. If a product name or cache size is specified, get the set of nodes that supports the product.
+        b. If no product name or cache size is specified, get the set of all nodes that are labeled gpu=true.
+    3. Iterate over the set of Kubernetes nodes.
+        a. Get the GPU that is used by the node.
+        b. Update the hash map.
+            i. If the GPU is not in our hash map, add its name, cache size, and count to the hash map.
+            ii. If the GPU is in our hash map, increase its count.
+        b. Get the set of pods running on this node.
+        c. Iterate over the set of pods
+            i. Add up all the pod requests for this GPU
+        d. To calculate availability, subtract the total number of requests for this GPU from the total number of instances
+            <Number of available GPU instances> = <Number of GPU instances> - <Number of GPU requests>
+    4. Transform the hash map into a list.
+    5. Sort the list.
+    6. Return the sorted list of dicts. Each entry in the list gives the availability of a unique GPU product.
     '''
     gpus = dict()
     api = client.CoreV1Api()
@@ -292,17 +311,17 @@ def get_gpu_availability(product=None, memory=None):
         memory = int(node.metadata.labels['nvidia.com/gpu.memory'])
         count = int(node.metadata.labels['nvidia.com/gpu.count'])
         if product not in gpus:
-            gpus[product] = dict(product=product, memory=memory, count=count, available=count)
+            gpus[product] = dict(product=product, memory=memory, count=count)
         else:
             gpus[product]['count'] += count
-            gpus[product]['available'] += count 
         gpu = gpus[product]
         pods = api.list_pod_for_all_namespaces(field_selector='spec.nodeName=%s' %node.metadata.name).items
+        gpu['total_requests'] = 0
         for pod in pods:
             requests = pod.spec.containers[0].resources.requests
             if requests:
-                gpu['available'] -= int(requests.get('nvidia.com/gpu', 0))
-        gpu['available'] = max(gpu['available'], 0)
+                gpu['total_requests'] += int(requests.get('nvidia.com/gpu', 0))
+        gpu['available'] = max(gpu['count'] - gpu['total_requests'], 0)
     return sorted(gpus.values(), key=lambda gpu : gpu['memory'])
 
 def get_pod(pod_name):
@@ -313,13 +332,10 @@ def get_pod(pod_name):
 # These functions help extract data for a notebook
 
 def get_expiration_date(pod):
-    creation_date = pod.metadata.creation_timestamp
-    duration = pod.metadata.labels['time2delete']
+    pod_duration = pod.metadata.labels['time2delete']
     pattern = re.compile(r'ttl-\d+')
-    if pattern.match(duration):
-        hours = int(duration.split('-')[1])
-        expiration_date = creation_date + datetime.timedelta(hours=hours)
-        return expiration_date
+    if pattern.match(pod_duration):
+        return pod.metadata.creation_timestamp + datetime.timedelta(hours=int(pod_duration.split('-')[1]))
     return None
 
 def get_hours_remaining(pod):
@@ -329,26 +345,29 @@ def get_hours_remaining(pod):
 
 def get_requests(pod):
     requests = pod.spec.containers[0].resources.requests
-    return {
-        'memory': requests['memory'][:-2] + ' GB',
-        'cpu': int(requests['cpu']),
-        'gpu': int(requests['nvidia.com/gpu'])
-    }
+    if requests:
+        return {
+            'memory': requests['memory'][:-2] + ' GB',
+            'cpu': int(requests['cpu']),
+            'gpu': int(requests['nvidia.com/gpu'])
+        }
+    return None
 
 def get_limits(pod):
     limits = pod.spec.containers[0].resources.limits
-    return {
-        'memory': limits['memory'][:-2] + ' GB',
-        'cpu': int(limits['cpu']),
-        'gpu': int(limits['nvidia.com/gpu'])
-    }
+    if limits:
+        return {
+            'memory': limits['memory'][:-2] + ' GB',
+            'cpu': int(limits['cpu']),
+            'gpu': int(limits['nvidia.com/gpu'])
+        }
+    return None
 
 def get_gpu_info(pod):
     if pod.spec.node_name:
-        requests = pod.spec.containers[0].resources.requests
-        if int(requests.get('nvidia.com/gpu', 0)) > 0:
-            api = client.CoreV1Api()
-            node = api.read_node(pod.spec.node_name)
+        api = client.CoreV1Api()
+        node = api.read_node(pod.spec.node_name)
+        if node.metadata.labels.get('gpu') == 'true':
             product = node.metadata.labels['nvidia.com/gpu.product']
             memory = str(float(node.metadata.labels['nvidia.com/gpu.memory'])/1000) + ' GB'
             return {'product': product, 'memory':  memory}
@@ -384,7 +403,6 @@ def get_events(pod):
 def get_url(pod):
     if pod.metadata.deletion_timestamp:
         return None
-    notebook_id = pod.metadata.name
     api = client.CoreV1Api()
-    token = api.read_namespaced_secret(notebook_id, namespace).data['token']
-    return 'https://%s.%s?%s' %(notebook_id, app.config['DOMAIN_NAME'], urllib.parse.urlencode({'token': token}))
+    token = api.read_namespaced_secret(pod.metadata.name, namespace).data['token']
+    return 'https://%s.%s?%s' %(pod.metadata.name, app.config['DOMAIN_NAME'], urllib.parse.urlencode({'token': token}))
