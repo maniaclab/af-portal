@@ -78,6 +78,20 @@ python
 >>> help(jupyterlab.deploy_notebook)
 >>> help(jupyterlab.get_notebook)
 >>> help(jupyterlab.get_notebooks)
+
+Example #5:
+
+cd <path>/<to>/af-portal
+python
+>>> from portal import jupyterlab
+>>> from pprint import pprint
+>>> jupyterlab.load_kube_config()
+>>> avail = jupyterlab.get_gpu_availability()
+>>> pprint(avail)
+>>> gpu1 = jupyterlab.get_gpu_availability(product='NVIDIA-A100-SXM4-40GB')
+>>> pprint(gpu1)
+>>> gpu2 = jupyterlab.get_gpu_availability(memory=4864)
+>>> pprint(gpu2)
 '''
 import yaml
 import time
