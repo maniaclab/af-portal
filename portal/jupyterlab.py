@@ -241,8 +241,7 @@ def get_notebooks(owner=None, **options):
     '''
     notebooks = []
     api = client.CoreV1Api()
-    selector = 'k8s-app=jupyterlab' if owner is None else 'k8s-app=jupyterlab,owner=%s' %owner
-    pods = api.list_namespaced_pod(namespace, label_selector=selector).items 
+    pods = api.list_namespaced_pod(namespace, label_selector='k8s-app=jupyterlab' if owner is None else 'k8s-app=jupyterlab,owner=%s' %owner).items 
     for pod in pods:
         try:
             notebook = get_notebook(pod=pod, **options)
