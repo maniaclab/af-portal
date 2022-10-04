@@ -119,7 +119,7 @@ def start_notebook_maintenance():
             pods = api.list_namespaced_pod(namespace, label_selector='k8s-app=jupyterlab').items
             for pod in pods:
                 notebook_name = pod.metadata.name
-                exp_date = get_expiration_date(pod=pod)
+                exp_date = get_expiration_date(pod)
                 now = datetime.datetime.now(timezone.utc)
                 if exp_date and exp_date < now:
                     logger.info('Notebook %s has expired' %notebook_name)
@@ -210,7 +210,7 @@ def get_notebook(name=None, pod=None, **options):
     notebook['events'] = [{'message': event.message, 'timestamp': event.last_timestamp.isoformat()} for event in events]
     if node and node.metadata.labels.get('gpu') == 'true':
         notebook['gpu'] = {'product': node.metadata.labels['nvidia.com/gpu.product'], 'memory':  node.metadata.labels['nvidia.com/gpu.memory'] + 'Mi'}
-    expiration_date = get_expiration_date(pod=pod)
+    expiration_date = get_expiration_date(pod)
     time_remaining = expiration_date - datetime.datetime.now(timezone.utc)
     notebook['expiration_date'] = expiration_date.isoformat()
     notebook['hours_remaining'] = int(time_remaining.total_seconds() / 3600)
@@ -356,10 +356,8 @@ def get_notebook_status(name=None, pod=None):
         return 'Starting notebook...'   
     return 'Pending'
 
-def get_expiration_date(name=None, pod=None):
-    ''' Looks up a notebook by its name or pod, and returns its expiration date as a datetime object. '''
-    if pod is None:
-        pod = get_pod(name)
+def get_expiration_date(pod):
+    ''' Returns the expiration date of the pod. '''
     pattern = re.compile(r'ttl-\d+')
     if pattern.match(pod.metadata.labels['time2delete']):
         hours = int(pod.metadata.labels['time2delete'].split('-')[1])
