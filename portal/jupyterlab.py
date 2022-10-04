@@ -139,7 +139,7 @@ def deploy_notebook(**settings):
     Deploys a Jupyter notebook on our Kubernetes cluster.
 
     Function parameters:
-    (All parameters below are required.)
+    (All parameters are required.)
 
     notebook_name: (string) The display name of the notebook
     notebook_id: (string) A unique name for the notebook
