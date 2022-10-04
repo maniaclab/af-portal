@@ -99,7 +99,7 @@ import urllib
 from base64 import b64encode
 from jinja2 import Environment, FileSystemLoader
 from kubernetes import client, config
-from portal import app, logger, utils
+from portal import app, logger
 
 namespace = app.config.get('NAMESPACE')
 kubeconfig = app.config.get('KUBECONFIG')
