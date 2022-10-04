@@ -349,6 +349,8 @@ def get_gpu_availability(product=None, memory=None):
 
 def get_notebook_status(name=None, pod=None):
     ''' Returns the status of a notebook as a string. '''
+    if pod is None:
+        pod = get_pod(name)
     if pod.metadata.deletion_timestamp:
         return 'Removing notebook...'
     ready = next(filter(lambda c : c.type == 'Ready' and c.status == 'True', pod.status.conditions), None)
