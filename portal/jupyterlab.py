@@ -362,10 +362,6 @@ def get_notebook_status(name=None, pod=None):
         return 'Starting notebook...'   
     return 'Pending'
 
-def get_pod(name):
-    api = client.CoreV1Api()
-    return api.read_namespaced_pod(name=name, namespace=namespace)
-
 def get_expiration_date(name=None, pod=None):
     if pod is None:
         pod = get_pod(name)
@@ -374,3 +370,7 @@ def get_expiration_date(name=None, pod=None):
         hours = int(pod.metadata.labels['time2delete'].split('-')[1])
         return pod.metadata.creation_timestamp + datetime.timedelta(hours=hours)
     return None
+
+def get_pod(name):
+    api = client.CoreV1Api()
+    return api.read_namespaced_pod(name=name, namespace=namespace)
