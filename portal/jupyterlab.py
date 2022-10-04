@@ -363,6 +363,7 @@ def get_notebook_status(name=None, pod=None):
     return 'Pending'
 
 def get_expiration_date(name=None, pod=None):
+    ''' Looks up a notebook by its name or pod, and returns its expiration date as a datetime object '''
     if pod is None:
         pod = get_pod(name)
     pattern = re.compile(r'ttl-\d+')
