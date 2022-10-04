@@ -12,6 +12,7 @@ Functionality:
 6. The remove_notebook function lets a user remove a notebook
 7. The list_notebooks function returns a list of the names of all currently running notebooks
 8. The get_gpu_availability function lets a user know which GPU products are available for use.
+9. The get_notebook_status function gets the status of a notebook (ready, starting, pending, removing)
 
 Dependencies:
 =============== 
@@ -124,7 +125,7 @@ def start_notebook_maintenance():
             pods = api.list_namespaced_pod(namespace, label_selector='k8s-app=jupyterlab').items
             for pod in pods:
                 notebook_name = pod.metadata.name
-                exp_date = get_expiration_date(pod)
+                exp_date = get_expiration_date(pod=pod)
                 now = datetime.datetime.now(timezone.utc)
                 if exp_date and exp_date < now:
                     logger.info('Notebook %s has expired' %notebook_name)
@@ -179,7 +180,7 @@ def deploy_notebook(**settings):
     api.create_namespaced_ingress(namespace=namespace, body=ingress)
     logger.info('Deployed notebook %s' %settings['notebook_name'])
 
-def get_notebook(name=None, pod=None, log=False, url=False):
+def get_notebook(name=None, pod=None, **options):
     '''
     Looks up a notebook by name or by pod. Returns a dict.
 
@@ -202,20 +203,29 @@ def get_notebook(name=None, pod=None, log=False, url=False):
     notebook['image'] = pod.spec.containers[0].image
     notebook['node'] = pod.spec.node_name
     notebook['node_selector'] = pod.spec.node_selector
-    notebook['status'] = get_notebook_status(pod)
+    notebook['status'] = get_notebook_status(pod=pod)
     notebook['pod_status'] = pod.status.phase
-    notebook['conditions'] = get_conditions(pod)
-    notebook['events'] = get_events(pod)
     notebook['creation_date'] = pod.metadata.creation_timestamp.isoformat()
-    notebook['expiration_date'] = get_expiration_date(pod).isoformat()
-    notebook['hours_remaining'] = get_hours_remaining(pod)
     notebook['requests'] = pod.spec.containers[0].resources.requests
     notebook['limits'] = pod.spec.containers[0].resources.limits
-    notebook['gpu'] = get_gpu_info(pod)
-    if log is True:
+    notebook['conditions'] = [{'type': c.type, 'status': c.status, 'timestamp': c.last_transition_time.isoformat()} for c in pod.status.conditions]
+    notebook['conditions'].sort(key=lambda cond : dict(PodScheduled=0, Initialized=1, ContainersReady=2, Ready=3).get(cond['type']))
+    events = api.list_namespaced_event(namespace=namespace, field_selector='involvedObject.uid=%s' %pod.metadata.uid).items
+    notebook['events'] = [{'message': event.message, 'timestamp': event.last_timestamp.isoformat()} for event in events]
+    if pod.spec.node_name:
+        node = api.read_node(pod.spec.node_name)
+        if node.metadata.labels.get('gpu') == 'true':
+            notebook['gpu'] = {'product': node.metadata.labels['nvidia.com/gpu.product'], 'memory':  node.metadata.labels['nvidia.com/gpu.memory'] + 'Mi'}
+    expiration_date = get_expiration_date(pod=pod)
+    time_remaining = expiration_date - datetime.datetime.now(timezone.utc)
+    notebook['expiration_date'] = expiration_date.isoformat()
+    notebook['hours_remaining'] = int(time_remaining.total_seconds() / 3600)
+    # Optional fields
+    if options.get('log') is True:
         notebook['log'] = api.read_namespaced_pod_log(name=name.lower(), namespace=namespace)
-    if url is True:
-        notebook['url'] = get_url(pod)
+    if options.get('url') is True and pod.metadata.deletion_timestamp is None:
+        token = api.read_namespaced_secret(pod.metadata.name, namespace).data['token']
+        notebook['url'] = 'https://%s.%s?%s' %(pod.metadata.name, app.config['DOMAIN_NAME'], urllib.parse.urlencode({'token': token}))
     return notebook
 
 def get_notebooks(owner=None):
@@ -249,22 +259,22 @@ def list_notebooks():
         notebooks.append(pod.metadata.name)
     return notebooks
 
-def remove_notebook(notebook_name):
+def remove_notebook(name):
     ''' Removes a notebook from the namespace, and all Kubernetes objects associated with the notebook. '''
-    notebook_id = notebook_name.lower()
+    id = name.lower()
     api = client.CoreV1Api()
-    api.delete_namespaced_pod(notebook_id, namespace)
-    api.delete_namespaced_service(notebook_id, namespace)
-    api.delete_namespaced_secret(notebook_id, namespace)
+    api.delete_namespaced_pod(id, namespace)
+    api.delete_namespaced_service(id, namespace)
+    api.delete_namespaced_secret(id, namespace)
     api = client.NetworkingV1Api()
-    api.delete_namespaced_ingress(notebook_id, namespace)
-    logger.info('Removed notebook %s from namespace %s' %(notebook_id, namespace))
+    api.delete_namespaced_ingress(id, namespace)
+    logger.info('Removed notebook %s from namespace %s' %(id, namespace))
 
-def notebook_name_available(notebook_name):
+def notebook_name_available(name):
     ''' Returns a boolean indicating whether a notebook name is available for use. '''
-    notebook_id = notebook_name.lower()
+    id = name.lower()
     api = client.CoreV1Api()
-    pods = api.list_namespaced_pod(namespace, label_selector='notebook-id={0}'.format(notebook_id))
+    pods = api.list_namespaced_pod(namespace, label_selector='notebook-id={0}'.format(id))
     return len(pods.items) == 0
 
 def generate_notebook_name(owner):
@@ -337,36 +347,8 @@ def get_gpu_availability(product=None, memory=None):
         gpu['available'] = max(gpu['count'] - gpu['total_requests'], 0)
     return sorted(gpus.values(), key=lambda gpu : gpu['memory'])
 
-def get_pod(pod_name):
-    api = client.CoreV1Api()
-    return api.read_namespaced_pod(name=pod_name, namespace=namespace)
-
-# Below are helper functions that are used by get_notebook
-# These functions help extract data for a notebook
-
-def get_expiration_date(pod):
-    pod_duration = pod.metadata.labels['time2delete']
-    pattern = re.compile(r'ttl-\d+')
-    if pattern.match(pod_duration):
-        return pod.metadata.creation_timestamp + datetime.timedelta(hours=int(pod_duration.split('-')[1]))
-    return None
-
-def get_hours_remaining(pod):
-    exp_date = get_expiration_date(pod)
-    diff = exp_date - datetime.datetime.now(timezone.utc)
-    return int(diff.total_seconds() / 3600)
-
-def get_gpu_info(pod):
-    if pod.spec.node_name:
-        api = client.CoreV1Api()
-        node = api.read_node(pod.spec.node_name)
-        if node.metadata.labels.get('gpu') == 'true':
-            product = node.metadata.labels['nvidia.com/gpu.product']
-            memory = node.metadata.labels['nvidia.com/gpu.memory'] + 'Mi'
-            return {'product': product, 'memory':  memory}
-    return None
-
-def get_notebook_status(pod):
+def get_notebook_status(name=None, pod=None):
+    ''' Returns the status of a notebook as a string. '''
     if pod.metadata.deletion_timestamp:
         return 'Removing notebook...'
     ready = next(filter(lambda c : c.type == 'Ready' and c.status == 'True', pod.status.conditions), None)
@@ -378,24 +360,15 @@ def get_notebook_status(pod):
         return 'Starting notebook...'   
     return 'Pending'
 
-def get_conditions(pod):
-    conditions = []
-    sortorder = {'PodScheduled': 0, 'Initialized': 1, 'ContainersReady': 2, 'Ready': 3}
-    for cond in pod.status.conditions:
-        conditions.append({'type': cond.type, 'status': cond.status, 'timestamp': cond.last_transition_time.isoformat()})
-    return sorted(conditions, key=lambda condition : sortorder.get(condition['type']))
-    
-def get_events(pod):
-    notebook_events = []
+def get_pod(name):
     api = client.CoreV1Api()
-    events = api.list_namespaced_event(namespace=namespace, field_selector='involvedObject.uid=%s' %pod.metadata.uid).items
-    for event in events:
-        notebook_events.append({'message': event.message, 'timestamp': event.last_timestamp.isoformat()})
-    return notebook_events
+    return api.read_namespaced_pod(name=name, namespace=namespace)
 
-def get_url(pod):
-    if pod.metadata.deletion_timestamp:
-        return None
-    api = client.CoreV1Api()
-    token = api.read_namespaced_secret(pod.metadata.name, namespace).data['token']
-    return 'https://%s.%s?%s' %(pod.metadata.name, app.config['DOMAIN_NAME'], urllib.parse.urlencode({'token': token}))
+def get_expiration_date(name=None, pod=None):
+    if pod is None:
+        pod = get_pod(name)
+    pattern = re.compile(r'ttl-\d+')
+    if pattern.match(pod.metadata.labels['time2delete']):
+        hours = int(pod.metadata.labels['time2delete'].split('-')[1])
+        return pod.metadata.creation_timestamp + datetime.timedelta(hours=hours)
+    return None

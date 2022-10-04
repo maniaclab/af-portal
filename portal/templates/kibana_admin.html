@@ -32,7 +32,7 @@
           <td>{{ notebook.requests['memory'] }}</td>
           <td>{{ notebook.requests['cpu'] }}</td>
           <td>{{ notebook.requests['nvidia.com/gpu'] | default('0') }}</td>
-          <td>{{ notebook.gpu.memory | default('0Mi') }}</td>
+          <td>{% if notebook.gpu %} {{ notebook.gpu.memory | default('0') }} {% else %} 0 {% endif %}</td>
           <td>{{ notebook.hours_remaining }}</td>
         </tr>
         {% endfor %}
