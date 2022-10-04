@@ -198,7 +198,6 @@ def get_notebook(name=None, pod=None, **options):
     notebook['image'] = pod.spec.containers[0].image
     notebook['node'] = pod.spec.node_name
     notebook['node_selector'] = pod.spec.node_selector
-    notebook['status'] = get_notebook_status(pod)
     notebook['pod_status'] = pod.status.phase
     notebook['creation_date'] = pod.metadata.creation_timestamp.isoformat()
     notebook['requests'] = pod.spec.containers[0].resources.requests
@@ -213,6 +212,14 @@ def get_notebook(name=None, pod=None, **options):
     time_remaining = expiration_date - datetime.datetime.now(datetime.timezone.utc)
     notebook['expiration_date'] = expiration_date.isoformat()
     notebook['hours_remaining'] = int(time_remaining.total_seconds() / 3600)
+    if pod.metadata.deletion_timestamp is None:
+        if next(filter(lambda c : c.type == 'Ready' and c.status == 'True', pod.status.conditions), None):
+            log = api.read_namespaced_pod_log(pod.metadata.name, namespace=namespace)
+            notebook['status'] = 'Ready' if re.search('Jupyter.*is running at', log) else 'Starting notebook...'   
+        else:
+            notebook['status'] = 'Pending'
+    else:
+        notebook['status'] = 'Removing notebook...'
     # Optional fields
     if options.get('log') is True:
         notebook['log'] = api.read_namespaced_pod_log(name=name.lower(), namespace=namespace)
@@ -336,19 +343,6 @@ def get_gpu_availability(product=None, memory=None):
                 gpu['total_requests'] += int(requests.get('nvidia.com/gpu', 0))
         gpu['available'] = max(gpu['count'] - gpu['total_requests'], 0)
     return sorted(gpus.values(), key=lambda gpu : gpu['memory'])
-
-def get_notebook_status(pod):
-    ''' Returns the status of a notebook as a string. '''
-    if pod.metadata.deletion_timestamp:
-        return 'Removing notebook...'
-    ready = next(filter(lambda c : c.type == 'Ready' and c.status == 'True', pod.status.conditions), None)
-    if ready:
-        api = client.CoreV1Api()
-        log = api.read_namespaced_pod_log(pod.metadata.name, namespace=namespace)
-        if re.search('Jupyter Notebook.*is running at', log) or re.search('Jupyter Server.*is running at', log):
-            return 'Ready'
-        return 'Starting notebook...'   
-    return 'Pending'
 
 def get_expiration_date(pod):
     ''' Returns the expiration date of the pod. '''
