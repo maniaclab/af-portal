@@ -297,6 +297,7 @@ def get_gpu_availability(product=None, memory=None):
     memory: (int) The GPU memory cache size in megabytes (e.g. 40536)
 
     Algorithm for getting GPU availability:
+    
     1. Create a hash map of GPUs grouped by their product name.
     2. Get a set of Kubernetes nodes that have GPU support.
         a. If a product name or cache size is specified, get the set of nodes that supports the product.
