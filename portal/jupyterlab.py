@@ -199,7 +199,7 @@ def get_notebook(name=None, pod=None, **options):
     notebook['image'] = pod.spec.containers[0].image
     notebook['node'] = pod.spec.node_name
     notebook['node_selector'] = pod.spec.node_selector
-    notebook['status'] = get_notebook_status(pod=pod)
+    notebook['status'] = get_notebook_status(pod)
     notebook['pod_status'] = pod.status.phase
     notebook['creation_date'] = pod.metadata.creation_timestamp.isoformat()
     notebook['requests'] = pod.spec.containers[0].resources.requests
@@ -339,10 +339,8 @@ def get_gpu_availability(product=None, memory=None):
         gpu['available'] = max(gpu['count'] - gpu['total_requests'], 0)
     return sorted(gpus.values(), key=lambda gpu : gpu['memory'])
 
-def get_notebook_status(name=None, pod=None):
+def get_notebook_status(pod):
     ''' Returns the status of a notebook as a string. '''
-    if pod is None:
-        pod = get_pod(name)
     if pod.metadata.deletion_timestamp:
         return 'Removing notebook...'
     ready = next(filter(lambda c : c.type == 'Ready' and c.status == 'True', pod.status.conditions), None)
