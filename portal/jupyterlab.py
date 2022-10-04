@@ -263,9 +263,8 @@ def remove_notebook(name):
 
 def notebook_name_available(name):
     ''' Returns a boolean indicating whether a notebook name is available for use. '''
-    id = name.lower()
     api = client.CoreV1Api()
-    pods = api.list_namespaced_pod(namespace, label_selector='notebook-id={0}'.format(id))
+    pods = api.list_namespaced_pod(namespace, label_selector='notebook-id={0}'.format(name.lower()))
     return len(pods.items) == 0
 
 def generate_notebook_name(owner):
