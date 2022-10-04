@@ -4,14 +4,13 @@ This module supports the JupyterLab service
 Functionality:
 =============== 
 
-1. The load_kube_config method loads a kubeconfig file (either the file specified or ~/.kube/config)
-2. The start_notebook_maintenance method starts a thread for removing expired notebooks
-3. The deploy_notebook method lets a user deploy a notebook onto our Kubernetes cluster
-4. The get_notebook function lets a user get data for a single notebook
-5. The get_notebooks function lets a user get data for all of a user's notebooks
-6. The remove_notebook function lets a user remove a notebook
-7. The list_notebooks function returns a list of the names of all currently running notebooks
-8. The get_gpu_availability function lets a user know which GPU products are available for use.
+1. The start_notebook_maintenance method starts a thread for removing expired notebooks
+2. The deploy_notebook method lets a user deploy a notebook onto our Kubernetes cluster
+3. The get_notebook function lets a user get data for a single notebook
+4. The get_notebooks function lets a user get data for all of a user's notebooks
+5. The remove_notebook function lets a user remove a notebook
+6. The list_notebooks function returns a list of the names of all currently running notebooks
+7. The get_gpu_availability function lets a user know which GPU products are available for use
 
 Dependencies:
 =============== 
@@ -117,12 +116,10 @@ def start_notebook_maintenance():
             api = client.CoreV1Api()
             pods = api.list_namespaced_pod(namespace, label_selector='k8s-app=jupyterlab').items
             for pod in pods:
-                notebook_name = pod.metadata.name
                 exp_date = get_expiration_date(pod)
-                now = datetime.datetime.now(datetime.timezone.utc)
-                if exp_date and exp_date < now:
-                    logger.info('Notebook %s has expired' %notebook_name)
-                    remove_notebook(notebook_name)                        
+                if exp_date and exp_date < datetime.datetime.now(datetime.timezone.utc):
+                    logger.info('Notebook %s has expired' %pod.metadata.name)
+                    remove_notebook(pod.metadata.name)                        
             time.sleep(1800)
     threading.Thread(target=clean).start()
     logger.info('Started notebook maintenance')
