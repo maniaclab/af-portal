@@ -12,7 +12,6 @@ Functionality:
 6. The remove_notebook function lets a user remove a notebook
 7. The list_notebooks function returns a list of the names of all currently running notebooks
 8. The get_gpu_availability function lets a user know which GPU products are available for use.
-9. The get_notebook_status function gets the status of a notebook (ready, starting, pending, removing)
 
 Dependencies:
 =============== 
