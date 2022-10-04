@@ -242,8 +242,7 @@ def get_notebooks(owner=None, **options):
             notebook = get_notebook(pod=pod, **options)
             notebooks.append(notebook)
         except Exception as err:
-            logger.error('Error adding notebook %s to array.' %pod.metadata.name)
-            logger.error(str(err))
+            logger.error('Error adding notebook %s to array.\n%s' %(pod.metadata.name, str(err)))
     return notebooks
 
 def list_notebooks():
