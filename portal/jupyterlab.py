@@ -246,12 +246,9 @@ def get_notebooks(owner=None):
 
 def list_notebooks():
     ''' Returns a list of the names of all notebooks in the namespace. '''
-    notebooks = []
     api = client.CoreV1Api()
     pods = api.list_namespaced_pod(namespace=namespace, label_selector='k8s-app=jupyterlab').items
-    for pod in pods:
-        notebooks.append(pod.metadata.name)
-    return notebooks
+    return [pod.metadata.name for pod in pods]
 
 def remove_notebook(name):
     ''' Removes a notebook from the namespace, and all Kubernetes objects associated with the notebook. '''
