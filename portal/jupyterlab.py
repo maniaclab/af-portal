@@ -227,6 +227,7 @@ def get_notebooks(owner=None, **options):
     Retrieves a user's notebooks, or the notebooks for all users. Returns an array of dicts.
 
     Function parameters:
+    (All parameters are optional.)
 
     owner: (string) The username of the owner. When owner is None, the function returns all notebooks for all users.
     log: (boolean) When log is True, the pod log is included in the dict that gets returned
