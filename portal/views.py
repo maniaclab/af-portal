@@ -532,6 +532,5 @@ def add_cache_control(response):
     return response
 
 @app.before_first_request
-def initialize_jupyterlab():
-    jupyterlab.load_kube_config()
+def start_notebook_maintenance():
     jupyterlab.start_notebook_maintenance()

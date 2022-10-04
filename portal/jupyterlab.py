@@ -106,16 +106,15 @@ from jinja2 import Environment, FileSystemLoader
 from kubernetes import client, config
 from portal import app, logger, utils
 
-namespace = app.config['NAMESPACE']
+namespace = app.config.get('NAMESPACE')
+kubeconfig = app.config.get('KUBECONFIG')
 
-def load_kube_config():
-    config_file = app.config.get('KUBECONFIG')
-    if config_file:
-        config.load_kube_config(config_file=config_file)
-        logger.info('Loaded kubeconfig from file %s' %config_file)
-    else:
-        config.load_kube_config()
-        logger.info('Loaded default kubeconfig file')
+if kubeconfig:
+    config.load_kube_config(config_file=kubeconfig)
+    logger.info('Loaded kubeconfig from file %s' %kubeconfig)
+else:
+    config.load_kube_config()
+    logger.info('Loaded default kubeconfig file')
 
 def start_notebook_maintenance():
     def clean():
