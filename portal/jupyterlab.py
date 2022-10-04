@@ -28,7 +28,6 @@ cd <path>/<to>/af-portal
 python 
 >>> from portal import jupyterlab
 >>> from pprint import pprint
->>> jupyterlab.load_kube_config()
 >>> notebook = jupyterlab.get_notebook('example-notebook-1')
 >>> pprint(notebook)
 
@@ -38,7 +37,6 @@ cd <path>/<to>/af-portal
 python 
 >>> from portal import jupyterlab
 >>> from pprint import pprint
->>> jupyterlab.load_kube_config()
 >>> notebooks = jupyterlab.get_notebooks('my-username')
 >>> pprint(notebooks)
 
@@ -48,7 +46,6 @@ cd <path>/<to>/af-portal
 python 
 >>> from portal import jupyterlab
 >>> from pprint import pprint
->>> jupyterlab.load_kube_config()
 >>> settings = {
 'notebook_name': 'MyNotebook',
 'notebook_id': 'mynotebook',
@@ -85,7 +82,6 @@ cd <path>/<to>/af-portal
 python
 >>> from portal import jupyterlab
 >>> from pprint import pprint
->>> jupyterlab.load_kube_config()
 >>> avail = jupyterlab.get_gpu_availability()
 >>> pprint(avail)
 >>> gpu1 = jupyterlab.get_gpu_availability(product='NVIDIA-A100-SXM4-40GB')
