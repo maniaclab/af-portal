@@ -97,7 +97,6 @@ import os
 import re
 import urllib
 from base64 import b64encode
-from datetime import timezone
 from jinja2 import Environment, FileSystemLoader
 from kubernetes import client, config
 from portal import app, logger, utils
@@ -120,7 +119,7 @@ def start_notebook_maintenance():
             for pod in pods:
                 notebook_name = pod.metadata.name
                 exp_date = get_expiration_date(pod)
-                now = datetime.datetime.now(timezone.utc)
+                now = datetime.datetime.now(datetime.timezone.utc)
                 if exp_date and exp_date < now:
                     logger.info('Notebook %s has expired' %notebook_name)
                     remove_notebook(notebook_name)                        
@@ -211,7 +210,7 @@ def get_notebook(name=None, pod=None, **options):
     if node and node.metadata.labels.get('gpu') == 'true':
         notebook['gpu'] = {'product': node.metadata.labels['nvidia.com/gpu.product'], 'memory':  node.metadata.labels['nvidia.com/gpu.memory'] + 'Mi'}
     expiration_date = get_expiration_date(pod)
-    time_remaining = expiration_date - datetime.datetime.now(timezone.utc)
+    time_remaining = expiration_date - datetime.datetime.now(datetime.timezone.utc)
     notebook['expiration_date'] = expiration_date.isoformat()
     notebook['hours_remaining'] = int(time_remaining.total_seconds() / 3600)
     # Optional fields
