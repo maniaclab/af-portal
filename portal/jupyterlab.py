@@ -222,7 +222,7 @@ def get_notebook(name=None, pod=None, **options):
         notebook['url'] = 'https://%s.%s?%s' %(pod.metadata.name, app.config['DOMAIN_NAME'], urllib.parse.urlencode({'token': token}))
     return notebook
 
-def get_notebooks(owner=None):
+def get_notebooks(owner=None, **options):
     '''
     Retrieves a user's notebooks, or the notebooks for all users. Returns an array of dicts.
 
@@ -237,7 +237,7 @@ def get_notebooks(owner=None):
     pods = api.list_namespaced_pod(namespace, label_selector=selector).items 
     for pod in pods:
         try:
-            notebook = get_notebook(pod=pod, url=True)
+            notebook = get_notebook(pod=pod, **options)
             notebooks.append(notebook)
         except Exception as err:
             logger.error('Error adding notebook %s to array.' %pod.metadata.name)

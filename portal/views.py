@@ -199,7 +199,7 @@ def open_jupyterlab():
 def get_notebooks():
     try:
         username = session['unix_name']
-        notebooks = jupyterlab.get_notebooks(owner=username)
+        notebooks = jupyterlab.get_notebooks(owner=username, url=True)
         return jsonify(notebooks=notebooks)
     except Exception as err:
         logger.error(str(err))
