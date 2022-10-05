@@ -202,6 +202,10 @@ def get_notebook(name=None, pod=None, **options):
     notebook['node_selector'] = pod.spec.node_selector
     notebook['pod_status'] = pod.status.phase
     notebook['creation_date'] = pod.metadata.creation_timestamp.isoformat()
+    expiration_date = get_expiration_date(pod)
+    time_remaining = expiration_date - datetime.datetime.now(datetime.timezone.utc)
+    notebook['expiration_date'] = expiration_date.isoformat()
+    notebook['hours_remaining'] = int(time_remaining.total_seconds() / 3600)
     notebook['requests'] = pod.spec.containers[0].resources.requests
     notebook['limits'] = pod.spec.containers[0].resources.limits
     notebook['conditions'] = [{'type': c.type, 'status': c.status, 'timestamp': c.last_transition_time.isoformat()} for c in pod.status.conditions]
@@ -212,10 +216,6 @@ def get_notebook(name=None, pod=None, **options):
         node = api.read_node(pod.spec.node_name)
         if node.metadata.labels.get('gpu') == 'true':
             notebook['gpu'] = {'product': node.metadata.labels['nvidia.com/gpu.product'], 'memory':  node.metadata.labels['nvidia.com/gpu.memory'] + 'Mi'}
-    expiration_date = get_expiration_date(pod)
-    time_remaining = expiration_date - datetime.datetime.now(datetime.timezone.utc)
-    notebook['expiration_date'] = expiration_date.isoformat()
-    notebook['hours_remaining'] = int(time_remaining.total_seconds() / 3600)
     if pod.metadata.deletion_timestamp is None:
         if next(filter(lambda c : c.type == 'Ready' and c.status == 'True', pod.status.conditions), None):
             log = api.read_namespaced_pod_log(pod.metadata.name, namespace=namespace)
