@@ -192,8 +192,6 @@ def get_notebook(name=None, pod=None, **options):
     api = client.CoreV1Api()
     if pod is None:
         pod = api.read_namespaced_pod(name=name.lower(), namespace=namespace)
-    if pod.spec.node_name:
-        node = api.read_node(pod.spec.node_name)
     notebook = dict()
     notebook['id'] = pod.metadata.name
     notebook['name'] = pod.metadata.labels.get('notebook-name') or pod.metadata.labels.get('display-name')
@@ -210,8 +208,10 @@ def get_notebook(name=None, pod=None, **options):
     notebook['conditions'].sort(key=lambda cond : dict(PodScheduled=0, Initialized=1, ContainersReady=2, Ready=3).get(cond['type']))
     events = api.list_namespaced_event(namespace=namespace, field_selector='involvedObject.uid=%s' %pod.metadata.uid).items
     notebook['events'] = [{'message': event.message, 'timestamp': event.last_timestamp.isoformat()} for event in events]
-    if node and node.metadata.labels.get('gpu') == 'true':
-        notebook['gpu'] = {'product': node.metadata.labels['nvidia.com/gpu.product'], 'memory':  node.metadata.labels['nvidia.com/gpu.memory'] + 'Mi'}
+    if pod.spec.node_name:
+        node = api.read_node(pod.spec.node_name)
+        if node.metadata.labels.get('gpu') == 'true':
+            notebook['gpu'] = {'product': node.metadata.labels['nvidia.com/gpu.product'], 'memory':  node.metadata.labels['nvidia.com/gpu.memory'] + 'Mi'}
     expiration_date = get_expiration_date(pod)
     time_remaining = expiration_date - datetime.datetime.now(datetime.timezone.utc)
     notebook['expiration_date'] = expiration_date.isoformat()
