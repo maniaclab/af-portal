@@ -216,16 +216,16 @@ def get_notebook(name=None, pod=None, **options):
     time_remaining = expiration_date - datetime.datetime.now(datetime.timezone.utc)
     notebook['expiration_date'] = expiration_date.isoformat()
     notebook['hours_remaining'] = int(time_remaining.total_seconds() / 3600)
-    log = api.read_namespaced_pod_log(pod.metadata.name, namespace=namespace)
     if pod.metadata.deletion_timestamp is None:
         if next(filter(lambda c : c.type == 'Ready' and c.status == 'True', pod.status.conditions), None):
+            log = api.read_namespaced_pod_log(pod.metadata.name, namespace=namespace)
             notebook['status'] = 'Ready' if re.search('Jupyter.*is running at', log) else 'Starting notebook...'   
         else:
             notebook['status'] = 'Pending'
     else:
         notebook['status'] = 'Removing notebook...'
     # Optional fields
-    if options.get('log') is True:
+    if options.get('log') is True and 'log' in locals():
         notebook['log'] = log
     if options.get('url') is True and pod.metadata.deletion_timestamp is None:
         token = api.read_namespaced_secret(pod.metadata.name, namespace).data['token']
