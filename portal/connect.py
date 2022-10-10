@@ -198,9 +198,9 @@ def get_group_info(group_name, **options):
         elif date_format == 'iso':
             group['creation_date'] = parse(metadata['creation_date']).isoformat()
         elif date_format == 'calendar':
-            group['creation_date'] = parse(metadata['creation_date']).isoformat()
-        else:
             group['creation_date'] = parse(metadata['creation_date']).strftime('%B %m %Y')
+        else:
+            group['creation_date'] = parse(metadata['creation_date']).strftime(date_format)
         group['is_deletable'] = is_group_deletable(group_name)
         return group
     return None
