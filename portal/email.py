@@ -1,4 +1,4 @@
-''' Functions for sending emails from our noreply@af.uchicago.edu email account. '''
+''' Functions for sending emails from our email accounts. '''
 from portal import app, logger, connect
 import requests
 
