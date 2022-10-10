@@ -103,13 +103,13 @@ def get_user_profiles(group_name, **options):
         return profiles
     return [] 
 
-@decorators.require_keys('globus_id', 'username', 'name', 'institution', 'email', 'phone', 'public_key')
+@decorators.require_keys('globus_id', 'unix_name', 'name', 'institution', 'email', 'phone', 'public_key')
 def create_user_profile(**settings):
     request_data = {
         'apiVersion': 'v1alpha1',
         'metadata': {
             'globusID': settings['globus_id'],
-            'unix_name': settings['username'],
+            'unix_name': settings['unix_name'],
             'name': settings['name'],
             'institution': settings['institution'],
             'email': settings['email'],
