@@ -39,7 +39,7 @@ $(document).ready(function() {
         ajax: {url: "{{ url_for('get_user_profiles') }}", dataSrc: "users"},
         order: [3, "asc"],
         columns: [
-            { data: "username" },
+            { data: "unix_name" },
             { data: "name" },
             { data: "email" },
             { data: "join_date" },

@@ -1,222 +1,268 @@
-from portal import app, logger
-from datetime import datetime
+''' A wrapper for the CI Connect API. '''
+from portal import app, logger, decorators
+from portal.errors import ConnectApiError
+from dateutil.parser import parse
 import requests
 import json
-from dateutil.parser import parse
 
-base_url = app.config['CONNECT_API_ENDPOINT']
-token = app.config['CONNECT_API_TOKEN']
-params = {'token': token}
+url = app.config.get('CONNECT_API_ENDPOINT')
+token = app.config.get('CONNECT_API_TOKEN')
 
-def find_user(globus_id):
-    params = {'token': token, 'globus_id': globus_id}
-    resp = requests.get(base_url + '/v1alpha1/find_user', params=params).json()
-    if resp['kind'] == 'User':
-        return resp['metadata']
+def get_username(globus_id):
+    response = requests.get(url + '/v1alpha1/find_user', params={'token': token, 'globus_id': globus_id})
+    if response.text:
+        data = response.json()
+        if data.get('kind') == 'Error':
+            raise ConnectApiError(data['message'])
+        if data.get('kind') == 'User':
+            return data['metadata']['unix_name']
     return None
 
-def get_user_profile(unix_name, date_format='%B %m %Y'):
-    resp = requests.get(base_url + '/v1alpha1/users/' + unix_name, params=params).json()
-    if resp['kind'] == 'User':
-        profile = resp['metadata']
-        profile['join_date'] = datetime.strptime(profile['join_date'], '%Y-%b-%d %H:%M:%S.%f %Z').strftime(date_format)
-        profile['group_memberships'].sort(key = lambda group : group['name'])
-        af_group = next(filter(lambda group : group['name'] == 'root.atlas-af', profile['group_memberships']), None)
-        profile['role'] = af_group['state'] if af_group else 'nonmember'
-        return profile
+def get_usernames(group_name, **options):
+    response = requests.get(url + '/v1alpha1/groups/' + group_name + '/members', params={'token': token})
+    if response.text:
+        data = response.json()
+        if data.get('kind') == 'Error':
+            raise ConnectApiError(data['message'])
+        usernames = []
+        roles = options.get('roles', ('admin', 'active', 'pending'))
+        for membership in response.json()['memberships']:
+            if membership['state'] in roles:
+                usernames.append(membership['user_name'])
+        return usernames
+    return []
+
+def get_user_profile(username, **options):
+    response = requests.get(url + '/v1alpha1/users/' + username, params={'token': token})
+    if response.text:
+        data = response.json()
+        if data.get('kind') == 'Error':
+            raise ConnectApiError(data['message'])
+        if data.get('kind') == 'User':
+            profile = {}
+            metadata = data['metadata']
+            profile['unix_name'] = metadata['unix_name']
+            profile['unix_id'] = metadata['unix_id']
+            profile['name'] = metadata['name']
+            profile['email'] = metadata['email']
+            profile['institution'] = metadata['institution']
+            profile['phone'] = metadata['phone']
+            profile['public_key'] = metadata['public_key']
+            date_format = options.get('date_format', 'calendar')
+            if date_format == 'object':
+                profile['join_date'] = parse(metadata['join_date'])
+            elif date_format == 'iso':
+                profile['join_date'] = parse(metadata['join_date']).isoformat()
+            elif date_format == 'calendar':
+                profile['join_date'] = parse(metadata['join_date']).strftime('%B %m %Y')
+            else:
+                profile['join_date'] = parse(metadata['join_date']).strftime(date_format)
+            profile['group_memberships'] = metadata['group_memberships']
+            profile['group_memberships'].sort(key = lambda group : group['name'])
+            membership = list(filter(lambda group : group['name'] == 'root.atlas-af', metadata['group_memberships']))
+            profile['role'] = membership[0]['state'] if membership else 'nonmember'
+            return profile
     return None
 
-def get_user_profiles(usernames, date_format='%B %m %Y'):
-    profiles = []
-    multiplex = {}
+def get_user_profiles(group_name, **options):
+    usernames = get_usernames(group_name, **options)
+    request_data = {}
     for username in usernames:
-        multiplex['/v1alpha1/users/' + username + '?token=' + token] = {'method': 'GET'}
-    resp = requests.post(base_url + '/v1alpha1/multiplex', params=params, json=multiplex)
-    if resp.status_code != requests.codes.ok:
-        raise Exception('Error getting user profiles')
-    resp = resp.json()
-    for entry in resp:
-        data = json.loads(resp[entry]['body'])['metadata']
-        username = data['unix_name']
-        email = data['email']
-        phone = data['phone']
-        join_date = parse(data['join_date']).strftime(date_format) if date_format else parse(data['join_date']) 
-        institution = data['institution']
-        name = data['name']
-        af_group = next(filter(lambda group : group['name'] == 'root.atlas-af', data['group_memberships']), None)
-        role = af_group['state'] if af_group else 'nonmember'
-        profile = {'username': username, 'email': email, 'phone': phone, 'join_date': join_date, 'institution': institution, 'name': name, 'role': role}
-        profiles.append(profile)
-    return profiles 
+        request_data['/v1alpha1/users/' + username + '?token=' + token] = {'method': 'GET'}
+    response = requests.post(url + '/v1alpha1/multiplex', params={'token': token}, json=request_data)
+    if response.text:
+        data = response.json()
+        if data.get('kind') == 'Error':
+            raise ConnectApiError(data['message'])
+        profiles = []
+        for value in data.values():
+            profile = {}
+            metadata = json.loads(value['body'])['metadata']
+            profile['unix_name'] = metadata['unix_name']
+            profile['unix_id'] = metadata['unix_id']
+            profile['name'] = metadata['name']
+            profile['email'] = metadata['email']
+            profile['institution'] = metadata['institution']
+            profile['phone'] = metadata['phone']
+            date_format = options.get('date_format', 'calendar')
+            if date_format == 'object':
+                profile['join_date'] = parse(metadata['join_date'])
+            elif date_format == 'iso':
+                profile['join_date'] = parse(metadata['join_date']).isoformat()
+            elif date_format == 'calendar':
+                profile['join_date'] = parse(metadata['join_date']).strftime('%B %m %Y')
+            else:
+                profile['join_date'] = parse(metadata['join_date']).strftime(date_format)
+            membership = list(filter(lambda group : group['name'] == 'root.atlas-af', metadata['group_memberships']))
+            profile['role'] = membership[0]['state'] if membership else 'nonmember'
+            profiles.append(profile)
+        return profiles
+    return [] 
 
-def create_user_profile(globus_id, unix_name, name, email, phone, institution, public_key):
-    json = {
+@decorators.require_keys('globus_id', 'username', 'name', 'institution', 'email', 'phone', 'public_key')
+def create_user_profile(**settings):
+    request_data = {
         'apiVersion': 'v1alpha1',
         'metadata': {
-            'globusID': globus_id,
-            'unix_name': unix_name,
-            'name': name,
-            'institution': institution,
-            'email': email,
-            'phone': phone,
+            'globusID': settings['globus_id'],
+            'unix_name': settings['username'],
+            'name': settings['name'],
+            'institution': settings['institution'],
+            'email': settings['email'],
+            'phone': settings['phone'],
+            'public_key': settings['public_key'],
             'superuser': False,
             'service_account': False
         }
     }
-    if public_key:
-        json['metadata']['public_key'] = public_key
-    resp = requests.post(base_url + '/v1alpha1/users', params=params, json=json)
-    if resp.status_code == requests.codes.ok:
-        logger.info('Created profile for user %s' %unix_name)
-        return True
-    logger.error('Unable to create profile for %s' %name)
-    return False
+    response = requests.post(url + '/v1alpha1/users', params={'token': token}, json=request_data)
+    if response.text:
+        data = response.json()
+        if data.get('kind') == 'Error':
+            raise ConnectApiError(data['message'])
+    logger.info('Created profile for user %s' %settings['unix_name'])
 
-def update_user_profile(unix_name, name, email, phone, institution, public_key, x509_dn):
-    json = {
-        'apiVersion': 'v1alpha1', 
-        'kind': 'User', 
-        'metadata': {
-            'name': name,
-            'institution': institution,
-            'email': email,
-            'phone': phone,
-            'public_key': public_key,
-            'X.509_DN': x509_dn
-        }
-    }    
-    resp = requests.put(base_url + '/v1alpha1/users/' + unix_name, params=params, json=json)
-    if resp.status_code == requests.codes.ok:
-        logger.info('Updated profile for user %s' %unix_name)
-        return True
-    logger.error('Unable to update profile for user %s' %unix_name)
-    return False
+@decorators.permit_keys('name', 'institution', 'email', 'phone', 'public_key')
+def update_user_profile(username, **settings):
+    request_data = {'apiVersion': 'v1alpha1', 'kind': 'User', 'metadata': settings}
+    response = requests.put(url + '/v1alpha1/users/' + username, params={'token': token}, json=request_data)
+    if response.text:
+        data = response.json()
+        if data.get('kind') == 'Error':
+            raise ConnectApiError(data['message'])
+    logger.info('Updated profile for user %s.' %username)
 
-def get_user_groups(unix_name):
-    profile = get_user_profile(unix_name)
-    if not profile:
-        return None
-    multiplex = {}
-    states = {}
-    for group in profile['group_memberships']:
-        group_name = group['name']
-        state = group['state']
-        states[group_name] = state
-        query = '/v1alpha1/groups/' + group_name+ '?token=' + token
-        multiplex[query] = {'method': 'GET'}
-    resp = requests.post(base_url + '/v1alpha1/multiplex', params=params, json=multiplex)
-    if resp.status_code != requests.codes.ok:
-        raise Exception('Error getting groups for user %s' %unix_name)
-    resp = resp.json()
-    groups = []
-    for entry in resp:
-        if resp[entry]['status'] == requests.codes.ok:
-            group = json.loads(resp[entry]['body'])['metadata']
-            group_name = group['name']
-            group['role'] = states[group_name]
-            groups.append(group)
-    groups.sort(key = lambda group : group['name'])
-    return groups
+def get_user_roles(username):
+    profile = get_user_profile(username)
+    if profile:
+        return {group_membership['name'] : group_membership['state'] for group_membership in profile['group_memberships']}
+    return None
 
-def get_group_info(group_name, date_format='%B %m %Y'):
-    resp = requests.get(base_url + '/v1alpha1/groups/' + group_name, params=params)
-    if resp.status_code != requests.codes.ok:
-        raise Exception('Error getting info for group %s' %group_name)
-    group = resp.json()['metadata']
-    group['pending'] = str(group['pending'])
-    group['creation_date'] = parse(group['creation_date']).strftime(date_format)
-    group['is_deletable'] = is_group_deletable(group_name)
-    return group
+def get_user_groups(username, **options):
+    roles = get_user_roles(username)
+    request_data = {}
+    for group_name in roles:
+        request_data['/v1alpha1/groups/' + group_name + '?token=' + token] = {'method': 'GET'}
+    response = requests.post(url + '/v1alpha1/multiplex', params={'token': token}, json=request_data)
+    if response.text:
+        data = response.json()
+        if data.get('kind') == 'Error':
+            raise ConnectApiError(data['message'])
+        groups = []
+        for value in data.values():
+            if value['status'] == requests.codes.ok:
+                group = {}
+                metadata = json.loads(value['body'])['metadata']
+                group['name'] = metadata['name']
+                group['display_name'] = metadata['display_name']
+                group['description'] = metadata['description']
+                group['email'] = metadata['email']
+                group['phone'] = metadata['phone']
+                group['purpose'] = metadata['purpose']
+                group['unix_id'] = metadata['unix_id']
+                group['pending'] = metadata['pending']
+                date_format = options.get('date_format', 'calendar')
+                if date_format == 'object':
+                    group['creation_date'] = parse(metadata['creation_date'])
+                elif date_format == 'iso':
+                    group['creation_date'] = parse(metadata['creation_date']).isoformat()
+                elif date_format == 'calendar':
+                    group['creation_date'] = parse(metadata['creation_date']).strftime('%B %m %Y')
+                else:
+                    group['creation_date'] = parse(metadata['creation_date']).strftime(date_format)
+                group['role'] = roles.get(group['name'])
+                groups.append(group)
+        groups.sort(key = lambda group : group['name'])
+        return groups
+    return None
 
-def update_group_info(group_name, display_name, email, phone, description):
-    json = {
-        'apiVersion': 'v1alpha1',
-        'metadata': {
-            'display_name': display_name,
-            'email': email,
-            'phone': phone,
-            'description': description,
-        }
-    }
-    resp = requests.put(base_url + '/v1alpha1/groups/' + group_name, params=params, json=json)
-    if resp.status_code == requests.codes.ok:
-        logger.info('Updated info for group %s' %group_name)
-        return True
-    logger.error('Unable to update info for group %s' %group_name)
-    return False
+def get_group_info(group_name, **options):
+    response = requests.get(url + '/v1alpha1/groups/' + group_name, params={'token': token})
+    data = response.json()
+    if data.get('kind') == 'Error':
+        raise ConnectApiError(data['message'])
+    if data.get('kind') == 'Group':
+        group = {}
+        metadata = data['metadata']
+        group['name'] = metadata['name']
+        group['display_name'] = metadata['display_name']
+        group['description'] = metadata['description']
+        group['email'] = metadata['email']
+        group['phone'] = metadata['phone']
+        group['purpose'] = metadata['purpose']
+        group['unix_id'] = metadata['unix_id']
+        group['pending'] = metadata['pending']
+        date_format = options.get('date_format', 'calendar')
+        if date_format == 'object':
+            group['creation_date'] = parse(metadata['creation_date'])
+        elif date_format == 'iso':
+            group['creation_date'] = parse(metadata['creation_date']).isoformat()
+        elif date_format == 'calendar':
+            group['creation_date'] = parse(metadata['creation_date']).isoformat()
+        else:
+            group['creation_date'] = parse(metadata['creation_date']).strftime('%B %m %Y')
+        group['is_deletable'] = is_group_deletable(group_name)
+        return group
+    return None
 
-def get_group_members(group_name, states=['admin', 'active', 'pending']):
-    usernames = []
-    resp = requests.get(base_url + '/v1alpha1/groups/' + group_name + '/members', params=params)
-    if resp.status_code != requests.codes.ok:
-        raise Exception('Error getting members for group %s' %group_name)
-    for entry in resp.json()['memberships']:
-        username = entry['user_name']
-        if entry['state'] in states:
-            usernames.append(username)
-    return usernames
+@decorators.permit_keys('group_name', 'display_name', 'email', 'phone', 'description')
+def update_group_info(group_name, **settings):
+    request_data = {'apiVersion': 'v1alpha1', 'metadata': settings}
+    response = requests.put(url + '/v1alpha1/groups/' + group_name, params={'token': token}, json=request_data)
+    if response.text:
+        data = response.json()
+        if data.get('kind') == 'Error':
+            raise ConnectApiError(data['message'])
+    logger.info('Updated info for group %s' %group_name)
 
-def update_user_group_status(unix_name, group_name, status):
-    json = {'apiVersion': 'v1alpha1', 'group_membership': {'state': status}}
-    resp = requests.put(base_url + '/v1alpha1/groups/' + group_name + '/members/' + unix_name, params=params, json=json)
-    if resp.status_code == requests.codes.ok:
-        logger.info('Set status to %s for user %s in group %s' %(status, unix_name, group_name))
-        return True
-    logger.error('Unable to update status for user %s in group %s' %(unix_name, group_name))
-    return False
+def update_user_role(username, group_name, role):
+    request_data = {'apiVersion': 'v1alpha1', 'group_membership': {'state': role}}
+    response = requests.put(url + '/v1alpha1/groups/' + group_name + '/members/' + username, params={'token': token}, json=request_data)
+    if response.text:
+        data = response.json()
+        if data.get('kind') == 'Error':
+            raise ConnectApiError(data['message'])
+    logger.info('Set role to %s for user %s in group %s' %(role, username, group_name))
 
-def remove_user_from_group(unix_name, group_name):
-    resp = requests.delete(base_url + '/v1alpha1/groups/' + group_name + '/members/' + unix_name, params=params)
-    if resp.status_code == requests.codes.ok:
-        logger.info('Removed user %s from group %s' %(unix_name, group_name))
-        return True
-    logger.error('Unable to remove user %s from group %s' %(unix_name, group_name))
-    return False
+def remove_user_from_group(username, group_name):
+    response = requests.delete(url + '/v1alpha1/groups/' + group_name + '/members/' + username, params={'token': token})
+    if response.text:
+        data = response.json()
+        if data.get('kind') == 'Error':
+            raise ConnectApiError(data['message'])
+    logger.info('Removed user %s from group %s' %(username, group_name))
 
 def get_subgroups(group_name):
-    resp = requests.get(base_url + '/v1alpha1/groups/' + group_name + '/subgroups', params=params)
-    if resp.status_code != requests.codes.ok:
-        raise Exception('Error getting group %s' %group_name)
-    subgroups = resp.json()['groups']
-    return subgroups
+    response = requests.get(url + '/v1alpha1/groups/' + group_name + '/subgroups', params={'token': token})
+    if response.text:
+        data = response.json()
+        if data.get('kind') == 'Error':
+            raise ConnectApiError(data['message'])
+        return data.get('groups')
+    return None
 
-def create_subgroup(subgroup_name, display_name, group_name, email, phone, description, purpose):
-    json = {
-        'apiVersion': 'v1alpha1',
-        'metadata': {
-            'name': subgroup_name,
-            'display_name': display_name,
-            'purpose': purpose,
-            'email': email,
-            'phone': phone,
-            'description': description
-        }
-    }
-    resp = requests.put(base_url + '/v1alpha1/groups/' + group_name + '/subgroup_requests/' + subgroup_name, params=params, json=json)
-    if resp.status_code == requests.codes.ok:
-        logger.info('Created subgroup %s in group %s', subgroup_name, group_name)
-        return True
-    logger.error('Unable to create subgroup %s in group %s' %(subgroup_name, group_name))
-    return False
+@decorators.require_keys('name', 'display_name', 'email', 'phone', 'description', 'purpose')
+def create_subgroup(group_name, **settings):
+    request_data = {'apiVersion': 'v1alpha1', 'metadata': settings}
+    response = requests.put(url + '/v1alpha1/groups/' + group_name + '/subgroup_requests/' + settings['name'], params={'token': token}, json=request_data)
+    if response.text:
+        data = response.json()
+        if data.get('kind') == 'Error':
+            raise ConnectApiError(data['message'])
+    logger.info('Created subgroup %s in group %s' %(settings['name'], group_name))
 
 def is_group_deletable(group_name):
-    return group_name not in (
-        'root', 
-        'root.atlas-af', 
-        'root.atlas-af.staff',
-        'root.atlas-af.uchicago',
-        'root.atlas-ml', 
-        'root.atlas-ml.staff', 
-        'root.iris-hep-ml',
-        'root.iris-hep-ml.staff',
-        'root.osg',
-        'root.osg.login-nodes')
+    if group_name in ('root', 'root.atlas-af', 'root.atlas-af.staff', 'root.atlas-af.uchicago', 'root.atlas-ml', 'root.atlas-ml.staff', 'root.iris-hep-ml', 'root.iris-hep-ml.staff', 'root.osg', 'root.osg.login-nodes'):
+        return False
+    return True
 
 def delete_group(group_name):
     if is_group_deletable(group_name):
-        resp = requests.delete(base_url + '/v1alpha1/groups/' + group_name, params=params)
-        if resp.status_code == requests.codes.ok:
-            logger.info('Removed group %s' %group_name)
-            return True
-        logger.error('Unable to remove group %s' %group_name)
+        response = requests.delete(url + '/v1alpha1/groups/' + group_name, params={'token': token})
+        if response.text:
+            data = response.json()
+            if data.get('kind') == 'Error':
+                raise ConnectApiError(data['message'])
+        logger.info('Removed group %s' %group_name)
+        return True
     return False

@@ -159,9 +159,9 @@ $(document).ready(function() {
     const membersTable = $("#members-table").DataTable({
         processing: true,
         lengthMenu: [10, 25, 50, 100, 1000],
-        ajax: {url: "{{ url_for('get_group_members', group_name=group['name']) }}", dataSrc: "members"},
+        ajax: {url: "{{ url_for('get_members', group_name=group['name']) }}", dataSrc: "members"},
         columns: [
-            { data: "username" },
+            { data: "unix_name" },
             { data: "name" },
             { data: "email" },
             { data: "phone" },
@@ -193,22 +193,22 @@ $(document).ready(function() {
         order: [5, "desc"]
     }).on("click", "a.remove-member", function() {
         const row = membersTable.row($(this).parents("tr"));
-        const username = row.data().username;
-        const url = "{{request.url_root}}/admin/remove_group_member/{{group['name']}}/" + username;
+        const unix_name = row.data().unix_name;
+        const url = "{{request.url_root}}/admin/remove_group_member/{{group['name']}}/" + unix_name;
         fetch(url).then(resp => resp.json()).then(resp => {
             if (resp.success) {
                 row.remove().draw();
                 potentialMembersTable.ajax.reload();
-                flash("Removed " + username + " from group {{ group['name'] }} ", "success");
+                flash("Removed " + unix_name + " from group {{ group['name'] }} ", "success");
             }
         });
     });
     const memberRequestsTable = $("#member-requests-table").DataTable({
         processing: true,
         lengthMenu: [10, 25, 50, 100],
-        ajax: {url: "{{ url_for('get_group_member_requests', group_name=group['name']) }}", dataSrc: "member_requests"},
+        ajax: {url: "{{ url_for('get_member_requests', group_name=group['name']) }}", dataSrc: "member_requests"},
         columns: [
-            { data: "username" },
+            { data: "unix_name" },
             { data: "name" },
             { data: "email" },
             { data: "phone" },
@@ -243,26 +243,26 @@ $(document).ready(function() {
         }
     }).on("click", "a.approve-member-request", function() {
         const row = memberRequestsTable.row($(this).parents("tr"));
-        const username = row.data().username;
-        const url = "{{request.url_root}}/admin/approve_membership_request/{{group['name']}}/" + username;
+        const unix_name = row.data().unix_name;
+        const url = "{{request.url_root}}/admin/approve_membership_request/{{group['name']}}/" + unix_name;
         fetch(url).then(resp => resp.json()).then(resp => {
             if (resp.success) {
                 row.remove().draw();
                 membersTable.ajax.reload();
-                flash("Approved request from " + username + " to join group {{ group['name'] }} ", "success");
+                flash("Approved request from " + unix_name + " to join group {{ group['name'] }} ", "success");
                 const count = memberRequestsTable.rows().data().length;
                 $("#number-of-member-requests").html(count);
             }
         });
     }).on("click", "a.deny-member-request", function() {
         const row = memberRequestsTable.row($(this).parents("tr"));
-        const username = row.data().username;
-        const url = "{{request.url_root}}/admin/deny_membership_request/{{group['name']}}/" + username;
+        const unix_name = row.data().unix_name;
+        const url = "{{request.url_root}}/admin/deny_membership_request/{{group['name']}}/" + unix_name;
         fetch(url).then(resp => resp.json()).then(resp => {
             if (resp.success) {
                 row.remove().draw();
                 potentialMembersTable.ajax.reload();
-                flash("Denied request from " + username + " to join group {{ group['name'] }} ", "success");
+                flash("Denied request from " + unix_name + " to join group {{ group['name'] }} ", "success");
                 const count = memberRequestsTable.rows().data().length;
                 $("#number-of-member-requests").html(count);
             }
@@ -271,7 +271,7 @@ $(document).ready(function() {
    const subgroupsTable = $("#subgroups-table").DataTable({
         processing: true,
         lengthMenu: [10, 25, 50, 100],
-        ajax: {url: "{{ url_for('get_group_subgroups', group_name=group['name']) }}", dataSrc: "subgroups"},
+        ajax: {url: "{{ url_for('get_subgroups', group_name=group['name']) }}", dataSrc: "subgroups"},
         columns: [
             { data: "name" },
             { data: "email" },
@@ -289,9 +289,9 @@ $(document).ready(function() {
     const potentialMembersTable = $("#potential-members-table").DataTable({
         processing: true,
         lengthMenu: [10, 25, 50, 100, 1000],
-        ajax: {url: "{{ url_for('get_group_potential_members', group_name=group['name']) }}", dataSrc: "potential_members"},
+        ajax: {url: "{{ url_for('get_potential_members', group_name=group['name']) }}", dataSrc: "potential_members"},
         columns: [
-            { data: "username" },
+            { data: "unix_name" },
             { data: "name" },
             { data: "email" },
             { data: "phone" },
@@ -321,13 +321,13 @@ $(document).ready(function() {
         order: [5, "desc"]
     }).on("click", "a.add-member", function() {
         const row = potentialMembersTable.row($(this).parents("tr"));
-        const username = row.data().username;
-        const url = "{{request.url_root}}/admin/add_group_member/{{group['name']}}/" + username;
+        const unix_name = row.data().unix_name;
+        const url = "{{request.url_root}}/admin/add_group_member/{{group['name']}}/" + unix_name;
         fetch(url).then(resp => resp.json()).then(resp => {
             if (resp.success) {
                 row.remove().draw();
                 membersTable.ajax.reload();
-                flash("Added " + username + " to group {{ group['name'] }} ", "success");
+                flash("Added " + unix_name + " to group {{ group['name'] }} ", "success");
             }
         });
     });

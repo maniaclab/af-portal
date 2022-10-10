@@ -1,4 +1,5 @@
-from portal import app, auth, logger, connect, jupyterlab, admin, forms
+from portal import app, logger, connect, jupyterlab, email, math, decorators
+from portal.errors import ConnectApiError
 from flask import session, request, render_template, url_for, redirect, jsonify, flash
 import globus_sdk
 from urllib.parse import urlparse, urljoin
@@ -17,12 +18,8 @@ def hardware():
 
 @app.route('/hardware/gpus')
 def get_gpus():
-    try:
-        gpus = jupyterlab.get_gpu_availability()
-        return jsonify(gpus=gpus)
-    except Exception as err:
-        logger.error(str(err))
-        return jsonify(gpus=[], error='There was an error getting GPU product information.')
+    gpus = jupyterlab.get_gpu_availability()
+    return jsonify(gpus=gpus)
 
 @app.route('/signup')
 def signup():
@@ -30,53 +27,48 @@ def signup():
 
 @app.route('/login')
 def login():
-    try:
-        redirect_uri = url_for('login', _external=True)
-        client = globus_sdk.ConfidentialAppAuthClient(app.config['CLIENT_ID'], app.config['CLIENT_SECRET'])
-        client.oauth2_start_flow(redirect_uri, refresh_tokens=True)
-        if 'code' not in request.args:
-            next_url = get_safe_redirect()
-            params = {'signup': 1} if request.args.get('signup') else {'next': next_url}
-            auth_uri = client.oauth2_get_authorize_url(additional_params=params)
-            return redirect(auth_uri)
-        else:
-            code = request.args.get('code')
-            tokens = client.oauth2_exchange_code_for_tokens(code)
-            id_token = tokens.decode_id_token(client)
-            session.update(
-                tokens=tokens.by_resource_server, 
-                is_authenticated=True,
-                name=id_token.get('name', ''),
-                email=id_token.get('email', ''),
-                institution=id_token.get('organization', ''),
-                globus_id=id_token.get('sub', ''),
-                last_authentication=id_token.get('last_authentication', -1)
-            )
-            user = connect.find_user(session['globus_id'])
-            if user:
-                profile = connect.get_user_profile(user['unix_name'])
+    redirect_uri = url_for('login', _external=True)
+    client = globus_sdk.ConfidentialAppAuthClient(app.config['CLIENT_ID'], app.config['CLIENT_SECRET'])
+    client.oauth2_start_flow(redirect_uri, refresh_tokens=True)
+    if 'code' not in request.args:
+        next_url = get_safe_redirect()
+        params = {'signup': 1} if request.args.get('signup') else {'next': next_url}
+        auth_uri = client.oauth2_get_authorize_url(additional_params=params)
+        return redirect(auth_uri)
+    else:
+        code = request.args.get('code')
+        tokens = client.oauth2_exchange_code_for_tokens(code)
+        id_token = tokens.decode_id_token(client)
+        session.update(
+            tokens=tokens.by_resource_server, 
+            is_authenticated=True,
+            name=id_token.get('name', ''),
+            email=id_token.get('email', ''),
+            institution=id_token.get('organization', ''),
+            globus_id=id_token.get('sub', ''),
+            last_authentication=id_token.get('last_authentication', -1)
+        )
+        username = connect.get_username(session['globus_id'])
+        if username:
+            profile = connect.get_user_profile(username)
+            if profile:
                 session['unix_name'] = profile['unix_name']
                 session['unix_id'] = profile['unix_id']
-                session['role'] = profile['role'] if profile else 'nonmember'
-            return redirect(url_for('home'))
-    except Exception as err:
-        logger.error(str(err))
-        return render_template('500.html', error_message='There was an error attempting to login.')
+                session['role'] = profile['role']
+            else:
+                session['role'] = 'nonmember'
+        return redirect(url_for('home'))
 
 @app.route('/logout')
-@auth.login_required
+@decorators.login_required
 def logout():
-    try:
-        client = globus_sdk.ConfidentialAppAuthClient(app.config['CLIENT_ID'], app.config['CLIENT_SECRET'])
-        for token in (token_info['access_token'] for token_info in session['tokens'].values()):
-            client.oauth2_revoke_token(token)
-        session.clear()
-        redirect_uri = url_for('home', _external=True)
-        globus_logout_url = ('https://auth.globus.org/v2/web/logout?client=%s&redirect_uri=%s&redirect_name=AF Portal' %(app.config['CLIENT_ID'], redirect_uri))
-        return redirect(globus_logout_url)
-    except Exception as err:
-        logger.error(str(err))
-        return render_template('500.html', error_message='There was an error attempting to logout.')
+    client = globus_sdk.ConfidentialAppAuthClient(app.config['CLIENT_ID'], app.config['CLIENT_SECRET'])
+    for token in (token_info['access_token'] for token_info in session['tokens'].values()):
+        client.oauth2_revoke_token(token)
+    session.clear()
+    redirect_uri = url_for('home', _external=True)
+    globus_logout_url = ('https://auth.globus.org/v2/web/logout?client=%s&redirect_uri=%s&redirect_name=AF Portal' %(app.config['CLIENT_ID'], redirect_uri))
+    return redirect(globus_logout_url)
 
 def is_safe_redirect_url(target):
   host_url = urlparse(request.host_url)
@@ -94,95 +86,88 @@ def get_safe_redirect():
   return '/'
 
 @app.route('/profile')
-@auth.login_required
+@decorators.login_required
 def profile():
-    try:
-        unix_name = session.get('unix_name', None)
-        if unix_name:
-            profile = connect.get_user_profile(unix_name)
-            return render_template('profile.html', profile=profile)
-        return render_template('create_profile.html')
-    except Exception as err:
-        logger.error(str(err))
-        return render_template('500.html', error_message='There was an error retrieving the user profile.')
+    unix_name = session.get('unix_name')
+    if unix_name:
+        profile = connect.get_user_profile(unix_name)
+        return render_template('profile.html', profile=profile)
+    return render_template('create_profile.html')
 
 @app.route('/profile/create', methods=['GET', 'POST'])
-@auth.login_required
+@decorators.login_required
 def create_profile():
-    if request.method == 'GET':
-        return render_template('create_profile.html')
-    if request.method == 'POST':
-        try:
-            globus_id = session['globus_id']
-            unix_name = request.form['unix_name'].strip()
-            name = request.form['name'].strip()
-            email = request.form['email'].strip()
-            phone = request.form['phone'].strip()
-            institution = request.form['institution'].strip()
-            public_key = request.form['public_key'].strip()
-            if connect.create_user_profile(globus_id=globus_id, unix_name=unix_name, name=name, email=email, phone=phone, institution=institution, public_key=public_key):
-                session.update(unix_name=unix_name, name=name, phone=phone, email=email, institution=institution)
-                connect.update_user_group_status(unix_name, 'root.atlas-af', 'pending')
-                flash('Successfully created profile', 'success')
-                return redirect(url_for('profile'))
-        except Exception as err:
-            logger.error('There was an error trying to create a profile for %s' %session['name'])
-            logger.error(str(err))
-        flash('Unable to create profile', 'warning')
+    try: 
+        if request.method == 'GET':
+            return render_template('create_profile.html')
+        if request.method == 'POST':
+            profile = {
+                'globus_id': session['globus_id'],
+                'unix_name': request.form['unix_name'].strip(),
+                'name': request.form['name'].strip(),
+                'email': request.form['email'].strip(),
+                'phone': request.form['phone'].strip(),
+                'institution': request.form['institution'].strip(),
+                'public_key': request.form['public_key'].strip()
+            }
+            connect.create_user_profile(**profile)
+            connect.update_user_role(profile['unix_name'], 'root.atlas-af', 'pending')
+            session.update(
+                unix_name=profile['unix_name'], 
+                name=profile['name'], 
+                phone=profile['phone'], 
+                email=profile['email'], 
+                institution=profile['institution'])
+            flash('Successfully created profile', 'success')
+            return redirect(url_for('profile'))
+    except ConnectApiError as err:
+        flash(str(err), 'warning')
         return redirect(url_for('create_profile'))
 
 @app.route('/profile/edit', methods=['GET', 'POST'])
-@auth.login_required
+@decorators.login_required
 def edit_profile():
+    unix_name = session['unix_name']
     try:
-        unix_name = session['unix_name']
         if request.method == 'GET':
             profile = connect.get_user_profile(unix_name)
             return render_template('edit_profile.html', profile=profile)
         if request.method == 'POST':
-            name = request.form['name'].strip()
-            email = request.form['email'].strip()
-            phone = request.form['phone'].strip()
-            institution = request.form['institution'].strip()
-            x509_dn = request.form['X.509_DN'].strip()
-            public_key = request.form['public_key'].strip()
-            if connect.update_user_profile(unix_name=unix_name, name=name, email=email, phone=phone, institution=institution, x509_dn=x509_dn, public_key=public_key):
-                flash('Successfully updated profile', 'success')
-                return redirect(url_for('profile'))
-    except Exception as err:
-        logger.error('There was an error trying to update the profile of user %s' %session['unix_name'])
-        logger.error(str(err))
-    flash('Unable to edit profile', 'warning')
-    return redirect(url_for('edit_profile'))
+            profile = {
+                'name': request.form['name'].strip(),
+                'email': request.form['email'].strip(),
+                'phone': request.form['phone'].strip(),
+                'institution': request.form['institution'].strip(),
+                'public_key': request.form['public_key'].strip()
+            }
+            connect.update_user_profile(unix_name, **profile)
+            flash('Successfully updated profile', 'success')
+            return redirect(url_for('profile'))
+    except ConnectApiError as err:
+        flash(str(err), 'warning')
+        return redirect(url_for('edit_profile'))
 
 @app.route('/profile/groups')
-@auth.login_required
+@decorators.login_required
 def user_groups():
     return render_template('user_groups.html')
 
 @app.route('/profile/get_user_groups')
-@auth.login_required
+@decorators.login_required
 def get_user_groups():
-    try:
-        unix_name = session['unix_name']
-        groups = connect.get_user_groups(unix_name)
-        return jsonify(groups=groups)
-    except Exception as err:
-        logger.error(str(err))
-        return jsonify(groups=[], error='There was an error getting user groups.')
+    unix_name = session['unix_name']
+    groups = connect.get_user_groups(unix_name)
+    return jsonify(groups=groups)
 
 @app.route('/profile/request_membership/<unix_name>')
-@auth.login_required
+@decorators.login_required
 def request_membership(unix_name):
     try:
-        if connect.update_user_group_status(unix_name, 'root.atlas-af', 'pending'):
-            flash('Requested membership in the ATLAS Analysis Facility group', 'success')
-        else:
-            flash('Unable to request membership in the ATLAS Analysis Facility group', 'warning')
+        connect.update_user_role(unix_name, 'root.atlas-af', 'pending')
+        flash('Requested membership in the ATLAS Analysis Facility group', 'success')
         return redirect(url_for('profile'))
-    except Exception as err:
-        logger.error(str(err))
-        flash('Error requesting membership in the ATLAS Analysis Facility group', 'warning')
+    except ConnectApiError as err:
+        flash(str(err), 'warning')
         return redirect(url_for('profile'))
 
 @app.route('/aup')
@@ -190,331 +175,230 @@ def aup():
     return render_template('aup.html')
 
 @app.route('/jupyterlab')
-@auth.members_only
+@decorators.members_only
 def open_jupyterlab():
     return render_template('jupyterlab.html')
 
 @app.route('/jupyterlab/get_notebooks')
-@auth.members_only
+@decorators.members_only
 def get_notebooks():
-    try:
-        username = session['unix_name']
-        notebooks = jupyterlab.get_notebooks(owner=username, url=True)
-        return jsonify(notebooks=notebooks)
-    except Exception as err:
-        logger.error(str(err))
-        return jsonify(notebooks=[], error='There was an error getting user notebooks.')
+    username = session['unix_name']
+    notebooks = jupyterlab.get_notebooks(owner=username, url=True)
+    return jsonify(notebooks=notebooks)
 
 @app.route('/jupyterlab/configure')
-@auth.members_only
+@decorators.members_only
 def configure_notebook():
-    try:
-        username = session['unix_name']
-        notebook_name = jupyterlab.generate_notebook_name(username)
-        return render_template('jupyterlab_form.html', notebook_name=notebook_name)
-    except Exception as err:
-        logger.error(str(err))
-        return render_template('jupyterlab_form.html', notebook_name=None)
+    username = session['unix_name']
+    notebook_name = jupyterlab.generate_notebook_name(username)
+    return render_template('jupyterlab_form.html', notebook_name=notebook_name)
 
 @app.route('/jupyterlab/deploy', methods=['POST'])
-@auth.members_only
-@forms.valid_notebook
+@decorators.members_only
+@decorators.validate_notebook
 def deploy_notebook():
-    try:
-        settings = dict()
-        settings['notebook_name'] = request.form['notebook-name'].strip()
-        settings['notebook_id'] = settings['notebook_name'].lower()
-        settings['image'] = request.form['image']
-        settings['owner'] = session['unix_name']
-        settings['owner_uid'] = session.get('unix_id', -1)
-        settings['globus_id'] = session['globus_id']
-        settings['cpu_request'] = int(request.form['cpu'])
-        settings['memory_request'] = '{}Gi'.format(int(request.form['memory']))
-        settings['gpu_request'] = int(request.form['gpu'])
-        settings['cpu_limit'] = settings['cpu_request'] * 2
-        settings['memory_limit'] = '{}Gi'.format(int(request.form['memory'])*2)
-        settings['gpu_limit'] = settings['gpu_request']
-        settings['gpu_memory'] = int(request.form['gpu-memory'])
-        settings['hours_remaining'] = int(request.form['duration'])
-        jupyterlab.deploy_notebook(**settings)
-    except Exception as err:
-        logger.error(str(err))
-        flash('There was an error deploying the notebook', 'warning')
-        return redirect(url_for('configure_notebook'))
+    settings = {
+        'notebook_name': request.form['notebook-name'].strip(),
+        'notebook_id': request.form['notebook-name'].strip().lower(),
+        'image': request.form['image'],
+        'owner': session.get('unix_name'),
+        'owner_uid': session.get('unix_id'),
+        'globus_id': session.get('globus_id'),
+        'cpu_request': int(request.form['cpu']),
+        'cpu_limit': int(request.form['cpu'])*2,
+        'memory_request': '{}Gi'.format(int(request.form['memory'])),
+        'memory_limit': '{}Gi'.format(int(request.form['memory'])*2),
+        'gpu_request': int(request.form['gpu']),
+        'gpu_limit': int(request.form['gpu']),
+        'gpu_memory': int(request.form['gpu-memory']),
+        'hours_remaining': int(request.form['duration'])        
+    }
+    jupyterlab.deploy_notebook(**settings)
     return redirect(url_for('open_jupyterlab'))
 
 @app.route('/jupyterlab/remove/<notebook>')
-@auth.members_only
+@decorators.members_only
 def remove_notebook(notebook):
-    try:
-        pod = jupyterlab.get_pod(notebook)
-        if pod.metadata.labels['owner'] == session['unix_name']: 
-            jupyterlab.remove_notebook(notebook)
-            return jsonify(success=True, message='Notebook %s was deleted.' %notebook)
-    except Exception as err:
-        logger.error(str(err))
-    return jsonify(success=False)
+    pod = jupyterlab.get_pod(notebook)
+    if pod.metadata.labels['owner'] == session['unix_name']: 
+        jupyterlab.remove_notebook(notebook)
+        return jsonify(success=True, message='Notebook %s was deleted.' %notebook)
 
 @app.route('/kibana')
-@auth.members_only
+@decorators.members_only
 def kibana_user():
-    try: 
-        username = session['unix_name']
-        notebooks = jupyterlab.get_notebooks(username)
-        return render_template('kibana_user.html', notebooks=notebooks)
-    except Exception as err:
-        logger.error(str(err))
-        return render_template('500.html', error_message='There was an error retrieving user notebooks.')
+    username = session['unix_name']
+    notebooks = jupyterlab.get_notebooks(username)
+    return render_template('kibana_user.html', notebooks=notebooks)
 
 @app.route('/admin/notebooks')
-@auth.admins_only
+@decorators.admins_only
 def open_notebooks():
     return render_template('notebooks.html')
 
 @app.route('/admin/list_notebooks')
-@auth.admins_only
+@decorators.admins_only
 def list_notebooks():
-    try:
-        notebooks = jupyterlab.list_notebooks()
-        return jsonify(notebooks=notebooks)
-    except Exception as err:
-        logger.error(str(err))
-        return jsonify(notebooks=[], error='There was an error listing notebooks.')
+    notebooks = jupyterlab.list_notebooks()
+    return jsonify(notebooks=notebooks)
 
 @app.route('/admin/get_notebook/<notebook_name>')
-@auth.admins_only
+@decorators.admins_only
 def get_notebook(notebook_name):
-    try:
-        notebook = jupyterlab.get_notebook(name=notebook_name, log=True)
-        return jsonify(notebook=notebook)
-    except Exception as err:
-        logger.error(str(err))
-        return jsonify(notebook=None, error='There was an error getting notebook %s.' %notebook_name)    
+    notebook = jupyterlab.get_notebook(name=notebook_name, log=True)
+    return jsonify(notebook=notebook)
 
 @app.route('/admin/users')
-@auth.admins_only
+@decorators.admins_only
 def user_info():
     return render_template('users.html')
 
 @app.route('/admin/get_user_profiles')
-@auth.admins_only
+@decorators.admins_only
 def get_user_profiles():
-    try:
-        usernames = connect.get_group_members('root.atlas-af')
-        users = connect.get_user_profiles(usernames, date_format='%m/%d/%Y')
-        return jsonify(users=users)
-    except Exception as err:
-        logger.error(str(err))
-        return jsonify(users=[], error='There was an error getting user profiles.')
+    users = connect.get_user_profiles('root.atlas-af', date_format='%m/%d/%Y')
+    return jsonify(users=users)
 
 @app.route('/admin/plot_users_over_time')
-@auth.admins_only
+@decorators.admins_only
 def plot_users_over_time():
-    try:
-        data = admin.plot_users_over_time()
-        return render_template('plot_users_over_time.html', base64_encoded_image = data)
-    except Exception as err:
-        logger.error(str(err))
-        return render_template('500.html', error_message='There was an error generating the graph of user registrations.')
+    data = math.plot_users_over_time()
+    return render_template('plot_users_over_time.html', base64_encoded_image=data)
 
 @app.route('/admin/kibana')
-@auth.admins_only
+@decorators.admins_only
 def kibana_admin():
-    try: 
-        notebooks = jupyterlab.get_notebooks()
-        return render_template('kibana_admin.html', notebooks=notebooks)
-    except Exception as err:
-        flash('There was an error retrieving notebooks.', 'warning')
-        return render_template('kibana_admin.html', notebooks=[])
+    notebooks = jupyterlab.get_notebooks()
+    return render_template('kibana_admin.html', notebooks=notebooks)
 
 @app.route('/admin/groups/<group_name>')
-@auth.admins_only
+@decorators.admins_only
 def groups(group_name):
-    try:
-        group = connect.get_group_info(group_name)
-        return render_template('groups.html', group=group)
-    except Exception as err:
-        logger.error(str(err))
-        return render_template('404.html')
+    group = connect.get_group_info(group_name)
+    return render_template('groups.html', group=group)
 
-@app.route('/admin/get_group_members/<group_name>')
-@auth.admins_only
-def get_group_members(group_name):
-    try:
-        usernames = connect.get_group_members(group_name, states=['active', 'admin'])
-        profiles = connect.get_user_profiles(usernames)
-        return jsonify(members=profiles)
-    except Exception as err:
-        logger.error(str(err))
-        return jsonify(members=[], error='There was an error getting member profiles.')
+@app.route('/admin/get_members/<group_name>')
+@decorators.admins_only
+def get_members(group_name):
+    profiles = connect.get_user_profiles(group_name)
+    members = list(filter(lambda profile : profile['role'] in ('active', 'admin'), profiles))
+    return jsonify(members=members)
 
-@app.route('/admin/get_group_member_requests/<group_name>')
-@auth.admins_only
-def get_group_member_requests(group_name):
-    try:
-        usernames = connect.get_group_members(group_name, states=['pending'])
-        profiles = connect.get_user_profiles(usernames)
-        return jsonify(member_requests=profiles)
-    except Exception as err:
-        logger.error(str(err))
-        return jsonify(member_requests=[], error='There was an error getting member requests.')
+@app.route('/admin/get_member_requests/<group_name>')
+@decorators.admins_only
+def get_member_requests(group_name):
+    profiles = connect.get_user_profiles(group_name)
+    member_requests = list(filter(lambda profile : profile['role'] == 'pending', profiles))
+    return jsonify(member_requests=member_requests)
 
 @app.route('/admin/get_subgroups/<group_name>')
-@auth.admins_only
-def get_group_subgroups(group_name):
-    try:
-        subgroups = connect.get_subgroups(group_name)
-        return jsonify(subgroups=subgroups)
-    except Exception as err:
-        logger.error(str(err))
-        return jsonify(subgroups=[], error='There was an error getting subgroups.')
+@decorators.admins_only
+def get_subgroups(group_name):
+    subgroups = connect.get_subgroups(group_name)
+    return jsonify(subgroups=subgroups)
 
 @app.route('/admin/get_potential_members/<group_name>')
-@auth.admins_only
-def get_group_potential_members(group_name):
-    try:
-        members = connect.get_group_members(group_name, states=['admin', 'active'])
-        users = connect.get_group_members('root')
-        potential_members = filter(lambda user : user not in members, users)
-        profiles = connect.get_user_profiles(potential_members)
-        return jsonify(potential_members=profiles)
-    except Exception as err:
-        logger.error(str(err))
-        return jsonify(potential_members=[], error='There was an error getting potential members.')
+@decorators.admins_only
+def get_potential_members(group_name):
+    users = connect.get_user_profiles('root')
+    potential_members = list(filter(lambda user : user['role'] in ('nonmember', 'pending'), users))
+    return jsonify(potential_members=potential_members)
 
 @app.route('/admin/email/<group_name>', methods=['POST'])
-@auth.admins_only
+@decorators.admins_only
 def send_email(group_name):
-    try:
-        sender = 'noreply@af.uchicago.edu'
-        recipients = admin.get_email_list(group_name)
-        subject = request.form['subject']
-        body = request.form['body']
-        if admin.email_users(sender, recipients, subject, body):
-            return jsonify(success=True, message='Sent email to group %s' %group_name)
-        return jsonify(success=False, message='Unable to send email to group %s' %group_name)
-    except Exception as err:
-        logger.error('Error sending email to group %s' %group_name)
-        logger.error(str(err))
-        return jsonify(success=False, message='Error sending email to group %s' %group_name)
+    sender = 'noreply@af.uchicago.edu'
+    recipients = email.get_email_list(group_name)
+    subject = request.form['subject']
+    body = request.form['body']
+    if email.email_users(sender, recipients, subject, body):
+        return jsonify(success=True, message='Sent email to group %s' %group_name)
+    return jsonify(success=False, message='Unable to send email to group %s' %group_name)
 
 @app.route('/admin/add_group_member/<group_name>/<unix_name>')
-@auth.admins_only
+@decorators.admins_only
 def add_group_member(unix_name, group_name):
-    try:
-        success = connect.update_user_group_status(unix_name, group_name, 'active')
-        return jsonify(success=success)
-    except Exception as err:
-        logger.error(str(err))
-        return jsonify(success=True)
+    connect.update_user_role(unix_name, group_name, 'active')
+    return jsonify(success=True)
 
 @app.route('/admin/remove_group_member/<group_name>/<unix_name>')
-@auth.admins_only
+@decorators.admins_only
 def remove_group_member(unix_name, group_name):
-    try:
-        success = connect.remove_user_from_group(unix_name, group_name)
-        return jsonify(success=success)
-    except Exception as err:
-        logger.error(str(err))
-        return jsonify(success=False)
+    connect.remove_user_from_group(unix_name, group_name)
+    return jsonify(success=True)
 
 @app.route('/admin/approve_membership_request/<group_name>/<unix_name>')
-@auth.admins_only
+@decorators.admins_only
 def approve_membership_request(unix_name, group_name):
-    try:
-        success = connect.update_user_group_status(unix_name, group_name, 'active')
-        profile = connect.get_user_profile(unix_name)
-        approver = session['unix_name']
-        subject = 'Account approval'
-        body = '''
-            User %s approved a request from %s to join group %s.
+    connect.update_user_role(unix_name, group_name, 'active')
+    profile = connect.get_user_profile(unix_name)
+    approver = session['unix_name']
+    subject = 'Account approval'
+    body = '''
+        User %s approved a request from %s to join group %s.
 
-            Unix name: %s
-            Full name: %s
-            Email: %s
-            Institution: %s''' %(approver, unix_name, group_name, profile['unix_name'], profile['name'], profile['email'], profile['institution'])
-        admin.email_staff(subject, body)
-        return jsonify(success=True)
-    except Exception as err:
-        logger.error(str(err))
-        return jsonify(success=False)
+        Unix name: %s
+        Full name: %s
+        Email: %s
+        Institution: %s''' %(approver, unix_name, group_name, profile['unix_name'], profile['name'], profile['email'], profile['institution'])
+    email.email_staff(subject, body)
+    return jsonify(success=True)
 
 @app.route('/admin/deny_membership_request/<group_name>/<unix_name>')
-@auth.admins_only
+@decorators.admins_only
 def deny_membership_request(unix_name, group_name):
-    try:
-        success = connect.remove_user_from_group(unix_name, group_name)
-        return jsonify(success=True)
-    except Exception as err:
-        logger.error(str(err))
-        return jsonify(success=False)
+    connect.remove_user_from_group(unix_name, group_name)
+    return jsonify(success=True)
 
 @app.route('/admin/edit_group/<group_name>', methods=['GET', 'POST'])
-@auth.admins_only
+@decorators.admins_only
 def edit_group(group_name):
-    try:
-        group = connect.get_group_info(group_name)
-        if request.method == 'GET':
-            return render_template('edit_group.html', group=group)
-        elif request.method == 'POST':
-            group = dict()
-            group['group_name'] = group_name
-            group['display_name'] = request.form['display-name'],
-            group['email'] = request.form['email'],
-            group['phone'] = request.form['phone'],
-            group['description'] = request.form['description']
-            if connect.update_group_info(**group):
-                flash('Updated group %s successfully' %group_name, 'success')
-            else:
-                flash('Unable to update group %s' %group_name, 'warning')
+    group = connect.get_group_info(group_name)
+    if request.method == 'GET':
+        return render_template('edit_group.html', group=group)
+    elif request.method == 'POST':
+        try:
+            settings = {
+                'display_name': request.form['display-name'].strip(),
+                'email': request.form['email'].strip(),
+                'phone': request.form['phone'].strip(),
+                'description': request.form['description'].strip()
+            }
+            connect.update_group_info(group_name, **settings)
+            flash('Updated group %s successfully' %group_name, 'success')
             return redirect(url_for('groups', group_name=group_name))
-    except Exception as err:
-        logger.error(str(err))
-        return render_template('500.html', error_message='There was an error updating the group information.')
+        except ConnectApiError as err:
+            flash(str(err), 'warning')
+            return redirect(url_for('edit_group', group_name=group_name))
 
 @app.route('/admin/create_subgroup/<group_name>', methods=['GET', 'POST'])
-@auth.admins_only
+@decorators.admins_only
 def create_subgroup(group_name):
-    try:
-        if request.method == 'GET':
-            group = connect.get_group_info(group_name)
-            return render_template('create_subgroup.html', group=group)
-        elif request.method == 'POST':
-            subgroup_name = request.form['short-name']
-            subgroup = dict()
-            subgroup['group_name'] = group_name
-            subgroup['subgroup_name'] = subgroup_name
-            subgroup['display_name'] = request.form['display-name']
-            subgroup['purpose'] = request.form['purpose']
-            subgroup['email'] = request.form['email']
-            subgroup['phone'] = request.form['phone']
-            subgroup['description'] = request.form['description']
-            if connect.create_subgroup(**subgroup):
-                flash('Created subgroup %s' %subgroup_name, 'success')
-            else:
-                flash('Error creating subgroup %s' %subgroup_name, 'warning')
-            return redirect(url_for('groups', group_name=group_name))
-    except Exception as err:
-        logger.error(str(err))
-        flash('Error creating subgroup %s' %subgroup_name, 'warning')
+    if request.method == 'GET':
+        group = connect.get_group_info(group_name)
+        return render_template('create_subgroup.html', group=group)
+    elif request.method == 'POST':
+        settings = {
+            'name': request.form['short-name'],
+            'display_name': request.form['display-name'],
+            'purpose': request.form['purpose'],
+            'email': request.form['email'],
+            'phone': request.form['phone'],
+            'description': request.form['description']
+        }
+        connect.create_subgroup(group_name, **settings)
+        flash('Created subgroup %s' %settings['name'], 'success')
         return redirect(url_for('groups', group_name=group_name))
 
 @app.route('/admin/delete_group/<group_name>')
-@auth.admins_only
+@decorators.admins_only
 def delete_group(group_name):
-    try:
-        if connect.delete_group(group_name):
-            flash('Deleted group %s' %group_name, 'success')
-        else:
-            flash('Unable to delete group %s' %group_name, 'warning')
-        return redirect(url_for('groups', group_name='root.atlas-af'))
-    except Exception as err:
-        logger.error(str(err))
-        flash('Error deleting group %s' %group_name, 'warning')
-        return redirect(url_for('groups', group_name='root.atlas-af'))
+    connect.delete_group(group_name)
+    flash('Deleted group %s' %group_name, 'success')
+    return redirect(url_for('groups', group_name='root.atlas-af'))
 
 @app.route('/admin/login_nodes')
-@auth.admins_only
+@decorators.admins_only
 def login_nodes():
     return render_template('login_nodes.html')
 
