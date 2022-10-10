@@ -26,8 +26,5 @@ def plot_users_over_time():
     ax.set_ylabel('Number of users')
     buf = BytesIO()
     fig.savefig(buf, format='png')
-    encoding = base64.b64encode(buf.getbuffer())
-    logger.info('Base 64 encoding:\n%s' %encoding)
-    data = encoding.decode('ascii')
-    logger.info('Data:\n%s' %data)
-    return data
+    b64encoding = base64.b64encode(buf.getbuffer()).decode('ascii')
+    return b64encoding
