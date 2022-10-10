@@ -205,7 +205,7 @@ def get_group_info(group_name, **options):
         return group
     return None
 
-@decorators.permit_keys('group_name', 'display_name', 'email', 'phone', 'description')
+@decorators.permit_keys('display_name', 'email', 'phone', 'description')
 def update_group_info(group_name, **settings):
     request_data = {'apiVersion': 'v1alpha1', 'metadata': settings}
     response = requests.put(url + '/v1alpha1/groups/' + group_name, params={'token': token}, json=request_data)
