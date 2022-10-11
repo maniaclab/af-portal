@@ -72,7 +72,6 @@ python
 >>> from pprint import pprint
 >>> info = connect.get_group_info('root.atlas-af', date_format='calendar')
 >>> pprint(info)
-
 '''
 from portal import app, logger, decorators
 from portal.errors import ConnectApiError
