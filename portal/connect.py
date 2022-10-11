@@ -1,4 +1,79 @@
-''' A wrapper for the CI Connect API. '''
+''' 
+A wrapper for the CI Connect API. 
+
+Functionality:
+=============== 
+1. get_username looks up a username for a Globus ID
+2. get_usernames gets the usernames for a group
+3. get_user_profile looks up a user profile
+4. get_user_profiles gets the profiles of all users in a group
+5. create_user_profile creates a user profile with the given settings
+6. update_user_profile updates a user profile with the given settings
+7. get_user_roles gets all of a user's roles
+8. get_user_groups gets all of a user's groups
+9. get_group_info gets the info for a group
+10. update_group_info updates a group with the given settings
+11. update_user_role updates a user's role in a group
+12. remove_user_from_group removes a user from a group
+13. get_subgroups gets the subgroups of a group
+14. create_subgroup creates a subgroup with the given settings
+15. remove_group removes a group
+
+Dependencies:
+=============== 
+
+A portal.conf file properly filled out, with the URL of the Connect API and a token for the Connect API.
+The portal.conf file should be saved in the directory af-portal/portal/secrets.
+
+Example usage:
+=============== 
+
+Example #1:
+
+cd <path>/<to>/af-portal
+python 
+>>> from portal import connect
+>>> username = connect.get_username('alphanumeric-globus-id')
+>>> print(username)
+
+Example #2:
+
+cd <path>/<to>/af-portal
+python 
+>>> from portal import connect
+>>> from pprint import pprint
+>>> profile = connect.get_user_proflie('myusername')
+>>> pprint(profile)
+
+Example #3:
+
+cd <path>/<to>/af-portal
+python 
+>>> from portal import connect
+>>> from pprint import pprint
+>>> profiles = connect.get_user_profiles('root.atlas-af')
+>>> pprint(profiles)
+
+Example #4:
+
+cd <path>/<to>/af-portal
+python 
+>>> from portal import connect
+>>> from pprint import pprint
+>>> connect.update_user_profile('myusername', public_key='<ssh public key here>')
+>>> profile = connect.get_user_profile('myusername')
+>>> pprint(profile)
+
+Example #5:
+
+cd <path>/<to>/af-portal
+python 
+>>> from portal import connect
+>>> from pprint import pprint
+>>> info = connect.get_group_info('root.atlas-af', date_format='calendar')
+>>> pprint(info)
+
+'''
 from portal import app, logger, decorators
 from portal.errors import ConnectApiError
 from dateutil.parser import parse
@@ -9,6 +84,7 @@ url = app.config.get('CONNECT_API_ENDPOINT')
 token = app.config.get('CONNECT_API_TOKEN')
 
 def get_username(globus_id):
+    ''' Looks up the username for a globus ID. '''
     response = requests.get(url + '/v1alpha1/find_user', params={'token': token, 'globus_id': globus_id})
     if response.text:
         data = response.json()
@@ -20,6 +96,7 @@ def get_username(globus_id):
     return None
 
 def get_usernames(group_name, **options):
+    ''' Returns a list of usernames for users in the specified group. '''
     response = requests.get(url + '/v1alpha1/groups/' + group_name + '/members', params={'token': token})
     if response.text:
         data = response.json()
@@ -35,6 +112,7 @@ def get_usernames(group_name, **options):
     return []
 
 def get_user_profile(username, **options):
+    ''' Gets a user profile and returns it as a dictionary. '''
     response = requests.get(url + '/v1alpha1/users/' + username, params={'token': token})
     if response.text:
         data = response.json()
@@ -68,6 +146,7 @@ def get_user_profile(username, **options):
     return None
 
 def get_user_profiles(group_name, **options):
+    ''' Gets the profiles of users in a group and returns them as a list of dictionaries. '''
     usernames = get_usernames(group_name, **options)
     request_data = {}
     for username in usernames:
@@ -105,6 +184,7 @@ def get_user_profiles(group_name, **options):
 
 @decorators.require_keys('globus_id', 'unix_name', 'name', 'institution', 'email', 'phone', 'public_key')
 def create_user_profile(**settings):
+    ''' Creates a profile with the given settings. '''
     request_data = {
         'apiVersion': 'v1alpha1',
         'metadata': {
@@ -129,6 +209,7 @@ def create_user_profile(**settings):
 
 @decorators.permit_keys('name', 'institution', 'email', 'phone', 'public_key')
 def update_user_profile(username, **settings):
+    ''' Updates a user profile with the given settings. '''
     request_data = {'apiVersion': 'v1alpha1', 'kind': 'User', 'metadata': settings}
     response = requests.put(url + '/v1alpha1/users/' + username, params={'token': token}, json=request_data)
     if response.text:
@@ -139,12 +220,14 @@ def update_user_profile(username, **settings):
     logger.info('Updated profile for user %s.' %username)
 
 def get_user_roles(username):
+    ''' Gets all of a user's roles and returns them as a dictionary. '''
     profile = get_user_profile(username)
     if profile:
         return {group_membership['name'] : group_membership['state'] for group_membership in profile['group_memberships']}
     return None
 
 def get_user_groups(username, **options):
+    ''' Gets all of a user's groups and returns them as a list of dictionaries. '''
     roles = get_user_roles(username)
     request_data = {}
     for group_name in roles:
@@ -184,6 +267,7 @@ def get_user_groups(username, **options):
     return None
 
 def get_group_info(group_name, **options):
+    ''' Looks up a group and returns its info as a dictionary. '''
     response = requests.get(url + '/v1alpha1/groups/' + group_name, params={'token': token})
     data = response.json()
     if data.get('kind') == 'Error':
@@ -209,12 +293,13 @@ def get_group_info(group_name, **options):
             group['creation_date'] = parse(metadata['creation_date']).strftime('%B %m %Y')
         else:
             group['creation_date'] = parse(metadata['creation_date']).strftime(date_format)
-        group['is_deletable'] = is_group_deletable(group_name)
+        group['is_removable'] = is_group_removable(group_name)
         return group
     return None
 
 @decorators.permit_keys('display_name', 'email', 'phone', 'description')
 def update_group_info(group_name, **settings):
+    ''' Updates a group's info with the given settings. '''
     request_data = {'apiVersion': 'v1alpha1', 'metadata': settings}
     response = requests.put(url + '/v1alpha1/groups/' + group_name, params={'token': token}, json=request_data)
     if response.text:
@@ -225,6 +310,7 @@ def update_group_info(group_name, **settings):
     logger.info('Updated info for group %s' %group_name)
 
 def update_user_role(username, group_name, role):
+    ''' Updates a user's role in a group. '''
     request_data = {'apiVersion': 'v1alpha1', 'group_membership': {'state': role}}
     response = requests.put(url + '/v1alpha1/groups/' + group_name + '/members/' + username, params={'token': token}, json=request_data)
     if response.text:
@@ -235,6 +321,7 @@ def update_user_role(username, group_name, role):
     logger.info('Set role to %s for user %s in group %s' %(role, username, group_name))
 
 def remove_user_from_group(username, group_name):
+    ''' Removes a user from a group. '''
     response = requests.delete(url + '/v1alpha1/groups/' + group_name + '/members/' + username, params={'token': token})
     if response.text:
         data = response.json()
@@ -244,6 +331,7 @@ def remove_user_from_group(username, group_name):
     logger.info('Removed user %s from group %s' %(username, group_name))
 
 def get_subgroups(group_name):
+    ''' Returns the subgroups of a group as a list of dictionaries. '''
     response = requests.get(url + '/v1alpha1/groups/' + group_name + '/subgroups', params={'token': token})
     if response.text:
         data = response.json()
@@ -255,6 +343,7 @@ def get_subgroups(group_name):
 
 @decorators.require_keys('name', 'display_name', 'email', 'phone', 'description', 'purpose')
 def create_subgroup(group_name, **settings):
+    ''' Creates a subgroup with the given settings. '''
     request_data = {'apiVersion': 'v1alpha1', 'metadata': settings}
     response = requests.put(url + '/v1alpha1/groups/' + group_name + '/subgroup_requests/' + settings['name'], params={'token': token}, json=request_data)
     if response.text:
@@ -264,13 +353,14 @@ def create_subgroup(group_name, **settings):
             raise ConnectApiError(data['message'])
     logger.info('Created subgroup %s in group %s' %(settings['name'], group_name))
 
-def is_group_deletable(group_name):
+def is_group_removable(group_name):
     if group_name in ('root', 'root.atlas-af', 'root.atlas-af.staff', 'root.atlas-af.uchicago', 'root.atlas-ml', 'root.atlas-ml.staff', 'root.iris-hep-ml', 'root.iris-hep-ml.staff', 'root.osg', 'root.osg.login-nodes'):
         return False
     return True
 
-def delete_group(group_name):
-    if is_group_deletable(group_name):
+def remove_group(group_name):
+    ''' If a group can be removed, removes the group. '''
+    if is_group_removable(group_name):
         response = requests.delete(url + '/v1alpha1/groups/' + group_name, params={'token': token})
         if response.text:
             data = response.json()

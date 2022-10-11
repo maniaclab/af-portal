@@ -390,11 +390,11 @@ def create_subgroup(group_name):
         flash('Created subgroup %s' %settings['name'], 'success')
         return redirect(url_for('groups', group_name=group_name))
 
-@app.route('/admin/delete_group/<group_name>')
+@app.route('/admin/remove_group/<group_name>')
 @decorators.admins_only
-def delete_group(group_name):
-    connect.delete_group(group_name)
-    flash('Deleted group %s' %group_name, 'success')
+def remove_group(group_name):
+    connect.remove_group(group_name)
+    flash('Removed group %s' %group_name, 'success')
     return redirect(url_for('groups', group_name='root.atlas-af'))
 
 @app.route('/admin/login_nodes')
