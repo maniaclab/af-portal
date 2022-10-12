@@ -9,15 +9,15 @@ Functionality:
 4. get_user_profiles gets the profiles of all users in a group
 5. create_user_profile creates a user profile with the given settings
 6. update_user_profile updates a user profile with the given settings
-7. get_user_roles gets all of a user's roles
-8. get_user_groups gets all of a user's groups
-9. get_group_info gets the info for a group
-10. update_group_info updates a group with the given settings
-11. update_user_role updates a user's role in a group
-12. remove_user_from_group removes a user from a group
-13. get_subgroups gets the subgroups of a group
-14. create_subgroup creates a subgroup with the given settings
-15. remove_group removes a group
+7. get_user_groups gets all of a user's groups
+8. remove_user_from_group removes a user from a group
+9. get_user_roles gets all of a user's roles
+10. update_user_role updates a user's role in a group
+11. get_group_info gets the info for a group
+12. update_group_info updates a group with the given settings
+13. remove_group removes a group
+14. get_subgroups gets the subgroups of a group
+15. create_subgroup creates a subgroup with the given settings
 
 Dependencies:
 =============== 
@@ -218,13 +218,6 @@ def update_user_profile(username, **settings):
             raise ConnectApiError(data['message'])
     logger.info('Updated profile for user %s.' %username)
 
-def get_user_roles(username):
-    ''' Gets all of a user's roles and returns them as a dictionary. '''
-    profile = get_user_profile(username)
-    if profile:
-        return {group_membership['name'] : group_membership['state'] for group_membership in profile['group_memberships']}
-    return None
-
 def get_user_groups(username, **options):
     ''' Gets all of a user's groups and returns them as a list of dictionaries. '''
     roles = get_user_roles(username)
@@ -264,6 +257,34 @@ def get_user_groups(username, **options):
         groups.sort(key = lambda group : group['name'])
         return groups
     return None
+
+def remove_user_from_group(username, group_name):
+    ''' Removes a user from a group. '''
+    response = requests.delete(url + '/v1alpha1/groups/' + group_name + '/members/' + username, params={'token': token})
+    if response.text:
+        data = response.json()
+        if data.get('kind') == 'Error':
+            logger.error(data['message'])
+            raise ConnectApiError(data['message'])
+    logger.info('Removed user %s from group %s' %(username, group_name))
+
+def get_user_roles(username):
+    ''' Gets all of a user's roles and returns them as a dictionary. '''
+    profile = get_user_profile(username)
+    if profile:
+        return {group_membership['name'] : group_membership['state'] for group_membership in profile['group_memberships']}
+    return None
+
+def update_user_role(username, group_name, role):
+    ''' Updates a user's role in a group. '''
+    request_data = {'apiVersion': 'v1alpha1', 'group_membership': {'state': role}}
+    response = requests.put(url + '/v1alpha1/groups/' + group_name + '/members/' + username, params={'token': token}, json=request_data)
+    if response.text:
+        data = response.json()
+        if data.get('kind') == 'Error':
+            logger.error(data['message'])
+            raise ConnectApiError(data['message'])
+    logger.info('Set role to %s for user %s in group %s' %(role, username, group_name))
 
 def get_group_info(group_name, **options):
     ''' Looks up a group and returns its info as a dictionary. '''
@@ -308,26 +329,23 @@ def update_group_info(group_name, **settings):
             raise ConnectApiError(data['message'])
     logger.info('Updated info for group %s' %group_name)
 
-def update_user_role(username, group_name, role):
-    ''' Updates a user's role in a group. '''
-    request_data = {'apiVersion': 'v1alpha1', 'group_membership': {'state': role}}
-    response = requests.put(url + '/v1alpha1/groups/' + group_name + '/members/' + username, params={'token': token}, json=request_data)
-    if response.text:
-        data = response.json()
-        if data.get('kind') == 'Error':
-            logger.error(data['message'])
-            raise ConnectApiError(data['message'])
-    logger.info('Set role to %s for user %s in group %s' %(role, username, group_name))
+def is_group_removable(group_name):
+    if group_name in ('root', 'root.atlas-af', 'root.atlas-af.staff', 'root.atlas-af.uchicago', 'root.atlas-ml', 'root.atlas-ml.staff', 'root.iris-hep-ml', 'root.iris-hep-ml.staff', 'root.osg', 'root.osg.login-nodes'):
+        return False
+    return True
 
-def remove_user_from_group(username, group_name):
-    ''' Removes a user from a group. '''
-    response = requests.delete(url + '/v1alpha1/groups/' + group_name + '/members/' + username, params={'token': token})
-    if response.text:
-        data = response.json()
-        if data.get('kind') == 'Error':
-            logger.error(data['message'])
-            raise ConnectApiError(data['message'])
-    logger.info('Removed user %s from group %s' %(username, group_name))
+def remove_group(group_name):
+    ''' If a group can be removed, removes the group. '''
+    if is_group_removable(group_name):
+        response = requests.delete(url + '/v1alpha1/groups/' + group_name, params={'token': token})
+        if response.text:
+            data = response.json()
+            if data.get('kind') == 'Error':
+                logger.error(data['message'])
+                raise ConnectApiError(data['message'])
+        logger.info('Removed group %s' %group_name)
+        return True
+    return False
 
 def get_subgroups(group_name):
     ''' Returns the subgroups of a group as a list of dictionaries. '''
@@ -351,21 +369,3 @@ def create_subgroup(group_name, **settings):
             logger.error(data['message'])
             raise ConnectApiError(data['message'])
     logger.info('Created subgroup %s in group %s' %(settings['name'], group_name))
-
-def is_group_removable(group_name):
-    if group_name in ('root', 'root.atlas-af', 'root.atlas-af.staff', 'root.atlas-af.uchicago', 'root.atlas-ml', 'root.atlas-ml.staff', 'root.iris-hep-ml', 'root.iris-hep-ml.staff', 'root.osg', 'root.osg.login-nodes'):
-        return False
-    return True
-
-def remove_group(group_name):
-    ''' If a group can be removed, removes the group. '''
-    if is_group_removable(group_name):
-        response = requests.delete(url + '/v1alpha1/groups/' + group_name, params={'token': token})
-        if response.text:
-            data = response.json()
-            if data.get('kind') == 'Error':
-                logger.error(data['message'])
-                raise ConnectApiError(data['message'])
-        logger.info('Removed group %s' %group_name)
-        return True
-    return False
