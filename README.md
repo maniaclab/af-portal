@@ -6,9 +6,9 @@ The web application follows the Model View Template (MVT) design pattern, which 
 
 ## Technology
 
-On the frontend we use jQuery, Bootstrap, DataTables, and Vue.js. For icons we use Font Awesome. The Bootstrap framework gives us a variety of CSS classes that we use to style our web pages. The DataTables framework helps us create reactive tables that retrieve data using Ajax requests. It also gives us many features like the ability to sort a table. Vue.js helps us build user interfaces out of HTML that react to asynchronous data. 
+On the clientside we use jQuery, Bootstrap, DataTables, and Vue.js. For icons we use Font Awesome. The Bootstrap framework gives us a variety of CSS classes that we use to style our web pages. The DataTables framework helps us create reactive tables that retrieve data using Ajax requests. It also gives us many features like the ability to sort a table. Vue.js helps us build user interfaces out of HTML that react to asynchronous data. 
 
-On the backend we use a Python package called kubernetes which acts as a Kubernetes client. kubernetes helps us create Kubernetes objects, like pods, services, ingresses, and secrets. It also helps us get data from Kubernetes objects. For our web framework we use Flask. Flask helps us handle HTTP requests. Flask has a templating engine called Jinja. We can respond to HTTP requests with templates rendered by Jinja.
+On the serverside we use a Python package called kubernetes which acts as a Kubernetes client. kubernetes helps us manage Kubernetes objects, like pods, services, ingresses, and secrets. We use a Python package called Flask as our web framework. Flask helps us handle HTTP requests by means of decorator functions that map a URL to a request handler. Flask has a templating engine called Jinja that lets us render dynamic HTML templates and return them in the HTTP response.
 
 ## Authentication
 
