@@ -76,12 +76,11 @@ The above code performs an operation.
 @(d, home):
     home = d(home)
 
-The operation does not modify the home function (since d returns whatever function it is passed).
-Thus the "home" entry in the symbol table does not get updated.
+Since the decorator function d returns whatever function it is passed, the symbol table entry for "home" does not need to be updated.
 
-Instead, the operation @(d, home) updates the request_handlers map, mapping the "/" URL to the function home.
+But what the @(d, home) operation does accomplish is that it maps the "/" URL to the home function in the app.request_handlers dictionary.
 
-This is another way of writing:
+We can actually do this without using the @ operator.
 
 # module app
 request_handlers = {}
@@ -92,10 +91,7 @@ def home():
 
 app.request_handlers["/"] = home
 
-The above code is actually the approach that the Django web framework uses for mapping URLs to request handlers.
-
-The Flask web framework makes use of the @ operator to map URLs to request handlers, whereas the Django framework
-does not use the @ operator to map URLs to request handlers.
+This is how the Django web framework maps URLs to request handlers, without using the @ operator.
 '''
 from flask import session, request, redirect, render_template, url_for, flash
 from functools import wraps
