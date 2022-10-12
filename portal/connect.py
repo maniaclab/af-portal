@@ -104,7 +104,7 @@ def get_usernames(group_name, **options):
             raise ConnectApiError(data['message'])
         usernames = []
         roles = options.get('roles', ('admin', 'active', 'pending'))
-        for membership in response.json()['memberships']:
+        for membership in data['memberships']:
             if membership['state'] in roles:
                 usernames.append(membership['user_name'])
         return usernames
