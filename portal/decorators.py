@@ -1,4 +1,86 @@
-''' Decorators that are used by the application. '''
+''' 
+Decorators that are used by the application. 
+
+The Decorator pattern
+======================
+
+The @ operator in Python is a binary operator that takes two functions d and f as operands.
+
+The @(d, f) operation does the following:
+
+    @(d, f):
+        f = d(f)
+
+This operation updates the module's symbol table, and maps the symbol "f" to a new address in memory, 
+the address where the newly decorated function d(f) is stored.
+
+Examples:
+======================
+
+Example #1:
+
+def timer(fn):
+    @wraps(fn)
+    def inner(*args, **kwargs):
+        start = time.time()
+        return_value = fn(*args, **kwargs)
+        end = time.time()
+        print('Fuction %s took %f seconds' %(fn.__name__, end-start))
+        return return_value
+    return inner
+
+@timer
+def add(a, b)
+    return a + b
+
+In the example above, the @ operator performs the following:
+
+    add = timer(add)
+
+The module's symbol table gets updated, and the symbol "add" gets mapped to a new address in memory.
+
+The new address in memory stores the newly decorated function, timer(add).
+
+This is possible because timer is a function that takes a function as an argument, and returns a function.
+
+Thus we see how we can easily add functionality to any function by adding the code @timer directly above the function definition.
+
+Example #2:
+
+request_handlers = {}
+
+def route(url):
+    def outer(fn):
+        @wraps
+        def inner(*args, **kwargs):
+            request_handlers[url] = fn
+            return fn(*args, **kwargs)
+        return inner
+    return outer
+
+@route("/")
+def home():
+    return "Hello world"
+
+In the example above, we show how Flask maps URLs to request handlers.
+
+When the line of code @route("/") is interpreted, the function call route("/") returns a decorator function.
+Let's call this decorator d.
+
+Thus @route("/") becomes @d.
+
+@d
+def home():
+    return "Hello world"
+
+The above code performs an operation where the symbol "home" gets mapped to a new function.
+
+@(d, home):
+    home = d(home)
+
+The module's symbol table is updated, and the symbol "home" is now mapped to a new address in memory,
+which stores the newly decorated function d(home).
+'''
 from flask import session, request, redirect, render_template, url_for, flash
 from functools import wraps
 from portal import connect, jupyterlab, logger
