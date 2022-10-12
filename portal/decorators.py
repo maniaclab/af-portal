@@ -46,6 +46,7 @@ Thus we see how we can easily add functionality to any function by adding the co
 
 Example #2:
 
+# module app
 request_handlers = {}
 
 def route(url):
@@ -54,28 +55,47 @@ def route(url):
         return fn
     return inner
 
-@route("/")
+# module views
+@app.route("/")
 def home():
     return "Hello world"
 
 In the example above, we show how Flask maps URLs to request handlers.
 
-When the line of code @route("/") is interpreted, the function call route("/") returns a decorator function.
+When the line of code @app.route("/") is interpreted, the function call app.route("/") returns a decorator function.
 Let's call this decorator d.
 
-Thus @route("/") becomes @d.
+Thus @app.route("/") becomes @d.
 
 @d
 def home():
     return "Hello world"
 
-The above code performs an operation where the symbol "home" gets mapped to a new function.
+The above code performs an operation.
 
 @(d, home):
     home = d(home)
 
-The module's symbol table is updated, and the symbol "home" is now mapped to a new address in memory,
-which stores the newly decorated function d(home).
+The operation does not modify the home function (since d returns whatever function it is passed).
+Thus the "home" entry in the symbol table does not get updated.
+
+Instead, the operation @(d, home) updates the request_handlers map, mapping the "/" URL to the function home.
+
+This is another way of writing:
+
+# module app
+request_handlers = {}
+
+# module views
+def home():
+    return "Hello world"
+
+app.request_handlers["/"] = home
+
+The above code is actually the approach that the Django web framework uses for mapping URLs to request handlers.
+
+The Flask web framework makes use of the @ operator to map URLs to request handlers, whereas the Django framework
+does not use the @ operator to map URLs to request handlers.
 '''
 from flask import session, request, redirect, render_template, url_for, flash
 from functools import wraps
