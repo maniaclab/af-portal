@@ -49,12 +49,10 @@ Example #2:
 request_handlers = {}
 
 def route(url):
-    def outer(fn):
+    def inner(fn):
         request_handlers[url] = fn
-        def inner(*args, **kwargs):
-            return fn(*args, **kwargs)
-        return inner
-    return outer
+        return fn
+    return inner
 
 @route("/")
 def home():
