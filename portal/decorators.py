@@ -20,7 +20,6 @@ Examples:
 Example #1:
 
 def timer(fn):
-    @wraps(fn)
     def inner(*args, **kwargs):
         start = time.time()
         return_value = fn(*args, **kwargs)
@@ -51,7 +50,6 @@ request_handlers = {}
 
 def route(url):
     def outer(fn):
-        @wraps
         def inner(*args, **kwargs):
             request_handlers[url] = fn
             return fn(*args, **kwargs)
