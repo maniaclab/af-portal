@@ -50,8 +50,8 @@ request_handlers = {}
 
 def route(url):
     def outer(fn):
+        request_handlers[url] = fn
         def inner(*args, **kwargs):
-            request_handlers[url] = fn
             return fn(*args, **kwargs)
         return inner
     return outer
