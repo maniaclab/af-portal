@@ -11,8 +11,10 @@ The @(d, f) operation does the following:
     @(d, f):
         f = d(f)
 
-This operation updates the module's symbol table, and maps the symbol "f" to a new address in memory, 
-the address where the newly decorated function d(f) is stored.
+This operation updates the module's symbol table, and maps the symbol "f" to the address in memory
+where the decorated function d(f) is located.
+
+The decorator pattern allows us to replace a function, and give it an additional feature.
 
 Examples:
 ======================
