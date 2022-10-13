@@ -11,23 +11,23 @@
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <div class="mb-2">
                         <label for="name" class="form-label">Name <span class="asterisk">*</span></label>
-                        <input type="text" class="form-control" name="name" value="{{ session['name'] }}" maxlength="50" required>
+                        <input type="text" class="form-control" name="name" value="{{ session['name'] }}" maxlength="256" required>
                     </div>
                     <div class="mb-2">
                         <label for="name" class="form-label">Unix name <span class="asterisk">*</span></label>
-                        <input type="text" class="form-control" name="unix_name" id="unix_name" maxlength="30" required>
+                        <input type="text" class="form-control" name="unix_name" id="unix_name" maxlength="256" required>
                     </div>
                     <div class="mb-2">
                         <label for="name" class="form-label">Institution <span class="asterisk">*</span></label>
-                        <input type="text" class="form-control" name="institution" value="{{ session['institution'] }}" maxlength="100" required>
+                        <input type="text" class="form-control" name="institution" value="{{ session['institution'] }}" maxlength="256" required>
                     </div>
                     <div class="mb-2">
                         <label for="email" class="form-label">Email <span class="asterisk">*</span> (please use institutional email)</label>
-                        <input type="text" class="form-control" name="email" id="email" value="{{ session['email'] }}" maxlength="50" required>
+                        <input type="text" class="form-control" name="email" id="email" value="{{ session['email'] }}" maxlength="256" required>
                     </div>
                     <div class="mb-2">
                         <label for="phone" class="form-label">Phone <span class="asterisk">*</span></label>
-                        <input type="text" class="form-control" name="phone" maxlength="30" required>
+                        <input type="text" class="form-control" name="phone" maxlength="256" required>
                     </div>
                     <div class="mb-4">
                         <label for="public_key" class="form-label">SSH public key</label>
