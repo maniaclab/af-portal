@@ -96,6 +96,9 @@ app.request_handlers["/"] = home
 This is how the Django web framework maps URLs to request handlers, without using the @ operator.
 
 Both the Flask web framework and the Django web framework have very helpful ways of organizing request handlers.
+
+The Flask framework's @route decorator does more than map a URL to a request handler. 
+It also gives the request handler access to the request and response objects, which are in the namespace of the decorator.
 '''
 from flask import session, request, redirect, render_template, url_for, flash
 from functools import wraps
