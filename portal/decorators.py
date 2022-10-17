@@ -100,13 +100,11 @@ Both the Flask web framework and the Django web framework have very helpful ways
 The Flask framework's @route decorator does more than map a URL to a request handler. 
 It also gives the request handler access to the request and response objects, which are in the namespace of the decorator.
 
-These examples demonstrate a feature in the Python programming language, which is, the ability to cmpose a function from another function.
-We can call this feature function composition. 
+These examples demonstrate a feature in the Python programming language, which is, the ability to pass a function as an argument.
 
-In the Python programming language, the domain of a function includes primitives, objects, and functions.
+In Python, a function is a type of object, and a reference to a function can be passed as an argument.
 
-The decorator pattern makes use of function composition, to replace a function, to add a new feature to a function,
-and to give a function access to a decorator's namespace.
+The decorator pattern makes use of this feature, and allows the programmer to add a pre-defined feature to any function in their code.
 '''
 from flask import session, request, redirect, render_template, url_for, flash
 from functools import wraps
