@@ -212,7 +212,7 @@ def get_notebook(name=None, pod=None, **options):
     notebook['conditions'] = [{'type': c.type, 'status': c.status, 'timestamp': c.last_transition_time.isoformat()} for c in pod.status.conditions]
     notebook['conditions'].sort(key=lambda cond : dict(PodScheduled=0, Initialized=1, ContainersReady=2, Ready=3).get(cond['type']))
     events = api.list_namespaced_event(namespace=namespace, field_selector='involvedObject.uid=%s' %pod.metadata.uid).items
-    notebook['events'] = [{'message': event.message, 'timestamp': event.last_timestamp.isoformat()} for event in events]
+    notebook['events'] = [{'message': e.message, 'timestamp': e.last_timestamp.isoformat() if e.last_timestamp else None} for e in events]
     if pod.spec.node_name:
         node = api.read_node(pod.spec.node_name)
         if node.metadata.labels.get('gpu') == 'true':
