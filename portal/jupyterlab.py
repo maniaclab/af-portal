@@ -203,9 +203,10 @@ def get_notebook(name=None, pod=None, **options):
     notebook['pod_status'] = pod.status.phase
     notebook['creation_date'] = pod.metadata.creation_timestamp.isoformat()
     expiration_date = get_expiration_date(pod)
-    time_remaining = expiration_date - datetime.datetime.now(datetime.timezone.utc)
-    notebook['expiration_date'] = expiration_date.isoformat()
-    notebook['hours_remaining'] = int(time_remaining.total_seconds() / 3600)
+    if expiration_date:
+        time_remaining = expiration_date - datetime.datetime.now(datetime.timezone.utc) 
+        notebook['expiration_date'] = expiration_date.isoformat() 
+        notebook['hours_remaining'] = int(time_remaining.total_seconds() / 3600)
     notebook['requests'] = pod.spec.containers[0].resources.requests
     notebook['limits'] = pod.spec.containers[0].resources.limits
     notebook['conditions'] = [{'type': c.type, 'status': c.status, 'timestamp': c.last_transition_time.isoformat()} for c in pod.status.conditions]
