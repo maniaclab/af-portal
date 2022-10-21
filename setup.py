@@ -30,7 +30,7 @@ from pip._internal.req import parse_requirements
 
 from setuptools import find_packages, setup
 
-with io.open('README.rst', 'rt', encoding='utf8') as f:
+with io.open('README.md', 'rt', encoding='utf8') as f:
     readme = f.read()
 
 
@@ -40,19 +40,16 @@ def load_requirements(fname):
 
 
 setup(
-    name='servicex_app',
-    version='1.0.0-RC.3',
+    name='af-portal',
+    version='1.0.0',
     url='https://iris-hep.org',
     license='BSD',
-    maintainer='ServiceX Team',
-    maintainer_email='bengal1@illinois.edu',
-    description='REST Frontend to ServiceX.',
+    maintainer='Maniac Team',
+    maintainer_email='ivukotic@uchicago.edu',
+    description='Frontend to Analysis Facility.',
     long_description=readme,
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    install_requires=load_requirements("requirements.txt"),
-    extras_require={
-        'test': load_requirements("requirements_test.txt")
-    },
+    install_requires=load_requirements("requirements.txt")
 )
