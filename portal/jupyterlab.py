@@ -118,7 +118,7 @@ else:
     logger.info('Loaded default kubeconfig file')
 
 def start_notebook_maintenance():
-    def clean():
+    def inner():
         while True:
             api = client.CoreV1Api()
             pods = api.list_namespaced_pod(namespace, label_selector='k8s-app=jupyterlab').items
@@ -128,7 +128,7 @@ def start_notebook_maintenance():
                     logger.info('Notebook %s has expired' %pod.metadata.name)
                     remove_notebook(pod.metadata.name)                        
             time.sleep(1800)
-    threading.Thread(target=clean).start()
+    threading.Thread(target=inner).start()
     logger.info('Started notebook maintenance')
 
 def deploy_notebook(**settings):
