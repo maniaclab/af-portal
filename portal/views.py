@@ -271,7 +271,23 @@ def user_info():
 @decorators.admins_only
 def get_user_profiles():
     users = connect.get_user_profiles('root.atlas-af', date_format='%m/%d/%Y')
-    return jsonify(users=users)
+    return [
+        {
+            'unix_name': user['unix_name'],
+            'name': user['name'],
+            'email': user['email'],
+            'join_date': user['join_date'],
+            'institution': user['institution']
+        }
+        for user in users
+    ]
+
+@app.route('/admin/update_user_institution', methods=['POST'])
+@decorators.admins_only
+def update_user_institution():
+    username = request.form['username']
+    institution = request.form['institution']
+    connect.update_user_profile(username, institution=institution)
 
 @app.route('/admin/plot_users_over_time')
 @decorators.admins_only

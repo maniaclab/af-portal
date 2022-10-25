@@ -2,7 +2,20 @@
 
 {% block title %} User info {% endblock %}
 
+{% block assets %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jexcel.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jsuites.css') }}">
+<script type="text/javascript" src="{{ url_for('static', filename='js/jexcel.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/jsuites.js') }}"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons" />
+{% endblock %}
+
 {% block body %}
+<style>
+    #spreadsheet *, #spreadsheet *::before, #spreadsheet *::after {
+        box-sizing: content-box !important;
+    }
+</style>
 <section id="users">
     <div class="container">
         <nav aria-label="breadcrumb">
@@ -15,49 +28,51 @@
             Below is a table of AF users.
             Click <a class="text-decoration-none" href="{{ url_for('plot_users_over_time') }}" target="_blank">here</a> to see a graph of user registrations.
         </p>
-        <div class="my-4 fs14">
-            <table id="users-table" class="table nowrap w-100">
-                <thead>
-                    <tr>
-                        <th>Username</th>
-                        <th>Full name</th>
-                        <th>Email</th>
-                        <th>Join date</th>
-                        <th>Institution</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-            </table>
-        </div>
+       <div id="spreadsheet"></div>
     </div>
 </section>
 <script type="text/javascript">
-$(document).ready(function() {
-    const usersTable = $("#users-table").DataTable({
-        processing: true,
-        lengthMenu: [10, 25, 100, 1000],
-        ajax: {url: "{{ url_for('get_user_profiles') }}", dataSrc: "users"},
-        order: [3, "asc"],
-        columns: [
-            { data: "unix_name" },
-            { data: "name" },
-            { data: "email" },
-            { data: "join_date" },
-            { data: "institution" },
-            { data: "role" }
+$(document).ready(function() {        
+    const spreadsheet = jspreadsheet(document.getElementById('spreadsheet'), {
+        url: "{{url_for('get_user_profiles')}}",
+        columns:[
+            { title: 'Username', name: 'unix_name', type: 'text', readOnly: true },
+            { title: 'Name', name: 'name', type: 'text', readOnly: true} ,
+            { title: 'Email', name: 'email', type: 'text', readOnly: true },
+            { title: 'Join date', name: 'join_date', type: 'calendar', options: { format:'MM/DD/YYYY' }, readOnly: true },
+            { title: 'Institution', name: 'institution', type: 'text'}
         ],
-        columnDefs: [
-            { "targets": 3, type: "date" },
-            { "targets": 5, 
-                render: function(data, type, row) {
-                    if (data == "admin")
-                        return "<span class='text-primary'>" + data + "</span>";
-                    else if (data == "active")
-                        return "<span class='text-success'>" + data + "</span>";
-                    else if (data == "pending")
-                        return "<span class='text-warning'>" + data + "</span>";
-                    else
-                        return "<span class='text-secondary'>" + data + "</span>";
+        colWidths: [200, 250, 250, 150, 400],
+        columnResize: true,
+        wordWrap: true,
+        onchange: function(instance, cell, x, y, value) {
+            row = spreadsheet.getRowData(y);
+            $.post("{{url_for('update_user_institution')}}", {'username': row[0], 'institution': row[4]});
+        },
+        loadingSpin: true,
+        columnSorting: true,
+        allowExport: true,
+        csvFileName: 'users',
+        toolbar:[
+            {
+                type: 'i',
+                content: 'undo',
+                onclick: function() {
+                    spreadsheet.undo();
+                }
+            },
+            {
+                type: 'i',
+                content: 'redo',
+                onclick: function() {
+                    spreadsheet.redo();
+                }
+            },
+            {
+                type: 'i',
+                content: 'save',
+                onclick: function () {
+                    spreadsheet.download();
                 }
             }
         ]
