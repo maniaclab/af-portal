@@ -267,9 +267,9 @@ def get_notebook(notebook_name):
 def user_info():
     return render_template('users.html')
 
-@app.route('/admin/get_user_profiles')
+@app.route('/admin/get_user_spreadsheet')
 @decorators.admins_only
-def get_user_profiles():
+def get_user_spreadsheet():
     users = connect.get_user_profiles('root.atlas-af', date_format='%m/%d/%Y')
     return jsonify([
         {

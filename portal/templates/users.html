@@ -34,7 +34,7 @@
 <script type="text/javascript">
 $(document).ready(function() {        
     const spreadsheet = jspreadsheet(document.getElementById('spreadsheet'), {
-        url: "{{url_for('get_user_profiles')}}",
+        url: "{{url_for('get_user_spreadsheet')}}",
         columns:[
             { title: 'Username', name: 'unix_name', type: 'text', readOnly: true },
             { title: 'Name', name: 'name', type: 'text', readOnly: true} ,
