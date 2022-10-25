@@ -271,7 +271,7 @@ def user_info():
 @decorators.admins_only
 def get_user_profiles():
     users = connect.get_user_profiles('root.atlas-af', date_format='%m/%d/%Y')
-    return [
+    return jsonify([
         {
             'unix_name': user['unix_name'],
             'name': user['name'],
@@ -280,7 +280,7 @@ def get_user_profiles():
             'institution': user['institution']
         }
         for user in users
-    ]
+    ])
 
 @app.route('/admin/update_user_institution', methods=['POST'])
 @decorators.admins_only
