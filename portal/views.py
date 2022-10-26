@@ -7,8 +7,7 @@ A view function is a request handler that returns a view.
 The view functions in this module use the @route decorator function provided by Flask,
 to map URLs to request handlers and to gain access to the decorator's namespace.
 
-The view functions decorated by the @route decorator have access to the request and response objects
-in the decorator's namespace.
+The view functions decorated by the @route decorator have access to the request and response objects in the decorator's namespace.
 
 For documentation on the decorator pattern and the @app.route decorators, see decorators.py
 '''
