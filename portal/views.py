@@ -288,6 +288,7 @@ def update_user_institution():
     username = request.form['username']
     institution = request.form['institution']
     connect.update_user_profile(username, institution=institution)
+    return jsonify(success=True), 200
 
 @app.route('/admin/plot_users_over_time')
 @decorators.admins_only
