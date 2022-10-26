@@ -358,5 +358,8 @@ def get_expiration_date(pod):
 
 def get_pod(name):
     ''' Looks up a Kubernetes pod by its name and returns a pod object. '''
-    api = client.CoreV1Api()
-    return api.read_namespaced_pod(name=name, namespace=namespace)
+    try: 
+        api = client.CoreV1Api()
+        return api.read_namespaced_pod(name=name, namespace=namespace)
+    except:
+        return None
