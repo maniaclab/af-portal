@@ -9,7 +9,7 @@ The view functions in this module are often preceded by an @app.route decorator.
 The @app.route decorator maps a URL to a view function (request handler).
 The @app.route decorator also gives the view function access to the request and response objects in the decorator's namespace.
 
-For more documentation on the decorator pattern and the @app.route decorator, see decorators.py
+For more documentation on decorators and the @app.route decorator, see decorators.py
 '''
 from flask import session, request, render_template, url_for, redirect, jsonify, flash
 from portal import app, logger, connect, jupyterlab, email, math, decorators
