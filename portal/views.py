@@ -234,9 +234,10 @@ def deploy_notebook():
 @decorators.members_only
 def remove_notebook(notebook):
     pod = jupyterlab.get_pod(notebook)
-    if pod.metadata.labels['owner'] == session['unix_name']: 
+    if pod and pod.metadata.labels['owner'] == session['unix_name']: 
         jupyterlab.remove_notebook(notebook)
         return jsonify(success=True, message='Notebook %s was deleted.' %notebook)
+    return jsonify(success=False, message='Notebook %s not found' %notebook)
 
 @app.route('/kibana')
 @decorators.members_only
