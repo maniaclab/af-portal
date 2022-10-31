@@ -245,6 +245,11 @@ def kibana_user():
     notebooks = jupyterlab.get_notebooks(username)
     return render_template('kibana_user.html', notebooks=notebooks)
 
+@app.route('/job_queue')
+@decorators.members_only
+def job_queue():
+    return render_template('job_queue.html')
+
 @app.route('/admin/notebooks')
 @decorators.admins_only
 def open_notebooks():

@@ -52,11 +52,20 @@
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                 aria-expanded="false">
+                Monitoring
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{{ url_for('kibana_user') }}" onclick="loader(true)">Notebooks</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('job_queue') }}">Job Queue</a></li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
                 Services
               </a>
               <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="{{ url_for('open_jupyterlab') }}">JupyterLab</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('kibana_user') }}" onclick="loader(true)">Monitoring</a></li>
                 <li><a class="dropdown-item" href="https://coffea.af.uchicago.edu/" target="_blank">Coffea Casa</a></li>
                 <li><a class="dropdown-item" href="https://uproot-atlas.servicex.af.uchicago.edu" target="_blank">ServiceX (uproot)</a></li>
                 <li><a class="dropdown-item" href="https://xaod.servicex.af.uchicago.edu" target="_blank">ServiceX (xAOD)</a></li>
