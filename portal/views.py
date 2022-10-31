@@ -238,7 +238,7 @@ def remove_notebook(notebook):
         return jsonify(success=True, message='Notebook %s was deleted.' %notebook)
     return jsonify(success=False, message='Notebook %s not found' %notebook)
 
-@app.route('/kibana')
+@app.route('/monitoring')
 @decorators.members_only
 def kibana_user():
     username = session['unix_name']
