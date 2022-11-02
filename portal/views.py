@@ -12,8 +12,8 @@ in the decorator's namespace.
 
 For documentation on the decorator pattern and the @app.route decorators, see decorators.py
 '''
-from flask import app, session, request, render_template, url_for, redirect, jsonify, flash, current_app
-from portal import connect, jupyterlab, email, math, decorators
+from flask import session, request, render_template, url_for, redirect, jsonify, flash, current_app
+from portal import app, connect, jupyterlab, email, math, decorators
 from portal.errors import ConnectApiError
 from urllib.parse import urlparse, urljoin
 import globus_sdk
