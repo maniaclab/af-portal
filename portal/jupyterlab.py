@@ -105,17 +105,17 @@ import urllib
 from base64 import b64encode
 from jinja2 import Environment, FileSystemLoader
 from kubernetes import client, config
-from portal import app
+from flask import current_app
 
-namespace = app.config.get('NAMESPACE')
-kubeconfig = app.config.get('KUBECONFIG')
+namespace = current_app.config.get('NAMESPACE')
+kubeconfig = current_app.config.get('KUBECONFIG')
 
 if kubeconfig:
     config.load_kube_config(config_file=kubeconfig)
-    app.logger.info('Loaded kubeconfig from file %s' % kubeconfig)
+    current_app.logger.info('Loaded kubeconfig from file %s' % kubeconfig)
 else:
     config.load_kube_config()
-    app.logger.info('Loaded default kubeconfig file')
+    current_app.logger.info('Loaded default kubeconfig file')
 
 
 def start_notebook_maintenance():
@@ -127,12 +127,12 @@ def start_notebook_maintenance():
             for pod in pods:
                 exp_date = get_expiration_date(pod)
                 if exp_date and exp_date < datetime.datetime.now(datetime.timezone.utc):
-                    app.logger.info('Notebook %s has expired' %
-                                    pod.metadata.name)
+                    current_app.logger.info('Notebook %s has expired' %
+                                            pod.metadata.name)
                     remove_notebook(pod.metadata.name)
             time.sleep(1800)
     threading.Thread(target=clean).start()
-    app.logger.info('Started notebook maintenance')
+    current_app.logger.info('Started notebook maintenance')
 
 
 def deploy_notebook(**settings):
@@ -158,7 +158,7 @@ def deploy_notebook(**settings):
     hours_remaining: (integer) The duration of the notebook in hours
     '''
     settings['namespace'] = namespace
-    settings['domain_name'] = app.config['DOMAIN_NAME']
+    settings['domain_name'] = current_app.config['DOMAIN_NAME']
     settings['token'] = b64encode(os.urandom(32)).decode()
     templates = Environment(loader=FileSystemLoader(
         'portal/templates/jupyterlab'))
@@ -180,7 +180,7 @@ def deploy_notebook(**settings):
     template = templates.get_template('ingress.yaml')
     ingress = yaml.safe_load(template.render(**settings))
     api.create_namespaced_ingress(namespace=namespace, body=ingress)
-    app.logger.info('Deployed notebook %s' % settings['notebook_name'])
+    current_app.logger.info('Deployed notebook %s' % settings['notebook_name'])
 
 
 def get_notebook(name=None, pod=None, **options):
@@ -248,7 +248,7 @@ def get_notebook(name=None, pod=None, **options):
         token = api.read_namespaced_secret(
             pod.metadata.name, namespace).data['token']
         notebook['url'] = 'https://%s.%s?%s' % (
-            pod.metadata.name, app.config['DOMAIN_NAME'], urllib.parse.urlencode({'token': token}))
+            pod.metadata.name, current_app.config['DOMAIN_NAME'], urllib.parse.urlencode({'token': token}))
     return notebook
 
 
@@ -272,8 +272,8 @@ def get_notebooks(owner=None, **options):
             notebook = get_notebook(pod=pod, **options)
             notebooks.append(notebook)
         except Exception as err:
-            app.logger.error('Error adding notebook %s to array.\n%s' %
-                             (pod.metadata.name, str(err)))
+            current_app.logger.error('Error adding notebook %s to array.\n%s' %
+                                     (pod.metadata.name, str(err)))
     return notebooks
 
 
@@ -294,7 +294,8 @@ def remove_notebook(name):
     api.delete_namespaced_secret(id, namespace)
     api = client.NetworkingV1Api()
     api.delete_namespaced_ingress(id, namespace)
-    app.logger.info('Removed notebook %s from namespace %s' % (id, namespace))
+    current_app.logger.info(
+        'Removed notebook %s from namespace %s' % (id, namespace))
 
 
 def notebook_name_available(name):
