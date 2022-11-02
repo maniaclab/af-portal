@@ -27,7 +27,7 @@ def create_app():
         app.logger.removeHandler(h)
     app.logger.addHandler(ch)
     app.logger.addHandler(fh)
-    app.logger.level = 'INFO'
+    app.logger.level = logging.INFO
     app.logger.info("Initialized logging")
 
     with app.app_context():
