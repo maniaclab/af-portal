@@ -1,12 +1,13 @@
 ''' Functions for sending emails from our email accounts. '''
-from portal import app, connect
+from portal import connect
+from flask import current_app
 import requests
 
-token = app.config.get('MAILGUN_API_TOKEN')
+token = current_app.config.get('MAILGUN_API_TOKEN')
 
 
 def email_users(sender, recipients, subject, body):
-    app.logger.info('Sending email...')
+    current_app.logger.info('Sending email...')
     resp = requests.post('https://api.mailgun.net/v3/api.ci-connect.net/messages',
                          auth=('api', token),
                          data={
@@ -18,9 +19,9 @@ def email_users(sender, recipients, subject, body):
                          }
                          )
     if resp.status_code == requests.codes.ok:
-        app.logger.info('Sent email with subject %s' % subject)
+        current_app.logger.info('Sent email with subject %s' % subject)
         return True
-    app.logger.info('Unable to send email with subject %s' % subject)
+    current_app.logger.info('Unable to send email with subject %s' % subject)
     return False
 
 

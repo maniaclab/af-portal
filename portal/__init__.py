@@ -6,7 +6,8 @@ import logging
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_pyfile('secrets/portal.conf')
+    with app.app_context():
+        app.config.from_pyfile('secrets/portal.conf')
     app.jinja_env.add_extension(MarkdownExtension)
     csrf = CSRFProtect(app)
 

@@ -73,14 +73,15 @@ python
 >>> info = connect.get_group_info('root.atlas-af', date_format='calendar')
 >>> pprint(info)
 '''
-from portal import app, decorators
+from flask import current_app
+from portal import decorators
 from portal.errors import ConnectApiError
 from dateutil.parser import parse
 import requests
 import json
 
-url = app.config.get('CONNECT_API_ENDPOINT')
-token = app.config.get('CONNECT_API_TOKEN')
+url = current_app.config.get('CONNECT_API_ENDPOINT')
+token = current_app.config.get('CONNECT_API_TOKEN')
 
 
 def get_username(globus_id):
@@ -90,7 +91,7 @@ def get_username(globus_id):
     if response.text:
         data = response.json()
         if data.get('kind') == 'Error':
-            app.logger.error(data['message'])
+            current_app.logger.error(data['message'])
             raise ConnectApiError(data['message'])
         if data.get('kind') == 'User':
             return data['metadata']['unix_name']
@@ -104,7 +105,7 @@ def get_usernames(group_name, **options):
     if response.text:
         data = response.json()
         if data.get('kind') == 'Error':
-            app.logger.error(data['message'])
+            current_app.logger.error(data['message'])
             raise ConnectApiError(data['message'])
         usernames = []
         roles = options.get('roles', ('admin', 'active', 'pending'))
@@ -122,7 +123,7 @@ def get_user_profile(username, **options):
     if response.text:
         data = response.json()
         if data.get('kind') == 'Error':
-            app.logger.error(data['message'])
+            current_app.logger.error(data['message'])
             raise ConnectApiError(data['message'])
         if data.get('kind') == 'User':
             profile = {}
@@ -166,7 +167,7 @@ def get_user_profiles(group_name, **options):
     if response.text:
         data = response.json()
         if data.get('kind') == 'Error':
-            app.logger.error(data['message'])
+            current_app.logger.error(data['message'])
             raise ConnectApiError(data['message'])
         profiles = []
         for value in data.values():
@@ -219,9 +220,10 @@ def create_user_profile(**settings):
     if response.text:
         data = response.json()
         if data.get('kind') == 'Error':
-            app.logger.error(data['message'])
+            current_app.logger.error(data['message'])
             raise ConnectApiError(data['message'])
-    app.logger.info('Created profile for user %s' % settings['unix_name'])
+    current_app.logger.info('Created profile for user %s' %
+                            settings['unix_name'])
 
 
 @decorators.permit_keys('name', 'institution', 'email', 'phone', 'public_key')
@@ -234,9 +236,9 @@ def update_user_profile(username, **settings):
     if response.text:
         data = response.json()
         if data.get('kind') == 'Error':
-            app.logger.error(data['message'])
+            current_app.logger.error(data['message'])
             raise ConnectApiError(data['message'])
-    app.logger.info('Updated profile for user %s.' % username)
+    current_app.logger.info('Updated profile for user %s.' % username)
 
 
 def get_user_groups(username, **options):
@@ -251,7 +253,7 @@ def get_user_groups(username, **options):
     if response.text:
         data = response.json()
         if data.get('kind') == 'Error':
-            app.logger.error(data['message'])
+            current_app.logger.error(data['message'])
             raise ConnectApiError(data['message'])
         groups = []
         for value in data.values():
@@ -292,9 +294,10 @@ def remove_user_from_group(username, group_name):
     if response.text:
         data = response.json()
         if data.get('kind') == 'Error':
-            app.logger.error(data['message'])
+            current_app.logger.error(data['message'])
             raise ConnectApiError(data['message'])
-    app.logger.info('Removed user %s from group %s' % (username, group_name))
+    current_app.logger.info('Removed user %s from group %s' %
+                            (username, group_name))
 
 
 def get_user_roles(username):
@@ -314,10 +317,10 @@ def update_user_role(username, group_name, role):
     if response.text:
         data = response.json()
         if data.get('kind') == 'Error':
-            app.logger.error(data['message'])
+            current_app.logger.error(data['message'])
             raise ConnectApiError(data['message'])
-    app.logger.info('Set role to %s for user %s in group %s' %
-                    (role, username, group_name))
+    current_app.logger.info('Set role to %s for user %s in group %s' %
+                            (role, username, group_name))
 
 
 def get_group_info(group_name, **options):
@@ -326,7 +329,7 @@ def get_group_info(group_name, **options):
                             group_name, params={'token': token})
     data = response.json()
     if data.get('kind') == 'Error':
-        app.logger.error(data['message'])
+        current_app.logger.error(data['message'])
         raise ConnectApiError(data['message'])
     if data.get('kind') == 'Group':
         group = {}
@@ -365,9 +368,9 @@ def update_group_info(group_name, **settings):
     if response.text:
         data = response.json()
         if data.get('kind') == 'Error':
-            app.logger.error(data['message'])
+            current_app.logger.error(data['message'])
             raise ConnectApiError(data['message'])
-    app.logger.info('Updated info for group %s' % group_name)
+    current_app.logger.info('Updated info for group %s' % group_name)
 
 
 def is_group_removable(group_name):
@@ -384,9 +387,9 @@ def remove_group(group_name):
         if response.text:
             data = response.json()
             if data.get('kind') == 'Error':
-                app.logger.error(data['message'])
+                current_app.logger.error(data['message'])
                 raise ConnectApiError(data['message'])
-        app.logger.info('Removed group %s' % group_name)
+        current_app.logger.info('Removed group %s' % group_name)
         return True
     return False
 
@@ -398,7 +401,7 @@ def get_subgroups(group_name):
     if response.text:
         data = response.json()
         if data.get('kind') == 'Error':
-            app.logger.error(data['message'])
+            current_app.logger.error(data['message'])
             raise ConnectApiError(data['message'])
         return data.get('groups')
     return None
@@ -413,7 +416,7 @@ def create_subgroup(group_name, **settings):
     if response.text:
         data = response.json()
         if data.get('kind') == 'Error':
-            app.logger.error(data['message'])
+            current_app.logger.error(data['message'])
             raise ConnectApiError(data['message'])
-    app.logger.info('Created subgroup %s in group %s' %
-                    (settings['name'], group_name))
+    current_app.logger.info('Created subgroup %s in group %s' %
+                            (settings['name'], group_name))
