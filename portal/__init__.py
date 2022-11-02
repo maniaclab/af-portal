@@ -6,10 +6,6 @@ import logging
 
 def create_app():
     app = Flask(__name__)
-    with app.app_context():
-        app.config.from_pyfile('secrets/portal.conf')
-    app.jinja_env.add_extension(MarkdownExtension)
-    csrf = CSRFProtect(app)
 
     # logger = logging.getLogger()
     # logger.setLevel(logging.INFO)
@@ -33,6 +29,11 @@ def create_app():
     app.logger.addHandler(fh)
 
     app.logger.info("Initialized logging")
-    import portal.views
+
+    with app.app_context():
+        app.config.from_pyfile('secrets/portal.conf')
+        app.jinja_env.add_extension(MarkdownExtension)
+        csrf = CSRFProtect(app)
+        import portal.views
 
     return app
