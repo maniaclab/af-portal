@@ -10,42 +10,42 @@ to map URLs to request handlers and to gain access to the decorator's namespace.
 The view functions decorated by the @route decorator have access to the request and response objects
 in the decorator's namespace.
 
-For documentation on the decorator pattern and the @app.route decorators, see decorators.py
+For documentation on the decorator pattern and the @current_app.route decorators, see decorators.py
 '''
 from flask import session, request, render_template, url_for, redirect, jsonify, flash, current_app
-from portal import app, connect, jupyterlab, email, math, decorators
+from portal import connect, jupyterlab, email, math, decorators
 from portal.errors import ConnectApiError
 from urllib.parse import urlparse, urljoin
 import globus_sdk
 
 
-@app.route('/')
+@current_app.route('/')
 def home():
     return render_template('home.html')
 
 
-@app.route('/about')
+@current_app.route('/about')
 def about():
     return render_template('about.html')
 
 
-@app.route('/hardware')
+@current_app.route('/hardware')
 def hardware():
     return render_template('hardware.html')
 
 
-@app.route('/hardware/gpus')
+@current_app.route('/hardware/gpus')
 def get_gpus():
     gpus = jupyterlab.get_gpu_availability()
     return jsonify(gpus=gpus)
 
 
-@app.route('/signup')
+@current_app.route('/signup')
 def signup():
     return render_template('signup.html')
 
 
-@app.route('/login')
+@current_app.route('/login')
 def login():
     redirect_uri = url_for('login', _external=True)
     client = globus_sdk.ConfidentialAppAuthClient(
@@ -82,7 +82,7 @@ def login():
         return redirect(url_for('home'))
 
 
-@app.route('/logout')
+@current_app.route('/logout')
 @decorators.login_required
 def logout():
     client = globus_sdk.ConfidentialAppAuthClient(
@@ -113,7 +113,7 @@ def get_safe_redirect():
     return '/'
 
 
-@app.route('/profile')
+@current_app.route('/profile')
 @decorators.login_required
 def profile():
     unix_name = session.get('unix_name')
@@ -123,7 +123,7 @@ def profile():
     return render_template('create_profile.html')
 
 
-@app.route('/profile/create', methods=['GET', 'POST'])
+@current_app.route('/profile/create', methods=['GET', 'POST'])
 @decorators.login_required
 def create_profile():
     try:
@@ -155,7 +155,7 @@ def create_profile():
         return redirect(url_for('create_profile'))
 
 
-@app.route('/profile/edit', methods=['GET', 'POST'])
+@current_app.route('/profile/edit', methods=['GET', 'POST'])
 @decorators.login_required
 def edit_profile():
     unix_name = session['unix_name']
@@ -179,13 +179,13 @@ def edit_profile():
         return redirect(url_for('edit_profile'))
 
 
-@app.route('/profile/groups')
+@current_app.route('/profile/groups')
 @decorators.login_required
 def user_groups():
     return render_template('user_groups.html')
 
 
-@app.route('/profile/get_user_groups')
+@current_app.route('/profile/get_user_groups')
 @decorators.login_required
 def get_user_groups():
     unix_name = session['unix_name']
@@ -193,7 +193,7 @@ def get_user_groups():
     return jsonify(groups=groups)
 
 
-@app.route('/profile/request_membership/<unix_name>')
+@current_app.route('/profile/request_membership/<unix_name>')
 @decorators.login_required
 def request_membership(unix_name):
     try:
@@ -205,18 +205,18 @@ def request_membership(unix_name):
         return redirect(url_for('profile'))
 
 
-@app.route('/aup')
+@current_app.route('/aup')
 def aup():
     return render_template('aup.html')
 
 
-@app.route('/jupyterlab')
+@current_app.route('/jupyterlab')
 @decorators.members_only
 def open_jupyterlab():
     return render_template('jupyterlab.html')
 
 
-@app.route('/jupyterlab/get_notebooks')
+@current_app.route('/jupyterlab/get_notebooks')
 @decorators.members_only
 def get_notebooks():
     username = session['unix_name']
@@ -224,7 +224,7 @@ def get_notebooks():
     return jsonify(notebooks=notebooks)
 
 
-@app.route('/jupyterlab/configure')
+@current_app.route('/jupyterlab/configure')
 @decorators.members_only
 def configure_notebook():
     username = session['unix_name']
@@ -232,7 +232,7 @@ def configure_notebook():
     return render_template('jupyterlab_form.html', notebook_name=notebook_name)
 
 
-@app.route('/jupyterlab/deploy', methods=['POST'])
+@current_app.route('/jupyterlab/deploy', methods=['POST'])
 @decorators.members_only
 @decorators.validate_notebook
 def deploy_notebook():
@@ -256,7 +256,7 @@ def deploy_notebook():
     return redirect(url_for('open_jupyterlab'))
 
 
-@app.route('/jupyterlab/remove/<notebook>')
+@current_app.route('/jupyterlab/remove/<notebook>')
 @decorators.members_only
 def remove_notebook(notebook):
     pod = jupyterlab.get_pod(notebook)
@@ -265,7 +265,7 @@ def remove_notebook(notebook):
         return jsonify(success=True, message='Notebook %s was deleted.' % notebook)
 
 
-@app.route('/kibana')
+@current_app.route('/kibana')
 @decorators.members_only
 def kibana_user():
     username = session['unix_name']
@@ -273,61 +273,61 @@ def kibana_user():
     return render_template('kibana_user.html', notebooks=notebooks)
 
 
-@app.route('/admin/notebooks')
+@current_app.route('/admin/notebooks')
 @decorators.admins_only
 def open_notebooks():
     return render_template('notebooks.html')
 
 
-@app.route('/admin/list_notebooks')
+@current_app.route('/admin/list_notebooks')
 @decorators.admins_only
 def list_notebooks():
     notebooks = jupyterlab.list_notebooks()
     return jsonify(notebooks=notebooks)
 
 
-@app.route('/admin/get_notebook/<notebook_name>')
+@current_app.route('/admin/get_notebook/<notebook_name>')
 @decorators.admins_only
 def get_notebook(notebook_name):
     notebook = jupyterlab.get_notebook(name=notebook_name, log=True)
     return jsonify(notebook=notebook)
 
 
-@app.route('/admin/users')
+@current_app.route('/admin/users')
 @decorators.admins_only
 def user_info():
     return render_template('users.html')
 
 
-@app.route('/admin/get_user_profiles')
+@current_app.route('/admin/get_user_profiles')
 @decorators.admins_only
 def get_user_profiles():
     users = connect.get_user_profiles('root.atlas-af', date_format='%m/%d/%Y')
     return jsonify(users=users)
 
 
-@app.route('/admin/plot_users_over_time')
+@current_app.route('/admin/plot_users_over_time')
 @decorators.admins_only
 def plot_users_over_time():
     data = math.plot_users_over_time()
     return render_template('plot_users_over_time.html', base64_encoded_image=data)
 
 
-@app.route('/admin/kibana')
+@current_app.route('/admin/kibana')
 @decorators.admins_only
 def kibana_admin():
     notebooks = jupyterlab.get_notebooks()
     return render_template('kibana_admin.html', notebooks=notebooks)
 
 
-@app.route('/admin/groups/<group_name>')
+@current_app.route('/admin/groups/<group_name>')
 @decorators.admins_only
 def groups(group_name):
     group = connect.get_group_info(group_name)
     return render_template('groups.html', group=group)
 
 
-@app.route('/admin/get_members/<group_name>')
+@current_app.route('/admin/get_members/<group_name>')
 @decorators.admins_only
 def get_members(group_name):
     profiles = connect.get_user_profiles(group_name)
@@ -336,7 +336,7 @@ def get_members(group_name):
     return jsonify(members=members)
 
 
-@app.route('/admin/get_member_requests/<group_name>')
+@current_app.route('/admin/get_member_requests/<group_name>')
 @decorators.admins_only
 def get_member_requests(group_name):
     profiles = connect.get_user_profiles(group_name)
@@ -345,14 +345,14 @@ def get_member_requests(group_name):
     return jsonify(member_requests=member_requests)
 
 
-@app.route('/admin/get_subgroups/<group_name>')
+@current_app.route('/admin/get_subgroups/<group_name>')
 @decorators.admins_only
 def get_subgroups(group_name):
     subgroups = connect.get_subgroups(group_name)
     return jsonify(subgroups=subgroups)
 
 
-@app.route('/admin/get_potential_members/<group_name>')
+@current_app.route('/admin/get_potential_members/<group_name>')
 @decorators.admins_only
 def get_potential_members(group_name):
     users = connect.get_user_profiles('root')
@@ -361,7 +361,7 @@ def get_potential_members(group_name):
     return jsonify(potential_members=potential_members)
 
 
-@app.route('/admin/email/<group_name>', methods=['POST'])
+@current_app.route('/admin/email/<group_name>', methods=['POST'])
 @decorators.admins_only
 def send_email(group_name):
     sender = 'noreply@af.uchicago.edu'
@@ -373,21 +373,21 @@ def send_email(group_name):
     return jsonify(success=False, message='Unable to send email to group %s' % group_name)
 
 
-@app.route('/admin/add_group_member/<group_name>/<unix_name>')
+@current_app.route('/admin/add_group_member/<group_name>/<unix_name>')
 @decorators.admins_only
 def add_group_member(unix_name, group_name):
     connect.update_user_role(unix_name, group_name, 'active')
     return jsonify(success=True)
 
 
-@app.route('/admin/remove_group_member/<group_name>/<unix_name>')
+@current_app.route('/admin/remove_group_member/<group_name>/<unix_name>')
 @decorators.admins_only
 def remove_group_member(unix_name, group_name):
     connect.remove_user_from_group(unix_name, group_name)
     return jsonify(success=True)
 
 
-@app.route('/admin/approve_membership_request/<group_name>/<unix_name>')
+@current_app.route('/admin/approve_membership_request/<group_name>/<unix_name>')
 @decorators.admins_only
 def approve_membership_request(unix_name, group_name):
     connect.update_user_role(unix_name, group_name, 'active')
@@ -405,14 +405,14 @@ def approve_membership_request(unix_name, group_name):
     return jsonify(success=True)
 
 
-@app.route('/admin/deny_membership_request/<group_name>/<unix_name>')
+@current_app.route('/admin/deny_membership_request/<group_name>/<unix_name>')
 @decorators.admins_only
 def deny_membership_request(unix_name, group_name):
     connect.remove_user_from_group(unix_name, group_name)
     return jsonify(success=True)
 
 
-@app.route('/admin/edit_group/<group_name>', methods=['GET', 'POST'])
+@current_app.route('/admin/edit_group/<group_name>', methods=['GET', 'POST'])
 @decorators.admins_only
 def edit_group(group_name):
     group = connect.get_group_info(group_name)
@@ -434,7 +434,7 @@ def edit_group(group_name):
             return redirect(url_for('edit_group', group_name=group_name))
 
 
-@app.route('/admin/create_subgroup/<group_name>', methods=['GET', 'POST'])
+@current_app.route('/admin/create_subgroup/<group_name>', methods=['GET', 'POST'])
 @decorators.admins_only
 def create_subgroup(group_name):
     if request.method == 'GET':
@@ -454,7 +454,7 @@ def create_subgroup(group_name):
         return redirect(url_for('groups', group_name=group_name))
 
 
-@app.route('/admin/remove_group/<group_name>')
+@current_app.route('/admin/remove_group/<group_name>')
 @decorators.admins_only
 def remove_group(group_name):
     connect.remove_group(group_name)
@@ -462,28 +462,28 @@ def remove_group(group_name):
     return redirect(url_for('groups', group_name='root.atlas-af'))
 
 
-@app.route('/admin/login_nodes')
+@current_app.route('/admin/login_nodes')
 @decorators.admins_only
 def login_nodes():
     return render_template('login_nodes.html')
 
 
-@app.errorhandler(404)
+@current_app.errorhandler(404)
 def not_found(e):
     return render_template('404.html')
 
 
-@app.errorhandler(500)
+@current_app.errorhandler(500)
 def internal_server_error(e):
     return render_template('500.html')
 
 
-@app.after_request
+@current_app.after_request
 def add_cache_control(response):
     response.cache_control.max_age = 0
     return response
 
 
-@app.before_first_request
+@current_app.before_first_request
 def start_notebook_maintenance():
     jupyterlab.start_notebook_maintenance()
