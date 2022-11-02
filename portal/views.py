@@ -1,4 +1,4 @@
-''' 
+'''
 A module for all of the view functions in the web application.
 
 The phrase "view function" gets its name from the model-view-template design pattern.
@@ -48,7 +48,7 @@ def signup():
 @current_app.route('/login')
 def login():
     redirect_uri = url_for('login', _external=True)
-    print(current_app.config.get('CLIENT_ID'))
+    current_app.logger.info(current_app.config)
     client = globus_sdk.ConfidentialAppAuthClient(
         current_app.config.get('CLIENT_ID'), current_app.config.get('CLIENT_SECRET'))
     client.oauth2_start_flow(redirect_uri, refresh_tokens=True)
