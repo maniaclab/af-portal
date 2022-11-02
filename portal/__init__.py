@@ -10,7 +10,7 @@ def create_app():
     # logger = logging.getLogger()
     # logger.setLevel(logging.INFO)
     formatter = logging.Formatter(
-        '%(asctime)s;%(module)s;%(funcName)s;%(levelname)s;%(message)s')
+        '%(asctime)s %(levelname)s %(module)s %(funcName)s %(message)s')
     # logger.propagate = False
 
     ch = logging.StreamHandler()
@@ -32,6 +32,7 @@ def create_app():
 
     with app.app_context():
         app.config.from_pyfile('secrets/portal.conf')
+        app.logger.info(app.config)
         app.jinja_env.add_extension(MarkdownExtension)
         csrf = CSRFProtect(app)
         import portal.views
