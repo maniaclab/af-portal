@@ -7,21 +7,16 @@ import logging
 def create_app():
     app = Flask(__name__)
 
-    # logger = logging.getLogger()
-    # logger.setLevel(logging.INFO)
     formatter = logging.Formatter(
         '%(asctime)s %(levelname)s %(module)s %(funcName)s %(message)s')
-    # logger.propagate = False
 
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
     ch.setFormatter(formatter)
-    # logger.addHandler(ch)
 
     fh = logging.FileHandler('portal.log')
     fh.setLevel(logging.INFO)
     fh.setFormatter(formatter)
-    # logger.addHandler(fh)
 
     for h in app.logger.handlers:
         app.logger.removeHandler(h)
