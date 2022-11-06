@@ -238,12 +238,12 @@ def remove_notebook(notebook):
         return jsonify(success=True, message='Notebook %s was deleted.' %notebook)
     return jsonify(success=False, message='Notebook %s not found' %notebook)
 
-@app.route('/monitoring')
+@app.route('/metrics')
 @decorators.members_only
-def kibana_user():
+def user_metrics():
     username = session['unix_name']
     notebooks = jupyterlab.get_notebooks(username)
-    return render_template('kibana_user.html', notebooks=notebooks)
+    return render_template('metrics_user.html', notebooks=notebooks)
 
 @app.route('/job_queue')
 @decorators.members_only
@@ -301,11 +301,11 @@ def plot_users_over_time():
     data = math.plot_users_over_time()
     return render_template('plot_users_over_time.html', base64_encoded_image=data)
 
-@app.route('/admin/kibana')
+@app.route('/admin/metrics')
 @decorators.admins_only
-def kibana_admin():
+def admin_metrics():
     notebooks = jupyterlab.get_notebooks()
-    return render_template('kibana_admin.html', notebooks=notebooks)
+    return render_template('metrics_admin.html', notebooks=notebooks)
 
 @app.route('/admin/groups/<group_name>')
 @decorators.admins_only

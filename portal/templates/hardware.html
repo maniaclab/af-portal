@@ -15,9 +15,9 @@
                 <li class="breadcrumb-item active" aria-current="page">Hardware</li>
             </ol>
         </nav>
-        <div class="container col-sm-10">
-            <h2>Interactive Nodes</h2>
-            <table>
+        <div class="container">
+            <h6>Interactive Nodes</h6>
+            <table class="table table-bordered fs14">
               <tr>
                 <th>Access Protocol</th>
                 <th>Number of Nodes</th>
@@ -26,19 +26,19 @@
               <tr>
                 <td>ssh</td>
                 <td>2</td>
-                <td>link to node monitoring</td>
+                <td><a class="text-decoration-none" href="{{ url_for('login_nodes') }}">Login nodes</a></td>
               </tr>
               <tr>
                 <td>Jupyter Notebook</td>
                 <td>4</td>
-                <td>link to notebook monitoring</td>
+                <td><a class="text-decoration-none" href="{{ url_for('user_metrics') }}">Metrics</a></td>
               </tr>
             </table>
-            <h2>Batch Compute</h2>
-            <table>
+            <h6>Batch Compute</h6>
+            <table class="table table-bordered fs14">
               <tr>
                 <th>Queues</th>
-                <th>Capacity(Number of Cores)</th>
+                <th>Capacity (cores)</th>
                 <th>Walltime Limit</th>
                 <th>Notes</th>
               </tr>
@@ -55,8 +55,8 @@
                 <td>The short queue jobs can run on both the fast compute nodes and the hyperconvered nodes</td>
               </tr>
             </table>
-            <h2>Storage Spaces</h2>
-            <table>
+            <h6>Storage Spaces</h6>
+            <table class="table table-bordered fs14">
               <tr>
                 <th>Storage</th>
                 <th>Type</th>
@@ -86,10 +86,8 @@
                 <td></td>
               </tr>
             </table>
-            <br> 
-            <hr>
-            <h2>Hardware Specifications</h2>
-            <table>
+            <h6>Hardware Specifications</h6>
+            <table class="table table-bordered fs14">
               <tr>
                 <th>Node Type</th>
                 <th>Number of Nodes</th>
@@ -123,7 +121,7 @@
                 <td>Two 960 GB SSD</td>
               </tr>
             </table>
-            <table>
+            <table class="table table-bordered fs14">
               <tr>
                 <th>Node Type</th>
                 <th>Number of Nodes</th>
@@ -170,67 +168,9 @@
                 <td>Six 450GB SSD</td>
               </tr>
             </table> 
-            <br> 
-            <h3>Network Switches</h3>
+            <h6>Network Switches</h6>
             <p>Two Juniper QFX5120 switches: 40 Gbps uplink, 48 10/25GbE SFP28 ports</p> 
         </div>
     </div>
-    <div id="gpu-products" class="modal fade" role="dialog">
-        <div class="modal-dialog" style="max-width: 600px">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">GPU Products</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div v-if="gpus" class="modal-body">
-                    <p>Here is a table of our GPU products.</p>
-                    <table class="table table-hover table-bordered nowrap w-100">
-                        <thead>
-                            <tr>
-                                <th>GPU Product</th>
-                                <th>Count</th>
-                                <th>Avail.</th>
-                                <th>Memory (MB)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="gpu in gpus">
-                                <td>[[ gpu.product ]]</td>
-                                <td>[[ gpu.count ]]</td>
-                                <td>[[ gpu.available ]]</td>
-                                <td>[[ gpu.memory ]]</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div v-else class="modal-body">
-                    Loading...
-                    <span class="spinner-border spinner-border-sm text-dark ms-2" role="status"></span>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
 </section>
-<script type="text/javascript">
-$(document).ready(function() {
-    const { createApp } = Vue
-
-    createApp({
-        delimiters: ["[[", "]]"],
-        data() {
-            return {
-                gpus: null
-            }
-        },
-        async mounted() {
-            const response = await fetch("{{ url_for('get_gpus') }}");
-            const json = await response.json()
-            this.gpus = json.gpus
-        }
-    }).mount("#hardware");
-});    
-</script>
 {% endblock %}
