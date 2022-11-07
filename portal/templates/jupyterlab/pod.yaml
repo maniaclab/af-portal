@@ -11,12 +11,32 @@ metadata:
   name: {{notebook_id}}
   namespace: {{namespace}}
 spec:
+  {% if gpu_request %}
   nodeSelector:
-    {% if gpu_request %}
     nvidia.com/gpu.memory: "{{gpu_memory}}"
-    {% else %}
-    hyperconverged: "true"
-    {% endif %}
+  {% else %}
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: partition
+            operator: NotIn
+            values:
+            - gpu
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 10
+        preference:
+          matchExpressions:
+          - key: partition
+            operator: In
+            values:
+            - login
+  tolerations:
+    - key: hub.jupyter.org/dedicated
+      operator: "Exists"
+      effect: "NoSchedule"
+  {% endif %}
   containers:
   - name: {{notebook_id}}
     args:
