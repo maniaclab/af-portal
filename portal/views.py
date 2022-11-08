@@ -238,6 +238,11 @@ def remove_notebook(notebook):
         return jsonify(success=True, message='Notebook %s was deleted.' %notebook)
     return jsonify(success=False, message='Notebook %s not found' %notebook)
 
+@app.route('/monitoring/login_nodes')
+@decorators.members_only
+def login_nodes():
+    return render_template('login_nodes.html')
+
 @app.route('/monitoring/notebooks')
 @decorators.members_only
 def notebooks_user():
@@ -426,11 +431,6 @@ def remove_group(group_name):
     connect.remove_group(group_name)
     flash('Removed group %s' %group_name, 'success')
     return redirect(url_for('groups', group_name='root.atlas-af'))
-
-@app.route('/admin/login_nodes')
-@decorators.admins_only
-def login_nodes():
-    return render_template('login_nodes.html')
 
 @app.errorhandler(404)
 def not_found(e):
