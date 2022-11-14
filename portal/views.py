@@ -255,6 +255,11 @@ def notebooks_user():
 def job_queue():
     return render_template('job_queue.html')
 
+@app.route('/monitoring/htcondor_usage')
+@decorators.members_only
+def htcondor_usage():
+    return render_template('htcondor_usage.html')
+
 @app.route('/admin/notebooks')
 @decorators.admins_only
 def notebooks_admin():
