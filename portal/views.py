@@ -234,9 +234,9 @@ def deploy_notebook():
 def remove_notebook(notebook):
     pod = jupyterlab.get_pod(notebook)
     if pod and pod.metadata.labels['owner'] == session['unix_name']: 
-        jupyterlab.remove_notebook(notebook)
-        return jsonify(success=True, message='Notebook %s was deleted.' %notebook)
-    return jsonify(success=False, message='Notebook %s not found' %notebook)
+        if jupyterlab.remove_notebook(notebook):
+            return jsonify(success=True, message='Notebook %s was deleted.' %notebook)
+    return jsonify(success=False, message='Unable to delete notebook %s' %notebook)
 
 @app.route('/monitoring/login_nodes')
 @decorators.members_only

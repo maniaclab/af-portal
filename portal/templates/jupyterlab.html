@@ -123,7 +123,7 @@ $(document).ready(function() {
     const row = table.row($(this).parents("tr"));
     const rowData = row.data();
     fetch("{{request.url_root}}/jupyterlab/remove/" + rowData.id).then(resp => resp.json()).then(resp => {
-      if (resp.success) {
+      if (resp) {
         rowData.status = "Removing notebook...";
         row.data(rowData).draw(true);
         table.ajax.reload();

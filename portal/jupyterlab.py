@@ -262,14 +262,19 @@ def list_notebooks():
 
 def remove_notebook(name):
     ''' Removes a notebook from the namespace, and all Kubernetes objects associated with the notebook. '''
-    id = name.lower()
-    api = client.CoreV1Api()
-    api.delete_namespaced_pod(id, namespace)
-    api.delete_namespaced_service(id, namespace)
-    api.delete_namespaced_secret(id, namespace)
-    api = client.NetworkingV1Api()
-    api.delete_namespaced_ingress(id, namespace)
-    logger.info('Removed notebook %s from namespace %s' %(id, namespace))
+    try: 
+        id = name.lower()
+        api = client.CoreV1Api()
+        api.delete_namespaced_pod(id, namespace)
+        api.delete_namespaced_service(id, namespace)
+        api.delete_namespaced_secret(id, namespace)
+        api = client.NetworkingV1Api()
+        api.delete_namespaced_ingress(id, namespace)
+        logger.info('Removed notebook %s from namespace %s' %(id, namespace))
+        return True
+    except Exception as err:
+        logger.error(str(err))
+        return False
 
 def notebook_name_available(name):
     ''' Returns a boolean indicating whether a notebook name is available for use. '''
