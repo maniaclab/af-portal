@@ -89,7 +89,6 @@ def get_username(globus_id):
         data = response.json()
         if data.get('kind') == 'Error':
             logger.error(data['message'])
-            raise ConnectApiError(data['message'])
         if data.get('kind') == 'User':
             return data['metadata']['unix_name']
     return None
