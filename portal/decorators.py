@@ -167,11 +167,12 @@ def members_only(fn):
         if not unix_name:
             return redirect(url_for('create_profile'))
         profile = connect.get_user_profile(unix_name)
-        if not session.get('unix_id'):
-            session['unix_id'] = profile['unix_id']
-        role = profile['role']
-        if role == 'admin' or role == 'active':
-            return fn(*args, **kwargs)
+        if profile:
+            if not session.get('unix_id'):
+                session['unix_id'] = profile['unix_id']
+            role = profile['role']
+            if role == 'admin' or role == 'active':
+                return fn(*args, **kwargs)
         return render_template('request_membership.html', role=role)
     return inner
 
