@@ -79,9 +79,7 @@ def logout():
     for token in (token_info['access_token'] for token_info in session['tokens'].values()):
         client.oauth2_revoke_token(token)
     session.clear()
-    redirect_uri = url_for('home', _external=True)
-    globus_logout_url = ('https://auth.globus.org/v2/web/logout?client=%s&redirect_uri=%s&redirect_name=AF Portal' %(app.config['CLIENT_ID'], redirect_uri))
-    return redirect(globus_logout_url)
+    return redirect(url_for('home'))
 
 def is_safe_redirect_url(target):
   host_url = urlparse(request.host_url)
