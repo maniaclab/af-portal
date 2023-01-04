@@ -3,7 +3,6 @@ kind: Service
 metadata:
   labels:
     k8s-app: jupyterlab
-    notebook-id: {{notebook_id}}
   name: {{notebook_id}}
   namespace: {{namespace}}
 spec:

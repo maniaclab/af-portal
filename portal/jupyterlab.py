@@ -194,7 +194,7 @@ def get_notebook(name=None, pod=None, **options):
         pod = api.read_namespaced_pod(name=name.lower(), namespace=namespace)
     notebook = dict()
     notebook['id'] = pod.metadata.name
-    notebook['name'] = pod.metadata.labels.get('notebook-name') or pod.metadata.labels.get('display-name')
+    notebook['name'] = pod.metadata.labels.get('notebook-name')
     notebook['namespace'] = namespace
     notebook['owner'] = pod.metadata.labels.get('owner')
     notebook['image'] = pod.spec.containers[0].image
@@ -279,7 +279,7 @@ def remove_notebook(name):
 def notebook_name_available(name):
     ''' Returns a boolean indicating whether a notebook name is available for use. '''
     api = client.CoreV1Api()
-    pods = api.list_namespaced_pod(namespace, label_selector='notebook-id={0}'.format(name.lower()))
+    pods = api.list_namespaced_pod(namespace, field_selector='metadata.name={0}'.format(name.lower()))
     return len(pods.items) == 0
 
 def generate_notebook_name(owner):

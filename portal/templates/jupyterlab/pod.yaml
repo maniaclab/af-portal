@@ -2,9 +2,8 @@ apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    k8s-app: jupyterlab
-    notebook-id: {{notebook_id}}
     notebook-name: {{notebook_name}}
+    k8s-app: jupyterlab
     owner: {{owner}}
     globus-id: {{globus_id}}
     time2delete: ttl-{{hours_remaining}}
