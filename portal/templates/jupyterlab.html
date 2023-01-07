@@ -63,7 +63,7 @@ $(document).ready(function() {
             if (condition["type"] == "PodScheduled" && condition["status"] == "True")
               html += "<li>Pod scheduled.</li>";
             else if (condition["type"] == "PodScheduled" && condition["status"] == "False")
-              html += "<li>Unable to schedule pod.</li>";
+              html += "<li>Scheduling pod...</li>";
             else if (condition["type"] == "Initialized" && condition["status"] == "True")
               html += "<li>Pod initialized.</li>";
             else if (condition["type"] == "Ready" && condition["status"] == "True")
