@@ -16,6 +16,7 @@ from portal import app, logger, connect, jupyterlab, email, math, decorators
 from portal.errors import ConnectApiError
 from urllib.parse import urlparse, urljoin
 import globus_sdk
+import threading
 
 @app.route('/')
 def home():
@@ -368,18 +369,27 @@ def remove_group_member(unix_name, group_name):
 @app.route('/admin/approve_membership_request/<group_name>/<unix_name>')
 @decorators.admins_only
 def approve_membership_request(unix_name, group_name):
-    connect.update_user_role(unix_name, group_name, 'active')
-    profile = connect.get_user_profile(unix_name)
-    approver = session['unix_name']
-    subject = 'Account approval'
-    body = '''
-        User %s approved a request from %s to join group %s.
+    def notify_staff():
+        profile = connect.get_user_profile(unix_name)
+        approver = session['unix_name']
+        subject = 'Account approval'
+        body = '''
+            User %s approved a request from %s to join group %s.
 
-        Unix name: %s
-        Full name: %s
-        Email: %s
-        Institution: %s''' %(approver, unix_name, group_name, profile['unix_name'], profile['name'], profile['email'], profile['institution'])
-    email.email_staff(subject, body)
+            Unix name: %s
+            Full name: %s
+            Email: %s
+            Institution: %s''' %(approver, 
+                                unix_name, 
+                                group_name, 
+                                profile['unix_name'], 
+                                profile['name'], 
+                                profile['email'], 
+                                profile['institution'])
+        email.email_staff(subject, body)
+    connect.update_user_role(unix_name, group_name, 'active')
+    t = threading.Thread(target=notify_staff)
+    t.start()
     return jsonify(success=True)
 
 @app.route('/admin/deny_membership_request/<group_name>/<unix_name>')
