@@ -370,10 +370,7 @@ def remove_group_member(unix_name, group_name):
 @decorators.admins_only
 def approve_membership_request(unix_name, group_name):
     def notify_staff(approver):
-        logger.info('Notifying staff...')
         profile = connect.get_user_profile(unix_name)
-        logger.info('Retrieved user profile')
-        logger.info('Approver: %s' %approver)
         subject = 'Account approval'
         body = '''
             User %s approved a request from %s to join group %s.
@@ -388,8 +385,6 @@ def approve_membership_request(unix_name, group_name):
                                 profile['name'], 
                                 profile['email'], 
                                 profile['institution'])
-        logger.info('Body of email:\n%s' %body)
-        logger.info('Emailing staff...')
         email.email_staff(subject, body)
     connect.update_user_role(unix_name, group_name, 'active')
     t = threading.Thread(target=notify_staff, args=(session['unix_name'],))
