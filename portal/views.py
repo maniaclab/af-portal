@@ -372,6 +372,7 @@ def approve_membership_request(unix_name, group_name):
     def notify_staff():
         logger.info('Notifying staff...')
         profile = connect.get_user_profile(unix_name)
+        logger.info('Retrieved user profile')
         approver = session['unix_name']
         subject = 'Account approval'
         body = '''
