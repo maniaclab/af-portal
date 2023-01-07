@@ -195,7 +195,9 @@ $(document).ready(function() {
         const row = membersTable.row($(this).parents("tr"));
         const unix_name = row.data().unix_name;
         const url = "{{request.url_root}}/admin/remove_group_member/{{group['name']}}/" + unix_name;
+        loader(true);
         fetch(url).then(resp => resp.json()).then(resp => {
+            loader(false);
             if (resp.success) {
                 row.remove().draw();
                 potentialMembersTable.ajax.reload();
@@ -245,7 +247,9 @@ $(document).ready(function() {
         const row = memberRequestsTable.row($(this).parents("tr"));
         const unix_name = row.data().unix_name;
         const url = "{{request.url_root}}/admin/approve_membership_request/{{group['name']}}/" + unix_name;
+        loader(true);
         fetch(url).then(resp => resp.json()).then(resp => {
+            loader(false);
             if (resp.success) {
                 row.remove().draw();
                 membersTable.ajax.reload();
@@ -258,7 +262,9 @@ $(document).ready(function() {
         const row = memberRequestsTable.row($(this).parents("tr"));
         const unix_name = row.data().unix_name;
         const url = "{{request.url_root}}/admin/deny_membership_request/{{group['name']}}/" + unix_name;
+        loader(true);
         fetch(url).then(resp => resp.json()).then(resp => {
+            loader(false);
             if (resp.success) {
                 row.remove().draw();
                 potentialMembersTable.ajax.reload();
@@ -323,7 +329,9 @@ $(document).ready(function() {
         const row = potentialMembersTable.row($(this).parents("tr"));
         const unix_name = row.data().unix_name;
         const url = "{{request.url_root}}/admin/add_group_member/{{group['name']}}/" + unix_name;
+        loader(true);
         fetch(url).then(resp => resp.json()).then(resp => {
+            loader(false);
             if (resp.success) {
                 row.remove().draw();
                 membersTable.ajax.reload();
