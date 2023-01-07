@@ -369,7 +369,7 @@ def remove_group_member(unix_name, group_name):
 @app.route('/admin/approve_membership_request/<group_name>/<unix_name>')
 @decorators.admins_only
 def approve_membership_request(unix_name, group_name):
-    def notify_staff():
+    def notify_staff(session):
         logger.info('Notifying staff...')
         profile = connect.get_user_profile(unix_name)
         logger.info('Retrieved user profile')
@@ -393,7 +393,7 @@ def approve_membership_request(unix_name, group_name):
         logger.info('Emailing staff...')
         email.email_staff(subject, body)
     connect.update_user_role(unix_name, group_name, 'active')
-    t = threading.Thread(target=notify_staff)
+    t = threading.Thread(target=notify_staff, args=(session,))
     t.start()
     return jsonify(success=True)
 
