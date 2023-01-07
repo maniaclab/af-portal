@@ -387,6 +387,7 @@ def approve_membership_request(unix_name, group_name):
                                 profile['name'], 
                                 profile['email'], 
                                 profile['institution'])
+        logger.info('Emailing staff...')
         email.email_staff(subject, body)
     connect.update_user_role(unix_name, group_name, 'active')
     t = threading.Thread(target=notify_staff)
