@@ -374,6 +374,7 @@ def approve_membership_request(unix_name, group_name):
         profile = connect.get_user_profile(unix_name)
         logger.info('Retrieved user profile')
         approver = session['unix_name']
+        logger.info('Approver: %s' %approver)
         subject = 'Account approval'
         body = '''
             User %s approved a request from %s to join group %s.
@@ -388,6 +389,7 @@ def approve_membership_request(unix_name, group_name):
                                 profile['name'], 
                                 profile['email'], 
                                 profile['institution'])
+        logger.info('Body of email:\n%s' %body)
         logger.info('Emailing staff...')
         email.email_staff(subject, body)
     connect.update_user_role(unix_name, group_name, 'active')
