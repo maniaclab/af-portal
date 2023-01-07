@@ -370,6 +370,7 @@ def remove_group_member(unix_name, group_name):
 @decorators.admins_only
 def approve_membership_request(unix_name, group_name):
     def notify_staff():
+        logger.info('Notifying staff...')
         profile = connect.get_user_profile(unix_name)
         approver = session['unix_name']
         subject = 'Account approval'
