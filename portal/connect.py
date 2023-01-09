@@ -229,12 +229,16 @@ def get_user_groups(username, **options):
         if data.get('kind') == 'Error':
             logger.error(data['message'])
             raise ConnectApiError(data['message'])
+        pattern = options.get('pattern', None)
+        date_format = options.get('date_format', 'calendar')
         groups = []
         for value in data.values():
             if value['status'] == requests.codes.ok:
                 group = {}
                 metadata = json.loads(value['body'])['metadata']
                 group['name'] = metadata['name']
+                if pattern and not group['name'].startswith(pattern):
+                    continue
                 group['display_name'] = metadata['display_name']
                 group['description'] = metadata['description']
                 group['email'] = metadata['email']
@@ -242,7 +246,6 @@ def get_user_groups(username, **options):
                 group['purpose'] = metadata['purpose']
                 group['unix_id'] = metadata['unix_id']
                 group['pending'] = metadata['pending']
-                date_format = options.get('date_format', 'calendar')
                 if date_format == 'object':
                     group['creation_date'] = parse(metadata['creation_date'])
                 elif date_format == 'iso':

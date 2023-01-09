@@ -168,7 +168,7 @@ def user_groups():
 @decorators.login_required
 def get_user_groups():
     unix_name = session['unix_name']
-    groups = connect.get_user_groups(unix_name)
+    groups = connect.get_user_groups(unix_name, pattern='root.atlas-af')
     return jsonify(groups=groups)
 
 @app.route('/profile/request_membership/<unix_name>')
