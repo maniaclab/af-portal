@@ -8,7 +8,7 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a class="text-decoration-none" href="{{ url_for('home') }}">Home</a></li>
-                <li class="breadcrumb-item"><a onclick="loader()" class="text-decoration-none" href="{{ url_for('groups', group_name='root.atlas-af') }}">Groups</a></li>
+                <li class="breadcrumb-item"><a onclick="loader(true)" class="text-decoration-none" href="{{ url_for('groups', group_name='root.atlas-af') }}">Groups</a></li>
                 <li class="breadcrumb-item active" aria-current="page">{{ group["name"] }}</li>
             </ol>
         </nav>
@@ -70,7 +70,7 @@
                         <a href="{{ url_for('edit_group', group_name=group['name']) }}" class="btn btn-sm btn-primary" href="#" role="button">Edit group</a>
                         <a href="{{ url_for('create_subgroup', group_name=group['name']) }}" class="btn btn-sm btn-primary" href="#" role="button">Create subgroup</a>
                         {% if group['is_removable'] %}
-                        <a onclick="loader()" href="{{ url_for('remove_group', group_name=group['name']) }}" class="btn btn-sm btn-danger" href="#" role="button">Delete group</a>
+                        <a onclick="loader(true)" href="{{ url_for('remove_group', group_name=group['name']) }}" class="btn btn-sm btn-danger" href="#" role="button">Delete group</a>
                         {% endif %}
                     </div>
                 </div>

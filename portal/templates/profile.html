@@ -79,7 +79,7 @@
                     </div>
                     <div class="card-footer bg-transparent border-top-0">
                         {% if profile["role"] == "nonmember" %}
-                        <a href="{{ url_for('request_membership', unix_name=profile['unix_name']) }}" class="btn btn-sm btn-primary" role="button">Request membership</a>
+                        <a href="{{ url_for('request_membership', unix_name=profile['unix_name']) }}" class="btn btn-sm btn-primary" role="button" onclick="loader(true)">Request membership</a>
                         {% else %}
                         <a href="{{ url_for('user_groups') }}" class="btn btn-sm btn-primary" role="button">My groups</a>  
                         {% endif %}
