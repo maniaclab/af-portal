@@ -34,7 +34,7 @@
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
           <ul class="navbar-nav">
             {% if session.get("is_authenticated") %}
-            {% if session.get("role") == "admin" %} 
+            {% if session.get("role") == "admin" %}
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                 aria-expanded="false">
@@ -42,8 +42,10 @@
               </a>
               <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="{{ url_for('user_info') }}" onclick="loader(true)">Users</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('groups', group_name='root.atlas-af') }}" onclick="loader(true)">Groups</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('notebooks_admin') }}" onclick="loader(true)">Notebooks</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('groups', group_name='root.atlas-af') }}"
+                    onclick="loader(true)">Groups</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('notebooks_admin') }}"
+                    onclick="loader(true)">Notebooks</a></li>
               </ul>
             </li>
             {% endif %}
@@ -53,8 +55,10 @@
                 Monitoring
               </a>
               <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{{ url_for('notebooks_user') }}" onclick="loader(true)">Notebooks</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('login_nodes') }}" onclick="loader(true)">Login Nodes</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('notebooks_user') }}" onclick="loader(true)">Notebooks</a>
+                </li>
+                <li><a class="dropdown-item" href="{{ url_for('login_nodes') }}" onclick="loader(true)">Login Nodes</a>
+                </li>
                 <li><a class="dropdown-item" href="{{ url_for('htcondor_usage') }}">HTCondor Usage</a></li>
               </ul>
             </li>
@@ -66,8 +70,11 @@
               <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="{{ url_for('open_jupyterlab') }}">JupyterLab</a></li>
                 <li><a class="dropdown-item" href="https://coffea.af.uchicago.edu/" target="_blank">Coffea Casa</a></li>
-                <li><a class="dropdown-item" href="https://uproot-atlas.servicex.af.uchicago.edu" target="_blank">ServiceX (uproot)</a></li>
-                <li><a class="dropdown-item" href="https://xaod.servicex.af.uchicago.edu" target="_blank">ServiceX (xAOD)</a></li>
+                <li><a class="dropdown-item" href="https://servicex.af.uchicago.edu" target="_blank">ServiceX</a></li>
+                <li><a class="dropdown-item" href="https://uproot-atlas.servicex.af.uchicago.edu"
+                    target="_blank">ServiceX Uproot - deprecated</a></li>
+                <li><a class="dropdown-item" href="https://xaod.servicex.af.uchicago.edu" target="_blank">ServiceX xAOD
+                    - deprecated</a></li>
               </ul>
             </li>
             <li class="nav-item dropdown">
@@ -76,8 +83,10 @@
                 Documentation
               </a>
               <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="https://maniaclab.uchicago.edu/af-docs/" target="_blank">UChicago Docs</a></li>
-                <li><a class="dropdown-item" href="https://usatlas.readthedocs.io/projects/af-docs/en/latest/" target="_blank">US ATLAS Docs</a></li>
+                <li><a class="dropdown-item" href="https://maniaclab.uchicago.edu/af-docs/" target="_blank">UChicago
+                    Docs</a></li>
+                <li><a class="dropdown-item" href="https://usatlas.readthedocs.io/projects/af-docs/en/latest/"
+                    target="_blank">US ATLAS Docs</a></li>
                 <li><a class="dropdown-item" href="{{ url_for('aup') }}">Acceptable Use Policy</a></li>
                 <li><a class="dropdown-item" href="{{ url_for('hardware') }}">Hardware</a></li>
                 <li><a class="dropdown-item" href="{{ url_for('about') }}">About Page</a></li>
@@ -121,25 +130,27 @@
       </div>
     </nav>
   </header>
-  <div id="loader" class="center"></div> 
+  <div id="loader" class="center"></div>
   <div id="messages">
     {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }} alert-dismissible">
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        {% endfor %}
-        </ul>
-      {% endif %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    </ul>
+    {% endif %}
     {% endwith %}
   </div>
   {% block body %} {% endblock %}
   <footer class="text-center">
     <a href="https://www.uchicago.edu" target="_blank"><img src="{{url_for('static', filename='img/uc-logo.png')}}"></a>
-    <a href="https://efi.uchicago.edu" target="_blank"><img src="{{url_for('static', filename='img/efi-logo.png')}}"></a>
-    <a href="https://iris-hep.org" target="_blank"><img src="{{url_for('static', filename='img/iris-hep-logo.png')}}"></a>
+    <a href="https://efi.uchicago.edu" target="_blank"><img
+        src="{{url_for('static', filename='img/efi-logo.png')}}"></a>
+    <a href="https://iris-hep.org" target="_blank"><img
+        src="{{url_for('static', filename='img/iris-hep-logo.png')}}"></a>
   </footer>
 </body>
 <script type="text/javascript">
@@ -159,11 +170,12 @@
   /* Set the CSRF token for Ajax requests */
   var csrf_token = "{{ csrf_token() }}";
   $.ajaxSetup({
-      beforeSend: function(xhr, settings) {
-          if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-              xhr.setRequestHeader("X-CSRFToken", csrf_token);
-          }
+    beforeSend: function (xhr, settings) {
+      if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+        xhr.setRequestHeader("X-CSRFToken", csrf_token);
       }
+    }
   });
 </script>
+
 </html>
