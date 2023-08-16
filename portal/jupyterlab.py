@@ -150,7 +150,7 @@ def deploy_notebook(**settings):
     memory_limit: (string) The max amount of memory that can be allocated to this pod
     gpu_request: (integer) The number of GPU instances to request from the k8s cluster
     gpu_limit: (integer) The max number of GPU instances that can be allocated to this pod
-    gpu_memory: (integer) Selects a GPU product based on its memory, in megabytes (e.g. 4864)
+    gpu_product: (string) Selects a GPU product based on name
     hours_remaining: (integer) The duration of the notebook in hours
     '''
     settings['namespace'] = namespace
