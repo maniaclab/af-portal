@@ -294,7 +294,7 @@ def supported_images():
     ''' Returns a tuple of Docker images that are supported by the JupyterLab service. '''
     return ('hub.opensciencegrid.org/usatlas/ml-platform:latest', 'hub.opensciencegrid.org/usatlas/ml-platform:conda', 
             'hub.opensciencegrid.org/usatlas/ml-platform:julia', 'hub.opensciencegrid.org/usatlas/ml-platform:lava',
-            'hub.opensciencegrid.org/usatlas/ml-platform:centos7-experimental')
+            'hub.opensciencegrid.org/usatlas/ml-platform:centos-v2-docker')
 
 def get_gpu_availability(product=None, memory=None):
     ''' 
@@ -336,6 +336,7 @@ def get_gpu_availability(product=None, memory=None):
     else: 
         nodes = api.list_node(label_selector='gpu=true') 
     for node in nodes.items:
+        print(node.metadata.labels)
         product = node.metadata.labels['nvidia.com/gpu.product']
         memory = int(node.metadata.labels['nvidia.com/gpu.memory'])
         count = int(node.metadata.labels['nvidia.com/gpu.count'])
@@ -351,6 +352,7 @@ def get_gpu_availability(product=None, memory=None):
             if requests:
                 gpu['total_requests'] += int(requests.get('nvidia.com/gpu', 0))
         gpu['available'] = max(gpu['count'] - gpu['total_requests'], 0)
+    print(sorted(gpus.values(), key=lambda gpu : gpu['memory']))
     return sorted(gpus.values(), key=lambda gpu : gpu['memory'])
 
 def get_expiration_date(pod):

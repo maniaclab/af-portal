@@ -203,6 +203,8 @@ def validate_notebook(fn):
             memory_request = int(request.form['memory'])
             gpu_request = int(request.form['gpu'])
             gpu_memory_request = int(request.form['gpu-memory'])
+            print(gpu_request)
+            print(gpu_memory_request)
             if ' ' in notebook_name:
                 raise InvalidFormError('The notebook name cannot have any whitespace.')
             if len(notebook_name) > 30:
@@ -220,17 +222,19 @@ def validate_notebook(fn):
             if gpu_request < 0 or gpu_request > 7:
                 raise InvalidFormError('The request of %d GPUs is outside the bounds [0, 7].' %gpu_request)
             gpus = jupyterlab.get_gpu_availability(memory=gpu_memory_request)
-            if not gpus:
-                raise InvalidFormError('The GPU product is not supported.')
-            gpu_product = gpus[0]['product']
-            gpu_available = gpus[0]['available']
-            if gpu_available < gpu_request:
-                if gpu_available == 0:
-                    raise InvalidFormError('The %s is currently not available' %gpu_product)
-                if gpu_available == 1:
-                    raise InvalidFormError('The %s has only 1 instance available.' %gpu_product)
-                if gpu_available > 1:
-                    raise InvalidFormError('The %s has only %s instances available.' %(gpu_product, gpu_available))
+            #if not gpus:
+            #    raise InvalidFormError('The GPU product is not supported.')
+            if gpu_request:
+                    gpus = jupyterlab.get_gpu_availability(memory=gpu_memory_request)
+                    gpu_product = gpus[0]['product']
+                    gpu_available = gpus[0]['available']
+                    if gpu_available < gpu_request:
+                        if gpu_available == 0:
+                            raise InvalidFormError('The %s is currently not available' %gpu_product)
+                        if gpu_available == 1:
+                            raise InvalidFormError('The %s has only 1 instance available.' %gpu_product)
+                        if gpu_available > 1:
+                            raise InvalidFormError('The %s has only %s instances available.' %(gpu_product, gpu_available))
             return fn(*args, **kwargs)
         except InvalidFormError as err:
             flash(str(err), 'warning')
