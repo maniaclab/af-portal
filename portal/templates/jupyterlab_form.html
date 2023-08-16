@@ -68,19 +68,20 @@
                     </div>
                     <div v-show="instances > 0" class="row mb-2">
                         <div class="col-sm-4">
-                            <label for="gpu-memory" class="form-label my-2">
-                                GPU memory (MB)
-                                <a class="text-decoration-none" data-bs-toggle="modal" href="#gpu-memory" role="button">
+                            <label for="gpu-product" class="form-label my-2">
+                                GPU Model
+                                <a class="text-decoration-none" data-bs-toggle="modal" href="#gpu-product" role="button">
                                     <i class="fas fa-info-circle"></i>
                                 </a>
                             </label>
                         </div>
                         <div class="col-sm-8">
-                            <select name="gpu-memory" class="form-control">
-                                <option value="11019">11019</option>
-                                <option value="11178">11178</option>
-                                <option value="16160">16160</option>
-                                <option value="40536">40536</option>
+                            <select name="gpu-product" class="form-control">
+                                <option value="NVIDIA-A100-SXM4-40GB-MIG-1g.5gb">NVIDIA-A100 (MIG instance)</option>
+                                <option value="NVIDIA-A100-SXM4-40GB">NVIDIA A100 (Whole)</option>
+                                <option value="NVIDIA-GeForce-RTX-2080-Ti">NVIDIA GeForce RTX 2080 Ti</option>
+                                <option value="VIDIA-GeForce-GTX-1080-Ti">NVIDIA GeForce GTX 1080 Ti</option>
+                                <option value="Tesla-V100-PCIE-16GB">NVIDIA Tesla V100</option>
                             </select>
                         </div>                      
                     </div>
@@ -142,7 +143,7 @@
                 </div>
             </div>
         </div>
-        <div id="gpu-memory" class="modal fade" role="dialog">
+        <div id="gpu-product" class="modal fade" role="dialog">
             <div class="modal-dialog" style="max-width: 600px">
                 <div class="modal-content">
                     <div class="modal-header">
