@@ -202,7 +202,7 @@ def validate_notebook(fn):
             cpu_request = int(request.form['cpu'])
             memory_request = int(request.form['memory'])
             gpu_request = int(request.form['gpu'])
-            gpu_product_request = int(request.form['gpu-product'])
+            gpu_product_request = request.form['gpu-product']
             if ' ' in notebook_name:
                 raise InvalidFormError('The notebook name cannot have any whitespace.')
             if len(notebook_name) > 30:
