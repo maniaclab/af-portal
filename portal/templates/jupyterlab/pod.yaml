@@ -13,7 +13,7 @@ metadata:
 spec:
   {% if gpu_request %}
   nodeSelector:
-    nvidia.com/gpu.memory: "{{gpu_memory}}"
+    nvidia.com/gpu.product: "{{gpu_product}}"
   {% else %}
   affinity:
     nodeAffinity:
