@@ -222,7 +222,7 @@ def deploy_notebook():
         'memory_limit': '{}Gi'.format(int(request.form['memory'])*2),
         'gpu_request': int(request.form['gpu']),
         'gpu_limit': int(request.form['gpu']),
-        'gpu_memory': int(request.form['gpu-memory']),
+        'gpu_product': request.form['gpu-product'],
         'hours_remaining': int(request.form['duration'])        
     }
     jupyterlab.deploy_notebook(**settings)
