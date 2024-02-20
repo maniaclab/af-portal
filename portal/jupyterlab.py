@@ -112,10 +112,11 @@ kubeconfig = app.config.get('KUBECONFIG')
 
 if kubeconfig:
     config.load_kube_config(config_file=kubeconfig)
-    logger.info('Loaded kubeconfig from file %s' %kubeconfig)
+    logger.info('Loaded kubeconfig from file %s' % kubeconfig)
 else:
     config.load_kube_config()
     logger.info('Loaded default kubeconfig file')
+
 
 def start_notebook_maintenance():
     def inner():
@@ -125,11 +126,12 @@ def start_notebook_maintenance():
             for pod in pods:
                 exp_date = get_expiration_date(pod)
                 if exp_date and exp_date < datetime.datetime.now(datetime.timezone.utc):
-                    logger.info('Notebook %s has expired' %pod.metadata.name)
-                    remove_notebook(pod.metadata.name)                        
+                    logger.info('Notebook %s has expired' % pod.metadata.name)
+                    remove_notebook(pod.metadata.name)
             time.sleep(1800)
     threading.Thread(target=inner).start()
     logger.info('Started notebook maintenance')
+
 
 def deploy_notebook(**settings):
     '''
@@ -160,7 +162,7 @@ def deploy_notebook(**settings):
     api = client.CoreV1Api()
     # Create a pod for the notebook (the notebook runs as a container inside the pod)
     template = templates.get_template('pod.yaml')
-    pod = yaml.safe_load(template.render(**settings))  
+    pod = yaml.safe_load(template.render(**settings))
     api.create_namespaced_pod(namespace=namespace, body=pod)
     # Create a service for the pod
     template = templates.get_template('service.yaml')
@@ -175,7 +177,8 @@ def deploy_notebook(**settings):
     template = templates.get_template('ingress.yaml')
     ingress = yaml.safe_load(template.render(**settings))
     api.create_namespaced_ingress(namespace=namespace, body=ingress)
-    logger.info('Deployed notebook %s' %settings['notebook_name'])
+    logger.info('Deployed notebook %s' % settings['notebook_name'])
+
 
 def get_notebook(name=None, pod=None, **options):
     '''
@@ -203,23 +206,29 @@ def get_notebook(name=None, pod=None, **options):
     notebook['pod_status'] = pod.status.phase
     notebook['creation_date'] = pod.metadata.creation_timestamp.isoformat()
     expiration_date = get_expiration_date(pod)
-    time_remaining = expiration_date - datetime.datetime.now(datetime.timezone.utc) 
-    notebook['expiration_date'] = expiration_date.isoformat() 
+    time_remaining = expiration_date - datetime.datetime.now(datetime.timezone.utc)
+    notebook['expiration_date'] = expiration_date.isoformat()
     notebook['hours_remaining'] = int(time_remaining.total_seconds() / 3600)
     notebook['requests'] = pod.spec.containers[0].resources.requests
     notebook['limits'] = pod.spec.containers[0].resources.limits
-    notebook['conditions'] = [{'type': c.type, 'status': c.status, 'timestamp': c.last_transition_time.isoformat()} for c in pod.status.conditions]
-    notebook['conditions'].sort(key=lambda cond : dict(PodScheduled=0, Initialized=1, ContainersReady=2, Ready=3).get(cond['type']))
-    events = api.list_namespaced_event(namespace=namespace, field_selector='involvedObject.uid=%s' %pod.metadata.uid).items
-    notebook['events'] = [{'message': e.message, 'timestamp': e.last_timestamp.isoformat() if e.last_timestamp else None} for e in events]
+    notebook['conditions'] = [{'type': c.type, 'status': c.status,
+                               'timestamp': c.last_transition_time.isoformat()} for c in pod.status.conditions]
+    notebook['conditions'].sort(key=lambda cond: dict(
+        PodScheduled=0, Initialized=1, ContainersReady=2, Ready=3).get(cond['type']))
+    events = api.list_namespaced_event(
+        namespace=namespace, field_selector='involvedObject.uid=%s' % pod.metadata.uid).items
+    notebook['events'] = [{'message': e.message, 'timestamp': e.last_timestamp.isoformat(
+    ) if e.last_timestamp else None} for e in events]
     if pod.spec.node_name:
         node = api.read_node(pod.spec.node_name)
         if node.metadata.labels.get('gpu') == 'true':
-            notebook['gpu'] = {'product': node.metadata.labels['nvidia.com/gpu.product'], 'memory':  node.metadata.labels['nvidia.com/gpu.memory'] + 'Mi'}
+            notebook['gpu'] = {'product': node.metadata.labels['nvidia.com/gpu.product'],
+                               'memory':  node.metadata.labels['nvidia.com/gpu.memory'] + 'Mi'}
     if pod.metadata.deletion_timestamp is None:
-        if next(filter(lambda c : c.type == 'Ready' and c.status == 'True', pod.status.conditions), None):
+        if next(filter(lambda c: c.type == 'Ready' and c.status == 'True', pod.status.conditions), None):
             log = api.read_namespaced_pod_log(pod.metadata.name, namespace=namespace)
-            notebook['status'] = 'Ready' if re.search('Jupyter.*is running at', log) else 'Starting notebook...'   
+            notebook['status'] = 'Ready' if re.search(
+                'Jupyter.*is running at', log) else 'Starting notebook...'
         else:
             notebook['status'] = 'Pending'
     else:
@@ -229,8 +238,10 @@ def get_notebook(name=None, pod=None, **options):
         notebook['log'] = log
     if options.get('url') is True and pod.metadata.deletion_timestamp is None:
         token = api.read_namespaced_secret(pod.metadata.name, namespace).data['token']
-        notebook['url'] = 'https://%s.%s?%s' %(pod.metadata.name, app.config['DOMAIN_NAME'], urllib.parse.urlencode({'token': token}))
+        notebook['url'] = 'https://%s.%s?%s' % (pod.metadata.name,
+                                                app.config['DOMAIN_NAME'], urllib.parse.urlencode({'token': token}))
     return notebook
+
 
 def get_notebooks(owner=None, **options):
     '''
@@ -245,14 +256,16 @@ def get_notebooks(owner=None, **options):
     '''
     notebooks = []
     api = client.CoreV1Api()
-    pods = api.list_namespaced_pod(namespace, label_selector='k8s-app=jupyterlab' if owner is None else 'k8s-app=jupyterlab,owner=%s' %owner).items 
+    pods = api.list_namespaced_pod(
+        namespace, label_selector='k8s-app=jupyterlab' if owner is None else 'k8s-app=jupyterlab,owner=%s' % owner).items
     for pod in pods:
         try:
             notebook = get_notebook(pod=pod, **options)
             notebooks.append(notebook)
         except Exception as err:
-            logger.error('Error adding notebook %s to array.\n%s' %(pod.metadata.name, str(err)))
+            logger.error('Error adding notebook %s to array.\n%s' % (pod.metadata.name, str(err)))
     return notebooks
+
 
 def list_notebooks():
     ''' Returns a list of the names of all notebooks in the namespace. '''
@@ -260,9 +273,10 @@ def list_notebooks():
     pods = api.list_namespaced_pod(namespace=namespace, label_selector='k8s-app=jupyterlab').items
     return [pod.metadata.name for pod in pods]
 
+
 def remove_notebook(name):
     ''' Removes a notebook from the namespace, and all Kubernetes objects associated with the notebook. '''
-    try: 
+    try:
         id = name.lower()
         api = client.CoreV1Api()
         api.delete_namespaced_pod(id, namespace)
@@ -270,17 +284,20 @@ def remove_notebook(name):
         api.delete_namespaced_secret(id, namespace)
         api = client.NetworkingV1Api()
         api.delete_namespaced_ingress(id, namespace)
-        logger.info('Removed notebook %s from namespace %s' %(id, namespace))
+        logger.info('Removed notebook %s from namespace %s' % (id, namespace))
         return True
     except Exception as err:
         logger.error(str(err))
         return False
 
+
 def notebook_name_available(name):
     ''' Returns a boolean indicating whether a notebook name is available for use. '''
     api = client.CoreV1Api()
-    pods = api.list_namespaced_pod(namespace, field_selector='metadata.name={0}'.format(name.lower()))
+    pods = api.list_namespaced_pod(
+        namespace, field_selector='metadata.name={0}'.format(name.lower()))
     return len(pods.items) == 0
+
 
 def generate_notebook_name(owner):
     ''' Returns a default notebook name that is available for use, e.g. testuser-notebook-3. '''
@@ -290,18 +307,24 @@ def generate_notebook_name(owner):
             return notebook_name
     return None
 
+
 def supported_images():
     ''' Returns a tuple of Docker images that are supported by the JupyterLab service. '''
-    return ('hub.opensciencegrid.org/usatlas/ml-platform:latest', 'hub.opensciencegrid.org/usatlas/ml-platform:conda', 
-            'hub.opensciencegrid.org/usatlas/ml-platform:julia', 'hub.opensciencegrid.org/usatlas/ml-platform:lava',
-            'hub.opensciencegrid.org/usatlas/ml-platform:centos-v2-docker', 'hub.opensciencegrid.org/usatlas/analysis-dask-uc:latest')
+    return ('hub.opensciencegrid.org/usatlas/ml-platform:latest',
+            'hub.opensciencegrid.org/usatlas/ml-platform:conda',
+            'hub.opensciencegrid.org/usatlas/ml-platform:julia',
+            'hub.opensciencegrid.org/usatlas/ml-platform:lava',
+            'hub.opensciencegrid.org/usatlas/ml-platform:centos-v2-docker',
+            'hub.opensciencegrid.org/usatlas/analysis-dask-uc:latest',
+            'hub.opensciencegrid.org/usatlas/analysis-dask-uc:dev')
+
 
 def get_gpu_availability(product=None, memory=None):
     ''' 
     Looks up a GPU product by its product name or memory cache size, and gets its availability.
     When this function is called without arguments, it gets the availability of every GPU product.
     Returns a list of dicts.
-    
+
     Function parameters:
     (Both parameters are optional.)
 
@@ -330,11 +353,11 @@ def get_gpu_availability(product=None, memory=None):
     gpus = dict()
     api = client.CoreV1Api()
     if product:
-        nodes = api.list_node(label_selector='gpu=true,nvidia.com/gpu.product=%s' %product)
+        nodes = api.list_node(label_selector='gpu=true,nvidia.com/gpu.product=%s' % product)
     elif memory:
-        nodes = api.list_node(label_selector='gpu=true,nvidia.com/gpu.memory=%s' %memory)
-    else: 
-        nodes = api.list_node(label_selector='gpu=true') 
+        nodes = api.list_node(label_selector='gpu=true,nvidia.com/gpu.memory=%s' % memory)
+    else:
+        nodes = api.list_node(label_selector='gpu=true')
     for node in nodes.items:
         product = node.metadata.labels['nvidia.com/gpu.product']
         memory = int(node.metadata.labels['nvidia.com/gpu.memory'])
@@ -345,13 +368,15 @@ def get_gpu_availability(product=None, memory=None):
             gpus[product]['count'] += count
         gpu = gpus[product]
         gpu['total_requests'] = 0
-        pods = api.list_pod_for_all_namespaces(field_selector='spec.nodeName=%s' %node.metadata.name).items
+        pods = api.list_pod_for_all_namespaces(
+            field_selector='spec.nodeName=%s' % node.metadata.name).items
         for pod in pods:
             requests = pod.spec.containers[0].resources.requests
             if requests:
                 gpu['total_requests'] += int(requests.get('nvidia.com/gpu', 0))
         gpu['available'] = max(gpu['count'] - gpu['total_requests'], 0)
-    return sorted(gpus.values(), key=lambda gpu : gpu['memory'])
+    return sorted(gpus.values(), key=lambda gpu: gpu['memory'])
+
 
 def get_expiration_date(pod):
     ''' Returns the expiration date of the pod. '''
@@ -361,9 +386,10 @@ def get_expiration_date(pod):
         return pod.metadata.creation_timestamp + datetime.timedelta(hours=hours)
     return None
 
+
 def get_pod(name):
     ''' Looks up a Kubernetes pod by its name and returns a pod object. '''
-    try: 
+    try:
         api = client.CoreV1Api()
         return api.read_namespaced_pod(name=name, namespace=namespace)
     except:
