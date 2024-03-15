@@ -371,9 +371,10 @@ def get_gpu_availability(product=None, memory=None):
         pods = api.list_pod_for_all_namespaces(
             field_selector='spec.nodeName=%s' % node.metadata.name).items
         for pod in pods:
-            requests = pod.spec.containers[0].resources.requests
-            if requests:
-                gpu['total_requests'] += int(requests.get('nvidia.com/gpu', 0))
+            for container in pod.spec.containers:
+                requests = container.resources.requests
+                if requests:
+                    gpu['total_requests'] += int(requests.get('nvidia.com/gpu', 0))
         gpu['available'] = max(gpu['count'] - gpu['total_requests'], 0)
     return sorted(gpus.values(), key=lambda gpu: gpu['memory'])
 
