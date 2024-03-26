@@ -315,7 +315,7 @@ def supported_images():
             'hub.opensciencegrid.org/usatlas/ml-platform:julia',
             'hub.opensciencegrid.org/usatlas/ml-platform:lava',
             'hub.opensciencegrid.org/usatlas/ml-platform:centos-v2-docker',
-            'hub.opensciencegrid.org/usatlas/analysis-dask-uc:latest',
+            'hub.opensciencegrid.org/usatlas/analysis-dask-uc:main',
             'hub.opensciencegrid.org/usatlas/analysis-dask-uc:dev')
 
 
