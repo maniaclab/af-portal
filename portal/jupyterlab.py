@@ -363,11 +363,10 @@ def get_gpu_availability(product=None, memory=None):
         memory = int(node.metadata.labels['nvidia.com/gpu.memory'])
         count = int(node.metadata.labels['nvidia.com/gpu.count'])
         if product not in gpus:
-            gpus[product] = dict(product=product, memory=memory, count=count)
+            gpus[product] = dict(product=product, memory=memory, count=count, total_requests=0)
         else:
             gpus[product]['count'] += count
         gpu = gpus[product]
-        gpu['total_requests'] = 0
         pods = api.list_pod_for_all_namespaces(
             field_selector='spec.nodeName=%s' % node.metadata.name).items
         for pod in pods:
