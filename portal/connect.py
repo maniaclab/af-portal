@@ -127,6 +127,8 @@ def get_user_profile(username, **options):
             profile['institution'] = metadata['institution']
             profile['phone'] = metadata['phone']
             profile['public_key'] = metadata['public_key']
+            if 'totp_secret' in metadata.keys():
+                profile['totp_secret'] = metadata['totp_secret']
             date_format = options.get('date_format', 'calendar')
             if date_format == 'object':
                 profile['join_date'] = parse(metadata['join_date'])
