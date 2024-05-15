@@ -172,6 +172,8 @@ def edit_profile():
                 'institution': request.form['institution'].strip(),
                 'public_key': request.form['public_key'].strip()
             }
+            if request.form.get("totpsecret") is not None:
+                profile["create_totp_secret"] = True
             connect.update_user_profile(unix_name, **profile)
             flash('Successfully updated profile', 'success')
             return redirect(url_for('profile'))
