@@ -19,7 +19,7 @@ from urllib.parse import urlparse, urljoin
 import globus_sdk
 import threading
 
-QRCode(app)
+QRcode(app)
 
 @app.route('/')
 def home():
