@@ -74,7 +74,11 @@ def login():
                 session['role'] = profile['role']
             else:
                 session['role'] = 'nonmember'
-        return redirect(url_for('home'))
+            return redirect(url_for('home'))
+        # Username not found, so try to create a new profile
+        else:
+            return redirect(url_for('create_profile'))
+
 
 @app.route('/logout')
 @decorators.login_required
