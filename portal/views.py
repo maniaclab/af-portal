@@ -106,8 +106,21 @@ def profile():
     unix_name = session.get('unix_name')
     if unix_name:
         profile = connect.get_user_profile(unix_name)
-        return render_template('profile.html', profile=profile)
-    return render_template('create_profile.html')
+        # The auth string should never get used if the totp_secret key doesn't exist anyhow.
+        try:
+            issuer = "CI Connect"
+            authenticator_string = (
+                "otpauth://totp/"
+                + unix_name
+                + "?secret="
+                + profile["totp_secret"]
+                + "&issuer="
+                + issuer
+            )
+        except KeyError as e:
+            print("Could not create an authenticator string: ", e)
+            authenticator_string = None
+    return render_template('profile.html', profile=profile, authenticator_string=authenticator_string)
 
 @app.route('/profile/create', methods=['GET', 'POST'])
 @decorators.login_required
