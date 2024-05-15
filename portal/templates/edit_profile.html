@@ -33,6 +33,15 @@
                         <label for="public_key" class="form-label">SSH public key</label>
                         <textarea class="form-control" name="public_key" rows="5" maxlength="65536">{{ profile['public_key'] }}</textarea>
                     </div>
+					<div class="form-check">
+						<input type="checkbox" class="form-check-input" id="totpsecret" name="totpsecret">
+						<label class="form-check-label" for="totpsecret">Set up Multi-Factor Authentication</label>
+						{% if profile['totp_secret'] %}
+						<small id="mfaHelp" class="form-text text-muted">This will <b>delete</b> your current MFA secret and generate a new one </small>
+						{% else %}
+						<small id="mfaHelp" class="form-text text-muted">Enabling MFA will add an additional layer of security for SSH connections </small>
+						{% endif %}
+					</div></br>
                     <div class="mb-2">
                         <button class="btn btn-sm btn-primary" type="submit">Update profile</button>
                         <a href="{{ url_for('profile') }}" class="btn btn-sm btn-danger" role="button">Cancel</a>
