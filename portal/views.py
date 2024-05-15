@@ -12,11 +12,14 @@ The @app.route decorator also gives the view function access to the request and 
 For more documentation on decorators and the @app.route decorator, see decorators.py
 '''
 from flask import session, request, render_template, url_for, redirect, jsonify, flash
+from flask_qrcode import QRCode
 from portal import app, logger, connect, jupyterlab, email, math, decorators
 from portal.errors import ConnectApiError
 from urllib.parse import urlparse, urljoin
 import globus_sdk
 import threading
+
+QRCode(app)
 
 @app.route('/')
 def home():
