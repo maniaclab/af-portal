@@ -194,7 +194,8 @@ def create_user_profile(**settings):
             'phone': settings['phone'],
             'public_key': settings['public_key'],
             'superuser': False,
-            'service_account': False
+            'service_account': False,
+            'create_totp_secret': True
         }
     }
     response = requests.post(url + '/v1alpha1/users', params={'token': token}, json=request_data)
