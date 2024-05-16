@@ -208,7 +208,7 @@ def create_user_profile(**settings):
             raise ConnectApiError(data['message'])
     logger.info('Created profile for user %s' %settings['unix_name'])
 
-@decorators.permit_keys('name', 'institution', 'email', 'phone', 'public_key')
+@decorators.permit_keys('name', 'institution', 'email', 'phone', 'public_key', 'create_totp_secret')
 def update_user_profile(username, **settings):
     ''' Updates a user profile with the given settings. '''
     request_data = {'apiVersion': 'v1alpha1', 'kind': 'User', 'metadata': settings}
