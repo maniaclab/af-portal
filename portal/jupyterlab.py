@@ -357,7 +357,7 @@ def get_gpu_availability(product=None, memory=None):
     elif memory:
         nodes = api.list_node(label_selector='gpu=true,nvidia.com/gpu.memory=%s' % memory)
     else:
-        nodes = api.list_node(label_selector='gpu=true')
+        nodes = api.list_node(label_selector='nvidia.com/gpu.product')
     for node in nodes.items:
         product = node.metadata.labels['nvidia.com/gpu.product']
         memory = int(node.metadata.labels['nvidia.com/gpu.memory'])
