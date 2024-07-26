@@ -14,7 +14,7 @@ For more documentation on decorators and the @app.route decorator, see decorator
 
 from flask import session, request, render_template, url_for, redirect, jsonify, flash
 from flask_qrcode import QRcode
-from portal import app, logger, connect, jupyterlab, email, math, decorators
+from portal import app, connect, jupyterlab, email, math, decorators
 from portal.errors import ConnectApiError
 from urllib.parse import urlparse, urljoin
 import globus_sdk
@@ -34,8 +34,10 @@ def about():
 
 
 @app.route("/chat")
+@decorators.login_required
 def chat():
-    return render_template("chat.html")
+    unix_name = session.get("unix_name")
+    return render_template("chat.html", unix_name=unix_name)
 
 
 @app.route("/hardware")
