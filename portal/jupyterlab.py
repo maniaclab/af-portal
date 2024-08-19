@@ -369,7 +369,7 @@ def get_gpu_availability(product=None, memory=None):
             gpus[product]['count'] += count
         gpu = gpus[product]
         pods = api.list_pod_for_all_namespaces(
-            field_selector='spec.nodeName=%s' % node.metadata.name).items
+            field_selector='spec.nodeName=%s,status.phase!=%s,status.phase!=%s' %(node.metadata.name,'Succeeded','Failed')).items
         mem_request = 0
         cpu_request = 0
         for pod in pods:
