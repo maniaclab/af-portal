@@ -95,6 +95,7 @@ python
 >>> from portal import jupyterlab
 >>> jupyterlab.list_notebooks()
 '''
+import math
 import yaml
 import time
 import datetime
@@ -380,8 +381,8 @@ def get_gpu_availability(product=None, memory=None):
                     mem_request += parse_quantity(requests.get('memory', 0))
                     cpu_request += parse_quantity(requests.get('cpu', 0))
 
-        mem_request_max = parse_quantity(node.status.capacity['memory']) - mem_request
-        cpu_request_max = parse_quantity(node.status.capacity['cpu']) - cpu_request
+        mem_request_max = math.floor((parse_quantity(node.status.capacity['memory']) - mem_request)/(1024*1024*1024))
+        cpu_request_max = math.floor(parse_quantity(node.status.capacity['cpu']) - cpu_request)
         gpu['mem_request_max'] = mem_request_max if mem_request_max >  gpu['mem_request_max'] else gpu['mem_request_max']
         gpu['cpu_request_max'] = cpu_request_max if cpu_request_max >  gpu['cpu_request_max'] else gpu['cpu_request_max']
         gpu['available'] = max(gpu['count'] - gpu['total_requests'], 0)
