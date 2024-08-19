@@ -105,6 +105,7 @@ import urllib
 from base64 import b64encode
 from jinja2 import Environment, FileSystemLoader
 from kubernetes import client, config
+from kubernetes.utils.quantity import parse_quantity
 from portal import app, logger
 
 namespace = app.config.get('NAMESPACE')
@@ -363,17 +364,26 @@ def get_gpu_availability(product=None, memory=None):
         memory = int(node.metadata.labels['nvidia.com/gpu.memory'])
         count = int(node.metadata.labels['nvidia.com/gpu.count'])
         if product not in gpus:
-            gpus[product] = dict(product=product, memory=memory, count=count, total_requests=0)
+            gpus[product] = dict(mem_request_max=0, cpu_request_max=0, product=product, memory=memory, count=count, total_requests=0)
         else:
             gpus[product]['count'] += count
         gpu = gpus[product]
         pods = api.list_pod_for_all_namespaces(
             field_selector='spec.nodeName=%s' % node.metadata.name).items
+        mem_request = 0
+        cpu_request = 0
         for pod in pods:
             for container in pod.spec.containers:
                 requests = container.resources.requests
                 if requests:
                     gpu['total_requests'] += int(requests.get('nvidia.com/gpu', 0))
+                    mem_request += parse_quantity(requests.get('memory', 0))
+                    cpu_request += parse_quantity(requests.get('cpu', 0))
+
+        mem_request_max = parse_quantity(node.status.capacity['memory']) - mem_request
+        cpu_request_max = parse_quantity(node.status.capacity['cpu']) - cpu_request
+        gpu['mem_request_max'] = mem_request_max if mem_request_max >  gpu['mem_request_max'] else gpu['mem_request_max']
+        gpu['cpu_request_max'] = cpu_request_max if cpu_request_max >  gpu['cpu_request_max'] else gpu['cpu_request_max']
         gpu['available'] = max(gpu['count'] - gpu['total_requests'], 0)
     return sorted(gpus.values(), key=lambda gpu: gpu['memory'])
 
