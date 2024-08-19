@@ -232,6 +232,10 @@ def validate_notebook(fn):
                             raise InvalidFormError('The %s has only 1 instance available.' %gpu_product)
                         if gpu_available > 1:
                             raise InvalidFormError('The %s has only %s instances available.' %(gpu_product, gpu_available))
+                        if cpu_request > gpus[0]['cpu_request_max']: 
+                            raise InvalidFormError('The request of %d CPUs is more than maximum available(%d) for the selelected GPU type' %(cpu_request,gpus[0]['cpu_request_max']))
+                        if mem_request > gpus[0]['mem_request_max']: 
+                            raise InvalidFormError('The request of %d GB Mem is more than maximum available(%d) for the selelected GPU type' %(mem_request,gpus[0]['mem_request_max']))
             return fn(*args, **kwargs)
         except InvalidFormError as err:
             flash(str(err), 'warning')
