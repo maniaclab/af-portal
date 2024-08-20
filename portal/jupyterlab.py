@@ -373,18 +373,22 @@ def get_gpu_availability(product=None, memory=None):
             field_selector='spec.nodeName=%s,status.phase!=%s,status.phase!=%s' %(node.metadata.name,'Succeeded','Failed')).items
         mem_request = 0
         cpu_request = 0
+        gpu_request = 0
         for pod in pods:
             for container in pod.spec.containers:
                 requests = container.resources.requests
                 if requests:
                     gpu['total_requests'] += int(requests.get('nvidia.com/gpu', 0))
+                    gpu_request += int(requests.get('nvidia.com/gpu', 0))
                     mem_request += parse_quantity(requests.get('memory', 0))
                     cpu_request += parse_quantity(requests.get('cpu', 0))
-
-        mem_request_max = math.floor((parse_quantity(node.status.capacity['memory']) - mem_request)/(1024*1024*1024))
-        cpu_request_max = math.floor(parse_quantity(node.status.capacity['cpu']) - cpu_request)
-        gpu['mem_request_max'] = mem_request_max if mem_request_max >  gpu['mem_request_max'] else gpu['mem_request_max']
-        gpu['cpu_request_max'] = cpu_request_max if cpu_request_max >  gpu['cpu_request_max'] else gpu['cpu_request_max']
+        # count in max only when there are at least 1 gpu available. the limitation is this guard is only safe if the requested
+        # gpu is not more than 1. 
+        if int(node.status.capacity['nvidia.com/gpu']) > gpu_request:
+            mem_request_max = math.floor((parse_quantity(node.status.capacity['memory']) - mem_request)/(1024*1024*1024))
+            cpu_request_max = math.floor(parse_quantity(node.status.capacity['cpu']) - cpu_request)
+            gpu['mem_request_max'] = mem_request_max if mem_request_max >  gpu['mem_request_max'] else gpu['mem_request_max']
+            gpu['cpu_request_max'] = cpu_request_max if cpu_request_max >  gpu['cpu_request_max'] else gpu['cpu_request_max']
         gpu['available'] = max(gpu['count'] - gpu['total_requests'], 0)
     return sorted(gpus.values(), key=lambda gpu: gpu['memory'])
 
