@@ -127,6 +127,8 @@ def get_user_profile(username, **options):
             profile['institution'] = metadata['institution']
             profile['phone'] = metadata['phone']
             profile['public_key'] = metadata['public_key']
+            if 'totp_secret' in metadata.keys():
+                profile['totp_secret'] = metadata['totp_secret']
             date_format = options.get('date_format', 'calendar')
             if date_format == 'object':
                 profile['join_date'] = parse(metadata['join_date'])
@@ -194,7 +196,8 @@ def create_user_profile(**settings):
             'phone': settings['phone'],
             'public_key': settings['public_key'],
             'superuser': False,
-            'service_account': False
+            'service_account': False,
+            'create_totp_secret': True
         }
     }
     response = requests.post(url + '/v1alpha1/users', params={'token': token}, json=request_data)
@@ -205,7 +208,7 @@ def create_user_profile(**settings):
             raise ConnectApiError(data['message'])
     logger.info('Created profile for user %s' %settings['unix_name'])
 
-@decorators.permit_keys('name', 'institution', 'email', 'phone', 'public_key')
+@decorators.permit_keys('name', 'institution', 'email', 'phone', 'public_key', 'create_totp_secret')
 def update_user_profile(username, **settings):
     ''' Updates a user profile with the given settings. '''
     request_data = {'apiVersion': 'v1alpha1', 'kind': 'User', 'metadata': settings}

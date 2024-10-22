@@ -20,7 +20,7 @@
   {% block assets %} {% endblock %}
 </head>
 
-<body>
+<body {% block body_style %}{% endblock %}>
   <header>
     <nav class="navbar navbar-expand-lg bg-light">
       <div class="container-fluid">
@@ -71,6 +71,7 @@
                 <li><a class="dropdown-item" href="{{ url_for('open_jupyterlab') }}">JupyterLab</a></li>
                 <li><a class="dropdown-item" href="https://coffea.af.uchicago.edu/" target="_blank">Coffea Casa</a></li>
                 <li><a class="dropdown-item" href="https://servicex.af.uchicago.edu" target="_blank">ServiceX</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('chat') }}" target="_blank">Assistant</a></li>
               </ul>
             </li>
             <li class="nav-item dropdown">
@@ -111,6 +112,9 @@
               </ul>
             </li>
             {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="https://atlas-kibana.mwt2.org:5601/s/analysis-facility/app/dashboards?auth_provider_hint=anonymous1#/view/8bb58440-6145-11ed-afcf-d91dad577662?_g=()&_a=()">Dashboard</a>
+            </li>
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('about') }}">About</a>
             </li>

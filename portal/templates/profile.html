@@ -14,7 +14,7 @@
         <div class="row">
             <div class="col-sm-6">
                 <div class="card h-100">
-                    <div class="card-header">User information <i class="fa-solid fa-user-pen float-end"></i></div>
+                    <div class="card-header"><b>User information</b> <i class="fa-solid fa-user-pen float-end"></i></div>
                     <div class="card-body">
                         <ul class="list-unstyled">
                             <li><span class="text-muted">Username:</span> {{ profile["unix_name"] }}</li>
@@ -33,7 +33,7 @@
             </div>
             <div class="col-sm-6">
                 <div class="card h-100">
-                    <div class="card-header">Group memberships<i class="fa-solid fa-users float-end"></i></div>
+                    <div class="card-header"><b>Group memberships</b><i class="fa-solid fa-users float-end"></i></div>
                     <div class="card-body">
                         {% if profile["role"] in ("pending", "nonmember") %}
                         <p class="card-text">
@@ -87,6 +87,49 @@
                 </div>
             </div>
         </div>
+        {% if profile['totp_secret'] %}
+        <div class="col-lg-12 mx-auto">
+            <div class="row">
+                <div class="col-sm-12 col-md-6">
+                    <div class="card h-100 btn-box-shadow">
+                        <div class="card-header">
+                            <b>Multi-Factor Authentication</b> <i class="fas fa-user-secret float-right"></i>
+                        </div>
+                        <div class="card-body" style="font-size: 14px">
+                            <ol>
+                                <li>Download the Google Authenticator application:
+                                    <ul>
+                                        <li><a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2">Android</a></li>
+                                        <li><a href="https://apps.apple.com/us/app/google-authenticator/id388497605">iOS</a></li>
+                                    </ul>
+                                </li>
+                                <li>You will need to scan the QR code. If it is your first time using the authenticator app, the app will ask for camera access to scan the code. Otherwise, touch the "+" icon in the lower righthand corner and then touch "Scan a QR Code"</li>
+                                <li>Use your phone camera to scan the following QR code: <a href="#" id="showQRCode">Click here</a></li>
+                                <div id="qrCodeContainer" style="display: none;">
+                                    <img src="{{ qrcode(authenticator_string) }}">
+                                </div>
+                                <li>Once scanned, the app will store a cryptographic secret and begin generating six-digit security tokens every 30 seconds.</li>
+                                <li>When using secure shell to log in to the access point, you will be prompted for the current security token:</li>
+                                <div>
+                                    <kbd>Verification code: <i>enter your current six-digit token</i></kbd>
+                                </div>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- MFA card end -->
+
+        <script>
+            document.getElementById("showQRCode").addEventListener("click", function(event) {
+                event.preventDefault();
+                var qrCodeLink = document.getElementById("showQRCode");
+                var qrCodeContainer = document.getElementById("qrCodeContainer");
+                qrCodeLink.style.display = "none";
+                qrCodeContainer.style.display = "inline-block";
+            });
+        </script>
+        {% endif %}
     </div>
 </section>
 {% endblock %}

@@ -28,13 +28,14 @@
             </div>
             <div class="card-body">
                 <form id="configure" @change="validateForm" action="{{ url_for('deploy_notebook') }}" method="POST">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                     <div class="row mb-2">
                         <div class="col-sm-4">
                             <label for="notebook-name" class="form-label my-2">Notebook name</label>
                         </div>
                         <div class="col-sm-8">
-                            <input id="notebook-name" type="text" class="form-control" name="notebook-name" value="{{ notebook_name }}" @keydown="keyDown" required/>
+                            <input id="notebook-name" type="text" class="form-control" name="notebook-name" 
+                            value="{{ notebook_name }}" @keydown="keyDown" required />
                         </div>
                     </div>
                     <div class="row mb-2">
@@ -42,7 +43,7 @@
                             <label for="cpu" class="form-label my-2">CPU cores</label>
                         </div>
                         <div class="col-sm-8">
-                            <input type="number" class="form-control" name="cpu" min=1 max=16 value=1 required/>
+                            <input type="number" class="form-control" name="cpu" min=1 max=16 value=1 required />
                         </div>
                     </div>
                     <div class="row mb-2">
@@ -50,27 +51,30 @@
                             <label for="memory" class="form-label my-2">Memory (GB)</label>
                         </div>
                         <div class="col-sm-8">                           
-                            <input type="number" class="form-control" name="memory" min=1 max=32 value=2 required/>
+                            <input type="number" class="form-control" name="memory" min=1 max=32 value=2 required />
                         </div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-sm-4">  
                             <label for="gpu" class="form-label my-2">
                                 GPU instances
-                                <a class="text-decoration-none" data-bs-toggle="modal" href="#gpu-instances" role="button">
+                                <a class="text-decoration-none" data-bs-toggle="modal" href="#gpu-instances"
+                                role="button">
                                     <i class="fas fa-info-circle"></i>
                                 </a>
                             </label>
                         </div>
                         <div class="col-sm-8">  
-                           <input v-model="instances" type="number" class="form-control" name="gpu" id="gpu" min="0" max="4" value="0" required/>
+                           <input v-model="instances" type="number" class="form-control" name="gpu" id="gpu" min="0" 
+                           max="4" value="0" required />
                         </div>
                     </div>
                     <div v-show="instances > 0" class="row mb-2">
                         <div class="col-sm-4">
                             <label for="gpu-product" class="form-label my-2">
                                 GPU Model
-                                <a class="text-decoration-none" data-bs-toggle="modal" href="#gpu-product" role="button">
+                                <a class="text-decoration-none" data-bs-toggle="modal" href="#gpu-product" 
+                                role="button">
                                     <i class="fas fa-info-circle"></i>
                                 </a>
                             </label>
@@ -89,29 +93,40 @@
                             <label for="duration" class="form-label my-2">Duration (hours)</label>
                         </div>
                         <div class="col-sm-8">
-                            <input type="number" name="duration" class="form-control col" min=1 max=168 value=8 required/>
+                            <input type="number" name="duration" class="form-control col" min=1 max=72 value=8 
+                            required />
                         </div>
                     </div>
                     <div class="row mb-4">
                         <div class="col-sm-4">
                             <label for="image" class="form-label my-2">
                                 Image
-                                <a class="text-decoration-none" href="#docker-image" data-bs-toggle="modal" role="button">
+                                <a class="text-decoration-none" href="#docker-image" data-bs-toggle="modal" 
+                                role="button">
                                     <i class="fas fa-info-circle"></i>
                                 </a>
                             </label>
                         </div>
                         <div class="col-sm-8">
                             <select name="image" class="form-control">
-                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:latest">ml-platform:latest</option>
-                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:conda">ml-platform:conda</option>
-                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:julia">ml-platform:julia</option>
-                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:lava">ml-platform:lava</option>
-                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:centos-v2-docker">ml-platform:centos</option>
+                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:latest">ml-platform:latest      
+                                </option>
+                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:conda">ml-platform:conda
+                                </option>
+                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:julia">ml-platform:julia
+                                </option>
+                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:lava">ml-platform:lava
+                                </option>
+                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:centos-v2-docker">
+                                    ml-platform:centos</option>
+                                    <option value="hub.opensciencegrid.org/usatlas/analysis-dask-uc:main">AB-stable
+                                    </option>
+                                    <option value="hub.opensciencegrid.org/usatlas/analysis-dask-uc:dev">AB-dev</option>
                             </select>
                         </div>
                     </div>
-                    <button class="btn btn-sm btn-primary" type="submit" :disabled="!valid" onclick="loader(true)">Create notebook</button>
+                    <button class="btn btn-sm btn-primary" type="submit" :disabled="!valid"
+                     onclick="loader(true)">Create notebook</button>
                 </form>
             </div>
         </div>
@@ -131,8 +146,9 @@
                             <li>You can request 1 to 32 GB of memory.</li>
                             <li>You can request 0 to 7 GPU instances.</li>
                             <li>You can select a GPU model based on its memory size.</li>
-                            <li>If you request a GPU, please make sure the GPU is available, by clicking on the icon next to GPU memory.</li>
-                            <li>You can give the notebook a duration of 1 to 168 hours.</li>
+                            <li>If you request a GPU, please make sure the GPU is available, by clicking on the icon 
+                                next to GPU memory.</li>
+                            <li>You can give the notebook a duration of up to 72 hours.</li>
                             <li>You can choose any Docker image from the dropdown.</li>
                         </ol>
                     </div>
@@ -158,6 +174,8 @@
                                     <th>Count</th>
                                     <th>Avail.</th>
                                     <th>Memory (MB)</th>
+                                    <th>Max CPU Req</th>
+                                    <th>Max Mem Req (GB)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -166,8 +184,10 @@
                                     <td>[[ gpu.count ]]</td>
                                     <td>[[ gpu.available ]]</td>
                                     <td>[[ gpu.memory ]]</td>
+                                    <td>[[ gpu.cpu_request_max ]]</td>
+                                    <td>[[ gpu.mem_request_max ]]</td> 
                                 </tr>
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                     <div v-else class="modal-body">
@@ -212,11 +232,13 @@
                     </div>
                     <div class="modal-body">
                         <p>
-                            Users can choose between two images: one with full anaconda <code>(ivukotic/ml_platform:conda)</code> 
+                            Users can choose between two images: one with full anaconda
+                             <code>(ivukotic/ml_platform:conda)</code> 
                             and one with NVidia GPU and ROOT support <code>(ivukotic/ml_platform:latest)</code>.
                         </p>
                         <p>
-                            The latter has most of the ML packages (Tensorflow, Keras, ScikitLearn, etc.) preinstalled, and
+                            The latter has most of the ML packages (Tensorflow, Keras, ScikitLearn, etc.) preinstalled,
+                             and
                             a small tutorial with code examples in <code>/ML_platform_tests/tutorial</code>.
                         </p>
                     </div>
@@ -229,7 +251,7 @@
     </div>
 </section>
 <script type="text/javascript">
-$(document).ready(function() {
+$(document).ready(function () {
     const { createApp } = Vue
 
     createApp({
