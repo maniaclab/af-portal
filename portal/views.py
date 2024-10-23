@@ -21,6 +21,8 @@ import globus_sdk
 import threading
 
 QRcode(app)
+
+
 @app.route("/")
 def home():
     return render_template("home.html")
