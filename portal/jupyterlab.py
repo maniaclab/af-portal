@@ -160,6 +160,9 @@ def deploy_notebook(**settings):
     settings['namespace'] = namespace
     settings['domain_name'] = app.config['DOMAIN_NAME']
     settings['token'] = b64encode(os.urandom(32)).decode()
+    settings['start_script'] = '/ML_platform_tests/SetupPrivateJupyterLab.sh'
+    if settings['image'].count('oct_upgrade'):
+        settings['start_script'] = '/ML_platform_tests/SetupJupyterLab.sh'
     templates = Environment(loader=FileSystemLoader('portal/templates/jupyterlab'))
     api = client.CoreV1Api()
     # Create a pod for the notebook (the notebook runs as a container inside the pod)
@@ -318,7 +321,8 @@ def supported_images():
             'hub.opensciencegrid.org/usatlas/ml-platform:lava',
             'hub.opensciencegrid.org/usatlas/ml-platform:centos-v2-docker',
             'hub.opensciencegrid.org/usatlas/analysis-dask-uc:main',
-            'hub.opensciencegrid.org/usatlas/analysis-dask-uc:dev')
+            'hub.opensciencegrid.org/usatlas/analysis-dask-uc:dev',
+            'hub.opensciencegrid.org/usatlas/ml-platform:oct_upgrade')
 
 
 def get_gpu_availability(product=None, memory=None):
@@ -365,12 +369,13 @@ def get_gpu_availability(product=None, memory=None):
         memory = int(node.metadata.labels['nvidia.com/gpu.memory'])
         count = int(node.metadata.labels['nvidia.com/gpu.count'])
         if product not in gpus:
-            gpus[product] = dict(mem_request_max=0, cpu_request_max=0, product=product, memory=memory, count=count, total_requests=0)
+            gpus[product] = dict(mem_request_max=0, cpu_request_max=0,
+                                 product=product, memory=memory, count=count, total_requests=0)
         else:
             gpus[product]['count'] += count
         gpu = gpus[product]
         pods = api.list_pod_for_all_namespaces(
-            field_selector='spec.nodeName=%s,status.phase!=%s,status.phase!=%s' %(node.metadata.name,'Succeeded','Failed')).items
+            field_selector='spec.nodeName=%s,status.phase!=%s,status.phase!=%s' % (node.metadata.name, 'Succeeded', 'Failed')).items
         mem_request = 0
         cpu_request = 0
         gpu_request = 0
@@ -383,12 +388,13 @@ def get_gpu_availability(product=None, memory=None):
                     mem_request += parse_quantity(requests.get('memory', 0))
                     cpu_request += parse_quantity(requests.get('cpu', 0))
         # count in max only when there are at least 1 gpu available. the limitation is this guard is only safe if the requested
-        # gpu is not more than 1. 
+        # gpu is not more than 1.
         if int(node.status.capacity['nvidia.com/gpu']) > gpu_request:
-            mem_request_max = math.floor((parse_quantity(node.status.capacity['memory']) - mem_request)/(1024*1024*1024))
+            mem_request_max = math.floor(
+                (parse_quantity(node.status.capacity['memory']) - mem_request)/(1024*1024*1024))
             cpu_request_max = math.floor(parse_quantity(node.status.capacity['cpu']) - cpu_request)
-            gpu['mem_request_max'] = mem_request_max if mem_request_max >  gpu['mem_request_max'] else gpu['mem_request_max']
-            gpu['cpu_request_max'] = cpu_request_max if cpu_request_max >  gpu['cpu_request_max'] else gpu['cpu_request_max']
+            gpu['mem_request_max'] = mem_request_max if mem_request_max > gpu['mem_request_max'] else gpu['mem_request_max']
+            gpu['cpu_request_max'] = cpu_request_max if cpu_request_max > gpu['cpu_request_max'] else gpu['cpu_request_max']
         gpu['available'] = max(gpu['count'] - gpu['total_requests'], 0)
     return sorted(gpus.values(), key=lambda gpu: gpu['memory'])
 
