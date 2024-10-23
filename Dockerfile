@@ -1,4 +1,4 @@
-FROM python:3.6
+FROM python:3.10
 
 RUN useradd -ms /bin/bash portal
 
@@ -11,6 +11,7 @@ COPY setup.cfg setup.cfg
 COPY requirements.txt requirements.txt
 
 RUN pip install -e .
+RUN pip install gunicorn
 
 COPY boot.sh ./
 COPY portal/ ./portal
