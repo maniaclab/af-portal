@@ -23,4 +23,4 @@ RUN chmod +x boot.sh
 USER portal
 
 EXPOSE 5000
-ENTRYPOINT ["./boot.sh"]
+# ENTRYPOINT ["./boot.sh"]
