@@ -24,7 +24,7 @@ jobs:
       - name: Repository Dispatch
         uses: peter-evans/repository-dispatch@v3.0.0
         with:
-          token: ${{ secrets.FLUX_APPS_GITOPS_DEPLOY_TRIGGER }}
+          token: ${{ secrets.AAAS_GITOPS_DEPLOY_TRIGGER  }}
           repository: maniaclab/flux_apps
           event-type: gitops-af-app-trigger
           client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
