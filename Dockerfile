@@ -10,8 +10,7 @@ COPY setup.py setup.py
 COPY setup.cfg setup.cfg
 COPY requirements.txt requirements.txt
 
-RUN pip install -e .
-RUN pip install gunicorn
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY boot.sh ./
 COPY portal/ ./portal
