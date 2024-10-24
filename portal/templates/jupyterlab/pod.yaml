@@ -41,7 +41,7 @@ spec:
   - name: {{notebook_id}}
     args:
     - /.run
-    - /ML_platform_tests/SetupPrivateJupyterLab.sh
+    - {{start_script}}
     env:
     - name: "JUPYTER_TOKEN"
       value: {{token}}

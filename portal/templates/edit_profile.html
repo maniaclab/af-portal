@@ -33,7 +33,7 @@
                         <label for="public_key" class="form-label">SSH public key</label>
                         <textarea class="form-control" name="public_key" rows="5" maxlength="65536">{{ profile['public_key'] }}</textarea>
                     </div>
-                    <div class="form-check">
+					<div class="form-check">
 						<input type="checkbox" class="form-check-input" id="totpsecret" name="totpsecret">
 						<label class="form-check-label" for="totpsecret">Set up Multi-Factor Authentication</label>
 						{% if profile['totp_secret'] %}
