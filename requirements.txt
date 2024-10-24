@@ -23,11 +23,11 @@ kiwisolver==1.4.5
 kubernetes==30.1.0
 Markdown==3.6
 MarkupSafe==2.1.5
-matplotlib==3.9.1
-numpy==2.0.1
+matplotlib
+numpy
 oauthlib==3.2.2
 packaging==24.1
-pandas==2.2.2
+pandas
 pillow==10.4.0
 pyasn1==0.6.0
 pyasn1_modules==0.4.0
