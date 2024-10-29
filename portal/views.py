@@ -14,7 +14,7 @@ For more documentation on decorators and the @app.route decorator, see decorator
 
 from flask import session, request, render_template, url_for, redirect, jsonify, flash
 from flask_qrcode import QRcode
-from portal import app, connect, jupyterlab, email, math, decorators
+from portal import app, connect, jupyterlab, email, math, decorators, logger
 from portal.errors import ConnectApiError
 from urllib.parse import urlparse, urljoin
 import globus_sdk
@@ -59,7 +59,7 @@ def signup():
 @app.route("/login")
 def login():
     redirect_uri = url_for("login", _external=True)
-    print("redirect_uri", redirect_uri)
+    logger.info("redirect_uri", redirect_uri)
     redirect_uri = 'https://test.af.uchicago.edu/login'
     client = globus_sdk.ConfidentialAppAuthClient(
         app.config["CLIENT_ID"], app.config["CLIENT_SECRET"]
@@ -73,6 +73,7 @@ def login():
     else:
         code = request.args.get("code")
         tokens = client.oauth2_exchange_code_for_tokens(code)
+        logger.info("tokens:", tokens)
         id_token = tokens.decode_id_token(client)
         session.update(
             tokens=tokens.by_resource_server,
