@@ -59,6 +59,8 @@ def signup():
 @app.route("/login")
 def login():
     redirect_uri = url_for("login", _external=True)
+    print("redirect_uri", redirect_uri)
+    redirect_uri = 'https://test.af.uchicago.edu/login'
     client = globus_sdk.ConfidentialAppAuthClient(
         app.config["CLIENT_ID"], app.config["CLIENT_SECRET"]
     )
@@ -513,6 +515,7 @@ def edit_group(group_name):
         except ConnectApiError as err:
             flash(str(err), "warning")
             return redirect(url_for("edit_group", group_name=group_name))
+
 
 @app.route("/admin/create_subgroup/<group_name>", methods=["GET", "POST"])
 @decorators.admins_only
