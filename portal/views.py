@@ -59,7 +59,7 @@ def signup():
 @app.route("/login")
 def login():
     redirect_uri = url_for("login", _external=True)
-    logger.info("redirect_uri", redirect_uri)
+    logger.info("redirect_uri: " + redirect_uri)
     redirect_uri = 'https://test.af.uchicago.edu/login'
     client = globus_sdk.ConfidentialAppAuthClient(
         app.config["CLIENT_ID"], app.config["CLIENT_SECRET"]
@@ -73,7 +73,7 @@ def login():
     else:
         code = request.args.get("code")
         tokens = client.oauth2_exchange_code_for_tokens(code)
-        logger.info("tokens:", tokens)
+        logger.info("tokens: " + tokens)
         id_token = tokens.decode_id_token(client)
         session.update(
             tokens=tokens.by_resource_server,
