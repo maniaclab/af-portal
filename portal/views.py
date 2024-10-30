@@ -559,6 +559,6 @@ def add_cache_control(response):
     return response
 
 
-@app.before_first_request
+@app.before_request
 def start_notebook_maintenance():
     jupyterlab.start_notebook_maintenance()
