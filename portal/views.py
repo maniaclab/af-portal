@@ -1,13 +1,14 @@
-""" 
+"""
 A module for all of the view functions.
 
-The phrase "view function" gets its name from the Model-View-Template (MVT) design pattern. 
+The phrase "view function" gets its name from the Model-View-Template (MVT) design pattern.
 A view function is a request handler that returns a view.
 
 The view functions in this module are often preceded by an @app.route decorator.
 
 The @app.route decorator maps a URL to a view function (request handler).
-The @app.route decorator also gives the view function access to the request and response objects in the decorator's namespace.
+The @app.route decorator also gives the view function access to the request and response objects
+in the decorator's namespace.
 
 For more documentation on decorators and the @app.route decorator, see decorators.py
 """
