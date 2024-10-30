@@ -66,16 +66,12 @@ def login():
     )
     client.oauth2_start_flow(redirect_uri, refresh_tokens=True)
     if "code" not in request.args:
-        # next_url = get_safe_redirect()
-        # params = {"signup": 1} if request.args.get("signup") else {"next": next_url}
-        auth_uri = client.oauth2_get_authorize_url()  # additional_params=params)
-        print("auth_uri:"+auth_uri)
+        auth_uri = client.oauth2_get_authorize_url()
         return redirect(auth_uri)
     else:
         code = request.args.get("code")
         tokens = client.oauth2_exchange_code_for_tokens(code)
-        logger.info(tokens)
-        id_token = tokens.decode_id_token()  # client)
+        id_token = tokens.decode_id_token()
         session.update(
             tokens=tokens.by_resource_server,
             is_authenticated=True,
