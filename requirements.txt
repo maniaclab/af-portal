@@ -1,19 +1,19 @@
 blinker==1.8.2
 cachetools==5.4.0
-certifi==2024.7.4
-cffi==1.16.0
-charset-normalizer==3.3.2
+# certifi==2024.7.4
+# cffi==1.16.0
+# charset-normalizer==3.3.2
 click==8.1.7
 contourpy==1.2.1
-cryptography==43.0.0
+# cryptography==43.0.0
 cycler==0.12.1
 Flask==2.0.3
 Flask-QRcode==3.2.0
 Flask-WTF==1.2.1
 fonttools==4.53.1
-globus-sdk==1.7.1
+globus-sdk==3.46.0
 google-auth==2.32.0
-idna==3.7
+# idna==3.7
 importlib_metadata==8.2.0
 importlib_resources==6.4.0
 itsdangerous==2.2.0
@@ -32,7 +32,7 @@ pillow==10.4.0
 pyasn1==0.6.0
 pyasn1_modules==0.4.0
 pycparser==2.22
-PyJWT==1.7.1
+PyJWT==2.9.0
 pyparsing==3.1.2
 pypng==0.20220715.0
 python-dateutil==2.9.0.post0
