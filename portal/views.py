@@ -73,7 +73,9 @@ def login():
     else:
         code = request.args.get("code")
         tokens = client.oauth2_exchange_code_for_tokens(code)
-        logger.info("tokens: " + tokens)
+        logger.info("tokens: ")
+        logger.info(tokens)
+        logger.info("by_server: ")
         logger.info(tokens.by_resource_server)
         id_token = tokens.decode_id_token(client)
         session.update(
