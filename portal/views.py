@@ -59,9 +59,8 @@ def signup():
 
 @app.route("/login")
 def login():
-    redirect_uri = url_for("login", _external=True)
+    redirect_uri = url_for("login", _scheme='http', _external=True)
     logger.info("redirect_uri: " + redirect_uri)
-    redirect_uri = 'https://test.af.uchicago.edu/login'
     client = globus_sdk.ConfidentialAppAuthClient(
         app.config["CLIENT_ID"], app.config["CLIENT_SECRET"]
     )
