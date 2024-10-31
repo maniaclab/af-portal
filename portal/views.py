@@ -246,7 +246,7 @@ def aup():
 @app.route("/jupyterlab")
 @decorators.members_only
 def open_jupyterlab():
-    return render_template("jupyterlab.html")
+    return render_template("jupyterlab.html", base_url=url_for("jupyterlab"))
 
 
 @app.route("/jupyterlab/get_notebooks")
