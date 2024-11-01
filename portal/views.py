@@ -389,11 +389,15 @@ def plot_users_over_time():
 @decorators.admins_only
 def groups(group_name):
     group = connect.get_group_info(group_name)
-    return render_template("groups.html", group=group, base_url=url_for('home'))
+    return render_template(
+        "groups.html",
+        group=group,
+        base_url=url_for('home', _external=True).replace('http:', 'https:')
+    )
 
 
-@app.route("/admin/get_members/<group_name>")
-@decorators.admins_only
+@ app.route("/admin/get_members/<group_name>")
+@ decorators.admins_only
 def get_members(group_name):
     profiles = connect.get_user_profiles(group_name)
     members = list(
@@ -402,8 +406,8 @@ def get_members(group_name):
     return jsonify(members=members)
 
 
-@app.route("/admin/get_member_requests/<group_name>")
-@decorators.admins_only
+@ app.route("/admin/get_member_requests/<group_name>")
+@ decorators.admins_only
 def get_member_requests(group_name):
     profiles = connect.get_user_profiles(group_name)
     member_requests = list(
@@ -412,15 +416,15 @@ def get_member_requests(group_name):
     return jsonify(member_requests=member_requests)
 
 
-@app.route("/admin/get_subgroups/<group_name>")
-@decorators.admins_only
+@ app.route("/admin/get_subgroups/<group_name>")
+@ decorators.admins_only
 def get_subgroups(group_name):
     subgroups = connect.get_subgroups(group_name)
     return jsonify(subgroups=subgroups)
 
 
-@app.route("/admin/get_potential_members/<group_name>")
-@decorators.admins_only
+@ app.route("/admin/get_potential_members/<group_name>")
+@ decorators.admins_only
 def get_potential_members(group_name):
     users = connect.get_user_profiles("root")
     potential_members = list(
@@ -429,8 +433,8 @@ def get_potential_members(group_name):
     return jsonify(potential_members=potential_members)
 
 
-@app.route("/admin/email/<group_name>", methods=["POST"])
-@decorators.admins_only
+@ app.route("/admin/email/<group_name>", methods=["POST"])
+@ decorators.admins_only
 def send_email(group_name):
     sender = "noreply@af.uchicago.edu"
     recipients = email.get_email_list(group_name)
@@ -443,22 +447,22 @@ def send_email(group_name):
     )
 
 
-@app.route("/admin/add_group_member/<group_name>/<unix_name>")
-@decorators.admins_only
+@ app.route("/admin/add_group_member/<group_name>/<unix_name>")
+@ decorators.admins_only
 def add_group_member(unix_name, group_name):
     connect.update_user_role(unix_name, group_name, "active")
     return jsonify(success=True)
 
 
-@app.route("/admin/remove_group_member/<group_name>/<unix_name>")
-@decorators.admins_only
+@ app.route("/admin/remove_group_member/<group_name>/<unix_name>")
+@ decorators.admins_only
 def remove_group_member(unix_name, group_name):
     connect.remove_user_from_group(unix_name, group_name)
     return jsonify(success=True)
 
 
-@app.route("/admin/approve_membership_request/<group_name>/<unix_name>")
-@decorators.admins_only
+@ app.route("/admin/approve_membership_request/<group_name>/<unix_name>")
+@ decorators.admins_only
 def approve_membership_request(unix_name, group_name):
     def notify_staff(approver):
         profile = connect.get_user_profile(unix_name)
