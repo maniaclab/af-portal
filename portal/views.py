@@ -246,7 +246,7 @@ def aup():
 @app.route("/jupyterlab")
 @decorators.members_only
 def open_jupyterlab():
-    return render_template("jupyterlab.html", base_url=url_for("home"))
+    return render_template("jupyterlab.html", base_url=url_for("open_jupyterlab"))
 
 
 @app.route("/jupyterlab/get_notebooks")
@@ -389,7 +389,7 @@ def plot_users_over_time():
 @decorators.admins_only
 def groups(group_name):
     group = connect.get_group_info(group_name)
-    return render_template("groups.html", group=group, base_url=url_for('base_url', _external=True))
+    return render_template("groups.html", group=group, base_url=url_for('home', _external=True))
 
 
 @app.route("/admin/get_members/<group_name>")
