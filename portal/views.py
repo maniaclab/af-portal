@@ -389,7 +389,7 @@ def plot_users_over_time():
 @decorators.admins_only
 def groups(group_name):
     group = connect.get_group_info(group_name)
-    return render_template("groups.html", group=group, base_url=url_for('home', _external=True))
+    return render_template("groups.html", group=group, base_url=url_for('home'))
 
 
 @app.route("/admin/get_members/<group_name>")
