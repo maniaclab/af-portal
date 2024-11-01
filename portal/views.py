@@ -29,11 +29,6 @@ def home():
     return render_template("home.html")
 
 
-@app.route('/base_url')
-def base_url():
-    return request.url_root
-
-
 @app.route("/about")
 def about():
     return render_template("about.html")
@@ -251,7 +246,7 @@ def aup():
 @app.route("/jupyterlab")
 @decorators.members_only
 def open_jupyterlab():
-    return render_template("jupyterlab.html", base_url=url_for("open_jupyterlab"))
+    return render_template("jupyterlab.html", base_url=url_for("home"))
 
 
 @app.route("/jupyterlab/get_notebooks")
