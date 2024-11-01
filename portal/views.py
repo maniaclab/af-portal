@@ -29,6 +29,11 @@ def home():
     return render_template("home.html")
 
 
+@app.route('/base_url')
+def base_url():
+    return request.url_root
+
+
 @app.route("/about")
 def about():
     return render_template("about.html")
@@ -389,7 +394,7 @@ def plot_users_over_time():
 @decorators.admins_only
 def groups(group_name):
     group = connect.get_group_info(group_name)
-    return render_template("groups.html", group=group)
+    return render_template("groups.html", group=group, base_url=url_for('base_url', _external=True))
 
 
 @app.route("/admin/get_members/<group_name>")

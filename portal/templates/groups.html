@@ -207,7 +207,7 @@
         }).on("click", "a.remove-member", function () {
             const row = membersTable.row($(this).parents("tr"));
             const unix_name = row.data().unix_name;
-            const url = "{{request.url_root}}/admin/remove_group_member/{{group['name']}}/" + unix_name;
+            const url = "{{base_url}}/admin/remove_group_member/{{group['name']}}/" + unix_name;
             loader(true);
             fetch(url).then(resp => resp.json()).then(resp => {
                 loader(false);
@@ -259,7 +259,7 @@
         }).on("click", "a.approve-member-request", function () {
             const row = memberRequestsTable.row($(this).parents("tr"));
             const unix_name = row.data().unix_name;
-            const url = "{{request.url_root}}/admin/approve_membership_request/{{group['name']}}/" + unix_name;
+            const url = "{{base_url}}/admin/approve_membership_request/{{group['name']}}/" + unix_name;
             loader(true);
             fetch(url).then(resp => resp.json()).then(resp => {
                 loader(false);
@@ -274,7 +274,7 @@
         }).on("click", "a.deny-member-request", function () {
             const row = memberRequestsTable.row($(this).parents("tr"));
             const unix_name = row.data().unix_name;
-            const url = "{{request.url_root}}/admin/deny_membership_request/{{group['name']}}/" + unix_name;
+            const url = "{{base_url}}/admin/deny_membership_request/{{group['name']}}/" + unix_name;
             loader(true);
             fetch(url).then(resp => resp.json()).then(resp => {
                 loader(false);
@@ -300,7 +300,7 @@
                 {
                     targets: 0,
                     render: function (data, type, row) {
-                        return "<a href='{{request.url_root}}/admin/groups/" + data + "' class='text-decoration-none'>" + data + "</a>"
+                        return "<a href='{{base_url}}/admin/groups/" + data + "' class='text-decoration-none'>" + data + "</a>"
                     }
                 }
             ]
@@ -341,7 +341,7 @@
         }).on("click", "a.add-member", function () {
             const row = potentialMembersTable.row($(this).parents("tr"));
             const unix_name = row.data().unix_name;
-            const url = "{{request.url_root}}/admin/add_group_member/{{group['name']}}/" + unix_name;
+            const url = "{{base_url}}/admin/add_group_member/{{group['name']}}/" + unix_name;
             loader(true);
             fetch(url).then(resp => resp.json()).then(resp => {
                 loader(false);
