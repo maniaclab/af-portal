@@ -15,7 +15,7 @@ jobs:
       - name: Docker Build & Push Action
         uses: mr-smithers-excellent/docker-build-push@v6.4
         with:
-          image: maniaclab/af-portal-test
+          image: maniaclab/af-portal
           tags: latest, ${{ github.sha }}
           registry: hub.opensciencegrid.org
           username: ${{ secrets.HARBOR_USERNAME }}
