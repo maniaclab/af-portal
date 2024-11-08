@@ -5,6 +5,7 @@ theme:
     - instant
 nav:
   - "Home": "index.md"
+  - "Hardware": "hardware.md"
   - "Job submission": "job_submission.md"
   - "Coffea Casa": "coffeacasa.md"
   - "ServiceX": "servicex.md"

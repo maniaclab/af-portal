@@ -20,18 +20,18 @@
         <div class="card col-sm-6 mx-auto">
             <div class="card-header">
                 Configure a Jupyter notebook
-                <small>
-                    <a class="text-decoration-none" data-bs-toggle="modal" href="#instructions" role="button">
-                        (instructions)
-                    </a>
-                </small>
             </div>
             <div class="card-body">
                 <form id="configure" @change="validateForm" action="{{ url_for('deploy_notebook') }}" method="POST">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                     <div class="row mb-2">
                         <div class="col-sm-4">
-                            <label for="notebook-name" class="form-label my-2">Notebook name</label>
+                            <label for="notebook-name" class="form-label my-2">Notebook name
+                                <a class="text-decoration-none" data-bs-toggle="modal" href="#i_notebook-name"
+                                role="button">
+                                <i class="fas fa-info-circle"></i>
+                                </a>
+                            </label>
                         </div>
                         <div class="col-sm-8">
                             <input id="notebook-name" type="text" class="form-control" name="notebook-name"
@@ -101,9 +101,10 @@
                         <div class="col-sm-4">
                             <label for="image" class="form-label my-2">
                                 Image
-                                <a class="text-decoration-none" href="#docker-image" data-bs-toggle="modal"
-                                    role="button">
-                                    <i class="fas fa-info-circle"></i>
+                                <a class="text-decoration-none" 
+                                    href="https://maniaclab.uchicago.edu/af-portal/ml_platform/#selecting-a-docker-image" 
+                                    data-bs-toggle="modal" role="button">
+                                    <i class="fa fa-external-link"></i>
                                 </a>
                             </label>
                         </div>
@@ -133,26 +134,18 @@
                 </form>
             </div>
         </div>
-        <div id="instructions" class="modal fade" role="dialog">
+        <div id="i_notebook-name" class="modal fade" role="dialog">
             <div class="modal-dialog" style="max-width: 600px">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Instructions</h5>
+                        <h5 class="modal-title">Rules of notebook naming</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <ol class="ps-3">
-                            <li>Please provide a notebook name that has no whitespace.</li>
-                            <li>Please use characters from the set [a-zA-Z0-9._-]</li>
-                            <li>Please use 30 characters or less to name your notebook.</li>
-                            <li>You can request 1 to 16 CPU cores.</li>
-                            <li>You can request 1 to 32 GB of memory.</li>
-                            <li>You can request 0 to 7 GPU instances.</li>
-                            <li>You can select a GPU model based on its memory size.</li>
-                            <li>If you request a GPU, please make sure the GPU is available, by clicking on the icon
-                                next to GPU memory.</li>
-                            <li>You can give the notebook a duration of up to 72 hours.</li>
-                            <li>You can choose any Docker image from the dropdown.</li>
+                            <li>No whitespaces.</li>
+                            <li>Only characters from the set [a-zA-Z0-9._-]</li>
+                            <li>Less than 30 characters.</li>
                         </ol>
                     </div>
                     <div class="modal-footer">
@@ -218,31 +211,6 @@
                         <p>
                             Please select the number of GPU instances you would like to request. You can select any
                             number from 0 to 4.
-                        </p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="docker-image" class="modal fade">
-            <div class="modal-dialog" style="max-width: 600px">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Selecting a Docker image</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>
-                            Users can choose between two images: one with full anaconda
-                            <code>(ivukotic/ml_platform:conda)</code>
-                            and one with NVidia GPU and ROOT support <code>(ivukotic/ml_platform:latest)</code>.
-                        </p>
-                        <p>
-                            The latter has most of the ML packages (Tensorflow, Keras, ScikitLearn, etc.) preinstalled,
-                            and
-                            a small tutorial with code examples in <code>/ML_platform_tests/tutorial</code>.
                         </p>
                     </div>
                     <div class="modal-footer">
