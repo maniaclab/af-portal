@@ -1,20 +1,21 @@
-""" 
+"""
 A module for all of the view functions.
 
-The phrase "view function" gets its name from the Model-View-Template (MVT) design pattern. 
+The phrase "view function" gets its name from the Model-View-Template (MVT) design pattern.
 A view function is a request handler that returns a view.
 
 The view functions in this module are often preceded by an @app.route decorator.
 
 The @app.route decorator maps a URL to a view function (request handler).
-The @app.route decorator also gives the view function access to the request and response objects in the decorator's namespace.
+The @app.route decorator also gives the view function access to the request and response objects
+in the decorator's namespace.
 
 For more documentation on decorators and the @app.route decorator, see decorators.py
 """
 
 from flask import session, request, render_template, url_for, redirect, jsonify, flash
 from flask_qrcode import QRcode
-from portal import app, connect, jupyterlab, email, math, decorators
+from portal import app, connect, jupyterlab, email, math, decorators, logger
 from portal.errors import ConnectApiError
 from urllib.parse import urlparse, urljoin
 import globus_sdk
@@ -58,20 +59,19 @@ def signup():
 
 @app.route("/login")
 def login():
-    redirect_uri = url_for("login", _external=True)
+    redirect_uri = url_for("login", _scheme='https', _external=True)
+    logger.info("redirect_uri: " + redirect_uri)
     client = globus_sdk.ConfidentialAppAuthClient(
         app.config["CLIENT_ID"], app.config["CLIENT_SECRET"]
     )
     client.oauth2_start_flow(redirect_uri, refresh_tokens=True)
     if "code" not in request.args:
-        next_url = get_safe_redirect()
-        params = {"signup": 1} if request.args.get("signup") else {"next": next_url}
-        auth_uri = client.oauth2_get_authorize_url(additional_params=params)
+        auth_uri = client.oauth2_get_authorize_url()
         return redirect(auth_uri)
     else:
         code = request.args.get("code")
         tokens = client.oauth2_exchange_code_for_tokens(code)
-        id_token = tokens.decode_id_token(client)
+        id_token = tokens.decode_id_token()
         session.update(
             tokens=tokens.by_resource_server,
             is_authenticated=True,
@@ -246,7 +246,7 @@ def aup():
 @app.route("/jupyterlab")
 @decorators.members_only
 def open_jupyterlab():
-    return render_template("jupyterlab.html")
+    return render_template("jupyterlab.html", base_url=url_for("open_jupyterlab"))
 
 
 @app.route("/jupyterlab/get_notebooks")
@@ -389,11 +389,15 @@ def plot_users_over_time():
 @decorators.admins_only
 def groups(group_name):
     group = connect.get_group_info(group_name)
-    return render_template("groups.html", group=group)
+    return render_template(
+        "groups.html",
+        group=group,
+        base_url=url_for('home', _external=True).replace('http:', 'https:')
+    )
 
 
-@app.route("/admin/get_members/<group_name>")
-@decorators.admins_only
+@ app.route("/admin/get_members/<group_name>")
+@ decorators.admins_only
 def get_members(group_name):
     profiles = connect.get_user_profiles(group_name)
     members = list(
@@ -402,8 +406,8 @@ def get_members(group_name):
     return jsonify(members=members)
 
 
-@app.route("/admin/get_member_requests/<group_name>")
-@decorators.admins_only
+@ app.route("/admin/get_member_requests/<group_name>")
+@ decorators.admins_only
 def get_member_requests(group_name):
     profiles = connect.get_user_profiles(group_name)
     member_requests = list(
@@ -412,15 +416,15 @@ def get_member_requests(group_name):
     return jsonify(member_requests=member_requests)
 
 
-@app.route("/admin/get_subgroups/<group_name>")
-@decorators.admins_only
+@ app.route("/admin/get_subgroups/<group_name>")
+@ decorators.admins_only
 def get_subgroups(group_name):
     subgroups = connect.get_subgroups(group_name)
     return jsonify(subgroups=subgroups)
 
 
-@app.route("/admin/get_potential_members/<group_name>")
-@decorators.admins_only
+@ app.route("/admin/get_potential_members/<group_name>")
+@ decorators.admins_only
 def get_potential_members(group_name):
     users = connect.get_user_profiles("root")
     potential_members = list(
@@ -429,8 +433,8 @@ def get_potential_members(group_name):
     return jsonify(potential_members=potential_members)
 
 
-@app.route("/admin/email/<group_name>", methods=["POST"])
-@decorators.admins_only
+@ app.route("/admin/email/<group_name>", methods=["POST"])
+@ decorators.admins_only
 def send_email(group_name):
     sender = "noreply@af.uchicago.edu"
     recipients = email.get_email_list(group_name)
@@ -443,22 +447,22 @@ def send_email(group_name):
     )
 
 
-@app.route("/admin/add_group_member/<group_name>/<unix_name>")
-@decorators.admins_only
+@ app.route("/admin/add_group_member/<group_name>/<unix_name>")
+@ decorators.admins_only
 def add_group_member(unix_name, group_name):
     connect.update_user_role(unix_name, group_name, "active")
     return jsonify(success=True)
 
 
-@app.route("/admin/remove_group_member/<group_name>/<unix_name>")
-@decorators.admins_only
+@ app.route("/admin/remove_group_member/<group_name>/<unix_name>")
+@ decorators.admins_only
 def remove_group_member(unix_name, group_name):
     connect.remove_user_from_group(unix_name, group_name)
     return jsonify(success=True)
 
 
-@app.route("/admin/approve_membership_request/<group_name>/<unix_name>")
-@decorators.admins_only
+@ app.route("/admin/approve_membership_request/<group_name>/<unix_name>")
+@ decorators.admins_only
 def approve_membership_request(unix_name, group_name):
     def notify_staff(approver):
         profile = connect.get_user_profile(unix_name)
@@ -559,6 +563,6 @@ def add_cache_control(response):
     return response
 
 
-@app.before_first_request
+@app.before_request
 def start_notebook_maintenance():
     jupyterlab.start_notebook_maintenance()

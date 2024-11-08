@@ -3,10 +3,18 @@
 {% block title %} User info {% endblock %}
 
 {% block assets %}
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jexcel.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jsuites.css') }}">
-<script type="text/javascript" src="{{ url_for('static', filename='js/jexcel.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/jsuites.js') }}"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jexcel/4.6.1/jexcel.min.css" 
+    integrity="sha512-zOuPgiv3SH9SHCF0STTxwwmpyR1bZyr3NLe5FZJQN3WDLJAZXvEJ2ja7xQPyRUUcsyYS9ZnXcRhUq5W0ys2LjA==" 
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsuites/5.7.1/jsuites.min.css" 
+    integrity="sha512-OpLahQb2MZobRdrvEWQPzZ14Nnb/To6WbKIV0LzlU9/Jc/Dxi12K61DdgjJzOM3LyGBRnBs5jJm+mD95xoFDOA==" 
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jexcel/4.6.1/jexcel.min.js" 
+    integrity="sha512-TFb0BBBoMRJZ4nFqwtuJv7E+eAttxt0LaKobnfH9U79r2AM7qxBpi7hO7O+XlSxGP9NbI1F8UBSowK9dVmQd2Q==" 
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsuites/5.7.1/jsuites.min.js" 
+    integrity="sha512-bELJ/gF8lBHU+vwLrGGyrVsnxzA4BmgtA3wC8tQXHCROOTt1hjITGaDoy55xkcwUk4Y04IdEUnaBT+I28FjV6g==" 
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons" />
 {% endblock %}
 

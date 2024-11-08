@@ -1,6 +1,6 @@
 from flask import Flask
-from jinja2_markdown import MarkdownExtension
 from flask_wtf.csrf import CSRFProtect
+from jinja2_markdown import MarkdownExtension
 import logging
 
 app = Flask(__name__)

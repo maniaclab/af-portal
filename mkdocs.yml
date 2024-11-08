@@ -1,0 +1,14 @@
+site_name: Analysis Facility Docs
+theme:
+  name: material
+  features:
+    - instant
+nav:
+  - "Home": "index.md"
+  - "Job submission": "job_submission.md"
+  - "Coffea Casa": "coffeacasa.md"
+  - "ServiceX": "servicex.md"
+  - "ML platform": "ml_platform.md"
+  - "Accessing data":
+      - "Local DDM": "local-ddm.md"
+      - "XCache": "xcache.md"
