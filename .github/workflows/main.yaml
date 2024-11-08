@@ -3,7 +3,7 @@ name: Build AF frontend image
 on:
   push:
     branches:
-      - "k8s-v2"
+      - "main"
 
 jobs:
   docker:
