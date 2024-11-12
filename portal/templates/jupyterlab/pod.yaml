@@ -80,8 +80,13 @@ spec:
       - name: cvmfs
         mountPath: /cvmfs
         mountPropagation: HostToContainer
+      - name: shm-volume
+        mountPath: /dev/shm
   restartPolicy: Always
   volumes:
+    - name: shm-volume
+      emptyDir:
+        medium: Memory
     - name: nfs-home
       nfs: 
         server: nfs.af.uchicago.edu
