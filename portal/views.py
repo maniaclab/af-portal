@@ -149,9 +149,11 @@ def profile():
         except KeyError as e:
             print("Could not create an authenticator string: ", e)
             authenticator_string = None
-    return render_template(
-        "profile.html", profile=profile, authenticator_string=authenticator_string
-    )
+        return render_template(
+            "profile.html", profile=profile, authenticator_string=authenticator_string
+        )
+    else:
+        return redirect(url_for("create_profile"))
 
 
 @app.route("/profile/create", methods=["GET", "POST"])
