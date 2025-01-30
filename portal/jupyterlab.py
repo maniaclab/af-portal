@@ -165,6 +165,7 @@ def deploy_notebook(**settings):
     settings["domain_name"] = app.config["DOMAIN_NAME"]
     settings["token"] = b64encode(os.urandom(32)).decode()
     settings["start_script"] = "/ML_platform_tests/SetupPrivateJupyterLab.sh"
+    settings["notebook_id"] = sanitize_k8s_pod_name(settings["notebook_id"])
     if settings["image"].count("oct_upgrade"):
         settings["start_script"] = "/ML_platform_tests/SetupJupyterLab.sh"
     templates = Environment(loader=FileSystemLoader("portal/templates/jupyterlab"))
@@ -485,3 +486,37 @@ def get_pod(name):
         return api.read_namespaced_pod(name=name, namespace=namespace)
     except:
         return None
+
+def sanitize_k8s_pod_name(name: str, max_length: int = 63) -> str:
+    """
+    Sanitize a string to be a valid Kubernetes pod name.
+
+    - Converts to lowercase.
+    - Replaces invalid characters with '-'.
+    - Ensures it starts and ends with an alphanumeric character.
+    - Trims to the maximum allowed length (default: 63).
+
+    Parameters:
+        name (str): The original pod name.
+        max_length (int): Maximum allowed length for Kubernetes pod names (default: 63).
+
+    Returns:
+        str: A valid Kubernetes pod name.
+    """
+    # Convert to lowercase
+    name = name.lower()
+
+    # Replace invalid characters (anything other than lowercase letters, numbers, or '-') with '-'
+    name = re.sub(r'[^a-z0-9-]', '-', name)
+
+    # Remove leading or trailing hyphens
+    name = name.strip('-')
+
+    # Truncate to max length
+    name = name[:max_length]
+
+    # Ensure it doesn't end with a hyphen after truncation
+    name = name.rstrip('-')
+
+    # If the name is empty after sanitization, default to a valid name
+    return name if name else "default-pod"
