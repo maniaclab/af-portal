@@ -206,79 +206,82 @@ def get_notebook(name=None, pod=None, **options):
     if pod is None:
         pod = api.read_namespaced_pod(name=name.lower(), namespace=namespace)
     notebook = dict()
-    notebook["id"] = pod.metadata.name
-    notebook["name"] = pod.metadata.labels.get("notebook-name")
-    notebook["namespace"] = namespace
-    notebook["owner"] = pod.metadata.labels.get("owner")
-    notebook["image"] = pod.spec.containers[0].image
-    notebook["node"] = pod.spec.node_name
-    notebook["node_selector"] = pod.spec.node_selector
-    notebook["pod_status"] = pod.status.phase
-    notebook["creation_date"] = pod.metadata.creation_timestamp.isoformat()
-    expiration_date = get_expiration_date(pod)
-    time_remaining = expiration_date - datetime.datetime.now(datetime.timezone.utc)
-    notebook["expiration_date"] = expiration_date.isoformat()
-    notebook["hours_remaining"] = int(time_remaining.total_seconds() / 3600)
-    notebook["requests"] = pod.spec.containers[0].resources.requests
-    notebook["limits"] = pod.spec.containers[0].resources.limits
-    notebook["conditions"] = [
-        {
-            "type": c.type,
-            "status": c.status,
-            "timestamp": c.last_transition_time.isoformat(),
-        }
-        for c in pod.status.conditions
-    ]
-    notebook["conditions"].sort(
-        key=lambda cond: dict(
-            PodScheduled=0, Initialized=1, ContainersReady=2, Ready=3
-        ).get(cond["type"])
-    )
-    events = api.list_namespaced_event(
-        namespace=namespace, field_selector="involvedObject.uid=%s" % pod.metadata.uid
-    ).items
-    notebook["events"] = [
-        {
-            "message": e.message,
-            "timestamp": e.last_timestamp.isoformat() if e.last_timestamp else None,
-        }
-        for e in events
-    ]
-    if pod.spec.node_name:
-        node = api.read_node(pod.spec.node_name)
-        if node.metadata.labels.get("gpu") == "true":
-            notebook["gpu"] = {
-                "product": node.metadata.labels["nvidia.com/gpu.product"],
-                "memory": node.metadata.labels["nvidia.com/gpu.memory"] + "Mi",
+    try:
+        notebook["id"] = pod.metadata.name
+        notebook["name"] = pod.metadata.labels.get("notebook-name")
+        notebook["namespace"] = namespace
+        notebook["owner"] = pod.metadata.labels.get("owner")
+        notebook["image"] = pod.spec.containers[0].image
+        notebook["node"] = pod.spec.node_name
+        notebook["node_selector"] = pod.spec.node_selector
+        notebook["pod_status"] = pod.status.phase
+        notebook["creation_date"] = pod.metadata.creation_timestamp.isoformat()
+        expiration_date = get_expiration_date(pod)
+        time_remaining = expiration_date - datetime.datetime.now(datetime.timezone.utc)
+        notebook["expiration_date"] = expiration_date.isoformat()
+        notebook["hours_remaining"] = int(time_remaining.total_seconds() / 3600)
+        notebook["requests"] = pod.spec.containers[0].resources.requests
+        notebook["limits"] = pod.spec.containers[0].resources.limits
+        notebook["conditions"] = [
+            {
+                "type": c.type,
+                "status": c.status,
+                "timestamp": c.last_transition_time.isoformat(),
             }
-    if pod.metadata.deletion_timestamp is None:
-        if next(
-            filter(
-                lambda c: c.type == "Ready" and c.status == "True",
-                pod.status.conditions,
-            ),
-            None,
-        ):
-            log = api.read_namespaced_pod_log(pod.metadata.name, namespace=namespace)
-            notebook["status"] = (
-                "Ready"
-                if re.search("Jupyter.*is running at", log)
-                else "Starting notebook..."
-            )
-        else:
-            notebook["status"] = "Pending"
-    else:
-        notebook["status"] = "Removing notebook..."
-    # Optional fields
-    if options.get("log") is True and "log" in locals():
-        notebook["log"] = log
-    if options.get("url") is True and pod.metadata.deletion_timestamp is None:
-        token = api.read_namespaced_secret(pod.metadata.name, namespace).data["token"]
-        notebook["url"] = "https://%s.%s?%s" % (
-            pod.metadata.name,
-            app.config["DOMAIN_NAME"],
-            urllib.parse.urlencode({"token": token}),
+            for c in pod.status.conditions
+        ]
+        notebook["conditions"].sort(
+            key=lambda cond: dict(
+                PodScheduled=0, Initialized=1, PodReadyToStartContainers=2, ContainersReady=3, Ready=4
+            ).get(cond["type"])
         )
+        events = api.list_namespaced_event(
+            namespace=namespace, field_selector="involvedObject.uid=%s" % pod.metadata.uid
+        ).items
+        notebook["events"] = [
+            {
+                "message": e.message,
+                "timestamp": e.last_timestamp.isoformat() if e.last_timestamp else None,
+            }
+            for e in events
+        ]
+        if pod.spec.node_name:
+            node = api.read_node(pod.spec.node_name)
+            if node.metadata.labels.get("gpu") == "true":
+                notebook["gpu"] = {
+                    "product": node.metadata.labels["nvidia.com/gpu.product"],
+                    "memory": node.metadata.labels["nvidia.com/gpu.memory"] + "Mi",
+                }
+        if pod.metadata.deletion_timestamp is None:
+            if next(
+                filter(
+                    lambda c: c.type == "Ready" and c.status == "True",
+                    pod.status.conditions,
+                ),
+                None,
+            ):
+                log = api.read_namespaced_pod_log(pod.metadata.name, namespace=namespace)
+                notebook["status"] = (
+                    "Ready"
+                    if re.search("Jupyter.*is running at", log)
+                    else "Starting notebook..."
+                )
+            else:
+                notebook["status"] = "Pending"
+        else:
+            notebook["status"] = "Removing notebook..."
+        # Optional fields
+        if options.get("log") is True and "log" in locals():
+            notebook["log"] = log
+        if options.get("url") is True and pod.metadata.deletion_timestamp is None:
+            token = api.read_namespaced_secret(pod.metadata.name, namespace).data["token"]
+            notebook["url"] = "https://%s.%s?%s" % (
+                pod.metadata.name,
+                app.config["DOMAIN_NAME"],
+                urllib.parse.urlencode({"token": token}),
+            )
+    except Exception as e:
+        logger.error("Caught exception in creating notebook information: %s", e)
     return notebook
 
 
