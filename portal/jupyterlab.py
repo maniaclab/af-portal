@@ -306,6 +306,7 @@ def get_notebooks(owner=None, **options):
     for pod in pods:
         try:
             notebook = get_notebook(pod=pod, **options)
+            logger.info("Notebook: %s", notebook)
             notebooks.append(notebook)
         except Exception as err:
             logger.error(
