@@ -1,5 +1,7 @@
 FROM python:3
 
+RUN apt-get update && apt-get install -y vim
+
 RUN useradd -ms /bin/bash portal
 
 WORKDIR /home/portal
