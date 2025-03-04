@@ -21,6 +21,8 @@ RUN chmod +x boot.sh
 
 #ENV FLASK_APP portal
 
+RUN chown -R portal: /home/portal
+
 USER portal
 
 EXPOSE 5000
