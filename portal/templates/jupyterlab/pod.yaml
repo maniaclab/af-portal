@@ -76,7 +76,10 @@ spec:
         mountPath: /home
       - name: ceph-data
         mountPath: /data
-        subPath: data
+      - name: ceph-work
+        mountPath: /work
+      - name: ceph-cold
+        mountPath: /cold
       - name: cvmfs
         mountPath: /cvmfs
         mountPropagation: HostToContainer
@@ -92,14 +95,14 @@ spec:
         server: nfs.af.uchicago.edu
         path: /export/home
     - name: ceph-data
-      cephfs:
-        monitors: 
-        - 192.170.240.135:6789
-        - 192.170.240.148:6789
-        - 192.170.240.192:6789
-        user: admin
-        secretRef:
-          name: ceph-secret
+      hostPath:
+        path: /data
+    - name: ceph-work
+      hostPath:
+        path: /work
+    - name: ceph-cold
+      hostPath:
+        path: /cold
     - name: cvmfs
       hostPath:
         path: /cvmfs
