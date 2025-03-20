@@ -8,6 +8,9 @@ nav:
   - "Hardware": "hardware.md"
   - "Job submission": "job_submission.md"
   - "Coffea Casa": "coffeacasa.md"
+  - "VSCode":
+      - "Remote SSH": "VSCode_remote_ssh.md"
+      - "Connecting to JupyterLab": "Connect_VSCode_JupyterLab.md"
   - "ServiceX": "servicex.md"
   - "ML platform": "ml_platform.md"
   - "Accessing data":
