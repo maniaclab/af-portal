@@ -10,7 +10,7 @@ nav:
   - "Coffea Casa": "coffeacasa.md"
   - "VSCode":
       - "Remote SSH": "VSCode_remote_ssh.md"
-      - "Connecting to JupyterLab": "Connect_VSCode_JupyterLab.md"
+      - "Connecting to JupyterLab": "Connect_VSCode_to_JupyterLab.md"
   - "ServiceX": "servicex.md"
   - "ML platform": "ml_platform.md"
   - "Accessing data":
