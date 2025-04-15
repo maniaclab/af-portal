@@ -40,7 +40,7 @@ spec:
   containers:
   - name: {{notebook_id}}
     args:
-    - /.run
+    # - /.run
     - {{start_script}}
     env:
     - name: "JUPYTER_TOKEN"
