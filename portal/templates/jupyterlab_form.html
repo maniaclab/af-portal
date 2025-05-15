@@ -28,8 +28,8 @@
                         <div class="col-sm-4">
                             <label for="notebook-name" class="form-label my-2">Notebook name
                                 <a class="text-decoration-none" data-bs-toggle="modal" href="#i_notebook-name"
-                                role="button">
-                                <i class="fas fa-info-circle"></i>
+                                    role="button">
+                                    <i class="fas fa-info-circle"></i>
                                 </a>
                             </label>
                         </div>
@@ -51,7 +51,8 @@
                             <label for="memory" class="form-label my-2">Memory (GB)</label>
                         </div>
                         <div class="col-sm-8">
-                            <input type="number" class="form-control" name="memory" min=1 max={{ max_mem }} value=2 required />
+                            <input type="number" class="form-control" name="memory" min=1 max={{ max_mem }} value=2
+                                required />
                         </div>
                     </div>
                     <div class="row mb-2">
@@ -102,8 +103,8 @@
                         <div class="col-sm-4">
                             <label for="image" class="form-label my-2">
                                 Image
-                                <a class="text-decoration-none" 
-                                    href="https://maniaclab.uchicago.edu/af-portal/ml_platform/#selecting-a-docker-image" 
+                                <a class="text-decoration-none"
+                                    href="https://maniaclab.uchicago.edu/af-portal/ml_platform/#selecting-a-docker-image"
                                     target="_blank">
                                     <i class="fa fa-external-link"></i>
                                 </a>
@@ -111,22 +112,18 @@
                         </div>
                         <div class="col-sm-8">
                             <select name="image" class="form-control">
-                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:latest">ml-platform:latest
+                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:oct_upgrade">
+                                    ml-platform:current
+                                </option>
+                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:latest">ml-platform:legacy
                                 </option>
                                 <option value="hub.opensciencegrid.org/usatlas/ml-platform:conda">ml-platform:conda
                                 </option>
                                 <option value="hub.opensciencegrid.org/usatlas/ml-platform:julia">ml-platform:julia
                                 </option>
-                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:lava">ml-platform:lava
-                                </option>
-                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:centos-v2-docker">
-                                    ml-platform:centos</option>
                                 <option value="hub.opensciencegrid.org/usatlas/analysis-dask-uc:main">AB-stable
                                 </option>
                                 <option value="hub.opensciencegrid.org/usatlas/analysis-dask-uc:dev">AB-dev</option>
-                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:oct_upgrade">
-                                    ml-platform:oct_upgrade
-                                </option>
                             </select>
                         </div>
                     </div>
@@ -184,7 +181,7 @@
                                     <td>[[ gpu.cpu_request_max ]]</td>
                                     <td>[[ gpu.mem_request_max ]]</td>
                                 </tr>
-                                </tbody>
+                            </tbody>
                         </table>
                     </div>
                     <div v-else class="modal-body">
