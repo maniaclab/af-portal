@@ -14,9 +14,10 @@
             </ol>
         </nav>
         {% if unix_name is not none %}
-            <iframe id="chat" title="AF ChatGPT" width="100%" height=750px allow="clipboard-read; clipboard-write" src="https://chatbot.af.atlas-ml.org/?user={{ unix_name }}"></iframe>
+        <iframe id="chat" title="AF ChatGPT" width="100%" height=750px allow="clipboard-read; clipboard-write"
+            src="https://afchatkit.af.atlas-ml.org/?user={{ unix_name }}"></iframe>
         {% else %}
-            <p> Only accounts with a valid identity can use ChatGPT integration </p>
+        <p> Only accounts with a valid identity can use ChatGPT integration </p>
         {% endif %}
     </div>
 </section>
