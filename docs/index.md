@@ -1,8 +1,13 @@
 # Getting Started
 
+!!! warning "Documentation Moved"
+    This documentation has been migrated to the [unified US ATLAS Analysis Facilities documentation](https://usatlas.github.io/af-docs/).
+
+    Please update your bookmarks to the new location for the latest documentation covering all three US ATLAS Analysis Facilities (BNL, UChicago, and SLAC).
+
 ## Logging in to the UChicago Analysis Facility
 
-First you will need to sign up on the [Analysis Facility website](https://af.uchicago.edu). 
+First you will need to sign up on the [Analysis Facility website](https://af.uchicago.edu).
 
 Please use your institutional or CERN identity (lxplus username) when signing up, as this will make the approval process smoother. You should set your institution to be your home institute. If e.g. you are from the University of Chicago but use your CERN credentials, you should set the institution under your profile to be the University of Chicago.
 
