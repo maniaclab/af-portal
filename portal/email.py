@@ -24,7 +24,8 @@ def email_users(sender, recipients, subject, body):
 
 def email_staff(subject, body):
     sender = 'noreply@af.uchicago.edu'
-    recipients = get_email_list('root.atlas-af.staff')
+    #recipients = get_email_list('root.atlas-af.staff')
+    recipients = ['atlas-us-chicago-tier3-admins@lists.uchicago.edu']
     return email_users(sender, recipients, subject, body)
 
 def get_email_list(group):
