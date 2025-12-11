@@ -20,8 +20,47 @@ from portal.errors import ConnectApiError
 from urllib.parse import urlparse, urljoin
 import globus_sdk
 import threading
+import queue
 
 QRcode(app)
+
+# Global job queue
+job_queue = queue.Queue()
+
+def worker():
+    logger.info("[worker] Background worker started")
+    while True:
+        func, args = job_queue.get()
+        try:
+            logger.info("[worker] Running job: %s args=%s", func.__name__, args)
+            func(*args)
+            logger.info("[worker] Job finished: %s", func.__name__)
+        except Exception:
+            logger.exception("[worker] Job failed")
+        finally:
+            job_queue.task_done()
+
+# Start worker thread once when Flask starts
+threading.Thread(target=worker, daemon=True).start()
+
+def send_membership_approval_email(approver, unix_name, group_name):
+    logger.info("[email-job] Preparing email for %s", unix_name)
+
+    profile = connect.get_user_profile(unix_name)
+    logger.info("[email-job] Profile: %s", profile)
+
+    subject = "Account approval"
+    body = f"""
+User {approver} approved a request from {unix_name} to join group {group_name}.
+
+Unix name: {profile["unix_name"]}
+Full name: {profile["name"]}
+Email: {profile["email"]}
+Institution: {profile["institution"]}
+"""
+
+    email.email_staff(subject, body)
+    logger.info("[email-job] Email sent successfully!")
 
 
 @app.route("/")
@@ -466,33 +505,21 @@ def remove_group_member(unix_name, group_name):
     connect.remove_user_from_group(unix_name, group_name)
     return jsonify(success=True)
 
-
-@ app.route("/admin/approve_membership_request/<group_name>/<unix_name>")
-@ decorators.admins_only
+@app.route("/admin/approve_membership_request/<group_name>/<unix_name>")
+@decorators.admins_only
 def approve_membership_request(unix_name, group_name):
-    def notify_staff(approver):
-        profile = connect.get_user_profile(unix_name)
-        subject = "Account approval"
-        body = """
-            User %s approved a request from %s to join group %s.
-
-            Unix name: %s
-            Full name: %s
-            Email: %s
-            Institution: %s""" % (
-            approver,
-            unix_name,
-            group_name,
-            profile["unix_name"],
-            profile["name"],
-            profile["email"],
-            profile["institution"],
-        )
-        email.email_staff(subject, body)
+    approver = session["unix_name"]
 
     connect.update_user_role(unix_name, group_name, "active")
-    t = threading.Thread(target=notify_staff, args=(session["unix_name"],))
-    t.start()
+    logger.info("[approve] Updated role for %s in %s", unix_name, group_name)
+
+    # Add job to queue
+    job_queue.put((
+        send_membership_approval_email,
+        (approver, unix_name, group_name)
+    ))
+    logger.info("[approve] Queued email job for %s", unix_name)
+
     return jsonify(success=True)
 
 
