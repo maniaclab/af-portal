@@ -25,12 +25,12 @@ import queue
 QRcode(app)
 
 # Global job queue
-job_queue = queue.Queue()
+my_job_queue = queue.Queue()
 
 def worker():
     logger.info("[worker] Background worker started")
     while True:
-        func, args = job_queue.get()
+        func, args = my_job_queue.get()
         try:
             logger.info("[worker] Running job: %s args=%s", func.__name__, args)
             func(*args)
@@ -38,7 +38,7 @@ def worker():
         except Exception:
             logger.exception("[worker] Job failed")
         finally:
-            job_queue.task_done()
+            my_job_queue.task_done()
 
 # Start worker thread once when Flask starts
 threading.Thread(target=worker, daemon=True).start()
@@ -514,7 +514,7 @@ def approve_membership_request(unix_name, group_name):
     logger.info("[approve] Updated role for %s in %s", unix_name, group_name)
 
     # Add job to queue
-    job_queue.put((
+    my_job_queue.put((
         send_membership_approval_email,
         (approver, unix_name, group_name)
     ))
