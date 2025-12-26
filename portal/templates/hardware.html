@@ -72,6 +72,13 @@
                 <td>Storage provided by the batch worker nodes. Two types of disks: spinning disks from hyperconverged nodes form the regular pool (in production), NVMe disks from the fast compute nodes form the fast pool (to be configured)</td>
               </tr>
              <tr>
+                <td>/work</td>
+                <td>Ceph Filesystem</td>
+                <td>58TB</td>
+                <td>configured per request</td>
+                <td>Storage provided by the batch worker nodes. NVMe disks from the fast compute nodes form the fast pool</td>
+              </tr>
+             <tr>
                 <td>/home</td>
                 <td>NFS filesystem</td>
                 <td>33TB</td>
@@ -112,6 +119,15 @@
                 <td>Two Intel(R) Xeon(R) Gold 6348 CPU at 2.60 GHz</td>
                 <td>56C/112T</td>
                 <td>384 GB DDR4 SDRAM</td>
+                <td>Ten 3.2 TB NVMe </td>
+                <td>Provided by, and for, IRIS-HEP SSL</td>
+              </tr>
+              <tr>
+                <td>ADS Nodes</td>
+                <td>5</td>
+                <td>Two AMD EPYC 9754 128-Core Processor</td>
+                <td>256C/512T</td>
+                <td>2.2 TB DDR5 SDRAM</td>
                 <td>Ten 3.2 TB NVMe </td>
                 <td>Provided by, and for, IRIS-HEP SSL</td>
               </tr>
