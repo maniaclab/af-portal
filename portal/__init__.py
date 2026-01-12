@@ -1,3 +1,3 @@
-import portal.views
+from portal.app import app
 
-__all__ = ("portal",)
+__all__ = ("app",)
