@@ -27,6 +27,7 @@ QRcode(app)
 # Global job queue
 my_job_queue = queue.Queue()
 
+
 def worker():
     logger.info("[worker] Background worker started")
     while True:
@@ -40,8 +41,10 @@ def worker():
         finally:
             my_job_queue.task_done()
 
+
 # Start worker thread once when Flask starts
 threading.Thread(target=worker, daemon=True).start()
+
 
 def send_membership_approval_email(approver, unix_name, group_name):
     logger.info("[email-job] Preparing email for %s", unix_name)
@@ -98,7 +101,7 @@ def signup():
 
 @app.route("/login")
 def login():
-    redirect_uri = url_for("login", _scheme='https', _external=True)
+    redirect_uri = url_for("login", _scheme="https", _external=True)
     logger.info("redirect_uri: " + redirect_uri)
     client = globus_sdk.ConfidentialAppAuthClient(
         app.config["CLIENT_ID"], app.config["CLIENT_SECRET"]
@@ -304,10 +307,14 @@ def configure_notebook():
     username = session["unix_name"]
     notebook_name = jupyterlab.generate_notebook_name(username)
     groups = connect.get_user_roles(username)
-    if 'root.atlas-af.bigmem' in groups:
-        return render_template("jupyterlab_form.html", max_mem=256, notebook_name=notebook_name)
+    if "root.atlas-af.bigmem" in groups:
+        return render_template(
+            "jupyterlab_form.html", max_mem=256, notebook_name=notebook_name
+        )
     else:
-        return render_template("jupyterlab_form.html", max_mem=32, notebook_name=notebook_name)
+        return render_template(
+            "jupyterlab_form.html", max_mem=32, notebook_name=notebook_name
+        )
 
 
 @app.route("/jupyterlab/deploy", methods=["POST"])
@@ -437,12 +444,12 @@ def groups(group_name):
     return render_template(
         "groups.html",
         group=group,
-        base_url=url_for('home', _external=True).replace('http:', 'https:')
+        base_url=url_for("home", _external=True).replace("http:", "https:"),
     )
 
 
-@ app.route("/admin/get_members/<group_name>")
-@ decorators.admins_only
+@app.route("/admin/get_members/<group_name>")
+@decorators.admins_only
 def get_members(group_name):
     profiles = connect.get_user_profiles(group_name)
     members = list(
@@ -451,8 +458,8 @@ def get_members(group_name):
     return jsonify(members=members)
 
 
-@ app.route("/admin/get_member_requests/<group_name>")
-@ decorators.admins_only
+@app.route("/admin/get_member_requests/<group_name>")
+@decorators.admins_only
 def get_member_requests(group_name):
     profiles = connect.get_user_profiles(group_name)
     member_requests = list(
@@ -461,15 +468,15 @@ def get_member_requests(group_name):
     return jsonify(member_requests=member_requests)
 
 
-@ app.route("/admin/get_subgroups/<group_name>")
-@ decorators.admins_only
+@app.route("/admin/get_subgroups/<group_name>")
+@decorators.admins_only
 def get_subgroups(group_name):
     subgroups = connect.get_subgroups(group_name)
     return jsonify(subgroups=subgroups)
 
 
-@ app.route("/admin/get_potential_members/<group_name>")
-@ decorators.admins_only
+@app.route("/admin/get_potential_members/<group_name>")
+@decorators.admins_only
 def get_potential_members(group_name):
     users = connect.get_user_profiles("root")
     potential_members = list(
@@ -478,8 +485,8 @@ def get_potential_members(group_name):
     return jsonify(potential_members=potential_members)
 
 
-@ app.route("/admin/email/<group_name>", methods=["POST"])
-@ decorators.admins_only
+@app.route("/admin/email/<group_name>", methods=["POST"])
+@decorators.admins_only
 def send_email(group_name):
     sender = "noreply@af.uchicago.edu"
     recipients = email.get_email_list(group_name)
@@ -492,18 +499,19 @@ def send_email(group_name):
     )
 
 
-@ app.route("/admin/add_group_member/<group_name>/<unix_name>")
-@ decorators.admins_only
+@app.route("/admin/add_group_member/<group_name>/<unix_name>")
+@decorators.admins_only
 def add_group_member(unix_name, group_name):
     connect.update_user_role(unix_name, group_name, "active")
     return jsonify(success=True)
 
 
-@ app.route("/admin/remove_group_member/<group_name>/<unix_name>")
-@ decorators.admins_only
+@app.route("/admin/remove_group_member/<group_name>/<unix_name>")
+@decorators.admins_only
 def remove_group_member(unix_name, group_name):
     connect.remove_user_from_group(unix_name, group_name)
     return jsonify(success=True)
+
 
 @app.route("/admin/approve_membership_request/<group_name>/<unix_name>")
 @decorators.admins_only
@@ -514,10 +522,9 @@ def approve_membership_request(unix_name, group_name):
     logger.info("[approve] Updated role for %s in %s", unix_name, group_name)
 
     # Add job to queue
-    my_job_queue.put((
-        send_membership_approval_email,
-        (approver, unix_name, group_name)
-    ))
+    my_job_queue.put(
+        (send_membership_approval_email, (approver, unix_name, group_name))
+    )
     logger.info("[approve] Queued email job for %s", unix_name)
 
     return jsonify(success=True)

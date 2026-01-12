@@ -7,7 +7,10 @@ theme:
 
 extra:
   deprecated:
-    message: "⚠️ This documentation has been moved to the <a href='https://usatlas.github.io/af-docs/'>unified US ATLAS Analysis Facilities documentation</a>. Please update your bookmarks."
+    message:
+      "⚠️ This documentation has been moved to the <a
+      href='https://usatlas.github.io/af-docs/'>unified US ATLAS Analysis
+      Facilities documentation</a>. Please update your bookmarks."
 
 markdown_extensions:
   - admonition

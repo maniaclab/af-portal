@@ -232,11 +232,16 @@ def get_notebook(name=None, pod=None, **options):
         ]
         notebook["conditions"].sort(
             key=lambda cond: dict(
-                PodScheduled=0, Initialized=1, PodReadyToStartContainers=2, ContainersReady=3, Ready=4
+                PodScheduled=0,
+                Initialized=1,
+                PodReadyToStartContainers=2,
+                ContainersReady=3,
+                Ready=4,
             ).get(cond["type"])
         )
         events = api.list_namespaced_event(
-            namespace=namespace, field_selector="involvedObject.uid=%s" % pod.metadata.uid
+            namespace=namespace,
+            field_selector="involvedObject.uid=%s" % pod.metadata.uid,
         ).items
         notebook["events"] = [
             {
@@ -260,7 +265,9 @@ def get_notebook(name=None, pod=None, **options):
                 ),
                 None,
             ):
-                log = api.read_namespaced_pod_log(pod.metadata.name, namespace=namespace)
+                log = api.read_namespaced_pod_log(
+                    pod.metadata.name, namespace=namespace
+                )
                 notebook["status"] = (
                     "Ready"
                     if re.search("Jupyter.*is running at", log)
@@ -274,7 +281,9 @@ def get_notebook(name=None, pod=None, **options):
         if options.get("log") is True and "log" in locals():
             notebook["log"] = log
         if options.get("url") is True and pod.metadata.deletion_timestamp is None:
-            token = api.read_namespaced_secret(pod.metadata.name, namespace).data["token"]
+            token = api.read_namespaced_secret(pod.metadata.name, namespace).data[
+                "token"
+            ]
             notebook["url"] = "https://%s.%s?%s" % (
                 pod.metadata.name,
                 app.config["DOMAIN_NAME"],
@@ -488,8 +497,9 @@ def get_pod(name):
     try:
         api = client.CoreV1Api()
         return api.read_namespaced_pod(name=name, namespace=namespace)
-    except:
+    except Exception:
         return None
+
 
 def sanitize_k8s_pod_name(name: str, max_length: int = 63) -> str:
     """
@@ -511,16 +521,16 @@ def sanitize_k8s_pod_name(name: str, max_length: int = 63) -> str:
     name = name.lower()
 
     # Replace invalid characters (anything other than lowercase letters, numbers, or '-') with '-'
-    name = re.sub(r'[^a-z0-9-]', '-', name)
+    name = re.sub(r"[^a-z0-9-]", "-", name)
 
     # Remove leading or trailing hyphens
-    name = name.strip('-')
+    name = name.strip("-")
 
     # Truncate to max length
     name = name[:max_length]
 
     # Ensure it doesn't end with a hyphen after truncation
-    name = name.rstrip('-')
+    name = name.rstrip("-")
 
     # If the name is empty after sanitization, default to a valid name
     return name if name else "default-pod"

@@ -1,21 +1,32 @@
-{% extends "base.html" %}
-
-{% block title %} Request membership {% endblock %}
-
-{% block body %}
+{% extends "base.html" %} {% block title %} Request membership {% endblock %} {%
+block body %}
 <section>
   <div class="container">
     <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a class="text-decoration-none" href="{{ url_for('home') }}">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Request membership</li>
-        </ol>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a class="text-decoration-none" href="{{ url_for('home') }}">Home</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+          Request membership
+        </li>
+      </ol>
     </nav>
     {% if role == 'nonmember' %}
-    <p class="mt-4">To use this service, you have to be a member of the atlas-af group.</p>
-    <a href="{{ url_for('request_membership', unix_name=session.get('unix_name')) }}" class="btn btn-sm btn-primary mt-2" role="button">Request membership</a>
+    <p class="mt-4">
+      To use this service, you have to be a member of the atlas-af group.
+    </p>
+    <a
+      href="{{ url_for('request_membership', unix_name=session.get('unix_name')) }}"
+      class="btn btn-sm btn-primary mt-2"
+      role="button"
+      >Request membership</a
+    >
     {% elif role == 'pending' %}
-    <p class="mt-4">To use this service, you have to be a member of the atlas-af group. Your membership request is waiting for approval.</p>
+    <p class="mt-4">
+      To use this service, you have to be a member of the atlas-af group. Your
+      membership request is waiting for approval.
+    </p>
     {% endif %}
   </div>
 </section>

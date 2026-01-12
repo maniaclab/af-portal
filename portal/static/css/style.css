@@ -1,92 +1,106 @@
-html, body {
-    font-family: "Open Sans";
-    font-size: 16px;
-    line-height: 1.4;
+html,
+body {
+  font-family: "Open Sans";
+  font-size: 16px;
+  line-height: 1.4;
 }
 
 #site-logo {
-    width: 25%;
-    margin: 2em 0 2em;
+  width: 25%;
+  margin: 2em 0 2em;
 }
 
 #carousel {
-    margin: 2em 0 2em;
+  margin: 2em 0 2em;
 }
 
 #carousel:before {
-    color: #6c757d;
-    content: "Tier 3 computing";
-    animation-name: carousel;
-    animation-duration: 15s;
-    animation-iteration-count: infinite;
+  color: #6c757d;
+  content: "Tier 3 computing";
+  animation-name: carousel;
+  animation-duration: 15s;
+  animation-iteration-count: infinite;
 }
 
 @keyframes carousel {
-    0% { content: "Tier 3 computing"; }
-    22% { content: "Tier 3 computing"; }
-    33% { content: "Batch processing via HTCondor"; }
-    55% { content: "Batch processing via HTCondor"; }
-    66% { content: "Pythonic analysis"; }
-    88% { content: "Pythonic analysis"; }
+  0% {
+    content: "Tier 3 computing";
+  }
+  22% {
+    content: "Tier 3 computing";
+  }
+  33% {
+    content: "Batch processing via HTCondor";
+  }
+  55% {
+    content: "Batch processing via HTCondor";
+  }
+  66% {
+    content: "Pythonic analysis";
+  }
+  88% {
+    content: "Pythonic analysis";
+  }
 }
 
 section {
-    margin: 1em;
-    min-height: 600px;
+  margin: 1em;
+  min-height: 600px;
 }
 
 footer {
-    margin: 1em 0 1em;
+  margin: 1em 0 1em;
 }
 
 footer img {
-    max-height: 55px;
-    margin-right: 50px;
+  max-height: 55px;
+  margin-right: 50px;
 }
 
-footer a, footer a:hover {
-    text-decoration: none
+footer a,
+footer a:hover {
+  text-decoration: none;
 }
 
 span.asterisk {
-    color: red;
+  color: red;
 }
 
 #jupyterlab-logo {
-    width: 225px;
-    padding: 5px;
+  width: 225px;
+  padding: 5px;
 }
 
 .fs12 {
-    font-size: 12px;
+  font-size: 12px;
 }
 
 .fs14 {
-    font-size: 14px;
+  font-size: 14px;
 }
 
-#loader { 
-    border: 12px solid #f3f3f3; 
-    border-radius: 50%; 
-    border-top: 12px solid #444444; 
-    width: 70px; 
-    height: 70px; 
-    animation: spin 1s linear infinite; 
-    display: none;
-    z-index: 100;
+#loader {
+  border: 12px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 12px solid #444444;
+  width: 70px;
+  height: 70px;
+  animation: spin 1s linear infinite;
+  display: none;
+  z-index: 100;
 }
 
-@keyframes spin { 
-    100% { 
-        transform: rotate(360deg); 
-    } 
-} 
-  
-.center { 
-    position: absolute; 
-    top: 0; 
-    bottom: 0; 
-    left: 0; 
-    right: 0; 
-    margin: auto; 
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.center {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
 }

@@ -1,90 +1,121 @@
-{% extends "base.html" %}
-
-{% block title %} User info {% endblock %}
-
-{% block assets %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jexcel/4.6.1/jexcel.min.css" 
-    integrity="sha512-zOuPgiv3SH9SHCF0STTxwwmpyR1bZyr3NLe5FZJQN3WDLJAZXvEJ2ja7xQPyRUUcsyYS9ZnXcRhUq5W0ys2LjA==" 
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsuites/5.7.1/jsuites.min.css" 
-    integrity="sha512-OpLahQb2MZobRdrvEWQPzZ14Nnb/To6WbKIV0LzlU9/Jc/Dxi12K61DdgjJzOM3LyGBRnBs5jJm+mD95xoFDOA==" 
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jexcel/4.6.1/jexcel.min.js" 
-    integrity="sha512-TFb0BBBoMRJZ4nFqwtuJv7E+eAttxt0LaKobnfH9U79r2AM7qxBpi7hO7O+XlSxGP9NbI1F8UBSowK9dVmQd2Q==" 
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsuites/5.7.1/jsuites.min.js" 
-    integrity="sha512-bELJ/gF8lBHU+vwLrGGyrVsnxzA4BmgtA3wC8tQXHCROOTt1hjITGaDoy55xkcwUk4Y04IdEUnaBT+I28FjV6g==" 
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons" />
-{% endblock %}
-
-{% block body %}
+{% extends "base.html" %} {% block title %} User info {% endblock %} {% block
+assets %}
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/jexcel/4.6.1/jexcel.min.css"
+  integrity="sha512-zOuPgiv3SH9SHCF0STTxwwmpyR1bZyr3NLe5FZJQN3WDLJAZXvEJ2ja7xQPyRUUcsyYS9ZnXcRhUq5W0ys2LjA=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/jsuites/5.7.1/jsuites.min.css"
+  integrity="sha512-OpLahQb2MZobRdrvEWQPzZ14Nnb/To6WbKIV0LzlU9/Jc/Dxi12K61DdgjJzOM3LyGBRnBs5jJm+mD95xoFDOA=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/jexcel/4.6.1/jexcel.min.js"
+  integrity="sha512-TFb0BBBoMRJZ4nFqwtuJv7E+eAttxt0LaKobnfH9U79r2AM7qxBpi7hO7O+XlSxGP9NbI1F8UBSowK9dVmQd2Q=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/jsuites/5.7.1/jsuites.min.js"
+  integrity="sha512-bELJ/gF8lBHU+vwLrGGyrVsnxzA4BmgtA3wC8tQXHCROOTt1hjITGaDoy55xkcwUk4Y04IdEUnaBT+I28FjV6g=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css?family=Material+Icons"
+/>
+{% endblock %} {% block body %}
 <style>
-    #spreadsheet *, #spreadsheet *::before, #spreadsheet *::after {
-        box-sizing: content-box !important;
-    }
+  #spreadsheet *,
+  #spreadsheet *::before,
+  #spreadsheet *::after {
+    box-sizing: content-box !important;
+  }
 </style>
 <section id="users">
-    <div class="container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a class="text-decoration-none" href="{{ url_for('home') }}">Home</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Users</li>
-            </ol>
-        </nav>
-        <p class="fs14">
-            Below is a table of AF users.
-            Click <a class="text-decoration-none" href="{{ url_for('plot_users_over_time') }}" target="_blank">here</a> to see a graph of user registrations.
-        </p>
-       <div id="spreadsheet"></div>
-    </div>
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a class="text-decoration-none" href="{{ url_for('home') }}">Home</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Users</li>
+      </ol>
+    </nav>
+    <p class="fs14">
+      Below is a table of AF users. Click
+      <a
+        class="text-decoration-none"
+        href="{{ url_for('plot_users_over_time') }}"
+        target="_blank"
+        >here</a
+      >
+      to see a graph of user registrations.
+    </p>
+    <div id="spreadsheet"></div>
+  </div>
 </section>
 <script type="text/javascript">
-$(document).ready(function() {        
-    const spreadsheet = jspreadsheet(document.getElementById('spreadsheet'), {
-        url: "{{url_for('get_user_spreadsheet')}}",
-        columns:[
-            { title: 'Username', name: 'unix_name', type: 'text', readOnly: true },
-            { title: 'Name', name: 'name', type: 'text', readOnly: true} ,
-            { title: 'Email', name: 'email', type: 'text', readOnly: true },
-            { title: 'Join date', name: 'join_date', type: 'calendar', options: { format:'MM/DD/YYYY' }, readOnly: true },
-            { title: 'Institution', name: 'institution', type: 'text'}
-        ],
-        colWidths: [200, 250, 250, 150, 400],
-        columnResize: true,
-        wordWrap: true,
-        onchange: function(instance, cell, x, y, value) {
-            row = spreadsheet.getRowData(y);
-            $.post("{{url_for('update_user_institution')}}", {'username': row[0], 'institution': row[4]});
+  $(document).ready(function () {
+    const spreadsheet = jspreadsheet(document.getElementById("spreadsheet"), {
+      url: "{{url_for('get_user_spreadsheet')}}",
+      columns: [
+        { title: "Username", name: "unix_name", type: "text", readOnly: true },
+        { title: "Name", name: "name", type: "text", readOnly: true },
+        { title: "Email", name: "email", type: "text", readOnly: true },
+        {
+          title: "Join date",
+          name: "join_date",
+          type: "calendar",
+          options: { format: "MM/DD/YYYY" },
+          readOnly: true,
         },
-        loadingSpin: true,
-        columnSorting: true,
-        allowExport: true,
-        csvFileName: 'users',
-        toolbar:[
-            {
-                type: 'i',
-                content: 'undo',
-                onclick: function() {
-                    spreadsheet.undo();
-                }
-            },
-            {
-                type: 'i',
-                content: 'redo',
-                onclick: function() {
-                    spreadsheet.redo();
-                }
-            },
-            {
-                type: 'i',
-                content: 'save',
-                onclick: function () {
-                    spreadsheet.download();
-                }
-            }
-        ]
+        { title: "Institution", name: "institution", type: "text" },
+      ],
+      colWidths: [200, 250, 250, 150, 400],
+      columnResize: true,
+      wordWrap: true,
+      onchange: function (instance, cell, x, y, value) {
+        row = spreadsheet.getRowData(y);
+        $.post("{{url_for('update_user_institution')}}", {
+          username: row[0],
+          institution: row[4],
+        });
+      },
+      loadingSpin: true,
+      columnSorting: true,
+      allowExport: true,
+      csvFileName: "users",
+      toolbar: [
+        {
+          type: "i",
+          content: "undo",
+          onclick: function () {
+            spreadsheet.undo();
+          },
+        },
+        {
+          type: "i",
+          content: "redo",
+          onclick: function () {
+            spreadsheet.redo();
+          },
+        },
+        {
+          type: "i",
+          content: "save",
+          onclick: function () {
+            spreadsheet.download();
+          },
+        },
+      ],
     });
-});
+  });
 </script>
 {% endblock %}

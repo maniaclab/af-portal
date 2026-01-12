@@ -30,26 +30,26 @@ from pip._internal.req import parse_requirements
 
 from setuptools import find_packages, setup
 
-with io.open('README.md', 'rt', encoding='utf8') as f:
+with io.open("README.md", "rt", encoding="utf8") as f:
     readme = f.read()
 
 
 def load_requirements(fname):
-    reqs = parse_requirements(fname, session='build')
+    reqs = parse_requirements(fname, session="build")
     return [str(ir.requirement) for ir in reqs]
 
 
 setup(
-    name='af-portal',
-    version='1.0.0',
-    url='https://iris-hep.org',
-    license='BSD',
-    maintainer='Maniac Team',
-    maintainer_email='ivukotic@uchicago.edu',
-    description='Frontend to Analysis Facility.',
+    name="af-portal",
+    version="1.0.0",
+    url="https://iris-hep.org",
+    license="BSD",
+    maintainer="Maniac Team",
+    maintainer_email="ivukotic@uchicago.edu",
+    description="Frontend to Analysis Facility.",
     long_description=readme,
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    install_requires=load_requirements("requirements.txt")
+    install_requires=load_requirements("requirements.txt"),
 )
