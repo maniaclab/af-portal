@@ -74,7 +74,8 @@ python
 >>> pprint(info)
 """
 
-from portal import app, logger, decorators
+from portal import logger, decorators
+from portal.app import app
 from portal.errors import ConnectApiError
 from dateutil.parser import parse
 import requests

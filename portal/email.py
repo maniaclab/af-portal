@@ -1,6 +1,7 @@
 """Functions for sending emails from our email accounts."""
 
-from portal import app, logger, connect
+from portal import logger, connect
+from portal.app import app
 import requests
 
 token = app.config.get("MAILGUN_API_TOKEN")
