@@ -109,7 +109,8 @@ The decorator pattern makes use of this feature, and allows the programmer to ad
 
 from flask import session, request, redirect, render_template, url_for, flash
 from functools import wraps
-from portal import connect, jupyterlab, logger
+from portal.app import logger
+from portal import connect, jupyterlab
 from portal.errors import InvalidParameter, MissingParameter, InvalidFormError
 import time
 import string

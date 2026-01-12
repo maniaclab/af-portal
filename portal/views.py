@@ -15,8 +15,8 @@ For more documentation on decorators and the @app.route decorator, see decorator
 
 from flask import session, request, render_template, url_for, redirect, jsonify, flash
 from flask_qrcode import QRcode
-from portal import connect, jupyterlab, email, math, decorators, logger
-from portal.app import app
+from portal import connect, jupyterlab, email, math, decorators
+from portal.app import app, logger
 from portal.errors import ConnectApiError
 from urllib.parse import urlparse, urljoin
 import globus_sdk

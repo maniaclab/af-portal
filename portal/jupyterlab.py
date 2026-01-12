@@ -108,8 +108,7 @@ from base64 import b64encode
 from jinja2 import Environment, FileSystemLoader
 from kubernetes import client, config
 from kubernetes.utils.quantity import parse_quantity
-from portal.app import app
-from portal import logger
+from portal.app import app, logger
 
 namespace = app.config.get("NAMESPACE")
 kubeconfig = app.config.get("KUBECONFIG")
