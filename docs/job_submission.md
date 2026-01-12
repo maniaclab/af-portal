@@ -1,6 +1,8 @@
 # Submitting to the Analysis Facility
 
-The UChicago Analysis Facility uses HTCondor for batch workloads. You will need to define an executable script and a "submit" file that describes your job. A simple job that loads the ATLAS environment looks something like this:
+The UChicago Analysis Facility uses HTCondor for batch workloads. You will need
+to define an executable script and a "submit" file that describes your job. A
+simple job that loads the ATLAS environment looks something like this:
 
 Job script, called myjob.sh:
 
@@ -25,7 +27,10 @@ Submit file, called myjob.sub:
 
     Queue 1
 
-By default, your jobs will be submitted via the long queue, with no time limits. However, in order to make your jobs start faster, you can request specifically to send them via the short queue. This is for jobs that should take under 4 hours. For this purpose, you need to add a line in your submit file:
+By default, your jobs will be submitted via the long queue, with no time limits.
+However, in order to make your jobs start faster, you can request specifically
+to send them via the short queue. This is for jobs that should take under 4
+hours. For this purpose, you need to add a line in your submit file:
 
     +queue="short"
 
@@ -48,9 +53,11 @@ And the condor_q command is used to view the queue:
 
 ## Configuring your jobs to use an X509 Proxy Certificate
 
-If you need to use an X509 Proxy, e.g. to access ATLAS Data, you will want to copy your X509 certificate to the Analysis Facility.
+If you need to use an X509 Proxy, e.g. to access ATLAS Data, you will want to
+copy your X509 certificate to the Analysis Facility.
 
-Store your certificate in <code>$HOME/.globus</code> and create a ATLAS VOMS proxy in the usual way:
+Store your certificate in <code>$HOME/.globus</code> and create a ATLAS VOMS
+proxy in the usual way:
 
     export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
     export ALRB_localConfigDir=$HOME/localConfig
@@ -58,7 +65,10 @@ Store your certificate in <code>$HOME/.globus</code> and create a ATLAS VOMS pro
     lsetup emi
     voms-proxy-init -voms atlas -out $HOME/x509proxy
 
-You will want to generate the proxy on, or copy it to, the shared $HOME filesystem so that the HTCondor scheduler can find and read the proxy. With the following additions to your jobscript, HTCondor will configure the job enviroment automatically for X509 authenticated data access:
+You will want to generate the proxy on, or copy it to, the shared $HOME
+filesystem so that the HTCondor scheduler can find and read the proxy. With the
+following additions to your jobscript, HTCondor will configure the job
+environment automatically for X509 authenticated data access:
 
     use_x509userproxy = true
     x509userproxy = /home/YOURUSERNAME/x509proxy
@@ -83,13 +93,21 @@ E.g., in the job above for the user lincolnb:
 
 ## Limits
 
-Currently there is a limit to max of 64GB RAM and max 16 cores/CPUs that you can request per job.
+Currently there is a limit to max of 64GB RAM and max 16 cores/CPUs that you can
+request per job.
 
 ## Using Analysis Facility Filesystems
 
-When submitting jobs, you should try to use the local scratch filesystem whenever possible. This will help you be a "good neighbor" to other users on the system, and reduce overall stress on the shared filesystems, which can lead to slowness, downtimes, etc. By default, jobs start in the $SCRATCH directory on the worker nodes. Output data will need to be staged to the shared filesystem or it will be lost!
+When submitting jobs, you should try to use the local scratch filesystem
+whenever possible. This will help you be a "good neighbor" to other users on the
+system, and reduce overall stress on the shared filesystems, which can lead to
+slowness, downtimes, etc. By default, jobs start in the $SCRATCH directory on
+the worker nodes. Output data will need to be staged to the shared filesystem or
+it will be lost!
 
-In the following example, data is read from Rucio, we pretend to process it, and then push a small output copied back to the $HOME filesystem. It assumes your X509 proxy certificate is valid and in your home directory.
+In the following example, data is read from Rucio, we pretend to process it, and
+then push a small output copied back to the $HOME filesystem. It assumes your
+X509 proxy certificate is valid and in your home directory.
 
     #!/bin/bash
     export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
@@ -134,9 +152,12 @@ And then:
 
 ## Using Docker / Singularity containers (Advanced)
 
-Some users may want to bring their own container-based workloads to the Analysis Facility. We support both Docker-based jobs as well as Singularity-based jobs. Additionally, the CVMFS repository unpacked.cern.ch is mounted on all nodes.
+Some users may want to bring their own container-based workloads to the Analysis
+Facility. We support both Docker-based jobs as well as Singularity-based jobs.
+Additionally, the CVMFS repository unpacked.cern.ch is mounted on all nodes.
 
-If, for whatever reason, you wanted to run a Debian Linux-based container on the Analysis Facilty, it would be as simple as the following Job file:
+If, for whatever reason, you wanted to run a Debian Linux-based container on the
+Analysis Facility, it would be as simple as the following Job file:
 
     universe                = docker
     docker_image            = debian
@@ -150,9 +171,12 @@ If, for whatever reason, you wanted to run a Debian Linux-based container on the
     request_memory          = 1000M
     queue 1
 
-Similarly, if you would like to run a Singularity container, such as the ones provided in th unpacked.cern.ch CVMFS repo, you can submit a normal vanilla universe job, with a job executable that looks something like the following:
+Similarly, if you would like to run a Singularity container, such as the ones
+provided in th unpacked.cern.ch CVMFS repo, you can submit a normal vanilla
+universe job, with a job executable that looks something like the following:
 
     #!/bin/bash
     singularity run -B /cvmfs -B /home /cvmfs/unpacked.cern.ch/registry.hub.docker.com/atlas/rucio-clients:default rucio --version
 
-Replacing the `rucio-clients:default` container and `rucio --version` executable with your preferred software.
+Replacing the `rucio-clients:default` container and `rucio --version` executable
+with your preferred software.

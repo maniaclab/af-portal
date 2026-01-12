@@ -1,105 +1,198 @@
-{% extends "base.html" %}
-
-{% block title %} Create profile {% endblock %}
-
-{% block body %}
+{% extends "base.html" %} {% block title %} Create profile {% endblock %} {%
+block body %}
 <section>
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-6">
-                <form action="{{ url_for('create_profile') }}" method="POST">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <div class="mb-2">
-                        <label for="name" class="form-label">Name <span class="asterisk">*</span></label>
-                        <input type="text" class="form-control" name="name" value="{{ session['name'] }}" maxlength="256" required>
-                    </div>
-                    <div class="mb-2">
-                        <label for="name" class="form-label">Unix name <span class="asterisk">*</span></label>
-                        <input type="text" class="form-control" name="unix_name" id="unix_name" maxlength="256" required>
-                    </div>
-                    <div class="mb-2">
-                        <label for="name" class="form-label">Institution <span class="asterisk">*</span> (Your home institution rather than CERN, unless CERN is your institution)</label>
-                        <input type="text" class="form-control" name="institution" value="{{ session['institution'] }}" maxlength="256" required>
-                    </div>
-                    <div class="mb-2">
-                        <label for="email" class="form-label">Email <span class="asterisk">*</span> (please use institutional email)</label>
-                        <input type="text" class="form-control" name="email" id="email" value="{{ session['email'] }}" maxlength="256" required>
-                    </div>
-                    <div class="mb-2">
-                        <label for="phone" class="form-label">Phone <span class="asterisk">*</span></label>
-                        <input type="text" class="form-control" name="phone" maxlength="256" required>
-                    </div>
-                    <div class="mb-4">
-                        <label for="public_key" class="form-label">SSH public key</label>
-                        <textarea class="form-control" name="public_key" rows="5" maxlength="65536"></textarea>
-                    </div>
-                    <div class="mb-2">
-                        <button class="btn btn-sm btn-primary" type="submit">Create profile</button>
-                    </div>
-                </form>
-            </div>
-            <div class="col-lg-1"></div>
-            <div class="col-lg-5">
-                <h4 class="mb-3">Instructions:</h4>
-                <div class="mb-3">Fields with an <span class="asterisk">*</span> are required.</div>
-                <div class="card mb-3">
-                    <div class="card-header bg-transparent">
-                        <a class="text-decoration-none" data-bs-toggle="collapse" href="#copypastekey" role="button" aria-expanded="false" aria-controls="copypastekey">
-                            Already have a public key?
-                            <i class="fa-solid fa-info-circle float-end"></i>
-                        </a>
-                    </div>
-                    <div class="collapse card-body" id="copypastekey">
-                        <ol class="ps-4">
-                            <li class="mb-1">To find out, open your terminal and type: <kbd>ls ~/.ssh</kbd></li>
-                            <li class="mb-1">If there is a .pub extension, such as id_rsa.pub, that is your SSH key.</li>
-                            <li class="mb-1">Type: <kbd>cat ~/.ssh/id_rsa.pub</kbd> in order to see your key.</li>
-                            <li class="mb-1">Copy the selection to the clipboard.</li>
-                            <li class="mb-1">Paste the contents of the clipboard in the corresponding box. Please only paste the public key (ending in .pub).</li>
-                        </ol>
-                    </div>
-                </div>
-                <div class="card mb-3">
-                    <div class="card-header bg-transparent">
-                        <a class="text-decoration-none" data-bs-toggle="collapse" href="#generatekey" role="button" aria-expanded="false" aria-controls="generatekey">
-                            Generate a new public key
-                            <i class="fa-solid fa-info-circle float-end"></i>
-                        </a>
-                    </div>
-                    <div class="collapse card-body" id="generatekey">
-                        <ol class="ps-4">
-                            <li class="mb-1">In a terminal, type: <kbd>ssh-keygen -t rsa</kbd></li>
-                            <li class="mb-1">Hit enter for the default location, and optionally enter a password. 
-                                This will generate two files: A private key file (typically id_rsa) and a public key file (typically id_rsa.pub). 
-                                The private key should never be shared, and ATLAS Analysis Facility will never ask you for your private key.
-                            </li>
-                            <li class="mb-1">In order to see your SSH public key type: <br/><kbd>cat ~/.ssh/id_rsa.pub</kbd></li>
-                            <li class="mb-1">Use your mouse to select everything that is printed to the screen. 
-                                The format should look like: <span class="text-muted">ssh-rsa AAAAB3N....M7Q== yourusername@yourmachine</span>
-                            </li>
-                            <li class="mb-1">Copy the selection to the clipboard.</li>
-                            <li class="mb-1">Paste the contents of the clipboard in the corresponding box.</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-6">
+        <form action="{{ url_for('create_profile') }}" method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+          <div class="mb-2">
+            <label for="name" class="form-label"
+              >Name <span class="asterisk">*</span></label
+            >
+            <input
+              type="text"
+              class="form-control"
+              name="name"
+              value="{{ session['name'] }}"
+              maxlength="256"
+              required
+            />
+          </div>
+          <div class="mb-2">
+            <label for="name" class="form-label"
+              >Unix name <span class="asterisk">*</span></label
+            >
+            <input
+              type="text"
+              class="form-control"
+              name="unix_name"
+              id="unix_name"
+              maxlength="256"
+              required
+            />
+          </div>
+          <div class="mb-2">
+            <label for="name" class="form-label"
+              >Institution <span class="asterisk">*</span> (Your home
+              institution rather than CERN, unless CERN is your
+              institution)</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              name="institution"
+              value="{{ session['institution'] }}"
+              maxlength="256"
+              required
+            />
+          </div>
+          <div class="mb-2">
+            <label for="email" class="form-label"
+              >Email <span class="asterisk">*</span> (please use institutional
+              email)</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              name="email"
+              id="email"
+              value="{{ session['email'] }}"
+              maxlength="256"
+              required
+            />
+          </div>
+          <div class="mb-2">
+            <label for="phone" class="form-label"
+              >Phone <span class="asterisk">*</span></label
+            >
+            <input
+              type="text"
+              class="form-control"
+              name="phone"
+              maxlength="256"
+              required
+            />
+          </div>
+          <div class="mb-4">
+            <label for="public_key" class="form-label">SSH public key</label>
+            <textarea
+              class="form-control"
+              name="public_key"
+              rows="5"
+              maxlength="65536"
+            ></textarea>
+          </div>
+          <div class="mb-2">
+            <button class="btn btn-sm btn-primary" type="submit">
+              Create profile
+            </button>
+          </div>
+        </form>
+      </div>
+      <div class="col-lg-1"></div>
+      <div class="col-lg-5">
+        <h4 class="mb-3">Instructions:</h4>
+        <div class="mb-3">
+          Fields with an <span class="asterisk">*</span> are required.
         </div>
+        <div class="card mb-3">
+          <div class="card-header bg-transparent">
+            <a
+              class="text-decoration-none"
+              data-bs-toggle="collapse"
+              href="#copypastekey"
+              role="button"
+              aria-expanded="false"
+              aria-controls="copypastekey"
+            >
+              Already have a public key?
+              <i class="fa-solid fa-info-circle float-end"></i>
+            </a>
+          </div>
+          <div class="collapse card-body" id="copypastekey">
+            <ol class="ps-4">
+              <li class="mb-1">
+                To find out, open your terminal and type: <kbd>ls ~/.ssh</kbd>
+              </li>
+              <li class="mb-1">
+                If there is a .pub extension, such as id_rsa.pub, that is your
+                SSH key.
+              </li>
+              <li class="mb-1">
+                Type: <kbd>cat ~/.ssh/id_rsa.pub</kbd> in order to see your key.
+              </li>
+              <li class="mb-1">Copy the selection to the clipboard.</li>
+              <li class="mb-1">
+                Paste the contents of the clipboard in the corresponding box.
+                Please only paste the public key (ending in .pub).
+              </li>
+            </ol>
+          </div>
+        </div>
+        <div class="card mb-3">
+          <div class="card-header bg-transparent">
+            <a
+              class="text-decoration-none"
+              data-bs-toggle="collapse"
+              href="#generatekey"
+              role="button"
+              aria-expanded="false"
+              aria-controls="generatekey"
+            >
+              Generate a new public key
+              <i class="fa-solid fa-info-circle float-end"></i>
+            </a>
+          </div>
+          <div class="collapse card-body" id="generatekey">
+            <ol class="ps-4">
+              <li class="mb-1">
+                In a terminal, type: <kbd>ssh-keygen -t rsa</kbd>
+              </li>
+              <li class="mb-1">
+                Hit enter for the default location, and optionally enter a
+                password. This will generate two files: A private key file
+                (typically id_rsa) and a public key file (typically id_rsa.pub).
+                The private key should never be shared, and ATLAS Analysis
+                Facility will never ask you for your private key.
+              </li>
+              <li class="mb-1">
+                In order to see your SSH public key type: <br /><kbd
+                  >cat ~/.ssh/id_rsa.pub</kbd
+                >
+              </li>
+              <li class="mb-1">
+                Use your mouse to select everything that is printed to the
+                screen. The format should look like:
+                <span class="text-muted"
+                  >ssh-rsa AAAAB3N....M7Q== yourusername@yourmachine</span
+                >
+              </li>
+              <li class="mb-1">Copy the selection to the clipboard.</li>
+              <li class="mb-1">
+                Paste the contents of the clipboard in the corresponding box.
+              </li>
+            </ol>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </section>
 <script type="text/javascript">
-$(document).ready(function() {
-    $("#unix_name").on("keypress", function(event) {
-        if (!/[a-zA-Z0-9._-]/.test(event.key)) {
-            event.preventDefault();
-            event.returnValue = false;
-        }
+  $(document).ready(function () {
+    $("#unix_name").on("keypress", function (event) {
+      if (!/[a-zA-Z0-9._-]/.test(event.key)) {
+        event.preventDefault();
+        event.returnValue = false;
+      }
     });
-    $("#email").on("keypress", function(event) {
-        if (event.keyCode == 32) {
-            event.preventDefault();
-            event.returnValue = false;
-        }
+    $("#email").on("keypress", function (event) {
+      if (event.keyCode == 32) {
+        event.preventDefault();
+        event.returnValue = false;
+      }
     });
-});
+  });
 </script>
 {% endblock %}

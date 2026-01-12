@@ -1,208 +1,225 @@
-{% extends "base.html" %}
-
-{% block title %} Hardware {% endblock %}
-
-{% block assets %}
+{% extends "base.html" %} {% block title %} Hardware {% endblock %} {% block
+assets %}
 <script src="https://unpkg.com/vue@3"></script>
-{% endblock %}
-
-{% block body %}
+{% endblock %} {% block body %}
 <section id="hardware">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a class="text-decoration-none" href="{{ url_for('home') }}">Home</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Hardware</li>
+      </ol>
+    </nav>
     <div class="container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a class="text-decoration-none" href="{{ url_for('home') }}">Home</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Hardware</li>
-            </ol>
-        </nav>
-        <div class="container">
-            <h6>Interactive Nodes</h6>
-            <table class="table table-bordered fs14">
-              <tr>
-                <th>Access Protocol</th>
-                <th>Number of Nodes</th>
-                <th>Monitoring</th>
-              </tr>
-              <tr>
-                <td>ssh</td>
-                <td>2</td>
-                <td><a class="text-decoration-none" href="{{ url_for('login_nodes') }}">Login nodes</a></td>
-              </tr>
-              <tr>
-                <td>Jupyter Notebook</td>
-                <td>4</td>
-                <td><a class="text-decoration-none" href="{{ url_for('notebooks_user') }}">Notebooks</a></td>
-              </tr>
-            </table>
-            <h6>Batch Compute</h6>
-            <table class="table table-bordered fs14">
-              <tr>
-                <th>Queues</th>
-                <th>Capacity (cores)</th>
-                <th>Walltime Limit</th>
-                <th>Notes</th>
-              </tr>
-              <tr>
-                <td>long</td>
-                <td>1520</td>
-                <td>72 Hours</td>
-                <td>The long queue jobs run on the hyperconverged nodes</td>
-              </tr>
-              <tr>
-                <td>short</td>
-                <td>1280</td>
-                <td>4 Hours</td>
-                <td>The short queue jobs can run on both the fast compute nodes and the hyperconverged nodes</td>
-              </tr>
-            </table>
-            <h6>Storage Spaces</h6>
-            <table class="table table-bordered fs14">
-              <tr>
-                <th>Storage</th>
-                <th>Type</th>
-                <th>Capacity</th>
-                <th>Default Quota</th>
-                <th>Notes</th>
-              </tr>
-             <tr>
-                <td>/data</td>
-                <td>Ceph Filesystem</td>
-                <td>1PB</td>
-                <td>5TB</td>
-                <td>Storage provided by the batch worker nodes. Two types of disks: spinning disks from hyperconverged nodes form the regular pool (in production), NVMe disks from the fast compute nodes form the fast pool (to be configured)</td>
-              </tr>
-             <tr>
-                <td>/home</td>
-                <td>NFS filesystem</td>
-                <td>33TB</td>
-                <td>100GB</td>
-                <td></td>
-              </tr>
-             <tr>
-                <td>/scratch</td>
-                <td>SSD Local Filesystem</td>
-                <td>2TB on the hyperconverged nodes, 6TB on the fast compute nodes</td>
-                <td>N/A</td>
-                <td></td>
-              </tr>
-            </table>
-            <h6>Hardware Specifications</h6>
-            <table class="table table-bordered fs14">
-              <tr>
-                <th>Node Type</th>
-                <th>Number of Nodes</th>
-                <th>Processor Per Node</th>
-                <th>Cores Per Node</th>
-                <th>Memory Per Node</th>
-                <th>Storage Per Node</th>
-                <th>Notes</th>
-              </tr>
-              <tr>
-                <td>Hyperconverged</td>
-                <td>19</td>
-                <td>Two AMD EPYC 7402 CPUs at 2.8 GHz</td>
-                <td>48C/96T</td>
-                <td>512 GB DDR4 SDRAM</td>
-                <td>Two 960 GB SSD, two 2TB NVMe and twelve 16 TB spinning disks. </td>
-                <td>3 nodes provided by, and for, UChicago ATLAS group</td>
-              </tr>
-              <tr>
-                <td>Fast Compute</td>
-                <td>16</td>
-                <td>Two Intel(R) Xeon(R) Gold 6348 CPU at 2.60 GHz</td>
-                <td>56C/112T</td>
-                <td>384 GB DDR4 SDRAM</td>
-                <td>Ten 3.2 TB NVMe </td>
-                <td>Provided by, and for, IRIS-HEP SSL</td>
-              </tr>
-              <tr>
-                <td>Interactive Nodes</td>
-                <td>8</td>
-                <td>Two AMD EPYC 7402 CPUs at 2.8 GHz</td>
-                <td>48C/96T</td>
-                <td>256 GB DDR4 SDRAM</td>
-                <td>Two 960 GB SSD</td>
-                <td>2 nodes provided by, and for, UChicago ATLAS group</td>
-              </tr>
-              <tr>
-                <td>Xcache Nodes</td>
-                <td>1</td>
-                <td>Two Intel(R) Xeon(R) Silver 4214 CPU @ 2.20GHz</td>
-                <td>24C/48T</td>
-                <td>192 GB DDR4 SDRAM</td>
-                <td>Twenty four 1.5 TB NVMe</td>
-                <td>Two 25 Gbps network links</td>
-              </tr>
-            </table>
-            <table class="table table-bordered fs14">
-              <tr>
-                <th>Node Type</th>
-                <th>Number of Nodes</th>
-                <th>Processor Per Node</th>
-                <th>Cores Per Node</th>
-                <th>Memory Per Node</th>
-                <th>GPUs Per Node (Mem)</th>
-                <th>Storage Per Node</th>
-              </tr>
-              <tr>
-                <td>GPU A</td>
-                <td>2</td>
-                <td>Two AMD EPYC 7543 32-Core Processor</td>
-                <td>64C/128T</td>
-                <td>512 GB DDR4 SDRAM</td>
-                <td>Four NVIDIA A100 (40G) </td>
-                <td>One 1.5TB NVMe</td>
-              </tr>
-              <tr>
-                <td>GPU B</td>
-                <td>1</td>
-                <td>Two Intel(R) Xeon(R) Silver 4116 CPU @ 2.10GHz</td>
-                <td>24C/48T</td>
-                <td>96 GB DDR4 SDRAM</td>
-                <td>Four Tesla V100 (16G)</td>
-                <td>Three 220GB SSD</td>
-              </tr>
-              <tr>
-                <td>GPU C</td>
-                <td>3</td>
-                <td>Two Intel(R) Xeon(R) Gold 6146 CPU @ 3.20GHz</td>
-                <td>24C/48T</td>
-                <td>192 GB DDR4 SDRAM</td>
-                <td>Eight NVIDIA GeForce RTX 2080 Ti (12G)</td>
-                <td>Six 450GB SSD</td>
-              </tr>
-              <tr>
-                <td>GPU D</td>
-                <td>1</td>
-                <td>Two Intel(R) Xeon(R) CPU E5-2687W v4 @ 3.00GHz</td>
-                <td>24C</td>
-                <td>128 GB DDR4 SDRAM</td>
-                <td>Eight NVIDIA GeForce GTX 1080 Ti (12G)</td>
-                <td>Six 450GB SSD</td>
-              </tr>
-            </table> 
-            <h6>Network Switches</h6>
-            <table class="table table-bordered fs14">
-                <tr>
-                    <th>Switch Type</th>
-                    <th>Number of Switches</th>
-                    <th>Switch Vendor</th>
-                    <th>Switch Model</th>
-                    <th>Uplink Speed</th>
-                    <th>Port Speed</th>
-                    <th>Number of Ports</th>
-                </tr>
-                <tr>
-                    <td>Ethernet</td>
-                    <td>2</td>
-                    <td>Juniper</td>
-                    <td>QFX5120</td>
-                    <td>40 Gb</td>
-                    <td>10/25Gb</td>
-                    <td>48</td>
-                </tr>
-            </table>
-        </div>
+      <h6>Interactive Nodes</h6>
+      <table class="table table-bordered fs14">
+        <tr>
+          <th>Access Protocol</th>
+          <th>Number of Nodes</th>
+          <th>Monitoring</th>
+        </tr>
+        <tr>
+          <td>ssh</td>
+          <td>2</td>
+          <td>
+            <a class="text-decoration-none" href="{{ url_for('login_nodes') }}"
+              >Login nodes</a
+            >
+          </td>
+        </tr>
+        <tr>
+          <td>Jupyter Notebook</td>
+          <td>4</td>
+          <td>
+            <a
+              class="text-decoration-none"
+              href="{{ url_for('notebooks_user') }}"
+              >Notebooks</a
+            >
+          </td>
+        </tr>
+      </table>
+      <h6>Batch Compute</h6>
+      <table class="table table-bordered fs14">
+        <tr>
+          <th>Queues</th>
+          <th>Capacity (cores)</th>
+          <th>Walltime Limit</th>
+          <th>Notes</th>
+        </tr>
+        <tr>
+          <td>long</td>
+          <td>1520</td>
+          <td>72 Hours</td>
+          <td>The long queue jobs run on the hyperconverged nodes</td>
+        </tr>
+        <tr>
+          <td>short</td>
+          <td>1280</td>
+          <td>4 Hours</td>
+          <td>
+            The short queue jobs can run on both the fast compute nodes and the
+            hyperconverged nodes
+          </td>
+        </tr>
+      </table>
+      <h6>Storage Spaces</h6>
+      <table class="table table-bordered fs14">
+        <tr>
+          <th>Storage</th>
+          <th>Type</th>
+          <th>Capacity</th>
+          <th>Default Quota</th>
+          <th>Notes</th>
+        </tr>
+        <tr>
+          <td>/data</td>
+          <td>Ceph Filesystem</td>
+          <td>1PB</td>
+          <td>5TB</td>
+          <td>
+            Storage provided by the batch worker nodes. Two types of disks:
+            spinning disks from hyperconverged nodes form the regular pool (in
+            production), NVMe disks from the fast compute nodes form the fast
+            pool (to be configured)
+          </td>
+        </tr>
+        <tr>
+          <td>/home</td>
+          <td>NFS filesystem</td>
+          <td>33TB</td>
+          <td>100GB</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>/scratch</td>
+          <td>SSD Local Filesystem</td>
+          <td>
+            2TB on the hyperconverged nodes, 6TB on the fast compute nodes
+          </td>
+          <td>N/A</td>
+          <td></td>
+        </tr>
+      </table>
+      <h6>Hardware Specifications</h6>
+      <table class="table table-bordered fs14">
+        <tr>
+          <th>Node Type</th>
+          <th>Number of Nodes</th>
+          <th>Processor Per Node</th>
+          <th>Cores Per Node</th>
+          <th>Memory Per Node</th>
+          <th>Storage Per Node</th>
+          <th>Notes</th>
+        </tr>
+        <tr>
+          <td>Hyperconverged</td>
+          <td>19</td>
+          <td>Two AMD EPYC 7402 CPUs at 2.8 GHz</td>
+          <td>48C/96T</td>
+          <td>512 GB DDR4 SDRAM</td>
+          <td>Two 960 GB SSD, two 2TB NVMe and twelve 16 TB spinning disks.</td>
+          <td>3 nodes provided by, and for, UChicago ATLAS group</td>
+        </tr>
+        <tr>
+          <td>Fast Compute</td>
+          <td>16</td>
+          <td>Two Intel(R) Xeon(R) Gold 6348 CPU at 2.60 GHz</td>
+          <td>56C/112T</td>
+          <td>384 GB DDR4 SDRAM</td>
+          <td>Ten 3.2 TB NVMe</td>
+          <td>Provided by, and for, IRIS-HEP SSL</td>
+        </tr>
+        <tr>
+          <td>Interactive Nodes</td>
+          <td>8</td>
+          <td>Two AMD EPYC 7402 CPUs at 2.8 GHz</td>
+          <td>48C/96T</td>
+          <td>256 GB DDR4 SDRAM</td>
+          <td>Two 960 GB SSD</td>
+          <td>2 nodes provided by, and for, UChicago ATLAS group</td>
+        </tr>
+        <tr>
+          <td>Xcache Nodes</td>
+          <td>1</td>
+          <td>Two Intel(R) Xeon(R) Silver 4214 CPU @ 2.20GHz</td>
+          <td>24C/48T</td>
+          <td>192 GB DDR4 SDRAM</td>
+          <td>Twenty four 1.5 TB NVMe</td>
+          <td>Two 25 Gbps network links</td>
+        </tr>
+      </table>
+      <table class="table table-bordered fs14">
+        <tr>
+          <th>Node Type</th>
+          <th>Number of Nodes</th>
+          <th>Processor Per Node</th>
+          <th>Cores Per Node</th>
+          <th>Memory Per Node</th>
+          <th>GPUs Per Node (Mem)</th>
+          <th>Storage Per Node</th>
+        </tr>
+        <tr>
+          <td>GPU A</td>
+          <td>2</td>
+          <td>Two AMD EPYC 7543 32-Core Processor</td>
+          <td>64C/128T</td>
+          <td>512 GB DDR4 SDRAM</td>
+          <td>Four NVIDIA A100 (40G)</td>
+          <td>One 1.5TB NVMe</td>
+        </tr>
+        <tr>
+          <td>GPU B</td>
+          <td>1</td>
+          <td>Two Intel(R) Xeon(R) Silver 4116 CPU @ 2.10GHz</td>
+          <td>24C/48T</td>
+          <td>96 GB DDR4 SDRAM</td>
+          <td>Four Tesla V100 (16G)</td>
+          <td>Three 220GB SSD</td>
+        </tr>
+        <tr>
+          <td>GPU C</td>
+          <td>3</td>
+          <td>Two Intel(R) Xeon(R) Gold 6146 CPU @ 3.20GHz</td>
+          <td>24C/48T</td>
+          <td>192 GB DDR4 SDRAM</td>
+          <td>Eight NVIDIA GeForce RTX 2080 Ti (12G)</td>
+          <td>Six 450GB SSD</td>
+        </tr>
+        <tr>
+          <td>GPU D</td>
+          <td>1</td>
+          <td>Two Intel(R) Xeon(R) CPU E5-2687W v4 @ 3.00GHz</td>
+          <td>24C</td>
+          <td>128 GB DDR4 SDRAM</td>
+          <td>Eight NVIDIA GeForce GTX 1080 Ti (12G)</td>
+          <td>Six 450GB SSD</td>
+        </tr>
+      </table>
+      <h6>Network Switches</h6>
+      <table class="table table-bordered fs14">
+        <tr>
+          <th>Switch Type</th>
+          <th>Number of Switches</th>
+          <th>Switch Vendor</th>
+          <th>Switch Model</th>
+          <th>Uplink Speed</th>
+          <th>Port Speed</th>
+          <th>Number of Ports</th>
+        </tr>
+        <tr>
+          <td>Ethernet</td>
+          <td>2</td>
+          <td>Juniper</td>
+          <td>QFX5120</td>
+          <td>40 Gb</td>
+          <td>10/25Gb</td>
+          <td>48</td>
+        </tr>
+      </table>
     </div>
+  </div>
 </section>
 {% endblock %}

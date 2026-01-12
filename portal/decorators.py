@@ -1,5 +1,5 @@
-""" 
-Decorators that are used by the application. 
+"""
+Decorators that are used by the application.
 
 The Decorator pattern
 ======================
@@ -97,7 +97,7 @@ This is how the Django web framework maps URLs to request handlers, without usin
 
 Both the Flask web framework and the Django web framework have very helpful ways of organizing request handlers.
 
-The Flask framework's @route decorator does more than map a URL to a request handler. 
+The Flask framework's @route decorator does more than map a URL to a request handler.
 It also gives the request handler access to the request and response objects, which are in the namespace of the decorator.
 
 These examples demonstrate a feature in the Python programming language, which is, the ability to pass a function as an argument.

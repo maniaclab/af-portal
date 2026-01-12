@@ -1,258 +1,392 @@
-{% extends "base.html" %}
-
-{% block title %} Configure notebook {% endblock %}
-
-{% block assets %}
+{% extends "base.html" %} {% block title %} Configure notebook {% endblock %} {%
+block assets %}
 <script src="https://unpkg.com/vue@3"></script>
-{% endblock %}
-
-{% block body %}
+{% endblock %} {% block body %}
 <section id="jupyterlab-form">
-    <div class="container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a class="text-decoration-none" href="{{ url_for('home') }}">Home</a></li>
-                <li class="breadcrumb-item"><a class="text-decoration-none"
-                        href="{{ url_for('open_jupyterlab') }}">JupyterLab</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Configure</li>
-            </ol>
-        </nav>
-        <div class="card col-sm-6 mx-auto">
-            <div class="card-header">
-                Configure a Jupyter notebook
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a class="text-decoration-none" href="{{ url_for('home') }}">Home</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a
+            class="text-decoration-none"
+            href="{{ url_for('open_jupyterlab') }}"
+            >JupyterLab</a
+          >
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Configure</li>
+      </ol>
+    </nav>
+    <div class="card col-sm-6 mx-auto">
+      <div class="card-header">Configure a Jupyter notebook</div>
+      <div class="card-body">
+        <form
+          id="configure"
+          @change="validateForm"
+          action="{{ url_for('deploy_notebook') }}"
+          method="POST"
+        >
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+          <div class="row mb-2">
+            <div class="col-sm-4">
+              <label for="notebook-name" class="form-label my-2"
+                >Notebook name
+                <a
+                  class="text-decoration-none"
+                  data-bs-toggle="modal"
+                  href="#i_notebook-name"
+                  role="button"
+                >
+                  <i class="fas fa-info-circle"></i>
+                </a>
+              </label>
             </div>
-            <div class="card-body">
-                <form id="configure" @change="validateForm" action="{{ url_for('deploy_notebook') }}" method="POST">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-                    <div class="row mb-2">
-                        <div class="col-sm-4">
-                            <label for="notebook-name" class="form-label my-2">Notebook name
-                                <a class="text-decoration-none" data-bs-toggle="modal" href="#i_notebook-name"
-                                    role="button">
-                                    <i class="fas fa-info-circle"></i>
-                                </a>
-                            </label>
-                        </div>
-                        <div class="col-sm-8">
-                            <input id="notebook-name" type="text" class="form-control" name="notebook-name"
-                                value="{{ notebook_name }}" @keydown="keyDown" required />
-                        </div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-sm-4">
-                            <label for="cpu" class="form-label my-2">CPU cores</label>
-                        </div>
-                        <div class="col-sm-8">
-                            <input type="number" class="form-control" name="cpu" min=1 max=16 value=1 required />
-                        </div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-sm-4">
-                            <label for="memory" class="form-label my-2">Memory (GB)</label>
-                        </div>
-                        <div class="col-sm-8">
-                            <input type="number" class="form-control" name="memory" min=1 max={{ max_mem }} value=2
-                                required />
-                        </div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-sm-4">
-                            <label for="gpu" class="form-label my-2">
-                                GPU instances
-                                <a class="text-decoration-none" data-bs-toggle="modal" href="#gpu-instances"
-                                    role="button">
-                                    <i class="fas fa-info-circle"></i>
-                                </a>
-                            </label>
-                        </div>
-                        <div class="col-sm-8">
-                            <input v-model="instances" type="number" class="form-control" name="gpu" id="gpu" min="0"
-                                max="4" value="0" required />
-                        </div>
-                    </div>
-                    <div v-show="instances > 0" class="row mb-2">
-                        <div class="col-sm-4">
-                            <label for="gpu-product" class="form-label my-2">
-                                GPU Model
-                                <a class="text-decoration-none" data-bs-toggle="modal" href="#gpu-product"
-                                    role="button">
-                                    <i class="fas fa-info-circle"></i>
-                                </a>
-                            </label>
-                        </div>
-                        <div class="col-sm-8">
-                            <select name="gpu-product" class="form-control">
-                                <option value="NVIDIA-A100-SXM4-40GB-MIG-1g.5gb">NVIDIA-A100 (MIG instance)</option>
-                                <option value="NVIDIA-A100-SXM4-40GB">NVIDIA A100 (Whole)</option>
-                                <option value="NVIDIA-GeForce-RTX-2080-Ti">NVIDIA GeForce RTX 2080 Ti</option>
-                                <option value="NVIDIA-GeForce-GTX-1080-Ti">NVIDIA GeForce RTX 1080 Ti</option>
-                                <option value="Tesla-V100-PCIE-16GB">NVIDIA Tesla V100</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mb-2">
-                        <div class="col-sm-4">
-                            <label for="duration" class="form-label my-2">Duration (hours)</label>
-                        </div>
-                        <div class="col-sm-8">
-                            <input type="number" name="duration" class="form-control col" min=1 max=72 value=8
-                                required />
-                        </div>
-                    </div>
-                    <div class="row mb-4">
-                        <div class="col-sm-4">
-                            <label for="image" class="form-label my-2">
-                                Image
-                                <a class="text-decoration-none"
-                                    href="https://maniaclab.uchicago.edu/af-portal/ml_platform/#selecting-a-docker-image"
-                                    target="_blank">
-                                    <i class="fa fa-external-link"></i>
-                                </a>
-                            </label>
-                        </div>
-                        <div class="col-sm-8">
-                            <select name="image" class="form-control">
-                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:oct_upgrade">
-                                    ml-platform:current
-                                </option>
-                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:latest">ml-platform:legacy
-                                </option>
-                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:aug_upgrade">ml-platform:dev
-                                </option>
-                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:conda">ml-platform:conda
-                                </option>
-                                <option value="hub.opensciencegrid.org/usatlas/ml-platform:julia">ml-platform:julia
-                                </option>
-                                <option value="hub.opensciencegrid.org/usatlas/analysis-dask-uc:main">AB-stable
-                                </option>
-                                <option value="hub.opensciencegrid.org/usatlas/analysis-dask-uc:dev">AB-dev</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button class="btn btn-sm btn-primary" type="submit" :disabled="!valid"
-                        onclick="loader(true)">Create notebook</button>
-                </form>
+            <div class="col-sm-8">
+              <input
+                id="notebook-name"
+                type="text"
+                class="form-control"
+                name="notebook-name"
+                value="{{ notebook_name }}"
+                @keydown="keyDown"
+                required
+              />
             </div>
-        </div>
-        <div id="i_notebook-name" class="modal fade" role="dialog">
-            <div class="modal-dialog" style="max-width: 600px">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Rules of notebook naming</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <ol class="ps-3">
-                            <li>No whitespaces.</li>
-                            <li>Only characters from the set [a-zA-Z0-9._-]</li>
-                            <li>Less than 30 characters.</li>
-                        </ol>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-sm-4">
+              <label for="cpu" class="form-label my-2">CPU cores</label>
             </div>
-        </div>
-        <div id="gpu-product" class="modal fade" role="dialog">
-            <div class="modal-dialog" style="max-width: 600px">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Selecting GPU memory</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div v-if="gpus" class="modal-body">
-                        <p>Here is a table of our GPUs and their availability.</p>
-                        <table class="table table-hover table-bordered nowrap w-100">
-                            <thead>
-                                <tr>
-                                    <th>GPU</th>
-                                    <th>Count</th>
-                                    <th>Avail.</th>
-                                    <th>Memory (MB)</th>
-                                    <th>Max CPU Req</th>
-                                    <th>Max Mem Req (GB)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="gpu in gpus">
-                                    <td>[[ gpu.product ]]</td>
-                                    <td>[[ gpu.count ]]</td>
-                                    <td>[[ gpu.available ]]</td>
-                                    <td>[[ gpu.memory ]]</td>
-                                    <td>[[ gpu.cpu_request_max ]]</td>
-                                    <td>[[ gpu.mem_request_max ]]</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div v-else class="modal-body">
-                        Loading...
-                        <span class="spinner-border spinner-border-sm text-dark ms-2" role="status"></span>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                </div>
+            <div class="col-sm-8">
+              <input
+                type="number"
+                class="form-control"
+                name="cpu"
+                min="1"
+                max="16"
+                value="1"
+                required
+              />
             </div>
-        </div>
-        <div id="gpu-instances" class="modal fade" role="dialog">
-            <div class="modal-dialog" style="max-width: 600px">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Selecting GPU instances</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>
-                            The AF cluster has a variety of GPUs you can choose from. Each GPU can be partitioned into
-                            instances. You can have many instances running in parallel.
-                        </p>
-                        <p>
-                            Please select the number of GPU instances you would like to request. You can select any
-                            number from 0 to 4.
-                        </p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-sm-4">
+              <label for="memory" class="form-label my-2">Memory (GB)</label>
             </div>
-        </div>
+            <div class="col-sm-8">
+              <input
+                type="number"
+                class="form-control"
+                name="memory"
+                min="1"
+                max="{{"
+                max_mem
+                }}
+                value="2"
+                required
+              />
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-sm-4">
+              <label for="gpu" class="form-label my-2">
+                GPU instances
+                <a
+                  class="text-decoration-none"
+                  data-bs-toggle="modal"
+                  href="#gpu-instances"
+                  role="button"
+                >
+                  <i class="fas fa-info-circle"></i>
+                </a>
+              </label>
+            </div>
+            <div class="col-sm-8">
+              <input
+                v-model="instances"
+                type="number"
+                class="form-control"
+                name="gpu"
+                id="gpu"
+                min="0"
+                max="4"
+                value="0"
+                required
+              />
+            </div>
+          </div>
+          <div v-show="instances > 0" class="row mb-2">
+            <div class="col-sm-4">
+              <label for="gpu-product" class="form-label my-2">
+                GPU Model
+                <a
+                  class="text-decoration-none"
+                  data-bs-toggle="modal"
+                  href="#gpu-product"
+                  role="button"
+                >
+                  <i class="fas fa-info-circle"></i>
+                </a>
+              </label>
+            </div>
+            <div class="col-sm-8">
+              <select name="gpu-product" class="form-control">
+                <option value="NVIDIA-A100-SXM4-40GB-MIG-1g.5gb">
+                  NVIDIA-A100 (MIG instance)
+                </option>
+                <option value="NVIDIA-A100-SXM4-40GB">
+                  NVIDIA A100 (Whole)
+                </option>
+                <option value="NVIDIA-GeForce-RTX-2080-Ti">
+                  NVIDIA GeForce RTX 2080 Ti
+                </option>
+                <option value="NVIDIA-GeForce-GTX-1080-Ti">
+                  NVIDIA GeForce RTX 1080 Ti
+                </option>
+                <option value="Tesla-V100-PCIE-16GB">NVIDIA Tesla V100</option>
+              </select>
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-sm-4">
+              <label for="duration" class="form-label my-2"
+                >Duration (hours)</label
+              >
+            </div>
+            <div class="col-sm-8">
+              <input
+                type="number"
+                name="duration"
+                class="form-control col"
+                min="1"
+                max="72"
+                value="8"
+                required
+              />
+            </div>
+          </div>
+          <div class="row mb-4">
+            <div class="col-sm-4">
+              <label for="image" class="form-label my-2">
+                Image
+                <a
+                  class="text-decoration-none"
+                  href="https://maniaclab.uchicago.edu/af-portal/ml_platform/#selecting-a-docker-image"
+                  target="_blank"
+                >
+                  <i class="fa fa-external-link"></i>
+                </a>
+              </label>
+            </div>
+            <div class="col-sm-8">
+              <select name="image" class="form-control">
+                <option
+                  value="hub.opensciencegrid.org/usatlas/ml-platform:oct_upgrade"
+                >
+                  ml-platform:current
+                </option>
+                <option
+                  value="hub.opensciencegrid.org/usatlas/ml-platform:latest"
+                >
+                  ml-platform:legacy
+                </option>
+                <option
+                  value="hub.opensciencegrid.org/usatlas/ml-platform:aug_upgrade"
+                >
+                  ml-platform:dev
+                </option>
+                <option
+                  value="hub.opensciencegrid.org/usatlas/ml-platform:conda"
+                >
+                  ml-platform:conda
+                </option>
+                <option
+                  value="hub.opensciencegrid.org/usatlas/ml-platform:julia"
+                >
+                  ml-platform:julia
+                </option>
+                <option
+                  value="hub.opensciencegrid.org/usatlas/analysis-dask-uc:main"
+                >
+                  AB-stable
+                </option>
+                <option
+                  value="hub.opensciencegrid.org/usatlas/analysis-dask-uc:dev"
+                >
+                  AB-dev
+                </option>
+              </select>
+            </div>
+          </div>
+          <button
+            class="btn btn-sm btn-primary"
+            type="submit"
+            :disabled="!valid"
+            onclick="loader(true)"
+          >
+            Create notebook
+          </button>
+        </form>
+      </div>
     </div>
+    <div id="i_notebook-name" class="modal fade" role="dialog">
+      <div class="modal-dialog" style="max-width: 600px">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Rules of notebook naming</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <ol class="ps-3">
+              <li>No whitespaces.</li>
+              <li>Only characters from the set [a-zA-Z0-9._-]</li>
+              <li>Less than 30 characters.</li>
+            </ol>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="gpu-product" class="modal fade" role="dialog">
+      <div class="modal-dialog" style="max-width: 600px">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Selecting GPU memory</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div v-if="gpus" class="modal-body">
+            <p>Here is a table of our GPUs and their availability.</p>
+            <table class="table table-hover table-bordered nowrap w-100">
+              <thead>
+                <tr>
+                  <th>GPU</th>
+                  <th>Count</th>
+                  <th>Avail.</th>
+                  <th>Memory (MB)</th>
+                  <th>Max CPU Req</th>
+                  <th>Max Mem Req (GB)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="gpu in gpus">
+                  <td>[[ gpu.product ]]</td>
+                  <td>[[ gpu.count ]]</td>
+                  <td>[[ gpu.available ]]</td>
+                  <td>[[ gpu.memory ]]</td>
+                  <td>[[ gpu.cpu_request_max ]]</td>
+                  <td>[[ gpu.mem_request_max ]]</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div v-else class="modal-body">
+            Loading...
+            <span
+              class="spinner-border spinner-border-sm text-dark ms-2"
+              role="status"
+            ></span>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="gpu-instances" class="modal fade" role="dialog">
+      <div class="modal-dialog" style="max-width: 600px">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Selecting GPU instances</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>
+              The AF cluster has a variety of GPUs you can choose from. Each GPU
+              can be partitioned into instances. You can have many instances
+              running in parallel.
+            </p>
+            <p>
+              Please select the number of GPU instances you would like to
+              request. You can select any number from 0 to 4.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 <script type="text/javascript">
-    $(document).ready(function () {
-        const { createApp } = Vue
+  $(document).ready(function () {
+    const { createApp } = Vue;
 
-        createApp({
-            delimiters: ["[[", "]]"],
-            data() {
-                return {
-                    gpus: null,
-                    instances: 0,
-                    valid: false
-                }
-            },
-            async mounted() {
-                this.validateForm();
-                const response = await fetch("{{ url_for('get_gpus') }}");
-                const json = await response.json();
-                this.gpus = json.gpus;
-            },
-            methods: {
-                keyDown(event) {
-                    if (!/[a-zA-Z0-9._-]/.test(event.key)) {
-                        event.preventDefault();
-                        event.returnValue = false;
-                    }
-                },
-                validateForm() {
-                    $("#configure").validate();
-                    this.valid = $("#configure").valid();
-                }
-            }
-        }).mount("#jupyterlab-form");
-    });    
+    createApp({
+      delimiters: ["[[", "]]"],
+      data() {
+        return {
+          gpus: null,
+          instances: 0,
+          valid: false,
+        };
+      },
+      async mounted() {
+        this.validateForm();
+        const response = await fetch("{{ url_for('get_gpus') }}");
+        const json = await response.json();
+        this.gpus = json.gpus;
+      },
+      methods: {
+        keyDown(event) {
+          if (!/[a-zA-Z0-9._-]/.test(event.key)) {
+            event.preventDefault();
+            event.returnValue = false;
+          }
+        },
+        validateForm() {
+          $("#configure").validate();
+          this.valid = $("#configure").valid();
+        },
+      },
+    }).mount("#jupyterlab-form");
+  });
 </script>
 {% endblock %}

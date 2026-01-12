@@ -1,21 +1,25 @@
-{% extends "base.html" %}
-
-{% block title %} About {% endblock %}
-
-{% block body %}
+{% extends "base.html" %} {% block title %} About {% endblock %} {% block body
+%}
 <section>
-    <div class="container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a class="text-decoration-none" href="{{ url_for('home') }}">Home</a></li>
-                <li class="breadcrumb-item active" aria-current="page">About</li>
-            </ol>
-        </nav>
-        <h4 class="text-center fw-lighter mb-4">ATLAS Analysis Facility at UChicago</h4>
-        <p>
-            The ATLAS Analysis Facility at UChicago offers users a mix of traditional batch computing alongside of forward-looking technologies like Kubernetes, Jupyter and Dask. 
-            Access is granted to U.S. ATLAS physicists and their collaborators, including students and members of the international ATLAS Collaboration.
-        </p>
-    </div>
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a class="text-decoration-none" href="{{ url_for('home') }}">Home</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">About</li>
+      </ol>
+    </nav>
+    <h4 class="text-center fw-lighter mb-4">
+      ATLAS Analysis Facility at UChicago
+    </h4>
+    <p>
+      The ATLAS Analysis Facility at UChicago offers users a mix of traditional
+      batch computing alongside of forward-looking technologies like Kubernetes,
+      Jupyter and Dask. Access is granted to U.S. ATLAS physicists and their
+      collaborators, including students and members of the international ATLAS
+      Collaboration.
+    </p>
+  </div>
 </section>
 {% endblock %}

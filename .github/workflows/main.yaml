@@ -27,13 +27,14 @@ jobs:
           token: ${{ secrets.AAAS_GITOPS_DEPLOY_TRIGGER  }}
           repository: maniaclab/flux_apps
           event-type: gitops-af-app-trigger
-          client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
+          client-payload:
+            '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
 
       - name: deploy docs
         uses: actions/setup-python@v5.3.0
-        with: 
+        with:
           python-version: 3.11
-      
+
       - name: pip install
         run: pip install mkdocs-material
 
