@@ -1,13 +1,5 @@
-from flask import Flask
-from flask_wtf.csrf import CSRFProtect
-from jinja2_markdown import MarkdownExtension
 import logging
 import portal.views
-
-app = Flask(__name__)
-app.config.from_pyfile("secrets/portal.conf")
-app.jinja_env.add_extension(MarkdownExtension)
-csrf = CSRFProtect(app)
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -23,5 +15,6 @@ fh = logging.FileHandler("portal.log")
 fh.setLevel(logging.INFO)
 fh.setFormatter(formatter)
 logger.addHandler(fh)
+
 
 __all__ = ("portal",)
