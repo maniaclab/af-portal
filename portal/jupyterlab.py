@@ -166,7 +166,7 @@ def deploy_notebook(**settings):
     settings["token"] = b64encode(os.urandom(32)).decode()
     settings["start_script"] = "/ML_platform_tests/SetupPrivateJupyterLab.sh"
     settings["notebook_id"] = sanitize_k8s_pod_name(settings["notebook_id"])
-    if settings["image"].count("oct_upgrade"):
+    if any(key in settings["image"] for key in ["oct_upgrade", "2026-feb"]):
         settings["start_script"] = "/ML_platform_tests/SetupJupyterLab.sh"
     templates = Environment(loader=FileSystemLoader("portal/templates/jupyterlab"))
     api = client.CoreV1Api()
@@ -382,6 +382,7 @@ def supported_images():
         "hub.opensciencegrid.org/usatlas/analysis-dask-uc:main",
         "hub.opensciencegrid.org/usatlas/analysis-dask-uc:dev",
         "hub.opensciencegrid.org/usatlas/ml-platform:oct_upgrade",
+        "hub.opensciencegrid.org/usatlas/ml-platform:2026-feb",
     )
 
 
