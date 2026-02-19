@@ -164,10 +164,8 @@ def deploy_notebook(**settings):
     settings["namespace"] = namespace
     settings["domain_name"] = app.config["DOMAIN_NAME"]
     settings["token"] = b64encode(os.urandom(32)).decode()
-    settings["start_script"] = "/ML_platform_tests/SetupPrivateJupyterLab.sh"
+    settings["start_script"] = "/usr/local/bin/SetupPrivateJupyterLab.sh"
     settings["notebook_id"] = sanitize_k8s_pod_name(settings["notebook_id"])
-    if any(key in settings["image"] for key in ["oct_upgrade", "2026-feb"]):
-        settings["start_script"] = "/ML_platform_tests/SetupJupyterLab.sh"
     templates = Environment(loader=FileSystemLoader("portal/templates/jupyterlab"))
     api = client.CoreV1Api()
     # Create a pod for the notebook (the notebook runs as a container inside the pod)
