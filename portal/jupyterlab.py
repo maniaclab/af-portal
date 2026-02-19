@@ -375,14 +375,9 @@ def supported_images():
     """Returns a tuple of Docker images that are supported by the JupyterLab service."""
     return (
         "hub.opensciencegrid.org/usatlas/ml-platform:latest",
-        "hub.opensciencegrid.org/usatlas/ml-platform:conda",
-        "hub.opensciencegrid.org/usatlas/ml-platform:julia",
-        "hub.opensciencegrid.org/usatlas/ml-platform:lava",
-        "hub.opensciencegrid.org/usatlas/ml-platform:centos-v2-docker",
+        "hub.opensciencegrid.org/usatlas/ml-platform:2026.2",
         "hub.opensciencegrid.org/usatlas/analysis-dask-uc:main",
         "hub.opensciencegrid.org/usatlas/analysis-dask-uc:dev",
-        "hub.opensciencegrid.org/usatlas/ml-platform:oct_upgrade",
-        "hub.opensciencegrid.org/usatlas/ml-platform:2026-feb",
     )
 
 

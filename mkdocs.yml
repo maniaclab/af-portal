@@ -26,7 +26,7 @@ nav:
       - "Remote SSH": "VSCode_remote_ssh.md"
       - "Connecting to JupyterLab": "Connect_VSCode_to_JupyterLab.md"
   - "ServiceX": "servicex.md"
-  - "ML platform": "ml_platform.md"
+  - "ML platform": https://usatlas.github.io/af-docs/uchicago/jupyter/
   - "Accessing data":
       - "Local DDM": "local-ddm.md"
       - "XCache": "xcache.md"
