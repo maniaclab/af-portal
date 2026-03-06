@@ -182,7 +182,7 @@ def deploy_notebook(**settings):
     except ApiException as e:
         if e.status == 409:
             api.patch_namespaced_service(
-                name=service.metadata.name,
+                name=service["metadata"]["name"],
                 namespace=namespace,
                 body=service,
             )
@@ -197,7 +197,7 @@ def deploy_notebook(**settings):
     except ApiException as e:
         if e.status == 409:
             api.patch_namespaced_secret(
-                name=secret.metadata.name,
+                name=secret["metadata"]["name"],
                 namespace=namespace,
                 body=secret,
             )
@@ -213,7 +213,7 @@ def deploy_notebook(**settings):
     except ApiException as e:
         if e.status == 409:
             api.patch_namespaced_ingress(
-                name=ingress.metadata.name,
+                name=ingress["metadata"]["name"],
                 namespace=namespace,
                 body=ingress,
             )
