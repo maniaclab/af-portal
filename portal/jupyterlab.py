@@ -107,6 +107,7 @@ import urllib
 from base64 import b64encode
 from jinja2 import Environment, FileSystemLoader
 from kubernetes import client, config
+from kubernetes.client.exceptions import ApiException
 from kubernetes.utils.quantity import parse_quantity
 from portal.app import app, logger
 
