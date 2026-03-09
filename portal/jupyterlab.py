@@ -176,7 +176,7 @@ def deploy_notebook(**settings):
     # Create a service for the pod
     template = templates.get_template("service.yaml")
     service = yaml.safe_load(template.render(**settings))
-    #api.create_namespaced_service(namespace=namespace, body=service)
+    # api.create_namespaced_service(namespace=namespace, body=service)
     try:
         api.create_namespaced_service(namespace=namespace, body=service)
     except ApiException as e:
@@ -191,7 +191,7 @@ def deploy_notebook(**settings):
     # Store the JupyterLab token in a secret
     template = templates.get_template("secret.yaml")
     secret = yaml.safe_load(template.render(**settings))
-    #api.create_namespaced_secret(namespace=namespace, body=secret)
+    # api.create_namespaced_secret(namespace=namespace, body=secret)
     try:
         api.create_namespaced_secret(namespace=namespace, body=secret)
     except ApiException as e:
@@ -207,7 +207,7 @@ def deploy_notebook(**settings):
     api = client.NetworkingV1Api()
     template = templates.get_template("ingress.yaml")
     ingress = yaml.safe_load(template.render(**settings))
-    #api.create_namespaced_ingress(namespace=namespace, body=ingress)
+    # api.create_namespaced_ingress(namespace=namespace, body=ingress)
     try:
         api.create_namespaced_ingress(namespace=namespace, body=ingress)
     except ApiException as e:
@@ -218,7 +218,7 @@ def deploy_notebook(**settings):
                 body=ingress,
             )
         else:
-            raise 
+            raise
     logger.info("Deployed notebook %s" % settings["notebook_name"])
 
 
