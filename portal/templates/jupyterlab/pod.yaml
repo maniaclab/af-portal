@@ -104,5 +104,5 @@ spec:
       hostPath:
         path: /cold
     - name: cvmfs
-      hostPath:
-        path: /cvmfs
+      persistentVolumeClaim:
+        claimName: cvmfs
