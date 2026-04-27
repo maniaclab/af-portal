@@ -1,65 +1,71 @@
-# The AF Portal web application
+# AF Portal
+
+The AF Portal is a web application for the ATLAS Analysis Facility. It provides user and group management, JupyterLab notebook deployment on Kubernetes, resource monitoring (GPU availability, HTCondor jobs, login nodes), and an admin dashboard with user analytics.
 
 ## Architecture
 
-The web application follows the Model View Template (MVT) design pattern, which
-is common for Python web applications. Our web server, a micro wsgi process,
-forwards requests to our Python application. The Python application has request
-handlers called "view functions", which handle the requests. The view functions
-use templates to return dynamic HTML pages. The view functions retrieve models
-from the database or from our Kubernetes cluster, and use these models to build
-the templates.
+The application is built with **Next.js 15** using the App Router. Pages are React Server Components. API endpoints are Next.js Route Handlers under `src/app/**/route.ts`. Business logic lives in `src/lib/`.
+
+```text
+src/
+├── app/          # Pages and API route handlers (App Router)
+├── components/   # React components
+├── lib/          # Business logic: auth, connect API, kubernetes, email
+└── types/        # Shared TypeScript interfaces
+```
 
 ## Technology
 
-On the clientside we use jQuery, Bootstrap, DataTables, and Vue.js. For icons we
-use Font Awesome. The Bootstrap framework gives us a variety of CSS classes that
-we use to style our web pages. The DataTables framework helps us create reactive
-tables that retrieve data using Ajax requests. It also gives us many features
-like the ability to sort a table. Vue.js helps us build user interfaces out of
-HTML that react to asynchronous data.
+**Client-side:** React 19, Bootstrap 5, Font Awesome, Recharts, TanStack React Table.
 
-On the serverside we use a Python package called kubernetes which acts as a
-Kubernetes client. kubernetes helps us manage Kubernetes objects, like pods,
-services, ingresses, and secrets. We use a Python package called Flask as our
-web framework. Flask helps us handle HTTP requests by means of decorator
-functions that map a URL to a request handler. Flask has a templating engine
-called Jinja that lets us render dynamic HTML templates.
+**Server-side:** Next.js 15 (Node.js runtime), TypeScript 5, `@kubernetes/client-node` for Kubernetes management, `iron-session` for encrypted cookie sessions, `jose` for JWT decoding, `p-queue` for email queuing via Mailgun.
 
 ## Authentication
 
-We use the globus_sdk Python package to authenticate users. We authenticate
-users based on their institutional login or their globus ID. We have decorator
-functions in auth.py that restrict access to certain web services based on a
-user's privileges (admin, member, nonmember).
+Users authenticate via **Globus** (institutional SSO). The OAuth flow is handled in `src/lib/auth/globus.ts`. Sessions are stored in encrypted HTTP-only cookies managed by `iron-session`. Authorization guards in `src/lib/auth/guards.ts` enforce login, member, and admin roles.
 
 ## Setup
 
-In order to set up the webapp, and run it locally, you need a portal.conf
-configuration file that is properly filled out. This configuration file contains
-the globus app ID, the connect API endpoint, and the location of the kubeconfig
-file. You also need a kubeconfig file, at the location indicated by portal.conf,
-that points to our Kubernetes cluster.
+Copy `.env.local.example` to `.env.local` and fill in the required values:
 
-You can run the webapp in a virtual environment, and install the requirements in
-a virtual environment. The command to create a virtual environment is
-`python -m venv venv`. The command to activate the virtual environment is
-`source venv/bin/activate`. Then you can install the requirements with the
-command `pip install -r requirements.txt`. This installs all the Python packages
-that are needed by the webapp.
+| Variable | Description |
+| --- | --- |
+| `GLOBUS_CLIENT_ID` | Globus OAuth application ID |
+| `GLOBUS_CLIENT_SECRET` | Globus OAuth secret |
+| `GLOBUS_REDIRECT_URI` | OAuth callback URL |
+| `SESSION_SECRET` | Random string (32+ chars) for session encryption |
+| `CONNECT_API_TOKEN` | CI-Connect API token |
+| `CONNECT_API_ENDPOINT` | CI-Connect base URL |
+| `MAILGUN_API_TOKEN` | Mailgun API token |
+| `NAMESPACE` | Kubernetes namespace for notebooks (e.g. `af-jupyter`) |
+| `DOMAIN_NAME` | Base domain (e.g. `af.uchicago.edu`) |
+| `KUBECONFIG` | Path to kubeconfig file (leave blank for in-cluster auth) |
 
-## Running the webapp
+Install dependencies:
 
-To run the webapp locally, you can use this file (run_local.py):
+```bash
+npm install
+```
 
-    from portal import app
+## Running locally
 
-    if __name__ == "__main__":
-        app.run(host="localhost", port="8080", debug=True)
+```bash
+npm run dev
+```
 
-To run this file, type
+Then open <http://localhost:3000>.
 
-    source venv/bin/activate
-    (venv) python run_local.py
+Other useful commands:
 
-Then point your browser to <http://localhost:8080> to start using the webapp.
+```bash
+npm run build       # production build
+npm run start       # run production build
+npm run type-check  # TypeScript type checking
+npm run lint        # ESLint
+```
+
+## Deployment
+
+The application is packaged as a Docker image using the `Dockerfile` (3-stage build: deps → builder → runner, Node 22 Alpine, port 3000).
+
+CI/CD runs on pushes to `main` via `.github/workflows/main.yaml`: builds and pushes the image to `hub.opensciencegrid.org/maniaclab/af-portal`, then triggers a GitOps deployment via repository dispatch to `maniaclab/flux_apps`.

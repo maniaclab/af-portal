@@ -1,0 +1,31 @@
+{
+  "name": "af-portal",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "^15",
+    "react": "^19",
+    "react-dom": "^19",
+    "iron-session": "^8",
+    "@kubernetes/client-node": "^1",
+    "jose": "^5",
+    "qrcode": "^1",
+    "recharts": "^2",
+    "@tanstack/react-table": "^8",
+    "p-queue": "^8"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/qrcode": "^1"
+  }
+}

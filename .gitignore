@@ -1,5 +1,6 @@
 # Folder for secrets
 secrets/
+.env.local
 
 # Mac OS files
 *.DS_Store
@@ -21,3 +22,5 @@ __pycache__/
 
 # Python file for running the webapp locally
 run_local.py
+node_modules
+.next/

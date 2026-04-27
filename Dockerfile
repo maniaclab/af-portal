@@ -1,29 +1,30 @@
-FROM python:3
+FROM node:22-alpine AS deps
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 
-RUN apt-get update && apt-get install -y vim
+FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
 
-RUN useradd -ms /bin/bash portal
+FROM node:22-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
 
-WORKDIR /home/portal
-RUN mkdir ./portal
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
 
-COPY README.md README.md
-COPY setup.py setup.py
-COPY setup.cfg setup.cfg
-COPY requirements.txt requirements.txt
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-RUN pip install --no-cache-dir -r requirements.txt
+USER nextjs
 
-COPY boot.sh ./
-COPY portal/ ./portal
+EXPOSE 3000
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
-RUN chmod +x boot.sh
-
-#ENV FLASK_APP portal
-
-RUN chown -R portal: /home/portal
-
-USER portal
-
-EXPOSE 5000
-# ENTRYPOINT ["./boot.sh"]
+CMD ["node", "server.js"]

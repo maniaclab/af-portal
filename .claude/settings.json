@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.\\(py|html|js|css|json|yaml|yml|txt\\)$\")",
+      "Bash(xargs ls *)",
+      "Bash(git -C /c/Users/ilija/Documents/tmp/af-portal log --oneline -20)",
+      "Bash(npx tsc *)",
+      "Bash(node_modules/.bin/tsc --noEmit)"
+    ]
+  }
+}
