@@ -1,6 +1,7 @@
 # Folder for secrets
 secrets/
 .env.local
+.env.dev
 
 # Mac OS files
 *.DS_Store
