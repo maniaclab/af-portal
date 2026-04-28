@@ -3,7 +3,7 @@ name: Build AF frontend image
 on:
   push:
     branches:
-      - "main"
+      - "ts-version"
 
 jobs:
   docker:
