@@ -34,11 +34,11 @@ jobs:
           registry: hub.opensciencegrid.org
           username: ${{ secrets.HARBOR_USERNAME }}
           password: ${{ secrets.HARBOR_PASSWORD }}
-      # - name: Repository Dispatch
-      #   uses: peter-evans/repository-dispatch@v3.0.0
-      #   with:
-      #     token: ${{ secrets.AAAS_GITOPS_DEPLOY_TRIGGER  }}
-      #     repository: maniaclab/flux_apps
-      #     event-type: gitops-af-app-trigger
-      #     client-payload:
-      #       '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
+
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v3.0.0
+        with:
+          token: ${{ secrets.AAAS_GITOPS_DEPLOY_TRIGGER  }}
+          repository: maniaclab/flux_apps
+          event-type: gitops-af-dev-app-trigger
+          client-payload: "{\"ref\": \"${{ github.ref }}\", \"sha\": \"${{ github.sha }}\"}"
