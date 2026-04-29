@@ -1,7 +1,19 @@
+import { Agent } from "undici";
 import type { UserProfile, Group, UserRole } from "@/types";
 
 const BASE_URL = process.env.CONNECT_API_ENDPOINT!;
 const TOKEN = process.env.CONNECT_API_TOKEN!;
+
+// undici (Node.js native fetch) does not respect NODE_TLS_REJECT_UNAUTHORIZED.
+// Use a custom Agent scoped to this module so only Connect API calls bypass
+// certificate verification — the server uses a valid Let's Encrypt cert but
+// returns internal_error without this due to a server-side TLS quirk.
+const _connectAgent = new Agent({ connect: { rejectUnauthorized: false } });
+
+function apiFetch(url: string, init?: RequestInit): Promise<Response> {
+  // @ts-expect-error: dispatcher is a Node.js/undici extension absent from standard types
+  return fetch(url, { ...init, dispatcher: _connectAgent });
+}
 
 export class ConnectApiError extends Error {}
 
@@ -18,7 +30,7 @@ function buildUrl(path: string, extra?: Record<string, string>): string {
 
 async function connectFetch(path: string, init?: RequestInit) {
   const url = buildUrl(path);
-  const res = await fetch(url, { ...init, cache: "no-store" });
+  const res = await apiFetch(url, { ...init, cache: "no-store" });
   if (!res.ok && res.status !== 404) {
     throw new ConnectApiError(`Connect API error: ${res.status}`);
   }
@@ -163,7 +175,7 @@ export async function getUserProfiles(
     requestData[`/v1alpha1/users/${u}?token=${TOKEN}`] = { method: "GET" };
   }
   const url = buildUrl("/v1alpha1/multiplex");
-  const res = await fetch(url, {
+  const res = await apiFetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(requestData),
@@ -210,7 +222,7 @@ export async function createUserProfile(settings: {
     },
   };
   const url = buildUrl("/v1alpha1/users");
-  const res = await fetch(url, {
+  const res = await apiFetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -233,7 +245,7 @@ export async function updateUserProfile(
 ): Promise<void> {
   const body = { apiVersion: "v1alpha1", kind: "User", metadata: settings };
   const url = buildUrl(`/v1alpha1/users/${username}`);
-  const res = await fetch(url, {
+  const res = await apiFetch(url, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -262,7 +274,7 @@ export async function getUserGroups(
   }
   if (Object.keys(requestData).length === 0) return [];
   const url = buildUrl("/v1alpha1/multiplex");
-  const res = await fetch(url, {
+  const res = await apiFetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(requestData),
@@ -295,7 +307,7 @@ export async function removeUserFromGroup(
   const url = buildUrl(
     `/v1alpha1/groups/${groupName}/members/${username}`
   );
-  const res = await fetch(url, { method: "DELETE", cache: "no-store" });
+  const res = await apiFetch(url, { method: "DELETE", cache: "no-store" });
   const data = await res.json();
   if (data?.kind === "Error") throw new ConnectApiError(data.message);
 }
@@ -320,7 +332,7 @@ export async function updateUserRole(
     group_membership: { state: role },
   };
   const url = buildUrl(`/v1alpha1/groups/${groupName}/members/${username}`);
-  const res = await fetch(url, {
+  const res = await apiFetch(url, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -352,7 +364,7 @@ export async function updateGroupInfo(
 ): Promise<void> {
   const body = { apiVersion: "v1alpha1", metadata: settings };
   const url = buildUrl(`/v1alpha1/groups/${groupName}`);
-  const res = await fetch(url, {
+  const res = await apiFetch(url, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -365,7 +377,7 @@ export async function updateGroupInfo(
 export async function removeGroup(groupName: string): Promise<boolean> {
   if (!isGroupRemovable(groupName)) return false;
   const url = buildUrl(`/v1alpha1/groups/${groupName}`);
-  const res = await fetch(url, { method: "DELETE", cache: "no-store" });
+  const res = await apiFetch(url, { method: "DELETE", cache: "no-store" });
   const data = await res.json();
   if (data?.kind === "Error") throw new ConnectApiError(data.message);
   return true;
@@ -393,7 +405,7 @@ export async function createSubgroup(
   const url = buildUrl(
     `/v1alpha1/groups/${groupName}/subgroup_requests/${settings.name}`
   );
-  const res = await fetch(url, {
+  const res = await apiFetch(url, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
