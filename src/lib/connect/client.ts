@@ -4,11 +4,13 @@ import type { UserProfile, Group, UserRole } from "@/types";
 const BASE_URL = process.env.CONNECT_API_ENDPOINT!;
 const TOKEN = process.env.CONNECT_API_TOKEN!;
 
-// undici (Node.js native fetch) does not respect NODE_TLS_REJECT_UNAUTHORIZED.
-// Use a custom Agent scoped to this module so only Connect API calls bypass
-// certificate verification — the server uses a valid Let's Encrypt cert but
-// returns internal_error without this due to a server-side TLS quirk.
-const _connectAgent = new Agent({ connect: { rejectUnauthorized: false } });
+// undici does not respect NODE_TLS_REJECT_UNAUTHORIZED. The ci-connect server
+// sends TLS internal_error when negotiating TLS 1.3 with undici's ClientHello
+// (different key-share extensions vs openssl s_client). Capping at TLS 1.2
+// avoids the server-side bug; rejectUnauthorized is belt-and-suspenders.
+const _connectAgent = new Agent({
+  connect: { rejectUnauthorized: false, maxVersion: "TLSv1.2" },
+});
 
 function apiFetch(url: string, init?: RequestInit): Promise<Response> {
   // @ts-expect-error: dispatcher is a Node.js/undici extension absent from standard types
