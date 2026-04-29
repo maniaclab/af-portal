@@ -1,20 +1,54 @@
-import { Agent } from "undici";
+import https from "node:https";
+import http from "node:http";
 import type { UserProfile, Group, UserRole } from "@/types";
 
 const BASE_URL = process.env.CONNECT_API_ENDPOINT!;
 const TOKEN = process.env.CONNECT_API_TOKEN!;
 
-// undici does not respect NODE_TLS_REJECT_UNAUTHORIZED. The ci-connect server
-// sends TLS internal_error when negotiating TLS 1.3 with undici's ClientHello
-// (different key-share extensions vs openssl s_client). Capping at TLS 1.2
-// avoids the server-side bug; rejectUnauthorized is belt-and-suspenders.
-const _connectAgent = new Agent({
-  connect: { rejectUnauthorized: false, maxVersion: "TLSv1.2" },
+// Use node:https (not undici/native-fetch) so TLS options are actually applied.
+// When undici is webpack-bundled the Agent comes from a different module instance
+// than the global fetch's built-in undici, so dispatcher options are silently
+// ignored. node:https.Agent is a true built-in and reliably passes TLS settings.
+const _httpsAgent = new https.Agent({
+  rejectUnauthorized: false,
+  maxVersion: "TLSv1.2",
 });
 
 function apiFetch(url: string, init?: RequestInit): Promise<Response> {
-  // @ts-expect-error: dispatcher is a Node.js/undici extension absent from standard types
-  return fetch(url, { ...init, dispatcher: _connectAgent });
+  return new Promise<Response>((resolve, reject) => {
+    const parsed = new URL(url);
+    const isHttps = parsed.protocol === "https:";
+    const body = init?.body != null ? (init.body as string) : undefined;
+    const options = {
+      hostname: parsed.hostname,
+      port: parsed.port || (isHttps ? "443" : "80"),
+      path: parsed.pathname + parsed.search,
+      method: (init?.method ?? "GET").toUpperCase(),
+      headers: (init?.headers ?? {}) as Record<string, string>,
+    };
+    const onResponse = (res: http.IncomingMessage) => {
+      const chunks: Buffer[] = [];
+      res.on("data", (c: Buffer) => chunks.push(c));
+      res.on("end", () =>
+        resolve(
+          new Response(Buffer.concat(chunks), {
+            status: res.statusCode ?? 200,
+            headers: Object.fromEntries(
+              Object.entries(res.headers)
+                .filter(([, v]) => v !== undefined)
+                .map(([k, v]) => [k, Array.isArray(v) ? v.join(", ") : String(v)])
+            ),
+          })
+        )
+      );
+      res.on("error", reject);
+    };
+    const req = isHttps
+      ? https.request({ ...options, agent: _httpsAgent }, onResponse)
+      : http.request(options, onResponse);
+    req.on("error", reject);
+    req.end(body);
+  });
 }
 
 export class ConnectApiError extends Error {}
