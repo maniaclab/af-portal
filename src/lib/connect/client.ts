@@ -1,28 +1,68 @@
-import { Agent } from "undici";
+import https from "node:https";
+import http from "node:http";
 import type { UserProfile, Group, UserRole } from "@/types";
 
 const BASE_URL = process.env.CONNECT_API_ENDPOINT!;
 const TOKEN = process.env.CONNECT_API_TOKEN!;
 
 // The ci-connect server rejects TLS session resumption with SSL alert 80
-// (internal_error). A fresh undici Agent per request gets a fresh SecureContext
-// with no cached session ticket, forcing a full TLS handshake every time.
+// (internal_error). A fresh https.Agent per request, with maxCachedSessions:0,
+// forces a full TLS handshake every time and never presents a cached session
+// ticket. keepAlive:false closes the TCP connection after each response so the
+// next request starts completely clean.
 function apiFetch(url: string, init?: RequestInit): Promise<Response> {
-  const method = (init?.method ?? "GET").toUpperCase();
-  const logUrl = url.replace(/([?&])token=[^&]*/g, "$1token=<redacted>");
-  console.log(`[connect] ${method} ${logUrl}`);
-  const dispatcher = new Agent();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (fetch as any)(url, { ...init, dispatcher }).then(
-    (res: Response) => {
-      console.log(`[connect] ${res.status} ${method} ${logUrl}`);
-      return res;
-    },
-    (err: unknown) => {
+  return new Promise<Response>((resolve, reject) => {
+    const parsed = new URL(url);
+    const isHttps = parsed.protocol === "https:";
+    const body = init?.body != null ? (init.body as string) : undefined;
+    const method = (init?.method ?? "GET").toUpperCase();
+    const logUrl = url.replace(/([?&])token=[^&]*/g, "$1token=<redacted>");
+    console.log(`[connect] ${method} ${logUrl}`);
+    const agent = isHttps
+      ? new https.Agent({
+          rejectUnauthorized: false,
+          maxCachedSessions: 0,
+          keepAlive: false,
+        })
+      : new http.Agent({ keepAlive: false });
+    const options = {
+      hostname: parsed.hostname,
+      port: parsed.port || (isHttps ? "443" : "80"),
+      path: parsed.pathname + parsed.search,
+      method,
+      headers: (init?.headers ?? {}) as Record<string, string>,
+      agent,
+    };
+    const onResponse = (res: http.IncomingMessage) => {
+      const chunks: Buffer[] = [];
+      res.on("data", (c: Buffer) => chunks.push(c));
+      res.on("end", () => {
+        console.log(`[connect] ${res.statusCode} ${method} ${logUrl}`);
+        resolve(
+          new Response(Buffer.concat(chunks), {
+            status: res.statusCode ?? 200,
+            headers: Object.fromEntries(
+              Object.entries(res.headers)
+                .filter(([, v]) => v !== undefined)
+                .map(([k, v]) => [k, Array.isArray(v) ? v.join(", ") : String(v)])
+            ),
+          })
+        );
+      });
+      res.on("error", (err: Error) => {
+        console.error(`[connect] ERROR ${method} ${logUrl}:`, err);
+        reject(err);
+      });
+    };
+    const req = isHttps
+      ? https.request(options as https.RequestOptions, onResponse)
+      : http.request(options as http.RequestOptions, onResponse);
+    req.on("error", (err: Error) => {
       console.error(`[connect] ERROR ${method} ${logUrl}:`, err);
-      throw err;
-    }
-  );
+      reject(err);
+    });
+    req.end(body);
+  });
 }
 
 export class ConnectApiError extends Error {}
