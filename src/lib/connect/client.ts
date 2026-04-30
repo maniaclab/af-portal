@@ -9,8 +9,13 @@ const TOKEN = process.env.CONNECT_API_TOKEN!;
 // When undici is webpack-bundled the Agent comes from a different module instance
 // than the global fetch's built-in undici, so dispatcher options are silently
 // ignored. node:https.Agent is a true built-in and reliably passes TLS settings.
+// Node.js 22 / OpenSSL 3.2+ sends post-quantum key shares (X25519MLKEM768) in
+// the TLS ClientHello by default; the ci-connect server can't parse them and
+// responds with internal_error. Limiting ecdhCurve to standard groups removes
+// those entries from the ClientHello, matching what openssl s_client sends.
 const _httpsAgent = new https.Agent({
   rejectUnauthorized: false,
+  ecdhCurve: "X25519:P-256:P-384",
 });
 
 function apiFetch(url: string, init?: RequestInit): Promise<Response> {
