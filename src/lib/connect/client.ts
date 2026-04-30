@@ -1,18 +1,20 @@
+import { Agent } from "undici";
 import type { UserProfile, Group, UserRole } from "@/types";
 
 const BASE_URL = process.env.CONNECT_API_ENDPOINT!;
 const TOKEN = process.env.CONNECT_API_TOKEN!;
 
-// Use global fetch (undici) instead of https.request. Node's https.request uses
-// OpenSSL TLS negotiation that triggers SSL alert 80 (internal_error) from the
-// ci-connect server; undici's fetch does not have this issue (confirmed by
-// test_connect.js working from the pod).
+// The ci-connect server rejects TLS session resumption with SSL alert 80
+// (internal_error). A fresh undici Agent per request gets a fresh SecureContext
+// with no cached session ticket, forcing a full TLS handshake every time.
 function apiFetch(url: string, init?: RequestInit): Promise<Response> {
   const method = (init?.method ?? "GET").toUpperCase();
   const logUrl = url.replace(/([?&])token=[^&]*/g, "$1token=<redacted>");
   console.log(`[connect] ${method} ${logUrl}`);
-  return fetch(url, init).then(
-    (res) => {
+  const dispatcher = new Agent();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (fetch as any)(url, { ...init, dispatcher }).then(
+    (res: Response) => {
       console.log(`[connect] ${res.status} ${method} ${logUrl}`);
       return res;
     },
