@@ -5,19 +5,10 @@ import type { UserProfile, Group, UserRole } from "@/types";
 const BASE_URL = process.env.CONNECT_API_ENDPOINT!;
 const TOKEN = process.env.CONNECT_API_TOKEN!;
 
-// Use node:https (not undici/native-fetch) so TLS options are actually applied.
-// When undici is webpack-bundled the Agent comes from a different module instance
-// than the global fetch's built-in undici, so dispatcher options are silently
-// ignored. node:https.Agent is a true built-in and reliably passes TLS settings.
-// Node.js 22 / OpenSSL 3.2+ sends post-quantum key shares (X25519MLKEM768) in
-// the TLS ClientHello by default; the ci-connect server can't parse them and
-// responds with internal_error. Limiting ecdhCurve to standard groups removes
-// those entries from the ClientHello, matching what openssl s_client sends.
-const _httpsAgent = new https.Agent({
-  rejectUnauthorized: false,
-  ecdhCurve: "X25519:P-256:P-384",
-});
-
+// A custom https.Agent creates its own SSL context with different defaults and
+// triggers internal_error from the ci-connect server. Passing rejectUnauthorized
+// directly per-request (no custom agent) matches the default agent behavior that
+// works from inside the pod.
 function apiFetch(url: string, init?: RequestInit): Promise<Response> {
   return new Promise<Response>((resolve, reject) => {
     const parsed = new URL(url);
@@ -29,6 +20,7 @@ function apiFetch(url: string, init?: RequestInit): Promise<Response> {
       path: parsed.pathname + parsed.search,
       method: (init?.method ?? "GET").toUpperCase(),
       headers: (init?.headers ?? {}) as Record<string, string>,
+      rejectUnauthorized: false,
     };
     const onResponse = (res: http.IncomingMessage) => {
       const chunks: Buffer[] = [];
@@ -48,7 +40,7 @@ function apiFetch(url: string, init?: RequestInit): Promise<Response> {
       res.on("error", reject);
     };
     const req = isHttps
-      ? https.request({ ...options, agent: _httpsAgent }, onResponse)
+      ? https.request(options, onResponse)
       : http.request(options, onResponse);
     req.on("error", reject);
     req.end(body);
