@@ -1,50 +1,26 @@
-import https from "node:https";
-import http from "node:http";
 import type { UserProfile, Group, UserRole } from "@/types";
 
 const BASE_URL = process.env.CONNECT_API_ENDPOINT!;
 const TOKEN = process.env.CONNECT_API_TOKEN!;
 
-// A custom https.Agent creates its own SSL context with different defaults and
-// triggers internal_error from the ci-connect server. Passing rejectUnauthorized
-// directly per-request (no custom agent) matches the default agent behavior that
-// works from inside the pod.
+// Use global fetch (undici) instead of https.request. Node's https.request uses
+// OpenSSL TLS negotiation that triggers SSL alert 80 (internal_error) from the
+// ci-connect server; undici's fetch does not have this issue (confirmed by
+// test_connect.js working from the pod).
 function apiFetch(url: string, init?: RequestInit): Promise<Response> {
-  return new Promise<Response>((resolve, reject) => {
-    const parsed = new URL(url);
-    const isHttps = parsed.protocol === "https:";
-    const body = init?.body != null ? (init.body as string) : undefined;
-    const options = {
-      hostname: parsed.hostname,
-      port: parsed.port || (isHttps ? "443" : "80"),
-      path: parsed.pathname + parsed.search,
-      method: (init?.method ?? "GET").toUpperCase(),
-      headers: (init?.headers ?? {}) as Record<string, string>,
-      rejectUnauthorized: false,
-    };
-    const onResponse = (res: http.IncomingMessage) => {
-      const chunks: Buffer[] = [];
-      res.on("data", (c: Buffer) => chunks.push(c));
-      res.on("end", () =>
-        resolve(
-          new Response(Buffer.concat(chunks), {
-            status: res.statusCode ?? 200,
-            headers: Object.fromEntries(
-              Object.entries(res.headers)
-                .filter(([, v]) => v !== undefined)
-                .map(([k, v]) => [k, Array.isArray(v) ? v.join(", ") : String(v)])
-            ),
-          })
-        )
-      );
-      res.on("error", reject);
-    };
-    const req = isHttps
-      ? https.request(options, onResponse)
-      : http.request(options, onResponse);
-    req.on("error", reject);
-    req.end(body);
-  });
+  const method = (init?.method ?? "GET").toUpperCase();
+  const logUrl = url.replace(/([?&])token=[^&]*/g, "$1token=<redacted>");
+  console.log(`[connect] ${method} ${logUrl}`);
+  return fetch(url, init).then(
+    (res) => {
+      console.log(`[connect] ${res.status} ${method} ${logUrl}`);
+      return res;
+    },
+    (err: unknown) => {
+      console.error(`[connect] ERROR ${method} ${logUrl}:`, err);
+      throw err;
+    }
+  );
 }
 
 export class ConnectApiError extends Error {}
