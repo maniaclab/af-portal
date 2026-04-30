@@ -11,7 +11,6 @@ const TOKEN = process.env.CONNECT_API_TOKEN!;
 // ignored. node:https.Agent is a true built-in and reliably passes TLS settings.
 const _httpsAgent = new https.Agent({
   rejectUnauthorized: false,
-  maxVersion: "TLSv1.2",
 });
 
 function apiFetch(url: string, init?: RequestInit): Promise<Response> {
