@@ -1,4 +1,19 @@
 {% extends "base.html" %} {% block title %} Home {% endblock %} {% block body %}
+{% if downtimes and downtimes.active %} {% for d in downtimes.active %}
+<div class="alert alert-danger" role="alert">
+  <strong>Active downtime &mdash; {{ d.ResourceName }}:</strong>
+  {{ d.Description }} (ends {{ d.EndTime.humanize() }}, {{
+  d.EndTime.format("YYYY-MM-DD HH:mm") }} UTC)
+</div>
+{% endfor %} {% endif %} {% if downtimes and downtimes.upcoming %} {% for d in
+downtimes.upcoming %}
+<div class="alert alert-warning" role="alert">
+  <strong>Upcoming downtime &mdash; {{ d.ResourceName }}:</strong>
+  {{ d.Description }} (starts {{ d.StartTime.humanize() }}, {{
+  d.StartTime.format("YYYY-MM-DD HH:mm") }} UTC &rarr; {{
+  d.EndTime.format("YYYY-MM-DD HH:mm") }} UTC)
+</div>
+{% endfor %} {% endif %}
 <section>
   <div class="container text-center">
     <img
