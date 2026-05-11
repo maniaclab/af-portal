@@ -1,7 +1,10 @@
+import logging
+
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 from jinja2_markdown import MarkdownExtension
-import logging
+
+from portal import downtime
 
 app = Flask(__name__)
 app.config.from_pyfile("secrets/portal.conf")
@@ -22,3 +25,5 @@ fh = logging.FileHandler("portal.log")
 fh.setLevel(logging.INFO)
 fh.setFormatter(formatter)
 logger.addHandler(fh)
+
+downtime.start_scheduler(app)
