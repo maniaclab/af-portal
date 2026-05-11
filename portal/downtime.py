@@ -32,7 +32,7 @@ _started = False
 
 
 def _parse_entry(entry: dict, now: arrow.Arrow) -> dict | None:
-    """Return the entry with parsed arrow datetimes, or None if unparseable."""
+    """Return the entry with parsed arrow datetimes, or None if unparsable."""
     try:
         start = arrow.get(entry["StartTime"], "MMM D, YYYY HH:mm Z")
         end = arrow.get(entry["EndTime"], "MMM D, YYYY HH:mm Z")
