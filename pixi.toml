@@ -18,6 +18,7 @@ apscheduler = ">=3.11.2,<4"
 arrow = ">=1.4.0,<2"
 pytest = ">=9.0.3,<10"
 pytest-mock = ">=3.15.1,<4"
+matplotlib = ">=3.10.9,<4"
 
 [pypi-dependencies]
 flask-qrcode = ">=3.2.0, <4"
