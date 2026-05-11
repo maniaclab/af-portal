@@ -28,6 +28,7 @@ REFRESH_HOURS = 24
 
 _lock = threading.Lock()
 _state: dict = {"active": [], "upcoming": [], "fetched_at": None, "error": None}
+_scheduler: BackgroundScheduler | None = None
 _started = False
 
 
@@ -45,9 +46,13 @@ def _parse_entry(entry: dict, now: arrow.Arrow) -> dict | None:
 def refresh() -> None:
     """Fetch the downtime YAML and update the cached state."""
     try:
-        response = requests.get(DOWNTIME_URL, timeout=15)
+        response = requests.get(
+            DOWNTIME_URL,
+            timeout=(5, 15),
+            headers={"User-Agent": "af-portal-downtime-checker"},
+        )
         response.raise_for_status()
-        entries = yaml.safe_load(response.text)
+        entries = yaml.safe_load(response.text) or []
     except Exception as exc:
         logger.error("Failed to fetch MWT2 downtime: %s", exc)
         with _lock:
@@ -56,7 +61,7 @@ def refresh() -> None:
         return
 
     now = arrow.utcnow()
-    upcoming_cutoff = now.shift(days=7)
+    upcoming_cutoff = now + UPCOMING_WINDOW
 
     active = []
     upcoming = []
@@ -94,22 +99,25 @@ def get_downtimes() -> dict:
         return dict(_state)
 
 
-def start_scheduler(app) -> None:
+def start_scheduler() -> None:
     # NOTE: safe with gunicorn --workers=1. If workers are ever scaled above 1,
     # each worker starts its own scheduler and fetches independently N× per day.
     # Revisit then: use a K8s CronJob + shared volume, or an external cache.
-    global _started
+    global _scheduler, _started
     if _started:
         return
-    _started = True
 
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(
+    _scheduler = BackgroundScheduler()
+    _scheduler.add_job(
         refresh,
         IntervalTrigger(hours=REFRESH_HOURS),
         next_run_time=arrow.utcnow().datetime,
         id="mwt2_downtime_refresh",
+        max_instances=1,
+        coalesce=True,
+        replace_existing=True,
     )
-    scheduler.start()
-    atexit.register(lambda: scheduler.shutdown(wait=False))
+    _scheduler.start()
+    _started = True
+    atexit.register(lambda: _scheduler.shutdown(wait=False))
     logger.info("MWT2 downtime scheduler started (interval=%dh)", REFRESH_HOURS)

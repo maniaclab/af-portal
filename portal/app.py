@@ -26,4 +26,4 @@ fh.setLevel(logging.INFO)
 fh.setFormatter(formatter)
 logger.addHandler(fh)
 
-downtime.start_scheduler(app)
+downtime.start_scheduler()
