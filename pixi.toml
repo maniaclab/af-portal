@@ -23,3 +23,9 @@ matplotlib = ">=3.10.9,<4"
 [pypi-dependencies]
 flask-qrcode = ">=3.2.0, <4"
 jinja2-markdown = ">=0.0.3, <0.0.4"
+
+[feature.dev.dependencies]
+pre-commit = "*"
+
+[environments]
+dev = ["dev"]
