@@ -247,18 +247,15 @@ def validate_notebook(fn):
             if image not in jupyterlab.supported_images():
                 raise InvalidFormError("Docker image %s is not supported." % image)
             if cpu_request < 1 or cpu_request > 16:
-                raise InvalidFormError(
-                    "Requests must be between 1 and 16 CPUs." % cpu_request
-                )
+                msg = f"Requests must be between 1 and 16 CPUs. You requested {cpu_request}."
+                raise InvalidFormError(msg)
             # TODO : Check group membership
             if memory_request < 0 or memory_request > 256:
-                raise InvalidFormError(
-                    "Requests must be between 1 and 256 GB RAM." % memory_request
-                )
+                msg = f"Requests must be between 1 and 256 GB RAM. You requested {memory_request}."
+                raise InvalidFormError(msg)
             if gpu_request < 0 or gpu_request > 7:
-                raise InvalidFormError(
-                    "Requests must be between 0 and 7 GPUs" % gpu_request
-                )
+                msg = f"Requests must be between 0 and 7 GPUs. You requested {gpu_request}."
+                raise InvalidFormError(msg)
             # if not gpus:
             #    raise InvalidFormError('The GPU product is not supported.')
             if gpu_request:
