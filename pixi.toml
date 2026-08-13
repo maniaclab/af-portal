@@ -4,6 +4,7 @@ channels = ["conda-forge"]
 name = "af-portal"
 platforms = ["osx-arm64"]
 version = "0.1.0"
+exclude-newer = "7d"
 
 [tasks]
 
