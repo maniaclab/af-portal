@@ -107,13 +107,15 @@ In Python, a function is a type of object, and a reference to a function can be 
 The decorator pattern makes use of this feature, and allows the programmer to add a pre-defined feature to any function in their code.
 """
 
-from flask import session, request, redirect, render_template, url_for, flash
-from functools import wraps
-from portal.app import logger
-from portal import connect, jupyterlab
-from portal.errors import InvalidParameter, MissingParameter, InvalidFormError
-import time
 import string
+import time
+from functools import wraps
+
+from flask import flash, redirect, render_template, request, session, url_for
+
+from portal import connect, jupyterlab
+from portal.app import logger
+from portal.errors import InvalidFormError, InvalidParameter, MissingParameter
 
 
 def timer(fn):
@@ -124,7 +126,7 @@ def timer(fn):
         start = time.time()
         return_value = fn(*args, **kwargs)
         end = time.time()
-        logger.info("Function %s took %f seconds" % (fn.__name__, end - start))
+        logger.info(f"Function {fn.__name__} took {end - start:f} seconds")
         return return_value
 
     return inner
@@ -243,9 +245,9 @@ def validate_notebook(fn):
             if not set(notebook_name) <= valid_chars:
                 raise InvalidFormError("Valid characters are [a-zA-Z0-9._-]")
             if not jupyterlab.notebook_name_available(notebook_name):
-                raise InvalidFormError("The name %s is already taken." % notebook_name)
+                raise InvalidFormError(f"The name {notebook_name} is already taken.")
             if image not in jupyterlab.supported_images():
-                raise InvalidFormError("Docker image %s is not supported." % image)
+                raise InvalidFormError(f"Docker image {image} is not supported.")
             if cpu_request < 1 or cpu_request > 16:
                 msg = f"Requests must be between 1 and 16 CPUs. You requested {cpu_request}."
                 raise InvalidFormError(msg)
@@ -265,26 +267,27 @@ def validate_notebook(fn):
                 if gpu_available < gpu_request:
                     if gpu_available == 0:
                         raise InvalidFormError(
-                            "The %s is currently not available" % gpu_product
+                            f"The {gpu_product} is currently not available"
                         )
                     if gpu_available == 1:
                         raise InvalidFormError(
-                            "The %s has only 1 instance available." % gpu_product
+                            f"The {gpu_product} has only 1 instance available."
                         )
                     if gpu_available > 1:
                         raise InvalidFormError(
-                            "The %s has only %s instances available."
-                            % (gpu_product, gpu_available)
+                            f"The {gpu_product} has only {gpu_available} instances available."
                         )
                 if cpu_request > gpus[0]["cpu_request_max"]:
                     raise InvalidFormError(
-                        "The request of %d CPUs is more than maximum available(%d) for the selelected GPU type"
-                        % (cpu_request, gpus[0]["cpu_request_max"])
+                        "The request of {} CPUs is more than maximum available({}) for the selelected GPU type".format(
+                            cpu_request, gpus[0]["cpu_request_max"]
+                        )
                     )
                 if memory_request > gpus[0]["mem_request_max"]:
                     raise InvalidFormError(
-                        "The request of %d GB Mem is more than maximum available(%d) for the selelected GPU type"
-                        % (memory_request, gpus[0]["mem_request_max"])
+                        "The request of {} GB Mem is more than maximum available({}) for the selelected GPU type".format(
+                            memory_request, gpus[0]["mem_request_max"]
+                        )
                     )
             return fn(*args, **kwargs)
         except InvalidFormError as err:

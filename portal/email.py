@@ -1,8 +1,9 @@
 """Functions for sending emails from our email accounts."""
 
+import requests
+
 from portal import connect
 from portal.app import app, logger
-import requests
 
 token = app.config.get("MAILGUN_API_TOKEN")
 
@@ -21,9 +22,9 @@ def email_users(sender, recipients, subject, body):
         },
     )
     if resp.status_code == requests.codes.ok:
-        logger.info("Sent email with subject %s" % subject)
+        logger.info(f"Sent email with subject {subject}")
         return True
-    logger.info("Unable to send email with subject %s" % subject)
+    logger.info(f"Unable to send email with subject {subject}")
     return False
 
 

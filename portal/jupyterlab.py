@@ -96,19 +96,21 @@ python
 >>> jupyterlab.list_notebooks()
 """
 
-import math
-import yaml
-import time
 import datetime
-import threading
+import math
 import os
 import re
+import threading
+import time
 import urllib
 from base64 import b64encode
+
+import yaml
 from jinja2 import Environment, FileSystemLoader
 from kubernetes import client, config
 from kubernetes.client.exceptions import ApiException
 from kubernetes.utils.quantity import parse_quantity
+
 from portal.app import app, logger
 
 namespace = app.config.get("NAMESPACE")
@@ -116,7 +118,7 @@ kubeconfig = app.config.get("KUBECONFIG")
 
 if kubeconfig:
     config.load_kube_config(config_file=kubeconfig)
-    logger.info("Loaded kubeconfig from file %s" % kubeconfig)
+    logger.info(f"Loaded kubeconfig from file {kubeconfig}")
 else:
     config.load_kube_config()
     logger.info("Loaded default kubeconfig file")
@@ -132,7 +134,7 @@ def start_notebook_maintenance():
             for pod in pods:
                 exp_date = get_expiration_date(pod)
                 if exp_date and exp_date < datetime.datetime.now(datetime.timezone.utc):
-                    logger.info("Notebook %s has expired" % pod.metadata.name)
+                    logger.info(f"Notebook {pod.metadata.name} has expired")
                     remove_notebook(pod.metadata.name)
             time.sleep(1800)
 
@@ -219,7 +221,7 @@ def deploy_notebook(**settings):
             )
         else:
             raise
-    logger.info("Deployed notebook %s" % settings["notebook_name"])
+    logger.info("Deployed notebook {}".format(settings["notebook_name"]))
 
 
 def get_notebook(name=None, pod=None, **options):
@@ -237,7 +239,7 @@ def get_notebook(name=None, pod=None, **options):
     api = client.CoreV1Api()
     if pod is None:
         pod = api.read_namespaced_pod(name=name.lower(), namespace=namespace)
-    notebook = dict()
+    notebook = {}
     try:
         notebook["id"] = pod.metadata.name
         notebook["name"] = pod.metadata.labels.get("notebook-name")
@@ -263,17 +265,17 @@ def get_notebook(name=None, pod=None, **options):
             for c in pod.status.conditions
         ]
         notebook["conditions"].sort(
-            key=lambda cond: dict(
-                PodScheduled=0,
-                Initialized=1,
-                PodReadyToStartContainers=2,
-                ContainersReady=3,
-                Ready=4,
-            ).get(cond["type"])
+            key=lambda cond: {
+                "PodScheduled": 0,
+                "Initialized": 1,
+                "PodReadyToStartContainers": 2,
+                "ContainersReady": 3,
+                "Ready": 4,
+            }.get(cond["type"])
         )
         events = api.list_namespaced_event(
             namespace=namespace,
-            field_selector="involvedObject.uid=%s" % pod.metadata.uid,
+            field_selector=f"involvedObject.uid={pod.metadata.uid}",
         ).items
         notebook["events"] = [
             {
@@ -316,12 +318,12 @@ def get_notebook(name=None, pod=None, **options):
             token = api.read_namespaced_secret(pod.metadata.name, namespace).data[
                 "token"
             ]
-            notebook["url"] = "https://%s.%s?%s" % (
+            notebook["url"] = "https://{}.{}?{}".format(
                 pod.metadata.name,
                 app.config["DOMAIN_NAME"],
                 urllib.parse.urlencode({"token": token}),
             )
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 -- deliberately broad: any failure assembling notebook info should still return the partial notebook dict
         logger.error("Caught exception in creating notebook information: %s", e)
     return notebook
 
@@ -344,7 +346,7 @@ def get_notebooks(owner=None, **options):
         label_selector=(
             "k8s-app=jupyterlab"
             if owner is None
-            else "k8s-app=jupyterlab,owner=%s" % owner
+            else f"k8s-app=jupyterlab,owner={owner}"
         ),
     ).items
     for pod in pods:
@@ -352,9 +354,9 @@ def get_notebooks(owner=None, **options):
             notebook = get_notebook(pod=pod, **options)
             logger.info("Notebook: %s", notebook)
             notebooks.append(notebook)
-        except Exception as err:
+        except Exception as err:  # noqa: BLE001 -- deliberately broad: one bad pod should not stop the rest of the list from being built
             logger.error(
-                "Error adding notebook %s to array.\n%s" % (pod.metadata.name, str(err))
+                f"Error adding notebook {pod.metadata.name} to array.\n{err!s}"
             )
     return notebooks
 
@@ -378,9 +380,9 @@ def remove_notebook(name):
         api.delete_namespaced_secret(id, namespace)
         api = client.NetworkingV1Api()
         api.delete_namespaced_ingress(id, namespace)
-        logger.info("Removed notebook %s from namespace %s" % (id, namespace))
+        logger.info(f"Removed notebook {id} from namespace {namespace}")
         return True
-    except Exception as err:
+    except Exception as err:  # noqa: BLE001 -- deliberately broad: any failure during teardown should be reported, not propagated, since the caller only needs a success/failure signal
         logger.error(str(err))
         return False
 
@@ -389,7 +391,7 @@ def notebook_name_available(name):
     """Returns a boolean indicating whether a notebook name is available for use."""
     api = client.CoreV1Api()
     pods = api.list_namespaced_pod(
-        namespace, field_selector="metadata.name={0}".format(name.lower())
+        namespace, field_selector=f"metadata.name={name.lower()}"
     )
     return len(pods.items) == 0
 
@@ -444,16 +446,14 @@ def get_gpu_availability(product=None, memory=None):
     4. Get the hash map values as a list. Sort the list. Each entry in the list gives the availability of a unique GPU product.
        Return the sorted list of dicts.
     """
-    gpus = dict()
+    gpus = {}
     api = client.CoreV1Api()
     if product:
         nodes = api.list_node(
-            label_selector="gpu=true,nvidia.com/gpu.product=%s" % product
+            label_selector=f"gpu=true,nvidia.com/gpu.product={product}"
         )
     elif memory:
-        nodes = api.list_node(
-            label_selector="gpu=true,nvidia.com/gpu.memory=%s" % memory
-        )
+        nodes = api.list_node(label_selector=f"gpu=true,nvidia.com/gpu.memory={memory}")
     else:
         nodes = api.list_node(label_selector="nvidia.com/gpu.product")
     for node in nodes.items:
@@ -461,20 +461,21 @@ def get_gpu_availability(product=None, memory=None):
         memory = int(node.metadata.labels["nvidia.com/gpu.memory"])
         count = int(node.metadata.labels["nvidia.com/gpu.count"])
         if product not in gpus:
-            gpus[product] = dict(
-                mem_request_max=0,
-                cpu_request_max=0,
-                product=product,
-                memory=memory,
-                count=count,
-                total_requests=0,
-            )
+            gpus[product] = {
+                "mem_request_max": 0,
+                "cpu_request_max": 0,
+                "product": product,
+                "memory": memory,
+                "count": count,
+                "total_requests": 0,
+            }
         else:
             gpus[product]["count"] += count
         gpu = gpus[product]
         pods = api.list_pod_for_all_namespaces(
-            field_selector="spec.nodeName=%s,status.phase!=%s,status.phase!=%s"
-            % (node.metadata.name, "Succeeded", "Failed")
+            field_selector="spec.nodeName={},status.phase!={},status.phase!={}".format(
+                node.metadata.name, "Succeeded", "Failed"
+            )
         ).items
         mem_request = 0
         cpu_request = 0
@@ -497,16 +498,8 @@ def get_gpu_availability(product=None, memory=None):
             cpu_request_max = math.floor(
                 parse_quantity(node.status.capacity["cpu"]) - cpu_request
             )
-            gpu["mem_request_max"] = (
-                mem_request_max
-                if mem_request_max > gpu["mem_request_max"]
-                else gpu["mem_request_max"]
-            )
-            gpu["cpu_request_max"] = (
-                cpu_request_max
-                if cpu_request_max > gpu["cpu_request_max"]
-                else gpu["cpu_request_max"]
-            )
+            gpu["mem_request_max"] = max(gpu["mem_request_max"], mem_request_max)
+            gpu["cpu_request_max"] = max(gpu["cpu_request_max"], cpu_request_max)
         gpu["available"] = max(gpu["count"] - gpu["total_requests"], 0)
     return sorted(gpus.values(), key=lambda gpu: gpu["memory"])
 
@@ -525,7 +518,7 @@ def get_pod(name):
     try:
         api = client.CoreV1Api()
         return api.read_namespaced_pod(name=name, namespace=namespace)
-    except Exception:
+    except Exception:  # noqa: BLE001 -- deliberately broad: any lookup failure (including not-found) means "no such pod" to callers
         return None
 
 

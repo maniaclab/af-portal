@@ -13,15 +13,17 @@ in the decorator's namespace.
 For more documentation on decorators and the @app.route decorator, see decorators.py
 """
 
-from flask import session, request, render_template, url_for, redirect, jsonify, flash
+import queue
+import threading
+from urllib.parse import urljoin, urlparse
+
+import globus_sdk
+from flask import flash, jsonify, redirect, render_template, request, session, url_for
 from flask_qrcode import QRcode
-from portal import connect, jupyterlab, email, math, decorators, downtime
+
+from portal import connect, decorators, downtime, email, jupyterlab, math
 from portal.app import app, logger
 from portal.errors import ConnectApiError
-from urllib.parse import urlparse, urljoin
-import globus_sdk
-import threading
-import queue
 
 QRcode(app)
 
@@ -37,7 +39,7 @@ def worker():
             logger.info("[worker] Running job: %s args=%s", func.__name__, args)
             func(*args)
             logger.info("[worker] Job finished: %s", func.__name__)
-        except Exception:
+        except Exception:  # noqa: BLE001 -- deliberately broad: the background worker thread must keep running no matter which job function raises
             logger.exception("[worker] Job failed")
         finally:
             my_job_queue.task_done()
@@ -346,10 +348,13 @@ def deploy_notebook():
 @decorators.members_only
 def remove_notebook(notebook):
     pod = jupyterlab.get_pod(notebook)
-    if pod and pod.metadata.labels["owner"] == session["unix_name"]:
-        if jupyterlab.remove_notebook(notebook):
-            return jsonify(success=True, message="Notebook %s was deleted." % notebook)
-    return jsonify(success=False, message="Unable to delete notebook %s" % notebook)
+    if (
+        pod
+        and pod.metadata.labels["owner"] == session["unix_name"]
+        and jupyterlab.remove_notebook(notebook)
+    ):
+        return jsonify(success=True, message=f"Notebook {notebook} was deleted.")
+    return jsonify(success=False, message=f"Unable to delete notebook {notebook}")
 
 
 @app.route("/monitoring/login_nodes")
@@ -494,10 +499,8 @@ def send_email(group_name):
     subject = request.form["subject"]
     body = request.form["body"]
     if email.email_users(sender, recipients, subject, body):
-        return jsonify(success=True, message="Sent email to group %s" % group_name)
-    return jsonify(
-        success=False, message="Unable to send email to group %s" % group_name
-    )
+        return jsonify(success=True, message=f"Sent email to group {group_name}")
+    return jsonify(success=False, message=f"Unable to send email to group {group_name}")
 
 
 @app.route("/admin/add_group_member/<group_name>/<unix_name>")
@@ -553,7 +556,7 @@ def edit_group(group_name):
                 "description": request.form["description"].strip(),
             }
             connect.update_group_info(group_name, **settings)
-            flash("Updated group %s successfully" % group_name, "success")
+            flash(f"Updated group {group_name} successfully", "success")
             return redirect(url_for("groups", group_name=group_name))
         except ConnectApiError as err:
             flash(str(err), "warning")
@@ -576,7 +579,7 @@ def create_subgroup(group_name):
             "description": request.form["description"],
         }
         connect.create_subgroup(group_name, **settings)
-        flash("Created subgroup %s" % settings["name"], "success")
+        flash("Created subgroup {}".format(settings["name"]), "success")
         return redirect(url_for("groups", group_name=group_name))
 
 
@@ -584,7 +587,7 @@ def create_subgroup(group_name):
 @decorators.admins_only
 def remove_group(group_name):
     connect.remove_group(group_name)
-    flash("Removed group %s" % group_name, "success")
+    flash(f"Removed group {group_name}", "success")
     return redirect(url_for("groups", group_name="root.atlas-af"))
 
 
