@@ -74,12 +74,14 @@ python
 >>> pprint(info)
 """
 
+import json
+
+import requests
+from dateutil.parser import parse
+
 from portal import decorators
 from portal.app import app, logger
 from portal.errors import ConnectApiError
-from dateutil.parser import parse
-import requests
-import json
 
 url = app.config.get("CONNECT_API_ENDPOINT")
 token = app.config.get("CONNECT_API_TOKEN")
@@ -138,7 +140,7 @@ def get_user_profile(username, **options):
             profile["institution"] = metadata["institution"]
             profile["phone"] = metadata["phone"]
             profile["public_key"] = metadata["public_key"]
-            if "totp_secret" in metadata.keys():
+            if "totp_secret" in metadata:
                 profile["totp_secret"] = metadata["totp_secret"]
             date_format = options.get("date_format", "calendar")
             if date_format == "object":
@@ -241,7 +243,7 @@ def create_user_profile(**settings):
         if data.get("kind") == "Error":
             logger.error(data["message"])
             raise ConnectApiError(data["message"])
-    logger.info("Created profile for user %s" % settings["unix_name"])
+    logger.info("Created profile for user {}".format(settings["unix_name"]))
 
 
 @decorators.permit_keys(
@@ -258,7 +260,7 @@ def update_user_profile(username, **settings):
         if data.get("kind") == "Error":
             logger.error(data["message"])
             raise ConnectApiError(data["message"])
-    logger.info("Updated profile for user %s." % username)
+    logger.info(f"Updated profile for user {username}.")
 
 
 def get_user_groups(username, **options):
@@ -326,7 +328,7 @@ def remove_user_from_group(username, group_name):
         if data.get("kind") == "Error":
             logger.error(data["message"])
             raise ConnectApiError(data["message"])
-    logger.info("Removed user %s from group %s" % (username, group_name))
+    logger.info(f"Removed user {username} from group {group_name}")
 
 
 def get_user_roles(username):
@@ -353,7 +355,7 @@ def update_user_role(username, group_name, role):
         if data.get("kind") == "Error":
             logger.error(data["message"])
             raise ConnectApiError(data["message"])
-    logger.info("Set role to %s for user %s in group %s" % (role, username, group_name))
+    logger.info(f"Set role to {role} for user {username} in group {group_name}")
 
 
 def get_group_info(group_name, **options):
@@ -408,11 +410,11 @@ def update_group_info(group_name, **settings):
         if data.get("kind") == "Error":
             logger.error(data["message"])
             raise ConnectApiError(data["message"])
-    logger.info("Updated info for group %s" % group_name)
+    logger.info(f"Updated info for group {group_name}")
 
 
 def is_group_removable(group_name):
-    if group_name in (
+    return group_name not in (
         "root",
         "root.atlas-af",
         "root.atlas-af.staff",
@@ -423,9 +425,7 @@ def is_group_removable(group_name):
         "root.iris-hep-ml.staff",
         "root.osg",
         "root.osg.login-nodes",
-    ):
-        return False
-    return True
+    )
 
 
 def remove_group(group_name):
@@ -439,7 +439,7 @@ def remove_group(group_name):
             if data.get("kind") == "Error":
                 logger.error(data["message"])
                 raise ConnectApiError(data["message"])
-        logger.info("Removed group %s" % group_name)
+        logger.info(f"Removed group {group_name}")
         return True
     return False
 
@@ -478,4 +478,4 @@ def create_subgroup(group_name, **settings):
         if data.get("kind") == "Error":
             logger.error(data["message"])
             raise ConnectApiError(data["message"])
-    logger.info("Created subgroup %s in group %s" % (settings["name"], group_name))
+    logger.info("Created subgroup {} in group {}".format(settings["name"], group_name))

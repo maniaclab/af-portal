@@ -42,14 +42,14 @@ repos:
       - id: rst-inline-touching-normal
 
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: "515f543f5718ebfd6ce22e16708bb32c68ff96e1" # frozen: v3.8.3
+    rev: "0ee178619d696787ca73d210cc191d720868c631" # frozen: v3.9.6
     hooks:
       - id: prettier
         types_or: [yaml, markdown, html, css, scss, javascript, json]
         args: [--prose-wrap=always]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "6fec9b7edb08fd9989088709d864a7826dc74e80" # frozen: v0.15.12
+    rev: "7c55798a78262d14b2074abf623d8a992ebb70d4" # frozen: v0.16.2
     hooks:
       - id: ruff-check
         args: ["--fix", "--show-fixes"]
@@ -76,7 +76,7 @@ repos:
         exclude: .pre-commit-config.yaml
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: "6b63472e72e1a91ed8a2f6d483790dfb644fa1d3" # frozen: 0.37.4
+    rev: "12e63946db2c5cfcc9030fac21c3883ba88c6ed8" # frozen: 0.38.0
     hooks:
       - id: check-dependabot
       - id: check-github-workflows

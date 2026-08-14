@@ -4,10 +4,8 @@ import textwrap
 from unittest.mock import MagicMock, patch
 
 import arrow
-import pytest
-
 import downtime as dt  # imported directly from portal/ via conftest.py sys.path
-
+import pytest
 
 WATCHED = next(iter(dt.WATCHED_RESOURCES))
 OTHER = "MWT2_CE_UIUC"

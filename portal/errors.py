@@ -6,7 +6,7 @@ class ConnectApiError(Exception):
         self.message = message
 
     def __str__(self):
-        return "Message from Connect API: %s" % self.message
+        return f"Message from Connect API: {self.message}"
 
 
 class InvalidParameter(Exception):
@@ -14,7 +14,7 @@ class InvalidParameter(Exception):
         self.param = param
 
     def __str__(self):
-        return "Invalid parameter: %s" % self.param
+        return f"Invalid parameter: {self.param}"
 
 
 class MissingParameter(Exception):
@@ -22,7 +22,7 @@ class MissingParameter(Exception):
         self.param = param
 
     def __str__(self):
-        return "Missing parameter: %s" % self.param
+        return f"Missing parameter: {self.param}"
 
 
 class InvalidFormError(Exception):

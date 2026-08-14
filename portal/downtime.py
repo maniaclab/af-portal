@@ -37,7 +37,7 @@ def _parse_entry(entry: dict, now: arrow.Arrow) -> dict | None:
     try:
         start = arrow.get(entry["StartTime"], "MMM D, YYYY HH:mm Z")
         end = arrow.get(entry["EndTime"], "MMM D, YYYY HH:mm Z")
-    except Exception:
+    except Exception:  # noqa: BLE001 -- deliberately broad: any parse failure should skip this entry, not crash the refresh loop
         logger.warning("Could not parse downtime entry times: %s", entry.get("ID"))
         return None
     return {**entry, "StartTime": start, "EndTime": end}
@@ -53,7 +53,7 @@ def refresh() -> None:
         )
         response.raise_for_status()
         entries = yaml.safe_load(response.text) or []
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 -- deliberately broad: any fetch/parse failure should be recorded as the cached error, not crash the scheduler job
         logger.error("Failed to fetch MWT2 downtime: %s", exc)
         with _lock:
             _state["error"] = str(exc)
