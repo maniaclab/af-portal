@@ -405,11 +405,26 @@ def generate_notebook_name(owner):
     return None
 
 
-def supported_images():
-    """Returns a tuple of Docker images that are supported by the JupyterLab service."""
+def supported_cpu_images():
+    """Returns a tuple of Docker images that are supported by the JupyterLab service for CPU-only notebooks."""
     return (
-        "hub.opensciencegrid.org/usatlas/ml-platform:latest",
+        "hub.opensciencegrid.org/usatlas/ml-platform-cpu:latest",
         "hub.opensciencegrid.org/usatlas/ml-platform:2026.3",
+    )
+
+
+def supported_gpu_images():
+    """Returns a tuple of Docker images that are supported by the JupyterLab service for GPU notebooks."""
+    return (
+        "hub.opensciencegrid.org/usatlas/ml-platform-gpu:latest",
+        "hub.opensciencegrid.org/usatlas/ml-platform:2026.3",
+    )
+
+
+def supported_images():
+    """Returns a tuple of all Docker images supported by the JupyterLab service, CPU and GPU combined."""
+    # analysis-dask-uc images are valid for backend deployment but currently hidden from the form's dropdowns
+    return tuple(dict.fromkeys(supported_cpu_images() + supported_gpu_images())) + (
         "hub.opensciencegrid.org/usatlas/analysis-dask-uc:main",
         "hub.opensciencegrid.org/usatlas/analysis-dask-uc:dev",
     )
