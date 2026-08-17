@@ -189,7 +189,10 @@ block assets %}
               </select>
               <select v-else name="image" class="form-control">
                 {% for image in gpu_images %}
-                <option value="{{ image }}">{{ image.split('/')[-1] }}</option>
+                <option value="{{ image }}">
+                  {{ image.split('/')[-1] }}{% if '-gpu:' in image %} (GPU
+                  required){% endif %}
+                </option>
                 {% endfor %}
               </select>
             </div>
