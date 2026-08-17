@@ -310,14 +310,14 @@ def configure_notebook():
     username = session["unix_name"]
     notebook_name = jupyterlab.generate_notebook_name(username)
     groups = connect.get_user_roles(username)
-    if "root.atlas-af.bigmem" in groups:
-        return render_template(
-            "jupyterlab_form.html", max_mem=256, notebook_name=notebook_name
-        )
-    else:
-        return render_template(
-            "jupyterlab_form.html", max_mem=32, notebook_name=notebook_name
-        )
+    max_mem = 256 if "root.atlas-af.bigmem" in groups else 32
+    return render_template(
+        "jupyterlab_form.html",
+        max_mem=max_mem,
+        notebook_name=notebook_name,
+        cpu_images=jupyterlab.supported_cpu_images(),
+        gpu_images=jupyterlab.supported_gpu_images(),
+    )
 
 
 @app.route("/jupyterlab/deploy", methods=["POST"])

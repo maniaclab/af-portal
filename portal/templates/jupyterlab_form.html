@@ -182,29 +182,18 @@ block assets %}
               </label>
             </div>
             <div class="col-sm-8">
-              <select name="image" class="form-control">
-                <option
-                  value="hub.opensciencegrid.org/usatlas/ml-platform:latest"
-                >
-                  ml-platform:latest
+              <select v-if="instances == 0" name="image" class="form-control">
+                {% for image in cpu_images %}
+                <option value="{{ image }}">{{ image.split('/')[-1] }}</option>
+                {% endfor %}
+              </select>
+              <select v-else name="image" class="form-control">
+                {% for image in gpu_images %}
+                <option value="{{ image }}">
+                  {{ image.split('/')[-1] }}{% if '-gpu:' in image %} (GPU
+                  required){% endif %}
                 </option>
-                <option
-                  value="hub.opensciencegrid.org/usatlas/ml-platform:2026.3"
-                >
-                  ml-platform:2026.3
-                </option>
-                <!--
-                <option
-                  value="hub.opensciencegrid.org/usatlas/analysis-dask-uc:main"
-                >
-                  AB-stable
-                </option>
-                <option
-                  value="hub.opensciencegrid.org/usatlas/analysis-dask-uc:dev"
-                >
-                  AB-dev
-                </option>
-		-->
+                {% endfor %}
               </select>
             </div>
           </div>
