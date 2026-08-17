@@ -123,11 +123,17 @@ else:
     config.load_kube_config()
     logger.info("Loaded default kubeconfig file")
 
+# Shared across every CoreV1Api/NetworkingV1Api call in this module. Each
+# ApiClient() owns its own urllib3 connection pool, so constructing a fresh
+# one per request (as this module previously did) leaks sockets/memory under
+# the frequent polling from /jupyterlab/get_notebooks.
+api_client = client.ApiClient()
+
 
 def start_notebook_maintenance():
     def inner():
         while True:
-            api = client.CoreV1Api()
+            api = client.CoreV1Api(api_client)
             pods = api.list_namespaced_pod(
                 namespace, label_selector="k8s-app=jupyterlab"
             ).items
@@ -170,7 +176,7 @@ def deploy_notebook(**settings):
     settings["start_script"] = "/usr/local/bin/SetupPrivateJupyterLab.sh"
     settings["notebook_id"] = sanitize_k8s_pod_name(settings["notebook_id"])
     templates = Environment(loader=FileSystemLoader("portal/templates/jupyterlab"))
-    api = client.CoreV1Api()
+    api = client.CoreV1Api(api_client)
     # Create a pod for the notebook (the notebook runs as a container inside the pod)
     template = templates.get_template("pod.yaml")
     pod = yaml.safe_load(template.render(**settings))
@@ -206,7 +212,7 @@ def deploy_notebook(**settings):
         else:
             raise
     # Create an ingress for the service (gives the notebook its own domain name and public key certificate)
-    api = client.NetworkingV1Api()
+    api = client.NetworkingV1Api(api_client)
     template = templates.get_template("ingress.yaml")
     ingress = yaml.safe_load(template.render(**settings))
     # api.create_namespaced_ingress(namespace=namespace, body=ingress)
@@ -236,7 +242,7 @@ def get_notebook(name=None, pod=None, **options):
     log: (boolean) When log is True, the pod log is included in the dict that gets returned
     url: (boolean) When url is True, the notebook URL is included in the dict that gets returned
     """
-    api = client.CoreV1Api()
+    api = client.CoreV1Api(api_client)
     if pod is None:
         pod = api.read_namespaced_pod(name=name.lower(), namespace=namespace)
     notebook = {}
@@ -340,7 +346,7 @@ def get_notebooks(owner=None, **options):
     url: (boolean) When url is True, the notebook URL is included in the dict that gets returned
     """
     notebooks = []
-    api = client.CoreV1Api()
+    api = client.CoreV1Api(api_client)
     pods = api.list_namespaced_pod(
         namespace,
         label_selector=(
@@ -363,7 +369,7 @@ def get_notebooks(owner=None, **options):
 
 def list_notebooks():
     """Returns a list of the names of all notebooks in the namespace."""
-    api = client.CoreV1Api()
+    api = client.CoreV1Api(api_client)
     pods = api.list_namespaced_pod(
         namespace=namespace, label_selector="k8s-app=jupyterlab"
     ).items
@@ -374,11 +380,11 @@ def remove_notebook(name):
     """Removes a notebook from the namespace, and all Kubernetes objects associated with the notebook."""
     try:
         id = name.lower()
-        api = client.CoreV1Api()
+        api = client.CoreV1Api(api_client)
         api.delete_namespaced_pod(id, namespace)
         api.delete_namespaced_service(id, namespace)
         api.delete_namespaced_secret(id, namespace)
-        api = client.NetworkingV1Api()
+        api = client.NetworkingV1Api(api_client)
         api.delete_namespaced_ingress(id, namespace)
         logger.info(f"Removed notebook {id} from namespace {namespace}")
         return True
@@ -389,7 +395,7 @@ def remove_notebook(name):
 
 def notebook_name_available(name):
     """Returns a boolean indicating whether a notebook name is available for use."""
-    api = client.CoreV1Api()
+    api = client.CoreV1Api(api_client)
     pods = api.list_namespaced_pod(
         namespace, field_selector=f"metadata.name={name.lower()}"
     )
@@ -447,7 +453,7 @@ def get_gpu_availability(product=None, memory=None):
        Return the sorted list of dicts.
     """
     gpus = {}
-    api = client.CoreV1Api()
+    api = client.CoreV1Api(api_client)
     if product:
         nodes = api.list_node(
             label_selector=f"gpu=true,nvidia.com/gpu.product={product}"
@@ -516,7 +522,7 @@ def get_expiration_date(pod):
 def get_pod(name):
     """Looks up a Kubernetes pod by its name and returns a pod object."""
     try:
-        api = client.CoreV1Api()
+        api = client.CoreV1Api(api_client)
         return api.read_namespaced_pod(name=name, namespace=namespace)
     except Exception:  # noqa: BLE001 -- deliberately broad: any lookup failure (including not-found) means "no such pod" to callers
         return None
