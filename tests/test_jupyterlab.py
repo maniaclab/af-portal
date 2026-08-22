@@ -1,6 +1,7 @@
 """Unit tests for portal.jupyterlab's Kubernetes client lifecycle."""
 
 import sys
+import threading
 import types
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -32,6 +33,61 @@ def jupyterlab():
     with patch("kubernetes.config.load_kube_config"):
         import portal.jupyterlab as jupyterlab_module
     return jupyterlab_module
+
+
+class TestNotebookMaintenanceGuard:
+    """start_notebook_maintenance() is called from @app.before_request, i.e.
+    once per HTTP request. It must be idempotent so it starts the maintenance
+    thread exactly once instead of leaking one infinite-loop thread per request
+    (the request-amplified thread leak that OOM-killed the pod)."""
+
+    def test_repeated_calls_start_exactly_one_daemon_thread(
+        self, jupyterlab, monkeypatch
+    ):
+        jupyterlab._maintenance_started = False
+        threads = []
+
+        def fake_thread(*args, **kwargs):
+            handle = MagicMock()
+            threads.append((kwargs, handle))
+            return handle
+
+        monkeypatch.setattr(jupyterlab.threading, "Thread", fake_thread)
+
+        for _ in range(50):
+            jupyterlab.start_notebook_maintenance()
+
+        assert len(threads) == 1
+        # daemon so the never-terminating loop can't block process shutdown
+        assert threads[0][0].get("daemon") is True
+        threads[0][1].start.assert_called_once()
+
+    def test_concurrent_calls_start_exactly_one_thread(self, jupyterlab, monkeypatch):
+        """Two requests racing into the function must still start one thread;
+        the lock makes the check-and-set atomic."""
+        jupyterlab._maintenance_started = False
+        real_thread_cls = threading.Thread  # capture before patching Thread
+        started = []
+
+        def fake_thread(*args, **kwargs):
+            started.append(MagicMock())
+            return started[-1]
+
+        monkeypatch.setattr(jupyterlab.threading, "Thread", fake_thread)
+
+        barrier = threading.Barrier(8)
+
+        def worker():
+            barrier.wait()
+            jupyterlab.start_notebook_maintenance()
+
+        racers = [real_thread_cls(target=worker) for _ in range(8)]
+        for racer in racers:
+            racer.start()
+        for racer in racers:
+            racer.join()
+
+        assert len(started) == 1
 
 
 class TestSharedApiClient:
