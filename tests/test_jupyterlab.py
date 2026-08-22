@@ -1,5 +1,6 @@
 """Unit tests for portal.jupyterlab's Kubernetes client lifecycle."""
 
+import datetime
 import sys
 import threading
 import types
@@ -88,6 +89,43 @@ class TestNotebookMaintenanceGuard:
             racer.join()
 
         assert len(started) == 1
+
+
+class TestRunNotebookMaintenance:
+    """run_notebook_maintenance() is the single-pass sweep shared by the
+    in-process loop and the af-notebook-maintenance CronJob: it deletes only
+    expired notebooks and returns (no infinite loop)."""
+
+    def test_removes_only_expired_notebooks_in_one_pass(self, jupyterlab, monkeypatch):
+        past = datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
+        future = datetime.datetime(2999, 1, 1, tzinfo=datetime.timezone.utc)
+
+        expired = MagicMock()
+        expired.metadata.name = "old-notebook"
+        alive = MagicMock()
+        alive.metadata.name = "fresh-notebook"
+        no_ttl = MagicMock()
+        no_ttl.metadata.name = "no-ttl-notebook"
+
+        fake_api = MagicMock()
+        fake_api.list_namespaced_pod.return_value.items = [expired, alive, no_ttl]
+        monkeypatch.setattr(
+            jupyterlab.client, "CoreV1Api", lambda api_client=None: fake_api
+        )
+
+        expirations = {id(expired): past, id(alive): future, id(no_ttl): None}
+        monkeypatch.setattr(
+            jupyterlab, "get_expiration_date", lambda pod: expirations[id(pod)]
+        )
+
+        removed = []
+        monkeypatch.setattr(
+            jupyterlab, "remove_notebook", lambda name: removed.append(name)
+        )
+
+        jupyterlab.run_notebook_maintenance()
+
+        assert removed == ["old-notebook"]
 
 
 class TestSharedApiClient:
