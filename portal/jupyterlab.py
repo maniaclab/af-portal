@@ -130,21 +130,49 @@ else:
 api_client = client.ApiClient()
 
 
-def start_notebook_maintenance():
-    def inner():
-        while True:
-            api = client.CoreV1Api(api_client)
-            pods = api.list_namespaced_pod(
-                namespace, label_selector="k8s-app=jupyterlab"
-            ).items
-            for pod in pods:
-                exp_date = get_expiration_date(pod)
-                if exp_date and exp_date < datetime.datetime.now(datetime.timezone.utc):
-                    logger.info(f"Notebook {pod.metadata.name} has expired")
-                    remove_notebook(pod.metadata.name)
-            time.sleep(1800)
+_maintenance_lock = threading.Lock()
+_maintenance_started = False
 
-    threading.Thread(target=inner).start()
+
+def run_notebook_maintenance():
+    """Delete every expired JupyterLab notebook. A single sweep that returns,
+    so it can run either from the in-process loop or as a one-shot K8s CronJob
+    (portal.notebook_maintenance)."""
+    api = client.CoreV1Api(api_client)
+    pods = api.list_namespaced_pod(namespace, label_selector="k8s-app=jupyterlab").items
+    for pod in pods:
+        exp_date = get_expiration_date(pod)
+        if exp_date and exp_date < datetime.datetime.now(datetime.timezone.utc):
+            logger.info(f"Notebook {pod.metadata.name} has expired")
+            remove_notebook(pod.metadata.name)
+
+
+def _notebook_maintenance():
+    while True:
+        run_notebook_maintenance()
+        time.sleep(1800)
+
+
+def start_notebook_maintenance():
+    # Called from @app.before_request (once per HTTP request), so it must be
+    # idempotent: without this guard every request leaked a new infinite-loop
+    # thread. Safe with gunicorn --workers=1; scaling workers starts one
+    # maintenance thread per worker process (see downtime.start_scheduler).
+    global _maintenance_started
+
+    with _maintenance_lock:
+        if _maintenance_started:
+            return
+
+        # daemon so the never-terminating loop can't block process shutdown.
+        threading.Thread(
+            target=_notebook_maintenance,
+            name="notebook-maintenance",
+            daemon=True,
+        ).start()
+        # Only mark started after start() succeeds, so a failed start can retry.
+        _maintenance_started = True
+
     logger.info("Started notebook maintenance")
 
 
