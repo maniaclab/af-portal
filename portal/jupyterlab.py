@@ -478,6 +478,15 @@ def get_gpu_availability(product=None, memory=None):
     else:
         nodes = api.list_node(label_selector="nvidia.com/gpu.product")
     for node in nodes.items:
+        # A cordoned or tainted node can never actually schedule a notebook
+        # pod, so it must contribute nothing to availability -- otherwise its
+        # full, untouched capacity is counted as free headroom.
+        if node.spec.unschedulable:
+            continue
+        if node.spec.taints and any(
+            taint.effect in ("NoSchedule", "NoExecute") for taint in node.spec.taints
+        ):
+            continue
         product = node.metadata.labels["nvidia.com/gpu.product"]
         memory = int(node.metadata.labels["nvidia.com/gpu.memory"])
         count = int(node.metadata.labels["nvidia.com/gpu.count"])
@@ -511,13 +520,13 @@ def get_gpu_availability(product=None, memory=None):
                     cpu_request += parse_quantity(requests.get("cpu", 0))
         # count in max only when there are at least 1 gpu available. the limitation is this guard is only safe if the requested
         # gpu is not more than 1.
-        if int(node.status.capacity["nvidia.com/gpu"]) > gpu_request:
+        if int(node.status.allocatable["nvidia.com/gpu"]) > gpu_request:
             mem_request_max = math.floor(
-                (parse_quantity(node.status.capacity["memory"]) - mem_request)
+                (parse_quantity(node.status.allocatable["memory"]) - mem_request)
                 / (1024 * 1024 * 1024)
             )
             cpu_request_max = math.floor(
-                parse_quantity(node.status.capacity["cpu"]) - cpu_request
+                parse_quantity(node.status.allocatable["cpu"]) - cpu_request
             )
             gpu["mem_request_max"] = max(gpu["mem_request_max"], mem_request_max)
             gpu["cpu_request_max"] = max(gpu["cpu_request_max"], cpu_request_max)
