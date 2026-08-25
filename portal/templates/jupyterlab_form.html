@@ -252,24 +252,36 @@ block assets %}
             ></button>
           </div>
           <div v-if="gpus" class="modal-body">
-            <p>Here is a table of our GPUs and their availability.</p>
+            <p>
+              Here is a table of our GPUs and their availability. "Max CPU/Mem"
+              is the most you could request alongside this GPU on the single
+              most-open schedulable node of this type -- it is not a sum across
+              all matching nodes.
+            </p>
             <table class="table table-hover table-bordered nowrap w-100">
               <thead>
                 <tr>
                   <th>GPU</th>
                   <th>Count</th>
                   <th>Avail.</th>
-                  <th>Memory (MB)</th>
-                  <th>Max CPU Req</th>
-                  <th>Max Mem Req (GB)</th>
+                  <th>GPU Memory (GB)</th>
+                  <th>Max CPU/Node</th>
+                  <th>Max Mem/Node (GB)</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="gpu in gpus">
                   <td>[[ gpu.product ]]</td>
                   <td>[[ gpu.count ]]</td>
-                  <td>[[ gpu.available ]]</td>
-                  <td>[[ gpu.memory ]]</td>
+                  <td
+                    :class="{
+                      'text-danger': gpu.available === 0,
+                      'text-success': gpu.available > 0,
+                    }"
+                  >
+                    [[ gpu.available ]]
+                  </td>
+                  <td>[[ Math.round(gpu.memory / 1024) ]]</td>
                   <td>[[ gpu.cpu_request_max ]]</td>
                   <td>[[ gpu.mem_request_max ]]</td>
                 </tr>
