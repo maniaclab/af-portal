@@ -113,6 +113,13 @@ from kubernetes.utils.quantity import parse_quantity
 
 from portal.app import app, logger
 
+# Hard ceiling on notebook lifetime, enforced twice: decorators.validate_notebook
+# rejects any requested duration above this, and deploy_notebook additionally
+# sets the pod's activeDeadlineSeconds to this same cap so the kubelet kills
+# the pod regardless of what hours_remaining the request-time validation let
+# through (a backstop independent of application-level logic).
+MAX_LIFETIME_HOURS = 72
+
 namespace = app.config.get("NAMESPACE")
 kubeconfig = app.config.get("KUBECONFIG")
 
@@ -200,6 +207,7 @@ def deploy_notebook(**settings):
     """
     settings["namespace"] = namespace
     settings["domain_name"] = app.config["DOMAIN_NAME"]
+    settings["active_deadline_seconds"] = MAX_LIFETIME_HOURS * 3600
     settings["token"] = b64encode(os.urandom(32)).decode()
     settings["start_script"] = "/usr/local/bin/SetupPrivateJupyterLab.sh"
     settings["notebook_id"] = sanitize_k8s_pod_name(settings["notebook_id"])
