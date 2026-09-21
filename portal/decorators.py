@@ -236,6 +236,7 @@ def validate_notebook(fn):
             memory_request = int(request.form["memory"])
             gpu_request = int(request.form["gpu"])
             gpu_product_request = request.form["gpu-product"]
+            duration_request = int(request.form["duration"])
             if " " in notebook_name:
                 raise InvalidFormError(
                     "The notebook name cannot have whitespace characters."
@@ -257,6 +258,9 @@ def validate_notebook(fn):
                 raise InvalidFormError(msg)
             if gpu_request < 0 or gpu_request > 7:
                 msg = f"Requests must be between 0 and 7 GPUs. You requested {gpu_request}."
+                raise InvalidFormError(msg)
+            if duration_request < 1 or duration_request > jupyterlab.MAX_LIFETIME_HOURS:
+                msg = f"Requests must be between 1 and {jupyterlab.MAX_LIFETIME_HOURS} hours. You requested {duration_request}."
                 raise InvalidFormError(msg)
             # if not gpus:
             #    raise InvalidFormError('The GPU product is not supported.')
