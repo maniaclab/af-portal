@@ -15,6 +15,9 @@ spec:
   # regardless of hours_remaining (the label above), so a bypassed or buggy
   # request-time duration check can't produce an unkillable pod.
   activeDeadlineSeconds: {{active_deadline_seconds}}
+  # Notebooks never need Kubernetes API access; don't hand users the
+  # namespace's default ServiceAccount token.
+  automountServiceAccountToken: false
   {% if gpu_request %}
   nodeSelector:
     nvidia.com/gpu.product: "{{gpu_product}}"
