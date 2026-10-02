@@ -11,6 +11,11 @@ metadata:
   name: {{notebook_id}}
   namespace: {{namespace}}
 spec:
+  # Notebooks never call the Kubernetes API, so don't mount the namespace's
+  # default ServiceAccount token into them. This prevents a user with a shell
+  # in a notebook from harvesting the SA token and acting against the cluster
+  # API with whatever that SA is granted.
+  automountServiceAccountToken: false
   # Hard backstop: the kubelet kills this pod after MAX_LIFETIME_HOURS
   # regardless of hours_remaining (the label above), so a bypassed or buggy
   # request-time duration check can't produce an unkillable pod.
