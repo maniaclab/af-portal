@@ -451,6 +451,7 @@ def supported_cpu_images():
     """Returns a tuple of Docker images that are supported by the JupyterLab service for CPU-only notebooks."""
     return (
         "hub.opensciencegrid.org/usatlas/ml-platform-cpu:latest",
+        "hub.opensciencegrid.org/usatlas/ml-platform-cpu:2026.8",
         "hub.opensciencegrid.org/usatlas/ml-platform:2026.3",
     )
 
@@ -459,6 +460,7 @@ def supported_gpu_images():
     """Returns a tuple of Docker images that are supported by the JupyterLab service for GPU notebooks."""
     return (
         "hub.opensciencegrid.org/usatlas/ml-platform-gpu:latest",
+        "hub.opensciencegrid.org/usatlas/ml-platform-gpu:2026.8",
         "hub.opensciencegrid.org/usatlas/ml-platform:2026.3",
     )
 
