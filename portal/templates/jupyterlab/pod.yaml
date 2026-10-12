@@ -20,6 +20,20 @@ spec:
   # regardless of hours_remaining (the label above), so a bypassed or buggy
   # request-time duration check can't produce an unkillable pod.
   activeDeadlineSeconds: {{active_deadline_seconds}}
+  # DNS configuration should reflect what is in puppet for the login nodes
+  dnsPolicy: ClusterFirst
+  dnsConfig:
+    nameservers:
+      - 10.96.0.10
+      - 192.170.240.199
+      - 128.135.247.50
+      - 128.135.249.50
+    searches:
+      - cluster.local
+      - mwt2.org
+      - uchicago.edu
+      - iu.edu
+      - campuscluster.illinois.edu
   {% if gpu_request %}
   nodeSelector:
     nvidia.com/gpu.product: "{{gpu_product}}"
@@ -100,7 +114,7 @@ spec:
       emptyDir:
         medium: Memory
     - name: nfs-home
-      nfs: 
+      nfs:
         server: nfs.af.uchicago.edu
         path: /export/home
     - name: ceph-data
