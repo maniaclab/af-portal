@@ -94,6 +94,10 @@ spec:
         mountPropagation: HostToContainer
       - name: shm-volume
         mountPath: /dev/shm
+      - name: krb5-conf
+        mountPath: /etc/krb5.conf
+        subPath: krb5.conf
+        readOnly: true
   restartPolicy: Always
   volumes:
     - name: shm-volume
@@ -115,3 +119,6 @@ spec:
     - name: cvmfs
       persistentVolumeClaim:
         claimName: cvmfs
+    - name: krb5-conf
+      configMap:
+        name: krb5-conf
