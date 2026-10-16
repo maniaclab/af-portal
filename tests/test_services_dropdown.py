@@ -1,5 +1,6 @@
 """Integration tests that render the real portal/templates/services_dropdown.html."""
 
+import re
 from pathlib import Path
 
 import flask
@@ -35,6 +36,12 @@ def _render(flask_app, role, disabled):
         )
 
 
+def _labels(html) -> list[str]:
+    """Return the visible label of each Services dropdown item, in order."""
+    labels = re.findall(r'class="dropdown-item[^"]*"[^>]*>(.*?)</a', html, re.DOTALL)
+    return [" ".join(re.sub(r"<[^>]+>", "", label).split()) for label in labels]
+
+
 class TestServicesDropdown:
     @pytest.mark.parametrize("role", ["active", "admin"])
     def test_enabled_services_link_to_their_targets(self, flask_app, role):
@@ -63,3 +70,25 @@ class TestServicesDropdown:
         assert 'href="/jupyterlab"' in html
         assert 'aria-disabled="true"' not in html
         assert "Disabled for users" in html
+
+
+class TestServicesDropdownDeprecation:
+    @pytest.fixture
+    def services_items(self, flask_app) -> list[str]:
+        return _labels(_render(flask_app, "active", []))
+
+    def test_binderhub_listed_first(self, services_items):
+        assert services_items[0] == "BinderHub"
+
+    def test_jupyterlab_listed_after_binderhub(self, services_items):
+        jlab = next(i for i, s in enumerate(services_items) if "JupyterLab" in s)
+        assert jlab > services_items.index("BinderHub")
+
+    def test_jupyterlab_marked_deprecated(self, services_items):
+        jlab = next(s for s in services_items if "JupyterLab" in s)
+        assert "deprecated Dec 1st" in jlab
+
+    def test_jupyterlab_marked_deprecated_when_disabled(self, flask_app):
+        labels = _labels(_render(flask_app, "active", ["jupyterlab"]))
+        jlab = next(s for s in labels if "JupyterLab" in s)
+        assert "deprecated Dec 1st" in jlab
