@@ -29,6 +29,10 @@ class Service:
 SERVICES = (
     Service("binderhub", "BinderHub", url="https://binderhub.af.uchicago.edu/"),
     Service("coffea-casa", "Coffea Casa", url="https://coffea.af.uchicago.edu/"),
+    Service("servicex", "ServiceX", url="https://servicex.af.uchicago.edu"),
+    Service("assistant", "Assistant", endpoint="chat"),
+    Service("mcp-portal", "MCP Portal", url="https://mcp-portal.af.uchicago.edu/"),
+    Service("reana", "REANA", url="https://reana.af.uchicago.edu/"),
     Service(
         "jupyterlab",
         "JupyterLab",
@@ -36,10 +40,6 @@ SERVICES = (
         new_tab=False,
         note="(deprecated Dec 1st)",
     ),
-    Service("servicex", "ServiceX", url="https://servicex.af.uchicago.edu"),
-    Service("assistant", "Assistant", endpoint="chat"),
-    Service("mcp-portal", "MCP Portal", url="https://mcp-portal.af.uchicago.edu/"),
-    Service("reana", "REANA", url="https://reana.af.uchicago.edu/"),
 )
 
 _SERVICES_BY_KEY = {service.key: service for service in SERVICES}
