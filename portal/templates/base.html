@@ -182,8 +182,9 @@
                   <li>
                     <a
                       class="dropdown-item"
-                      href="{{ url_for('open_jupyterlab') }}"
-                      >JupyterLab</a
+                      href="https://binderhub.af.uchicago.edu/"
+                      target="_blank"
+                      >BinderHub</a
                     >
                   </li>
                   <li>
@@ -192,14 +193,6 @@
                       href="https://coffea.af.uchicago.edu/"
                       target="_blank"
                       >Coffea Casa</a
-                    >
-                  </li>
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="https://binderhub.af.uchicago.edu/"
-                      target="_blank"
-                      >BinderHub</a
                     >
                   </li>
                   <li>
@@ -232,6 +225,14 @@
                       href="https://reana.af.uchicago.edu/"
                       target="_blank"
                       >REANA</a
+                    >
+                  </li>
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      href="{{ url_for('open_jupyterlab') }}"
+                      >JupyterLab
+                      <small class="text-muted">(deprecated Dec 1st)</small></a
                     >
                   </li>
                 </ul>
