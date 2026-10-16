@@ -213,6 +213,23 @@ def deploy_notebook(**settings):
     settings["notebook_id"] = sanitize_k8s_pod_name(settings["notebook_id"])
     templates = Environment(loader=FileSystemLoader("portal/templates/jupyterlab"))
     api = client.CoreV1Api(api_client)
+    # Ensure the shared krb5.conf ConfigMap exists before the pod references it
+    # as a volume. It holds identical content for every notebook, so it is a
+    # single namespace-scoped object (create-or-patch) rather than one per pod,
+    # and remove_notebook intentionally leaves it in place for other notebooks.
+    template = templates.get_template("configmap.yaml")
+    configmap = yaml.safe_load(template.render(**settings))
+    try:
+        api.create_namespaced_config_map(namespace=namespace, body=configmap)
+    except ApiException as e:
+        if e.status == 409:
+            api.patch_namespaced_config_map(
+                name=configmap["metadata"]["name"],
+                namespace=namespace,
+                body=configmap,
+            )
+        else:
+            raise
     # Create a pod for the notebook (the notebook runs as a container inside the pod)
     template = templates.get_template("pod.yaml")
     pod = yaml.safe_load(template.render(**settings))
