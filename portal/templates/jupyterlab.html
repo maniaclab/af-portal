@@ -10,6 +10,17 @@ body %}
         <li class="breadcrumb-item active" aria-current="page">JupyterLab</li>
       </ol>
     </nav>
+    <div class="alert alert-warning" role="alert">
+      <strong>JupyterLab on the AF Portal is deprecated</strong> and will be
+      removed on December 1st. Please use
+      <a
+        class="alert-link"
+        href="https://binderhub.af.uchicago.edu/"
+        target="_blank"
+        >BinderHub</a
+      >
+      instead.
+    </div>
     <a
       href="{{ url_for('configure_notebook') }}"
       class="btn btn-sm btn-primary mb-4"
