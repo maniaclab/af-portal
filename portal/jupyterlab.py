@@ -230,26 +230,8 @@ def deploy_notebook(**settings):
             )
         else:
             raise
-    # Create a pod for the notebook (the notebook runs as a container inside the pod)
-    template = templates.get_template("pod.yaml")
-    pod = yaml.safe_load(template.render(**settings))
-    api.create_namespaced_pod(namespace=namespace, body=pod)
-    # Create a service for the pod
-    template = templates.get_template("service.yaml")
-    service = yaml.safe_load(template.render(**settings))
-    # api.create_namespaced_service(namespace=namespace, body=service)
-    try:
-        api.create_namespaced_service(namespace=namespace, body=service)
-    except ApiException as e:
-        if e.status == 409:
-            api.patch_namespaced_service(
-                name=service["metadata"]["name"],
-                namespace=namespace,
-                body=service,
-            )
-        else:
-            raise
-    # Store the JupyterLab token in a secret
+    # Store the JupyterLab token in a secret. Created before the pod, which
+    # reads JUPYTER_TOKEN from it.
     template = templates.get_template("secret.yaml")
     secret = yaml.safe_load(template.render(**settings))
     # api.create_namespaced_secret(namespace=namespace, body=secret)
@@ -262,6 +244,27 @@ def deploy_notebook(**settings):
                 namespace=namespace,
                 body=secret,
             )
+        else:
+            raise
+    # Create a pod for the notebook (the notebook runs as a container inside the pod)
+    template = templates.get_template("pod.yaml")
+    pod = yaml.safe_load(template.render(**settings))
+    api.create_namespaced_pod(namespace=namespace, body=pod)
+    # Create a service for the pod
+    template = templates.get_template("service.yaml")
+    service = yaml.safe_load(template.render(**settings))
+    # api.create_namespaced_service(namespace=namespace, body=service)
+    try:
+        api.create_namespaced_service(namespace=namespace, body=service)
+    except ApiException as e:
+        if e.status == 409:
+            # A leftover service with this name may still be a NodePort, and a
+            # patch can't turn it into a ClusterIP while its nodePort is set,
+            # so replace it.
+            api.delete_namespaced_service(
+                name=service["metadata"]["name"], namespace=namespace
+            )
+            api.create_namespaced_service(namespace=namespace, body=service)
         else:
             raise
     # Create an ingress for the service (gives the notebook its own domain name and public key certificate)

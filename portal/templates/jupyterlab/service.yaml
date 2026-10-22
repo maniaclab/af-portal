@@ -11,4 +11,6 @@ spec:
   ports:
   - port: 80
     targetPort: 9999
-  type: NodePort
+  # ClusterIP, not NodePort: the notebook is reached only through its ingress
+  # (TLS). A NodePort exposed it over plain HTTP on every node's public IP.
+  type: ClusterIP
