@@ -382,6 +382,7 @@ class TestNotebookExposure:
         assert core.create_namespaced_service.call_count == 2
         core.patch_namespaced_service.assert_not_called()
 
+
 class TestDeployNotebookPodResources:
     def test_pod_resource_quantities_are_strings(self, jupyterlab, monkeypatch):
         """deploy_notebook() renders pod.yaml through yaml.safe_load; int CPU/GPU
