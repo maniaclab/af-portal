@@ -52,8 +52,13 @@ spec:
     # - /.run
     - {{start_script}}
     env:
+    # Read from the notebook's Secret rather than set inline: inline values are
+    # part of the pod spec, which anyone able to read pods can see.
     - name: "JUPYTER_TOKEN"
-      value: {{token}}
+      valueFrom:
+        secretKeyRef:
+          name: {{notebook_id}}
+          key: jupyter-token
     - name: API_TOKEN
       valueFrom:
         secretKeyRef:
@@ -81,10 +86,13 @@ spec:
         memory: {{memory_request}}
         nvidia.com/gpu: "{{gpu_request}}"
     volumeMounts:
+      # Only the owner's own home and data directories, not every user's.
       - name: nfs-home
-        mountPath: /home
+        mountPath: "/home/{{owner}}"
+        subPath: "{{owner}}"
       - name: ceph-data
-        mountPath: /data
+        mountPath: "/data/{{owner}}"
+        subPath: "{{owner}}"
       - name: ceph-work
         mountPath: /work
       - name: ceph-cold

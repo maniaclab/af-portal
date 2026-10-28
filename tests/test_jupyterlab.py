@@ -9,6 +9,7 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
+import yaml
 
 PORTAL_DIR = Path(__file__).parent.parent / "portal"
 
@@ -260,6 +261,126 @@ class TestGpuAvailability:
         gpu = result[0]
         assert gpu["mem_request_max"] == 8
         assert gpu["cpu_request_max"] == 4
+
+
+NOTEBOOK_SETTINGS = {
+    "notebook_name": "My Notebook",
+    "notebook_id": "alice-notebook-1",
+    "image": "example.org/ml-platform:latest",
+    "owner": "alice",
+    "owner_uid": 12345,
+    "globus_id": "00000000-0000-0000-0000-000000000000",
+    "cpu_request": 1,
+    "cpu_limit": 2,
+    "memory_request": "4Gi",
+    "memory_limit": "8Gi",
+    "gpu_request": 0,
+    "gpu_limit": 0,
+    "gpu_product": "",
+    "hours_remaining": 24,
+}
+
+
+class TestNotebookExposure:
+    """Notebooks must be reachable only through their TLS ingress, keep their
+    token out of the pod spec, and mount only the owner's own /home and /data."""
+
+    @pytest.fixture
+    def deployed(self, jupyterlab, monkeypatch):
+        """Run deploy_notebook against mocked Kubernetes APIs; return the call log."""
+        monkeypatch.chdir(PORTAL_DIR.parent)
+        monkeypatch.setitem(
+            jupyterlab.app.config, "DOMAIN_NAME", "notebook.example.org"
+        )
+        monkeypatch.setattr(jupyterlab, "namespace", "af-jupyter")
+        calls = []
+
+        def recorder(name):
+            def record(*args, **kwargs):
+                calls.append((name, kwargs.get("body")))
+
+            return record
+
+        core = MagicMock()
+        for method in (
+            "create_namespaced_config_map",
+            "create_namespaced_secret",
+            "create_namespaced_pod",
+            "create_namespaced_service",
+        ):
+            setattr(core, method, recorder(method))
+        monkeypatch.setattr(jupyterlab.client, "CoreV1Api", lambda *a, **k: core)
+        monkeypatch.setattr(
+            jupyterlab.client, "NetworkingV1Api", lambda *a, **k: MagicMock()
+        )
+        monkeypatch.setattr(jupyterlab.os, "urandom", lambda n: b"\x01" * n)
+
+        jupyterlab.deploy_notebook(**dict(NOTEBOOK_SETTINGS))
+        return calls
+
+    @staticmethod
+    def _body(calls, method):
+        return next(body for name, body in calls if name == method)
+
+    def test_service_is_cluster_ip(self, deployed):
+        assert (
+            self._body(deployed, "create_namespaced_service")["spec"]["type"]
+            == "ClusterIP"
+        )
+
+    def test_token_is_not_in_the_pod_spec(self, deployed):
+        token = self._body(deployed, "create_namespaced_secret")["stringData"][
+            "jupyter-token"
+        ]
+        pod = self._body(deployed, "create_namespaced_pod")
+        assert token not in yaml.safe_dump(pod)
+        env = {e["name"]: e for e in pod["spec"]["containers"][0]["env"]}
+        assert env["JUPYTER_TOKEN"]["valueFrom"]["secretKeyRef"] == {
+            "name": "alice-notebook-1",
+            "key": "jupyter-token",
+        }
+
+    def test_secret_keeps_the_url_token_and_adds_the_pod_token(self, deployed):
+        secret = self._body(deployed, "create_namespaced_secret")
+        assert secret["data"]["token"] == secret["stringData"]["jupyter-token"]
+
+    def test_secret_is_created_before_the_pod(self, deployed):
+        order = [name for name, _ in deployed]
+        assert order.index("create_namespaced_secret") < order.index(
+            "create_namespaced_pod"
+        )
+
+    def test_only_the_owners_home_and_data_are_mounted(self, deployed):
+        pod = self._body(deployed, "create_namespaced_pod")
+        mounts = {m["name"]: m for m in pod["spec"]["containers"][0]["volumeMounts"]}
+        assert mounts["nfs-home"]["mountPath"] == "/home/alice"
+        assert mounts["nfs-home"]["subPath"] == "alice"
+        assert mounts["ceph-data"]["mountPath"] == "/data/alice"
+        assert mounts["ceph-data"]["subPath"] == "alice"
+
+    def test_leftover_service_is_replaced_not_patched(self, jupyterlab, monkeypatch):
+        monkeypatch.chdir(PORTAL_DIR.parent)
+        monkeypatch.setitem(
+            jupyterlab.app.config, "DOMAIN_NAME", "notebook.example.org"
+        )
+        monkeypatch.setattr(jupyterlab, "namespace", "af-jupyter")
+        core = MagicMock()
+        core.create_namespaced_service.side_effect = [
+            jupyterlab.ApiException(status=409),
+            None,
+        ]
+        monkeypatch.setattr(jupyterlab.client, "CoreV1Api", lambda *a, **k: core)
+        monkeypatch.setattr(
+            jupyterlab.client, "NetworkingV1Api", lambda *a, **k: MagicMock()
+        )
+
+        jupyterlab.deploy_notebook(**dict(NOTEBOOK_SETTINGS))
+
+        core.delete_namespaced_service.assert_called_once_with(
+            name="alice-notebook-1", namespace="af-jupyter"
+        )
+        assert core.create_namespaced_service.call_count == 2
+        core.patch_namespaced_service.assert_not_called()
 
 
 class TestDeployNotebookPodResources:
