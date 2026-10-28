@@ -260,3 +260,40 @@ class TestGpuAvailability:
         gpu = result[0]
         assert gpu["mem_request_max"] == 8
         assert gpu["cpu_request_max"] == 4
+
+
+class TestDeployNotebookPodResources:
+    def test_pod_resource_quantities_are_strings(self, jupyterlab, monkeypatch):
+        """deploy_notebook() renders pod.yaml through yaml.safe_load; int CPU/GPU
+        settings must still reach create_namespaced_pod as strings, since the
+        kubernetes client rejects non-string resource quantities."""
+        mock_api = MagicMock()
+        monkeypatch.setattr(jupyterlab.client, "CoreV1Api", lambda *_: mock_api)
+        monkeypatch.setattr(
+            jupyterlab.client, "NetworkingV1Api", lambda *_: MagicMock()
+        )
+        monkeypatch.setitem(jupyterlab.app.config, "DOMAIN_NAME", "af.example.org")
+        monkeypatch.chdir(PORTAL_DIR.parent)
+
+        jupyterlab.deploy_notebook(
+            notebook_name="MyNotebook",
+            notebook_id="mynotebook",
+            image="ml-platform:latest",
+            owner="myusername",
+            owner_uid=2468,
+            globus_id="globus-id",
+            cpu_request=1,
+            cpu_limit=2,
+            memory_request="1Gi",
+            memory_limit="2Gi",
+            gpu_request=0,
+            gpu_limit=0,
+            gpu_product=None,
+            hours_remaining=8,
+        )
+
+        pod = mock_api.create_namespaced_pod.call_args.kwargs["body"]
+        resources = pod["spec"]["containers"][0]["resources"]
+        for section in ("limits", "requests"):
+            for name, quantity in resources[section].items():
+                assert isinstance(quantity, str), f"{section}.{name}={quantity!r}"
