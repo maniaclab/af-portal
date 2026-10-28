@@ -4,10 +4,16 @@ from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 from jinja2_markdown import MarkdownExtension
 
-from portal import downtime
+from portal import downtime, services
 
 app = Flask(__name__)
 app.config.from_pyfile("secrets/portal.conf")
+# FLASK_* env vars (JSON-decoded) override portal.conf, so the deployment can
+# toggle settings like FLASK_DISABLED_SERVICES without re-sealing the secret.
+app.config.from_prefixed_env()
+app.config["DISABLED_SERVICES"] = services.parse_disabled_services(
+    app.config.get("DISABLED_SERVICES", [])
+)
 app.jinja_env.add_extension(MarkdownExtension)
 csrf = CSRFProtect(app)
 

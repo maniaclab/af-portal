@@ -1,0 +1,25 @@
+{% set is_admin = session.get("role") == "admin" %} {% for service in services
+%} {% set disabled = service.key in disabled_services %}
+<li>
+  {% if disabled and not is_admin %}
+  <a class="dropdown-item disabled" aria-disabled="true"
+    >{{ service.label }} (unavailable)</a
+  >
+  {% else %}
+  <a
+    class="dropdown-item"
+    href="{{ url_for(service.endpoint) if service.endpoint else service.url }}"
+    {%
+    if
+    service.new_tab
+    %}target="_blank"
+    {%
+    endif
+    %}
+    >{{ service.label }}{% if disabled %}
+    <span class="badge text-bg-secondary">Disabled for users</span>{% endif
+    %}</a
+  >
+  {% endif %}
+</li>
+{% endfor %}

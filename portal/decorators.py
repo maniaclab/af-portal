@@ -111,9 +111,17 @@ import string
 import time
 from functools import wraps
 
-from flask import flash, redirect, render_template, request, session, url_for
+from flask import (
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 
-from portal import connect, jupyterlab
+from portal import connect, jupyterlab, services
 from portal.app import logger
 from portal.errors import InvalidFormError, InvalidParameter, MissingParameter
 
@@ -198,6 +206,15 @@ def members_only(fn):
     return inner
 
 
+def _session_role():
+    """Looks up the session user's current role, so a revoked admin loses access immediately."""
+    unix_name = session.get("unix_name")
+    if not unix_name:
+        return "nonmember"
+    profile = connect.get_user_profile(unix_name)
+    return profile["role"] if profile else "nonmember"
+
+
 def admins_only(fn):
     """Requires the session user to be an admin."""
 
@@ -205,15 +222,32 @@ def admins_only(fn):
     def inner(*args, **kwargs):
         if not session.get("is_authenticated"):
             return redirect(url_for("login", next=request.url))
-        unix_name = session.get("unix_name")
-        if unix_name:
-            profile = connect.get_user_profile(unix_name)
-            role = profile["role"] if profile else "nonmember"
-            if role == "admin":
-                return fn(*args, **kwargs)
+        if _session_role() == "admin":
+            return fn(*args, **kwargs)
         return render_template("404.html")
 
     return inner
+
+
+def service_enabled(key):
+    """A function that returns a decorator. The decorator turns non-admins away from a service listed in DISABLED_SERVICES."""
+    # Look the service up now so a mistyped key fails at import time, not on the first request.
+    service = services.get(key)
+
+    def outer(fn):
+        @wraps(fn)
+        def inner(*args, **kwargs):
+            if (
+                key in current_app.config["DISABLED_SERVICES"]
+                and _session_role() != "admin"
+            ):
+                flash(f"{service.label} is temporarily unavailable.", "warning")
+                return redirect(url_for("home"))
+            return fn(*args, **kwargs)
+
+        return inner
+
+    return outer
 
 
 def validate_notebook(fn):

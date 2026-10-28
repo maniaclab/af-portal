@@ -25,6 +25,7 @@ def _install_fake_portal_package():
     sys.modules["portal.app"] = fake_app_module
 
     fake_connect_module = types.ModuleType("portal.connect")
+    fake_connect_module.get_user_profile = MagicMock(return_value=None)
     sys.modules["portal.connect"] = fake_connect_module
 
     fake_jupyterlab_module = types.ModuleType("portal.jupyterlab")
@@ -61,6 +62,11 @@ def decorators():
 def flask_app():
     app = flask.Flask(__name__)
     app.secret_key = "test-secret"
+    app.config["DISABLED_SERVICES"] = frozenset()
+
+    @app.route("/")
+    def home():
+        return "home"
 
     @app.route("/jupyterlab/configure")
     def configure_notebook():
@@ -120,3 +126,78 @@ class TestValidateNotebookDuration:
             view()
 
             assert called == [True]
+
+
+class TestServiceEnabled:
+    """Non-admins are turned away from a service listed in DISABLED_SERVICES.
+    Greying out the navbar link is not enough because users can still type
+    the URL, so the route itself must refuse the request."""
+
+    @pytest.fixture
+    def profile(self, decorators):
+        """Return the connect.get_user_profile stub and reset it afterwards."""
+        stub = sys.modules["portal.connect"].get_user_profile
+        yield stub
+        stub.reset_mock(return_value=True)
+        stub.return_value = None
+
+    def _call(self, decorators, flask_app, disabled):
+        flask_app.config["DISABLED_SERVICES"] = frozenset(disabled)
+        with flask_app.test_request_context("/jupyterlab"):
+            flask.session["is_authenticated"] = True
+            flask.session["unix_name"] = "jdoe"
+            called = []
+
+            @decorators.service_enabled("jupyterlab")
+            def view():
+                called.append(True)
+                return "ok"
+
+            response = view()
+            return called, response, flask.get_flashed_messages(with_categories=True)
+
+    @pytest.mark.parametrize("role", ["active", "admin"])
+    def test_enabled_service_is_allowed(self, decorators, flask_app, profile, role):
+        profile.return_value = {"role": role}
+        called, response, flashes = self._call(decorators, flask_app, [])
+        assert called == [True]
+        assert response == "ok"
+        assert flashes == []
+
+    @pytest.mark.parametrize("role", ["active", "pending", "nonmember"])
+    def test_disabled_service_rejects_non_admin(
+        self, decorators, flask_app, profile, role
+    ):
+        profile.return_value = {"role": role}
+        called, response, flashes = self._call(decorators, flask_app, ["jupyterlab"])
+        assert called == []
+        assert response.status_code == 302
+        assert response.location == "/"
+        assert flashes == [("warning", "JupyterLab is temporarily unavailable.")]
+
+    def test_disabled_service_rejects_user_without_profile(
+        self, decorators, flask_app, profile
+    ):
+        profile.return_value = None
+        called, response, _ = self._call(decorators, flask_app, ["jupyterlab"])
+        assert called == []
+        assert response.status_code == 302
+
+    def test_disabled_service_allows_admin(self, decorators, flask_app, profile):
+        profile.return_value = {"role": "admin"}
+        called, response, flashes = self._call(decorators, flask_app, ["jupyterlab"])
+        assert called == [True]
+        assert response == "ok"
+        assert flashes == []
+        profile.assert_called_once_with("jdoe")
+
+    def test_other_disabled_service_does_not_block(
+        self, decorators, flask_app, profile
+    ):
+        profile.return_value = {"role": "active"}
+        called, _, _ = self._call(decorators, flask_app, ["reana"])
+        assert called == [True]
+
+    def test_unknown_service_key_fails_at_decoration(self, decorators):
+        with pytest.raises(KeyError):
+            decorators.service_enabled("not-a-service")
