@@ -73,13 +73,13 @@ spec:
     - containerPort: 9999
     resources:
       limits:
-        cpu: {{cpu_limit}}
+        cpu: "{{cpu_limit}}"
         memory: {{memory_limit}}
-        nvidia.com/gpu: {{gpu_limit}}
+        nvidia.com/gpu: "{{gpu_limit}}"
       requests:
-        cpu: {{cpu_request}}
+        cpu: "{{cpu_request}}"
         memory: {{memory_request}}
-        nvidia.com/gpu: {{gpu_request}}
+        nvidia.com/gpu: "{{gpu_request}}"
     volumeMounts:
       - name: nfs-home
         mountPath: /home
