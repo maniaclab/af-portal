@@ -21,7 +21,7 @@ import globus_sdk
 from flask import flash, jsonify, redirect, render_template, request, session, url_for
 from flask_qrcode import QRcode
 
-from portal import connect, decorators, downtime, email, jupyterlab, math
+from portal import connect, decorators, downtime, email, jupyterlab, math, services
 from portal.app import app, logger
 from portal.errors import ConnectApiError
 
@@ -69,6 +69,14 @@ Institution: {profile["institution"]}
     logger.info("[email-job] Email sent successfully!")
 
 
+@app.context_processor
+def inject_services():
+    return {
+        "services": services.SERVICES,
+        "disabled_services": app.config["DISABLED_SERVICES"],
+    }
+
+
 @app.route("/")
 def home():
     return render_template("home.html", downtimes=downtime.get_downtimes())
@@ -81,6 +89,7 @@ def about():
 
 @app.route("/chat")
 @decorators.login_required
+@decorators.service_enabled("assistant")
 def chat():
     unix_name = session.get("unix_name")
     return render_template("chat.html", unix_name=unix_name)
@@ -292,12 +301,14 @@ def aup():
 
 @app.route("/jupyterlab")
 @decorators.members_only
+@decorators.service_enabled("jupyterlab")
 def open_jupyterlab():
     return render_template("jupyterlab.html", base_url=url_for("open_jupyterlab"))
 
 
 @app.route("/jupyterlab/get_notebooks")
 @decorators.members_only
+@decorators.service_enabled("jupyterlab")
 def get_notebooks():
     username = session["unix_name"]
     notebooks = jupyterlab.get_notebooks(owner=username, url=True)
@@ -306,6 +317,7 @@ def get_notebooks():
 
 @app.route("/jupyterlab/configure")
 @decorators.members_only
+@decorators.service_enabled("jupyterlab")
 def configure_notebook():
     username = session["unix_name"]
     notebook_name = jupyterlab.generate_notebook_name(username)
@@ -322,6 +334,7 @@ def configure_notebook():
 
 @app.route("/jupyterlab/deploy", methods=["POST"])
 @decorators.members_only
+@decorators.service_enabled("jupyterlab")
 @decorators.validate_notebook
 def deploy_notebook():
     settings = {
@@ -346,6 +359,7 @@ def deploy_notebook():
 
 @app.route("/jupyterlab/remove/<notebook>")
 @decorators.members_only
+@decorators.service_enabled("jupyterlab")
 def remove_notebook(notebook):
     pod = jupyterlab.get_pod(notebook)
     if (
