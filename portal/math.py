@@ -17,7 +17,7 @@ def plot_users_over_time():
 
     # Naive datetimes on purpose: join_date values from connect.get_user_profiles() are
     # also naive, and this range only feeds a matplotlib x-axis, not a timezone-sensitive comparison.
-    datemin = datetime(2021, 7, 1)  # noqa: DTZ001
+    datemin = datetime(2021, 7, 1)
     datemax = datetime.today()  # noqa: DTZ002
 
     dates = pd.date_range(datemin, datemax, freq="MS").to_pydatetime().tolist()
