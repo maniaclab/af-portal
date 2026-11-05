@@ -83,6 +83,17 @@ class TestServicesDropdownDeprecation:
     def test_binderhub_listed_first(self, services_items):
         assert services_items[0] == "BinderHub"
 
+    def test_services_listed_in_facility_order(self, services_items):
+        assert services_items == [
+            "BinderHub",
+            "ServiceX",
+            "MCP Portal",
+            "Coffea Casa",
+            "REANA",
+            "Assistant",
+            "JupyterLab (deprecated Dec 1st)",
+        ]
+
     def test_jupyterlab_listed_last(self, services_items):
         assert "JupyterLab" in services_items[-1]
 
