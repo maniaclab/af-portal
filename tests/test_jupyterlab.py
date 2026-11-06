@@ -99,8 +99,8 @@ class TestRunNotebookMaintenance:
     expired notebooks and returns (no infinite loop)."""
 
     def test_removes_only_expired_notebooks_in_one_pass(self, jupyterlab, monkeypatch):
-        past = datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
-        future = datetime.datetime(2999, 1, 1, tzinfo=datetime.timezone.utc)
+        past = datetime.datetime(2000, 1, 1, tzinfo=datetime.UTC)
+        future = datetime.datetime(2999, 1, 1, tzinfo=datetime.UTC)
 
         expired = MagicMock()
         expired.metadata.name = "old-notebook"

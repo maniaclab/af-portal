@@ -149,7 +149,7 @@ def run_notebook_maintenance():
     pods = api.list_namespaced_pod(namespace, label_selector="k8s-app=jupyterlab").items
     for pod in pods:
         exp_date = get_expiration_date(pod)
-        if exp_date and exp_date < datetime.datetime.now(datetime.timezone.utc):
+        if exp_date and exp_date < datetime.datetime.now(datetime.UTC):
             logger.info(f"Notebook {pod.metadata.name} has expired")
             remove_notebook(pod.metadata.name)
 
@@ -313,7 +313,7 @@ def get_notebook(name=None, pod=None, **options):
         notebook["pod_status"] = pod.status.phase
         notebook["creation_date"] = pod.metadata.creation_timestamp.isoformat()
         expiration_date = get_expiration_date(pod)
-        time_remaining = expiration_date - datetime.datetime.now(datetime.timezone.utc)
+        time_remaining = expiration_date - datetime.datetime.now(datetime.UTC)
         notebook["expiration_date"] = expiration_date.isoformat()
         notebook["hours_remaining"] = int(time_remaining.total_seconds() / 3600)
         notebook["requests"] = pod.spec.containers[0].resources.requests
