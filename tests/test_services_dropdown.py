@@ -91,18 +91,18 @@ class TestServicesDropdownDeprecation:
             "Coffea Casa",
             "REANA",
             "Assistant",
-            "JupyterLab (deprecated Dec 1st)",
+            "JupyterLab (retired)",
         ]
 
     def test_jupyterlab_listed_last(self, services_items):
         assert "JupyterLab" in services_items[-1]
 
-    def test_jupyterlab_marked_deprecated(self, services_items):
-        assert "deprecated Dec 1st" in services_items[-1]
+    def test_jupyterlab_marked_retired(self, services_items):
+        assert "(retired)" in services_items[-1]
 
-    def test_jupyterlab_marked_deprecated_when_disabled(self, flask_app):
+    def test_jupyterlab_marked_retired_when_disabled(self, flask_app):
         labels = _labels(_render(flask_app, "active", ["jupyterlab"]))
-        assert "deprecated Dec 1st" in labels[-1]
+        assert "(retired)" in labels[-1]
 
 
 class TestJupyterLabDeprecationBanner:
@@ -112,7 +112,8 @@ class TestJupyterLabDeprecationBanner:
 
     def test_banner_present(self, html):
         assert 'class="alert alert-warning"' in html
-        assert "December 1st" in html
+        assert "is retired" in html
+        assert "December 1st" not in html
 
     def test_banner_links_to_binderhub(self, html):
         assert f'href="{BINDERHUB_URL}"' in html

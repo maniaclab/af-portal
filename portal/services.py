@@ -38,7 +38,7 @@ SERVICES = (
         "JupyterLab",
         endpoint="open_jupyterlab",
         new_tab=False,
-        note="(deprecated Dec 1st)",
+        note="(retired)",
     ),
 )
 
