@@ -22,16 +22,24 @@ class Service:
     endpoint: str | None = None
     url: str | None = None
     new_tab: bool = True
+    # Muted text shown after the label, e.g. to warn that a service is deprecated.
+    note: str | None = None
 
 
 SERVICES = (
-    Service("jupyterlab", "JupyterLab", endpoint="open_jupyterlab", new_tab=False),
-    Service("coffea-casa", "Coffea Casa", url="https://coffea.af.uchicago.edu/"),
     Service("binderhub", "BinderHub", url="https://binderhub.af.uchicago.edu/"),
     Service("servicex", "ServiceX", url="https://servicex.af.uchicago.edu"),
-    Service("assistant", "Assistant", endpoint="chat"),
     Service("mcp-portal", "MCP Portal", url="https://mcp-portal.af.uchicago.edu/"),
+    Service("coffea-casa", "Coffea Casa", url="https://coffea.af.uchicago.edu/"),
     Service("reana", "REANA", url="https://reana.af.uchicago.edu/"),
+    Service("assistant", "Assistant", endpoint="chat"),
+    Service(
+        "jupyterlab",
+        "JupyterLab",
+        endpoint="open_jupyterlab",
+        new_tab=False,
+        note="(retired)",
+    ),
 )
 
 _SERVICES_BY_KEY = {service.key: service for service in SERVICES}

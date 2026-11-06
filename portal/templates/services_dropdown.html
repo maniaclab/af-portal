@@ -3,7 +3,8 @@
 <li>
   {% if disabled and not is_admin %}
   <a class="dropdown-item disabled" aria-disabled="true"
-    >{{ service.label }} (unavailable)</a
+    >{{ service.label }} (unavailable){% if service.note %}
+    <small class="text-muted">{{ service.note }}</small>{% endif %}</a
   >
   {% else %}
   <a
@@ -16,7 +17,9 @@
     {%
     endif
     %}
-    >{{ service.label }}{% if disabled %}
+    >{{ service.label }}{% if service.note %}
+    <small class="text-muted">{{ service.note }}</small>{% endif %}{% if
+    disabled %}
     <span class="badge text-bg-secondary">Disabled for users</span>{% endif
     %}</a
   >
